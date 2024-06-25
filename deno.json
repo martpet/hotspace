@@ -6,5 +6,15 @@
     "deno-dom": "https://deno.land/x/deno_dom@v0.1.47/deno-dom-wasm.ts",
     "pretty": "npm:pretty@2.0.0",
     "file-server": "jsr:@std/http/file-server"
+  },
+  "compilerOptions": {
+    "target": "esnext",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "dom.asynciterable",
+      "deno.ns",
+      "deno.unstable"
+    ]
   }
 }
