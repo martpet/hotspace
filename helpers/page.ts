@@ -5,7 +5,7 @@ export default function page(content: string) {
   const document = new DOMParser().parseFromString(
     `<html lang="en">
       <head>
-        <meta charset="utf-8" />
+        <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="color-scheme" content="dark light" />
         <link rel="icon" href="/static/favicon.ico" />
@@ -16,5 +16,7 @@ export default function page(content: string) {
   );
   const html = `<!DOCTYPE html>${document.documentElement?.outerHTML}`;
   const prettyHtml = pretty(html, { ocd: true });
-  return new Response(prettyHtml, { headers: { "content-type": "text/html" } });
+  return new Response(prettyHtml, {
+    headers: { "content-type": "text/html" },
+  });
 }

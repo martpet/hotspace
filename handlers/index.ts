@@ -1,6 +1,6 @@
-import type { HandlersByPathname } from "../types.ts";
+import type { RoutesHandlers } from "../types.ts";
 import { home } from "./home.tsx";
 
-export const handlers: HandlersByPathname = {
+export const handlers: RoutesHandlers = {
   "/": home,
 };

@@ -3,14 +3,14 @@ export interface Context {
   url: URL;
 }
 
-export type Handler = (ctx: Context) =>
+type Handler = (ctx: Context) =>
   | Response
   | Promise<Response>
   | string
   | Promise<string>;
 
-export type HandlersByPathname = {
-  [pathname: string]:
+export type RoutesHandlers = {
+  [path: string]:
     | Handler
-    | { [requestMethod: string]: Handler };
+    | { [method: string]: Handler };
 };

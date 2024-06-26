@@ -1,7 +1,7 @@
 import { serveFile } from "file-server";
 import { handlers } from "./handlers/index.ts";
 import { error404 } from "./handlers/404.ts";
-import page from "./util/page.ts";
+import page from "./helpers/page.ts";
 import type { Context } from "./types.ts";
 
 export async function router(ctx: Context) {

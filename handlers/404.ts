@@ -1,4 +1,4 @@
-import page from "../util/page.ts";
+import page from "../helpers/page.ts";
 import type { Context } from "../types.ts";
 
 export function error404(ctx: Context) {
