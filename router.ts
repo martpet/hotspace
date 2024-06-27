@@ -1,36 +1,22 @@
 import { serveFile } from "file-server";
-import { handlers } from "./handlers/index.ts";
-import { error404 } from "./handlers/404.ts";
-import page from "./helpers/page.ts";
-import type { Context } from "./types.ts";
+import { resp404 } from "./helpers/resp404.ts";
+import { routes } from "./routes/index.ts";
+import { htmlPage } from "./helpers/htmlPage.ts";
 
-export async function router(ctx: Context) {
-  const { req, url } = ctx;
+export async function router(req: Request) {
+  const { pathname } = new URL(req.url);
 
-  // Static files
-  if (url.pathname.startsWith("/static")) {
-    const filePath = `${Deno.cwd()}/${url.pathname}`;
-    return serveFile(req, filePath);
+  if (pathname.startsWith("/static")) {
+    return serveFile(req, "." + pathname);
   }
 
-  // Routes
-  let handler;
-  const handlerOrObj = handlers[url.pathname];
-
-  if (typeof handlerOrObj === "function") {
-    handler = handlerOrObj;
-  } else if (typeof handlerOrObj === "object") {
-    handler = handlerOrObj[req.method];
-  }
+  const handler = routes[pathname];
+  const ctx = { req };
 
   if (handler) {
-    const respOrHtml = await handler(ctx);
-    if (typeof respOrHtml === "string") {
-      return page(respOrHtml);
-    }
-    return respOrHtml;
+    const resp = await handler(ctx);
+    return typeof resp === "string" ? htmlPage(resp) : resp;
   }
 
-  // 404
-  return error404(ctx);
+  return resp404(ctx);
 }

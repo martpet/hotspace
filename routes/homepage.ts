@@ -1,4 +1,4 @@
-export function home() {
+export function homepage() {
   return `
     <title>Hello World!</title>
     <script type="module" src="/static/widget.js"></script>

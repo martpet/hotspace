@@ -1,8 +1,8 @@
 import { DOMParser } from "deno-dom";
 import pretty from "pretty";
 
-export default function page(content: string) {
-  const document = new DOMParser().parseFromString(
+export function htmlPage(content: string) {
+  const { documentElement } = new DOMParser().parseFromString(
     `<html lang="en">
       <head>
         <meta charset="UTF-8">
@@ -14,9 +14,8 @@ export default function page(content: string) {
     </html>`,
     "text/html",
   );
-  const html = `<!DOCTYPE html>${document.documentElement?.outerHTML}`;
+
+  const html = `<!DOCTYPE html>${documentElement!.outerHTML}`;
   const prettyHtml = pretty(html, { ocd: true });
-  return new Response(prettyHtml, {
-    headers: { "content-type": "text/html" },
-  });
+  return new Response(prettyHtml, { headers: { "content-type": "text/html" } });
 }
