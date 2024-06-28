@@ -1,7 +1,7 @@
-import { htmlPage } from "./htmlPage.ts";
+import { htmlPage } from "../helpers/htmlPage.ts";
 import type { Context } from "../types.ts";
 
-export function resp404(ctx: Context) {
+export function error404(ctx: Context) {
   const accepts = ctx.req.headers.get("accept");
 
   if (!accepts?.includes("text/html")) {

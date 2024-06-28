@@ -3,9 +3,9 @@
     "start": "deno run -A --watch main.ts"
   },
   "imports": {
+    "file-server": "jsr:@std/http/file-server",
     "deno-dom": "https://deno.land/x/deno_dom@v0.1.47/deno-dom-wasm.ts",
-    "pretty": "npm:pretty@2.0.0",
-    "file-server": "jsr:@std/http/file-server"
+    "pretty": "npm:pretty@2.0.0"
   },
   "compilerOptions": {
     "lib": [

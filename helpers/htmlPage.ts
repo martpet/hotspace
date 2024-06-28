@@ -15,7 +15,7 @@ export function htmlPage(content: string) {
     "text/html",
   );
 
-  const html = `<!DOCTYPE html>${documentElement!.outerHTML}`;
-  const prettyHtml = pretty(html, { ocd: true });
+  const htmlString = `<!DOCTYPE html>${documentElement!.outerHTML}`;
+  const prettyHtml = pretty(htmlString, { ocd: true });
   return new Response(prettyHtml, { headers: { "content-type": "text/html" } });
 }
