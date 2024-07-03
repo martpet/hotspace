@@ -5,18 +5,18 @@ import { htmlPage } from "./helpers/htmlPage.ts";
 import type { Context } from "./types.ts";
 
 Deno.serve(async (req) => {
-  const { href, origin, pathname } = new URL(req.url);
+  const url = new URL(req.url);
 
-  if (pathname.startsWith("/static")) {
-    return serveFile(req, "." + pathname);
+  if (url.pathname.startsWith("/static")) {
+    return serveFile(req, "." + url.pathname);
   }
 
-  const ctx: Context = { req };
+  const ctx: Context = { req, url };
 
-  for (const [route, handler] of Object.entries(routes)) {
-    const pattern = new URLPattern(route, origin);
-    if (pattern.test(href)) {
-      ctx.params = pattern.exec(href)?.pathname.groups;
+  for (const [patternInput, handler] of routes) {
+    const pattern = new URLPattern(patternInput, url.origin);
+    if (pattern.test(url.href)) {
+      ctx.urlPattern = pattern;
       const resp = await handler(ctx);
       return typeof resp === "string" ? htmlPage(resp) : resp;
     }

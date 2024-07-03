@@ -1,6 +1,7 @@
 export interface Context {
   req: Request;
-  params?: URLPatternComponentResult["groups"];
+  url: URL;
+  urlPattern?: URLPattern;
 }
 
 export type RouteHandler = (ctx: Context) =>

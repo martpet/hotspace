@@ -12,6 +12,7 @@
       "dom",
       "dom.iterable",
       "dom.asynciterable",
+      "dom.extra",
       "deno.ns",
       "deno.unstable"
     ]
