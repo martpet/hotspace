@@ -1,9 +1,9 @@
-export default function homepage() {
+export default function foobar() {
   return `
-    <title>Hello World!</title>
+    <title>Dev Test</title>
     <script type="module" src="/static/widget.js"></script>
 
-    <h1>Hello</h1>
+    <h1>Foo bar</h1>
     <div id="widget"></div>
 
     <script>document.querySelector('h1').innerHTML += "🌎";</script>

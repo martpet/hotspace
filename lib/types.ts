@@ -1,6 +1,7 @@
 export interface Context {
   req: Request;
   url: URL;
+  isDev: boolean;
   patternResult?: URLPatternResult | null;
   error?: Error;
 }

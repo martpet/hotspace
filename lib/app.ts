@@ -1,12 +1,16 @@
-import type { Context, Middleware } from "./types.ts";
+import type { Context, Middleware, RouteHandler } from "./types.ts";
 import { htmlDoc } from "../utils/htmlDoc.ts";
 
+const ERROR_404_PATH = "../routes/_404.ts";
+const ERROR_500_PATH = "../routes/_500.ts";
+const STATIC_HANDLER_PATH = "../routes/_static.ts";
+
 export default class App {
-  #routes: [URLPatternInput, string][] = [];
+  #routes: [URLPatternInput, RouteHandler][] = [];
   #middlewares: Middleware[] = [];
 
-  addRoute(patternInput: URLPatternInput, filepath: string) {
-    this.#routes.push([patternInput, filepath]);
+  addRoute(patternInput: URLPatternInput, handler: RouteHandler) {
+    this.#routes.push([patternInput, handler]);
   }
 
   addMiddleware(middleware: Middleware) {
@@ -14,36 +18,50 @@ export default class App {
   }
 
   listen() {
-    Deno.serve((req) => {
+    Deno.serve(async (req) => {
       const url = new URL(req.url);
-      const ctx: Context = { req, url };
-      return this.#composeMiddlewares(ctx);
+      const isDev = url.hostname.endsWith("localhost");
+      const ctx: Context = { req, url, isDev };
+      try {
+        return await this.#mainHandler(ctx);
+      } catch (err) {
+        console.error(err);
+        ctx.error = err;
+        const { default: error500 } = await import(ERROR_500_PATH);
+        if (!error500) throw new Error(`Missing "${ERROR_500_PATH}"`);
+        return error500(ctx);
+      }
     });
   }
 
-  #composeMiddlewares(ctx: Context) {
+  #mainHandler(ctx: Context) {
     return this.#router(ctx);
   }
 
   async #router(ctx: Context) {
-    for (let [patternInput, filepath] of this.#routes) {
+    if (ctx.url.pathname.startsWith("/static")) {
+      const { default: staticHandler } = await import(STATIC_HANDLER_PATH);
+      if (!staticHandler) throw new Error(`Missing "${STATIC_HANDLER_PATH}"`);
+      return staticHandler(ctx);
+    }
+    for (let [patternInput, routeHandler] of this.#routes) {
       if (typeof patternInput === "string") {
         patternInput = { pathname: patternInput };
       }
-      const urlPattern = new URLPattern(patternInput);
-      if (urlPattern.test(ctx.url.href)) {
-        ctx.patternResult = urlPattern.exec(ctx.url);
-        const { default: handler } = await import(`../routes/${filepath}.ts`);
-        const respOrString = await handler(ctx);
+      const pattern = new URLPattern(patternInput);
+      if (pattern.test(ctx.url.href)) {
+        ctx.patternResult = pattern.exec(ctx.url);
+        const respOrString = await routeHandler(ctx);
         if (typeof respOrString === "string") {
-          const body = htmlDoc(respOrString);
-          return new Response(body, {
+          return new Response(htmlDoc(respOrString), {
             headers: { "content-type": "text/html" },
           });
         }
         return respOrString;
       }
     }
-    throw new Error(`No route matched "${ctx.req.url}"`);
+    const { default: error404 } = await import(ERROR_404_PATH);
+    if (!error404) throw new Error(`Missing "${ERROR_404_PATH}`);
+    return error404(ctx);
   }
 }

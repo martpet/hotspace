@@ -1,14 +1,14 @@
 import type { Context } from "../lib/types.ts";
 import { htmlDoc } from "../utils/htmlDoc.ts";
 
-export function error500({ req, error }: Context) {
+export default function error500({ req, url, error, isDev }: Context) {
   if (!req.headers.get("accept")?.includes("text/html")) {
     return new Response(null, { status: 500 });
   }
 
   const html = `
-    <h1>Error 500: Server Error</h1>
-    <pre>${error?.message}<pre>
+    <h1>Server Error</h1>
+    ${isDev ? `<pre>${error}</pre>` : ""}
   `;
 
   return new Response(htmlDoc(html), {
