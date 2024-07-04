@@ -2,15 +2,24 @@ import { serveFile } from "file-server";
 import type { Context, Middleware, RouteHandler } from "./types.ts";
 import { htmlDoc } from "../utils/htmlDoc.ts";
 
+interface AppOptions {
+  urlPatternHostname?: string;
+  devHostname?: string;
+}
+
 export default class App {
   #routes: [URLPatternInput, RouteHandler][] = [];
   #middlewares: Middleware[] = [];
-  #urlPatternHostname = "";
+  #urlPatternHostname;
+  #devHostname = "localhost";
 
-  constructor(opt: { urlPatternHostname?: string }) {
-    if (opt.urlPatternHostname) {
-      this.#urlPatternHostname = opt.urlPatternHostname;
-    }
+  constructor(opt: AppOptions = {}) {
+    this.#urlPatternHostname = opt.urlPatternHostname || "";
+    if (opt.devHostname) this.#devHostname = opt.devHostname;
+  }
+
+  listen() {
+    Deno.serve((req) => this.#mainHandler(req));
   }
 
   addRoute(patternInput: URLPatternInput, handler: RouteHandler) {
@@ -21,29 +30,23 @@ export default class App {
     this.#middlewares.push(middleware);
   }
 
-  listen() {
-    Deno.serve(async (req) => {
-      const url = new URL(req.url);
-      const isDev = url.hostname.endsWith("localhost");
-      const ctx: Context = {
-        req,
-        url,
-        isDev,
-      };
-      try {
-        return await this.#mainHandler(ctx);
-      } catch (err) {
-        ctx.error = err;
-        console.error(err);
-        const { default: error500 } = await import("../routes/_500.ts");
-        if (!error500) throw new Error(`Missing "../routes/_500.ts"`);
-        return error500(ctx);
-      }
-    });
-  }
-
-  #mainHandler(ctx: Context) {
-    return this.#router(ctx);
+  async #mainHandler(req: Request) {
+    const url = new URL(req.url);
+    const isDev = url.hostname.endsWith(this.#devHostname);
+    const ctx: Context = {
+      req,
+      url,
+      isDev,
+    };
+    try {
+      return await this.#router(ctx);
+    } catch (err) {
+      console.error(err);
+      ctx.error = err;
+      const error500 = (await import("../routes/_500.ts")).default;
+      if (!error500) throw new Error(`Missing "../routes/_500.ts"`);
+      return error500(ctx);
+    }
   }
 
   async #router(ctx: Context) {
@@ -70,7 +73,7 @@ export default class App {
         return respOrString;
       }
     }
-    const { default: error404 } = await import("../routes/_404.ts");
+    const error404 = (await import("../routes/_404.ts")).default;
     if (!error404) throw new Error(`Missing "../routes/_404.ts"`);
     return error404(ctx);
   }
