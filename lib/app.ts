@@ -1,10 +1,6 @@
 import type { Context, Middleware, RouteHandler } from "./types.ts";
 import { htmlDoc } from "../utils/htmlDoc.ts";
 
-const ERROR_404_PATH = "../routes/_404.ts";
-const ERROR_500_PATH = "../routes/_500.ts";
-const STATIC_HANDLER_PATH = "../routes/_static.ts";
-
 export default class App {
   #routes: [URLPatternInput, RouteHandler][] = [];
   #middlewares: Middleware[] = [];
@@ -27,8 +23,8 @@ export default class App {
       } catch (err) {
         console.error(err);
         ctx.error = err;
-        const { default: error500 } = await import(ERROR_500_PATH);
-        if (!error500) throw new Error(`Missing "${ERROR_500_PATH}"`);
+        const { default: error500 } = await import("../routes/_500.ts");
+        if (!error500) throw new Error(`Missing "../routes/_500.ts"`);
         return error500(ctx);
       }
     });
@@ -40,8 +36,8 @@ export default class App {
 
   async #router(ctx: Context) {
     if (ctx.url.pathname.startsWith("/static")) {
-      const { default: staticHandler } = await import(STATIC_HANDLER_PATH);
-      if (!staticHandler) throw new Error(`Missing "${STATIC_HANDLER_PATH}"`);
+      const { default: staticHandler } = await import("../routes/_static.ts");
+      if (!staticHandler) throw new Error(`Missing "../routes/_static.ts"`);
       return staticHandler(ctx);
     }
     for (let [patternInput, routeHandler] of this.#routes) {
@@ -60,8 +56,8 @@ export default class App {
         return respOrString;
       }
     }
-    const { default: error404 } = await import(ERROR_404_PATH);
-    if (!error404) throw new Error(`Missing "${ERROR_404_PATH}`);
+    const { default: error404 } = await import("../routes/_404.ts");
+    if (!error404) throw new Error(`Missing "../routes/_404.ts"`);
     return error404(ctx);
   }
 }
