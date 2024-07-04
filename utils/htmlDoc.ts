@@ -1,9 +1,9 @@
 import { DOMParser } from "deno-dom";
 import pretty from "pretty";
 
-export function htmlPage(content: string) {
-  const { documentElement } = new DOMParser().parseFromString(
-    `<html lang="en">
+export function htmlDoc(content: string): string {
+  const doc = new DOMParser().parseFromString(
+    `<html>
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -14,8 +14,6 @@ export function htmlPage(content: string) {
     </html>`,
     "text/html",
   );
-
-  const htmlString = `<!DOCTYPE html>${documentElement!.outerHTML}`;
-  const prettyHtml = pretty(htmlString, { ocd: true });
-  return new Response(prettyHtml, { headers: { "content-type": "text/html" } });
+  const html = `<!DOCTYPE html>${doc.documentElement!.outerHTML}`;
+  return pretty(html, { ocd: true });
 }
