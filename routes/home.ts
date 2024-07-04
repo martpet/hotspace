@@ -1,6 +1,6 @@
-export default function homepage() {
+export default function home() {
   return `
     <title>Hello World!</title>
-    <h1>Hello</h1>
+    <h1>Hello World!</h1>
   `;
 }
