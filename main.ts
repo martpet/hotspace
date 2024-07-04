@@ -1,8 +1,8 @@
 import App from "./lib/app.ts";
 
-import spacepage from "./handlers/space.ts";
-import homepage from "./handlers/home.ts";
-import foobar from "./handlers/foobar.ts";
+import spacepage from "./routes/space.ts";
+import homepage from "./routes/home.ts";
+import foobar from "./routes/foobar.ts";
 
 const app = new App();
 
