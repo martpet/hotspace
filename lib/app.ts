@@ -1,80 +1,82 @@
-import { serveFile } from "file-server";
 import type { Context, Middleware, RouteHandler } from "./types.ts";
-import { htmlDoc } from "../utils/htmlDoc.ts";
+import { htmlDoc } from "../helpers/html_doc.ts";
 
 interface AppOptions {
-  urlPatternHostname?: string;
-  devHostname?: string;
+  errorHandler?: (ctx: Context) => Response | Promise<Response>;
+  patternInputHostname?: string;
 }
 
 export default class App {
   #routes: [URLPatternInput, RouteHandler][] = [];
   #middlewares: Middleware[] = [];
-  #urlPatternHostname;
-  #devHostname = "localhost";
+  #errorHandler;
+  #patternInputHostname;
 
   constructor(opt: AppOptions = {}) {
-    this.#urlPatternHostname = opt.urlPatternHostname || "";
-    if (opt.devHostname) this.#devHostname = opt.devHostname;
+    this.#patternInputHostname = opt.patternInputHostname;
+    this.#errorHandler = opt.errorHandler;
   }
 
-  listen() {
-    Deno.serve((req) => this.#mainHandler(req));
-  }
-
-  addRoute(patternInput: URLPatternInput, handler: RouteHandler) {
-    this.#routes.push([patternInput, handler]);
+  addRoute(pattern: URLPatternInput, handler: RouteHandler) {
+    this.#routes.push([pattern, handler]);
   }
 
   addMiddleware(middleware: Middleware) {
     this.#middlewares.push(middleware);
   }
 
-  async #mainHandler(req: Request) {
-    const url = new URL(req.url);
-    const isDev = url.hostname.endsWith(this.#devHostname);
+  listen() {
+    Deno.serve((req) => this.#serve(req));
+  }
+
+  async #serve(req: Request) {
     const ctx: Context = {
       req,
-      url,
-      isDev,
+      url: new URL(req.url),
+      isDev: Deno.env.get("DENO_DEPLOYMENT_ID") === undefined,
     };
     try {
-      return await this.#router(ctx);
-    } catch (err) {
-      console.error(err);
-      ctx.error = err;
-      const error500 = (await import("../routes/_500.ts")).default;
-      if (!error500) throw new Error(`Missing "../routes/_500.ts"`);
-      return error500(ctx);
+      return await this.#applyMiddleware(ctx);
+    } catch (error) {
+      if (this.#errorHandler) {
+        ctx.error = error;
+        console.error(error);
+        return this.#errorHandler(ctx);
+      } else {
+        throw error;
+      }
     }
   }
 
-  async #router(ctx: Context) {
-    if (ctx.url.pathname.startsWith("/static")) {
-      const filePath = "." + ctx.url.pathname;
-      return serveFile(ctx.req, filePath);
+  #applyMiddleware(ctx: Context, index = 0) {
+    if (index < this.#middlewares.length) {
+      const next = () => this.#applyMiddleware(ctx, index + 1);
+      return this.#middlewares[index](ctx, next);
+    } else {
+      return this.#handleRoute(ctx);
     }
+  }
+
+  async #handleRoute(ctx: Context) {
     for (let [patternInput, handler] of this.#routes) {
       if (typeof patternInput === "string") {
         patternInput = { pathname: patternInput };
-        if (!patternInput.hostname && this.#urlPatternHostname) {
-          patternInput.hostname = this.#urlPatternHostname;
-        }
+      }
+      if (!patternInput.hostname && this.#patternInputHostname) {
+        patternInput.hostname = this.#patternInputHostname;
       }
       const pattern = new URLPattern(patternInput);
-      if (pattern.test(ctx.url.href)) {
-        ctx.patternResult = pattern.exec(ctx.url);
-        const respOrString = await handler(ctx);
-        if (typeof respOrString === "string") {
-          return new Response(htmlDoc(respOrString), {
-            headers: { "content-type": "text/html" },
-          });
-        }
-        return respOrString;
+      if (!pattern.test(ctx.url.href)) continue;
+      ctx.urlPatternResult = pattern.exec(ctx.url);
+      let resp = await handler(ctx);
+      if (typeof resp === "string") {
+        resp = new Response(htmlDoc(resp));
+        resp.headers.set("content-type", "text/html");
+      } else if (!(resp instanceof Response)) {
+        throw new Error(`Bad route response type: "${typeof resp}"`);
       }
+      return resp;
     }
-    const error404 = (await import("../routes/_404.ts")).default;
-    if (!error404) throw new Error(`Missing "../routes/_404.ts"`);
-    return error404(ctx);
+    throw new Error("No route matched!");
   }
 }

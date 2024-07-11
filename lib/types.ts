@@ -2,7 +2,7 @@ export interface Context {
   req: Request;
   url: URL;
   isDev: boolean;
-  patternResult?: URLPatternResult | null;
+  urlPatternResult?: URLPatternResult | null;
   error?: Error;
 }
 
@@ -12,6 +12,7 @@ export type RouteHandler = (ctx: Context) =>
   | string
   | Promise<string>;
 
-export type Middleware = (ctx: Context) =>
-  | Response
-  | Promise<Response>;
+export type Middleware = (
+  ctx: Context,
+  next: () => Response | Promise<Response>,
+) => Response | Promise<Response>;

@@ -1,14 +1,15 @@
 import type { Context } from "../lib/types.ts";
-import { htmlDoc } from "../utils/htmlDoc.ts";
+import { htmlDoc } from "../helpers/html_doc.ts";
 
 export default function error404({ req }: Context) {
   if (!req.headers.get("accept")?.includes("text/html")) {
     return new Response(null, { status: 404 });
   }
+  const html = htmlDoc(`
+    <h1>Error 404: Not Found</h1>
+  `);
 
-  const html = `<h1>Error: Page Not Found</h1>`;
-
-  return new Response(htmlDoc(html), {
+  return new Response(html, {
     status: 404,
     headers: { "content-type": "text/html" },
   });

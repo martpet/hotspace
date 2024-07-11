@@ -3,8 +3,8 @@
     "start": "deno run -A --watch main.ts"
   },
   "imports": {
-    "file-server": "jsr:@std/http/file-server",
     "deno-dom": "jsr:@b-fuze/deno-dom",
+    "file-server": "jsr:@std/http/file-server",
     "pretty": "npm:pretty"
   },
   "compilerOptions": {

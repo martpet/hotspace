@@ -1,7 +1,7 @@
 import { DOMParser } from "deno-dom";
 import pretty from "pretty";
 
-export function htmlDoc(content: string): string {
+export function htmlDoc(content: string) {
   const doc = new DOMParser().parseFromString(
     `<html>
       <head>
