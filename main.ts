@@ -1,4 +1,5 @@
 import App from "./lib/app.ts";
+import htmlTemplate from "./helpers/html_template.ts";
 import home from "./routes/home.ts";
 import foobar from "./routes/foobar.ts";
 import userspace from "./routes/userspace.ts";
@@ -9,6 +10,7 @@ import error500 from "./routes/_500.ts";
 const HOSTNAME = "(localhost|hotspace.lol)";
 
 const app = new App({
+  htmlTemplate,
   errorHandler: error500,
   patternInputHostname: HOSTNAME,
 });

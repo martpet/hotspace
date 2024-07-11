@@ -1,7 +1,6 @@
 import type { Context } from "../lib/types.ts";
-import { htmlDoc } from "../helpers/html_doc.ts";
 
-export default function error500({ req, error, isDev }: Context) {
+export default function error500({ req, error, isDev, htmlDoc }: Context) {
   if (!req.headers.get("accept")?.includes("text/html")) {
     return new Response(null, { status: 500 });
   }

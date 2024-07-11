@@ -1,7 +1,9 @@
+import { DOMParser } from "deno-dom";
+import pretty from "pretty";
 import type { Context, Middleware, RouteHandler } from "./types.ts";
-import { htmlDoc } from "../helpers/html_doc.ts";
 
 interface AppOptions {
+  htmlTemplate: (content: string) => string;
   errorHandler?: (ctx: Context) => Response | Promise<Response>;
   patternInputHostname?: string;
 }
@@ -9,10 +11,12 @@ interface AppOptions {
 export default class App {
   #routes: [URLPatternInput, RouteHandler][] = [];
   #middlewares: Middleware[] = [];
+  #htmlTemplate;
   #errorHandler;
   #patternInputHostname;
 
-  constructor(opt: AppOptions = {}) {
+  constructor(opt: AppOptions) {
+    this.#htmlTemplate = opt.htmlTemplate;
     this.#patternInputHostname = opt.patternInputHostname;
     this.#errorHandler = opt.errorHandler;
   }
@@ -34,6 +38,7 @@ export default class App {
       req,
       url: new URL(req.url),
       isDev: Deno.env.get("DENO_DEPLOYMENT_ID") === undefined,
+      htmlDoc: this.#htmlDoc.bind(this),
     };
     try {
       return await this.#applyMiddleware(ctx);
@@ -70,7 +75,7 @@ export default class App {
       ctx.urlPatternResult = pattern.exec(ctx.url);
       let resp = await handler(ctx);
       if (typeof resp === "string") {
-        resp = new Response(htmlDoc(resp));
+        resp = new Response(this.#htmlDoc(resp));
         resp.headers.set("content-type", "text/html");
       } else if (!(resp instanceof Response)) {
         throw new Error(`Bad route response type: "${typeof resp}"`);
@@ -78,5 +83,12 @@ export default class App {
       return resp;
     }
     throw new Error("No route matched!");
+  }
+
+  #htmlDoc(content: string) {
+    const template = this.#htmlTemplate(content);
+    const doc = new DOMParser().parseFromString(template, "text/html");
+    const html = `<!DOCTYPE html>${doc.documentElement!.outerHTML}`;
+    return pretty(html, { ocd: true });
   }
 }
