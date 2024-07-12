@@ -3,21 +3,21 @@ import pretty from "pretty";
 import type { Context, Middleware, RouteHandler } from "./types.ts";
 
 interface AppOptions {
-  htmlTemplate: (content: string) => string;
+  htmlTemplateBuilder: (content: string) => string;
   errorHandler?: (ctx: Context) => Response | Promise<Response>;
-  patternInputHostname?: string;
+  urlPatternHostname?: string;
 }
 
 export default class App {
   #routes: [URLPatternInput, RouteHandler][] = [];
   #middlewares: Middleware[] = [];
-  #htmlTemplate;
+  #htmlTemplateBuilder;
   #errorHandler;
-  #patternInputHostname;
+  #urlPatternHostname;
 
   constructor(opt: AppOptions) {
-    this.#htmlTemplate = opt.htmlTemplate;
-    this.#patternInputHostname = opt.patternInputHostname;
+    this.#htmlTemplateBuilder = opt.htmlTemplateBuilder;
+    this.#urlPatternHostname = opt.urlPatternHostname;
     this.#errorHandler = opt.errorHandler;
   }
 
@@ -38,14 +38,14 @@ export default class App {
       req,
       url: new URL(req.url),
       isDev: Deno.env.get("DENO_DEPLOYMENT_ID") === undefined,
-      htmlDoc: this.#htmlDoc.bind(this),
+      buildHtmlDoc: this.#buildHtmlDoc.bind(this),
     };
     try {
-      return await this.#applyMiddleware(ctx);
+      return await this.#applyMiddlewares(ctx);
     } catch (error) {
       if (this.#errorHandler) {
-        ctx.error = error;
         console.error(error);
+        ctx.error = error;
         return this.#errorHandler(ctx);
       } else {
         throw error;
@@ -53,9 +53,9 @@ export default class App {
     }
   }
 
-  #applyMiddleware(ctx: Context, index = 0) {
+  #applyMiddlewares(ctx: Context, index = 0) {
     if (index < this.#middlewares.length) {
-      const next = () => this.#applyMiddleware(ctx, index + 1);
+      const next = () => this.#applyMiddlewares(ctx, index + 1);
       return this.#middlewares[index](ctx, next);
     } else {
       return this.#handleRoute(ctx);
@@ -67,28 +67,32 @@ export default class App {
       if (typeof patternInput === "string") {
         patternInput = { pathname: patternInput };
       }
-      if (!patternInput.hostname && this.#patternInputHostname) {
-        patternInput.hostname = this.#patternInputHostname;
+      if (!patternInput.hostname && this.#urlPatternHostname) {
+        patternInput.hostname = this.#urlPatternHostname;
       }
       const pattern = new URLPattern(patternInput);
       if (!pattern.test(ctx.url.href)) continue;
       ctx.urlPatternResult = pattern.exec(ctx.url);
-      let resp = await handler(ctx);
-      if (typeof resp === "string") {
-        resp = new Response(this.#htmlDoc(resp));
-        resp.headers.set("content-type", "text/html");
-      } else if (!(resp instanceof Response)) {
-        throw new Error(`Bad route response type: "${typeof resp}"`);
-      }
-      return resp;
+      return this.#processRouteResult(await handler(ctx));
     }
     throw new Error("No route matched!");
   }
 
-  #htmlDoc(content: string) {
-    const template = this.#htmlTemplate(content);
+  #processRouteResult(routeResult: Response | string) {
+    let resp = routeResult;
+    if (typeof routeResult === "string") {
+      resp = new Response(this.#buildHtmlDoc(routeResult));
+      resp.headers.set("content-type", "text/html");
+    } else if (!(resp instanceof Response)) {
+      throw new Error(`Bad route response type: "${typeof resp}"`);
+    }
+    return resp;
+  }
+
+  #buildHtmlDoc(content: string) {
+    const template = this.#htmlTemplateBuilder(content);
     const doc = new DOMParser().parseFromString(template, "text/html");
-    const html = `<!DOCTYPE html>${doc.documentElement!.outerHTML}`;
-    return pretty(html, { ocd: true });
+    const docString = `<!DOCTYPE html>${doc.documentElement!.outerHTML}`;
+    return pretty(docString, { ocd: true });
   }
 }

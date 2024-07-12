@@ -1,10 +1,11 @@
 import type { Context } from "../lib/types.ts";
 
-export default function error500({ req, error, isDev, htmlDoc }: Context) {
-  if (!req.headers.get("accept")?.includes("text/html")) {
+export default function error500({ req, error, isDev, buildHtmlDoc }: Context) {
+  const acceptsHtml = req.headers.get("accept")?.includes("text/html");
+  if (!acceptsHtml) {
     return new Response(null, { status: 500 });
   }
-  const html = htmlDoc(`
+  const html = buildHtmlDoc(`
     <h1>Oops, server error!</h1>
     ${isDev ? `<pre>${error}</pre>` : ""}
   `);

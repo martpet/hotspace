@@ -1,10 +1,11 @@
 import type { Context } from "../lib/types.ts";
 
-export default function error404({ req, htmlDoc }: Context) {
-  if (!req.headers.get("accept")?.includes("text/html")) {
+export default function error404({ req, buildHtmlDoc }: Context) {
+  const acceptsHtml = req.headers.get("accept")?.includes("text/html");
+  if (!acceptsHtml) {
     return new Response(null, { status: 404 });
   }
-  const html = htmlDoc(`
+  const html = buildHtmlDoc(`
     <h1>Error 404: Not Found</h1>
   `);
 
