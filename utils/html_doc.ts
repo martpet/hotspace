@@ -1,4 +1,4 @@
-export default function htmlTemplate(content: string) {
+export default function c(content: string) {
   return `<html>
     <head>
       <meta charset="UTF-8">
