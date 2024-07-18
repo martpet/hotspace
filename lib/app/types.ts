@@ -2,7 +2,7 @@ export interface Context {
   req: Request;
   url: URL;
   isDev: boolean;
-  htmlDocument: (content: string) => string;
+  htmlDoc: (content: string) => string;
   urlPatternResult?: URLPatternResult | null;
   error?: Error;
 }

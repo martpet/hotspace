@@ -1,14 +1,22 @@
-export default function registration() {
-  return `
-    <noscript>Registration works only with JavaScript enabled!</noscript>
+import { REG_TIMEOUT, USERNAME_CONSTRAINTS } from "../utils/webauthn.ts";
 
-    <div id="reg-root"></div>
+const regFormConsts = {
+  ...USERNAME_CONSTRAINTS,
+  REG_TIMEOUT,
+};
+
+export default function regForm() {
+  return `
+    <div id="reg"></div>
+    
+    <noscript>Registration requires JavaScript!</noscript>
 
     <script type="module">
-      import { Registration } from "/static/webauthn.js";
       import { html, render } from "/static/preact.js";
-      const rootElement = document.querySelector("#reg-root");
-      ${"render(html`<${Registration} />`, rootElement);"}
+      import { RegForm } from "/static/auth.js";
+      const consts = '${JSON.stringify(regFormConsts)}';
+      const root = document.getElementById("reg");
+      ${"render(html`<${RegForm} consts=${consts} />`, root);"}
     </script>
   `;
 }

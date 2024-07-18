@@ -3,10 +3,15 @@
     "start": "deno run -A --watch main.ts"
   },
   "imports": {
-    "deno-dom": "jsr:@b-fuze/deno-dom",
     "file-server": "jsr:@std/http/file-server",
+    "cookie": "jsr:@std/http/cookie",
+    "ulid": "jsr:@std/ulid",
+    "deno-dom": "jsr:@b-fuze/deno-dom",
     "pretty": "npm:pretty"
   },
+  "unstable": [
+    "kv"
+  ],
   "compilerOptions": {
     "lib": [
       "dom",

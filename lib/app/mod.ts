@@ -3,20 +3,20 @@ import { DOMParser } from "deno-dom";
 import pretty from "pretty";
 
 interface AppOptions {
-  htmlDocBuilder: (content: string) => string;
+  htmlTemplateBuilder: (content: string) => string;
   serverErrorHandler?: (ctx: Context) => Response | Promise<Response>;
   hostnamePattern?: string;
 }
 
 export default class App {
-  #htmlDocBuilder;
+  #htmlTemplateBuilder;
   #serverErrorHandler;
   #hostnamePattern;
   #routes: [URLPatternInput, RouteHandler][] = [];
   #middlewares: Middleware[] = [];
 
   constructor(opt: AppOptions) {
-    this.#htmlDocBuilder = opt.htmlDocBuilder;
+    this.#htmlTemplateBuilder = opt.htmlTemplateBuilder;
     this.#serverErrorHandler = opt.serverErrorHandler;
     this.#hostnamePattern = opt.hostnamePattern;
   }
@@ -38,7 +38,7 @@ export default class App {
       req,
       url: new URL(req.url),
       isDev: Deno.env.get("DENO_DEPLOYMENT_ID") === undefined,
-      htmlDocument: this.#buildHtmlDoc.bind(this),
+      htmlDoc: this.#buildHtmlDoc.bind(this),
     };
     try {
       return await this.#applyMiddlewares(ctx);
@@ -68,11 +68,11 @@ export default class App {
         patternInput = { pathname: patternInput };
       }
       patternInput.hostname ??= this.#hostnamePattern;
-      const urlPattern = new URLPattern(patternInput);
-      if (!urlPattern.test(ctx.url.href)) {
+      const pattern = new URLPattern(patternInput);
+      if (!pattern.test(ctx.url.href)) {
         continue;
       }
-      ctx.urlPatternResult = urlPattern.exec(ctx.url);
+      ctx.urlPatternResult = pattern.exec(ctx.url);
       return this.#processRouteResponse(await handler(ctx));
     }
     throw new Error("No route matched!");
@@ -90,9 +90,9 @@ export default class App {
   }
 
   #buildHtmlDoc(htmlInput: string) {
-    const htmlTemplate = this.#htmlDocBuilder(htmlInput);
-    const htmlDoc = new DOMParser().parseFromString(htmlTemplate, "text/html");
-    const html = `<!DOCTYPE html>${htmlDoc.documentElement!.outerHTML}`;
+    const template = this.#htmlTemplateBuilder(htmlInput);
+    const doc = new DOMParser().parseFromString(template, "text/html");
+    const html = `<!DOCTYPE html>${doc.documentElement!.outerHTML}`;
     return pretty(html, { ocd: true });
   }
 }
