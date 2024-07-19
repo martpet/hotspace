@@ -13,13 +13,6 @@ export const REG_TIMEOUT = 1000 * 60;
 
 export const REG_SESSION_COOKIE = "reg_session";
 
-export const USERNAME_CONSTRAINTS = {
-  MIN_LENGTH: 4,
-  MAX_LENGTH: 30,
-  PATTERN: "^[a-z0-9._-]+$",
-  PATTERN_TITLE: "Small letters, numbers, dots, hyphens, and underscores",
-};
-
 interface PubKeyOptions {
   user: {
     name: string;
@@ -36,14 +29,6 @@ export interface RegSession {
   username: string;
   webauthnUserId: string;
   challenge: string;
-}
-
-export function validateUsername(username: string) {
-  const { MIN_LENGTH, MAX_LENGTH, PATTERN } = USERNAME_CONSTRAINTS;
-  return typeof username === "string" &&
-    username.length >= MIN_LENGTH &&
-    username.length <= MAX_LENGTH &&
-    Boolean(username.match(PATTERN)?.length);
 }
 
 export function createPubKeyOptions(username: string): PubKeyOptions {

@@ -7,9 +7,10 @@ import {
   REG_TIMEOUT,
   type RegSession,
   RegStatus,
-  validateUsername,
 } from "../../utils/webauthn.ts";
 import { kv } from "../../utils/db.ts";
+
+import { CONSTRAINTS } from "../../static/auth.js";
 
 export default async function pubkeyOptionsHandler({ req }: Context) {
   if (req.method !== "POST") {
@@ -61,4 +62,12 @@ export default async function pubkeyOptionsHandler({ req }: Context) {
   });
 
   return new Response(JSON.stringify(pubKeyOptions), { headers });
+}
+
+export function validateUsername(username: string) {
+  const { MIN_LENGTH, MAX_LENGTH, PATTERN } = CONSTRAINTS;
+  return typeof username === "string" &&
+    username.length >= MIN_LENGTH &&
+    username.length <= MAX_LENGTH &&
+    Boolean(username.match(PATTERN)?.length);
 }

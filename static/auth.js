@@ -1,19 +1,27 @@
-import { html } from "/static/preact.js";
+let html;
+
+if (typeof document !== "undefined") {
+  html = (await import("/static/preact.js")).html;
+}
+
+export const CONSTRAINTS = {
+  MIN_LENGTH: 4,
+  MAX_LENGTH: 30,
+  PATTERN: "^[a-z0-9._-]+$",
+  PATTERN_TITLE: "Small letters, numbers, dots, hyphens, and underscores",
+};
 
 export function RegForm(props) {
-  const consts = JSON.parse(props.consts);
-  const constraints = consts.USERNAME_CONSTRAINTS;
-
   return html`
     <form class="reg-form" onSubmit=${submitForm}>
       <label for="username">Username:</label>
       <input
         id="username"
         type="text"
-        minlength="${constraints.MIN_LENGTH}"
-        maxlength="${constraints.MAX_LENGTH}"
-        pattern="${constraints.PATTERN}"
-        title="${constraints.PATTERN_TITLE}"
+        minlength="${CONSTRAINTS.MIN_LENGTH}"
+        maxlength="${CONSTRAINTS.MAX_LENGTH}"
+        pattern="${CONSTRAINTS.PATTERN}"
+        title="${CONSTRAINTS.PATTERN_TITLE}"
         autocomplete="off"
         autocapitalize="off"
         spellcheck=""
