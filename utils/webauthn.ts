@@ -1,4 +1,26 @@
-interface PubKeyOptionsJson {
+export enum RegStatus {
+  Idle = "IDLE",
+  Pending = "PENDING",
+  Success = "SUCCESS",
+  Aborted = "ABORTED",
+  UsernameTaken = "USERNAME_TAKEN",
+  WebAuthnUnsupported = "WEBAUTHN_UNSUPPORTED",
+  AuthenticatorError = "AUTHENTICATOR_ERROR",
+  GeneralError = "GENERAL_ERROR",
+}
+
+export const REG_TIMEOUT = 1000 * 60;
+
+export const REG_SESSION_COOKIE = "reg_session";
+
+export const USERNAME_CONSTRAINTS = {
+  MIN_LENGTH: 4,
+  MAX_LENGTH: 30,
+  PATTERN: "^[a-z0-9._-]+$",
+  PATTERN_TITLE: "Small letters, numbers, dots, hyphens, and underscores",
+};
+
+interface PubKeyOptions {
   user: {
     name: string;
     displayName: string;
@@ -16,24 +38,15 @@ export interface RegSession {
   challenge: string;
 }
 
-export const REG_TIMEOUT = 1000 * 60;
-export const REG_SESSION_COOKIE = "reg_session";
-
-export const USERNAME_CONSTRAINTS = {
-  MIN_LENGTH: 4,
-  MAX_LENGTH: 30,
-  PATTERN: "^[a-z0-9._-]+$",
-  PATTERN_TITLE: "Small letters, numbers, dots, hyphens, and underscores",
-};
-
 export function validateUsername(username: string) {
+  const { MIN_LENGTH, MAX_LENGTH, PATTERN } = USERNAME_CONSTRAINTS;
   return typeof username === "string" &&
-    username.length >= USERNAME_CONSTRAINTS.MIN_LENGTH &&
-    username.length <= USERNAME_CONSTRAINTS.MAX_LENGTH &&
-    Boolean(username.match(USERNAME_CONSTRAINTS.PATTERN)?.length);
+    username.length >= MIN_LENGTH &&
+    username.length <= MAX_LENGTH &&
+    Boolean(username.match(PATTERN)?.length);
 }
 
-export function createPubKeyOptionsJson(username: string): PubKeyOptionsJson {
+export function createPubKeyOptions(username: string): PubKeyOptions {
   return {
     user: {
       name: username,

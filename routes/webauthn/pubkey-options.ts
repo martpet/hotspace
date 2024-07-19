@@ -2,15 +2,16 @@ import { setCookie } from "cookie";
 import { ulid } from "ulid";
 import type { Context } from "../../lib/app/types.ts";
 import {
-  createPubKeyOptionsJson,
+  createPubKeyOptions,
   REG_SESSION_COOKIE,
   REG_TIMEOUT,
   type RegSession,
+  RegStatus,
   validateUsername,
 } from "../../utils/webauthn.ts";
 import { kv } from "../../utils/db.ts";
 
-export default async function pubkeyOptions({ req }: Context) {
+export default async function pubkeyOptionsHandler({ req }: Context) {
   if (req.method !== "POST") {
     return new Response(null, { status: 405, headers: { allow: "POST" } });
   }
@@ -21,29 +22,29 @@ export default async function pubkeyOptions({ req }: Context) {
     return new Response(null, { status: 400 });
   }
 
-  const existingUserEntry = await kv.get(["users_by_username"], username);
+  const existingUser = await kv.get(["users_by_username"], username);
 
-  if (existingUserEntry.value) {
-    // todo: add specific error text for handling existing user in frontend
-    return new Response("todo", { status: 400 });
+  if (existingUser.value) {
+    const error = { error: RegStatus.UsernameTaken };
+    return new Response(JSON.stringify(error), { status: 400 });
   }
 
-  const options = createPubKeyOptionsJson(username);
+  const pubKeyOptions = createPubKeyOptions(username);
 
   const regSession: RegSession = {
     id: ulid(),
     username,
-    webauthnUserId: options.user.id,
-    challenge: options.challenge,
+    webauthnUserId: pubKeyOptions.user.id,
+    challenge: pubKeyOptions.challenge,
   };
 
-  const kvSessionResult = await kv.set(
+  const kvRegSession = await kv.set(
     ["reg_sessions", regSession.id],
     regSession,
     { expireIn: REG_TIMEOUT },
   );
 
-  if (!kvSessionResult.ok) {
+  if (!kvRegSession.ok) {
     return new Response(null, { status: 500 });
   }
 
@@ -59,5 +60,5 @@ export default async function pubkeyOptions({ req }: Context) {
     httpOnly: true,
   });
 
-  return new Response(JSON.stringify(options), { headers });
+  return new Response(JSON.stringify(pubKeyOptions), { headers });
 }

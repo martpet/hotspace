@@ -1,6 +1,6 @@
 import type { Context } from "../../lib/app/types.ts";
 
-export default function error404({ req, htmlDoc }: Context) {
+export default function error404Handler({ req, htmlDoc }: Context) {
   const acceptsHtml = req.headers.get("accept")?.includes("text/html");
 
   if (!acceptsHtml) {
