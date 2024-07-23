@@ -1,16 +1,18 @@
 import { setCookie } from "cookie";
 import { ulid } from "ulid";
 import type { Context } from "../../lib/app/types.ts";
-import {
-  createPubKeyOptions,
-  REG_SESSION_COOKIE,
-  REG_TIMEOUT,
-  type RegSession,
-  RegStatus,
-} from "../../utils/webauthn.ts";
 import { kv } from "../../utils/db.ts";
-
-import { CONSTRAINTS } from "../../static/auth.js";
+import {
+  createPubKeyOptionsJson,
+  REG_SESSION_COOKIE,
+  type RegSession,
+  validateUsername,
+} from "../../utils/webauthn.ts";
+import {
+  REG_STATUS,
+  REG_TIMEOUT,
+  USERNAME as USERNAME_CONSTRAINTS,
+} from "../../static/webauthn.js";
 
 export default async function pubkeyOptionsHandler({ req }: Context) {
   if (req.method !== "POST") {
@@ -19,18 +21,17 @@ export default async function pubkeyOptionsHandler({ req }: Context) {
 
   const { username } = JSON.parse(await req.text());
 
-  if (!validateUsername(username)) {
+  if (!validateUsername(username, USERNAME_CONSTRAINTS)) {
     return new Response(null, { status: 400 });
   }
 
-  const existingUser = await kv.get(["users_by_username"], username);
+  const kvUser = await kv.get(["users_by_username"], username);
 
-  if (existingUser.value) {
-    const error = { error: RegStatus.UsernameTaken };
-    return new Response(JSON.stringify(error), { status: 400 });
+  if (kvUser.value) {
+    return new Response(REG_STATUS.UsernameTaken, { status: 400 });
   }
 
-  const pubKeyOptions = createPubKeyOptions(username);
+  const pubKeyOptions = createPubKeyOptionsJson(username);
 
   const regSession: RegSession = {
     id: ulid(),
@@ -62,12 +63,4 @@ export default async function pubkeyOptionsHandler({ req }: Context) {
   });
 
   return new Response(JSON.stringify(pubKeyOptions), { headers });
-}
-
-export function validateUsername(username: string) {
-  const { MIN_LENGTH, MAX_LENGTH, PATTERN } = CONSTRAINTS;
-  return typeof username === "string" &&
-    username.length >= MIN_LENGTH &&
-    username.length <= MAX_LENGTH &&
-    Boolean(username.match(PATTERN)?.length);
 }
