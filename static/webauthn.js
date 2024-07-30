@@ -1,21 +1,37 @@
 let render, html, signal, computed, useComputed;
 
 if (typeof document !== "undefined") {
-  const preact = await import("./preact.js");
+  const preact = await import("/static/preact.js");
   ({ render, html, signal, computed, useComputed } = preact);
 }
 
 export const REG_TIMEOUT = 1000 * 60;
 
+export const USERNAME_CONSTRAINTS = {
+  minLength: 4,
+  maxLength: 30,
+  pattern: "^[a-z0-9_\\-]+$",
+  patternTitle: "Small letters, numbers, underscores, and hyphens.",
+};
+
 export const REG_STATUS = {
   Idle: "IDLE",
   Pending: "PENDING",
   Success: "SUCCESS",
+  Aborted: "ABORTED",
   UsernameTaken: "USERNAME_TAKEN",
   WebAuthnUnsupported: "WEBAUTHN_UNSUPPORTED",
-  Aborted: "ABORTED",
   AuthenticatorError: "AUTHENTICATOR_ERROR",
   GeneralError: "GENERAL_ERROR",
+};
+
+const DEFAULT_REG_STATUS = typeof PublicKeyCredential === "undefined"
+  ? REG_STATUS.WebAuthnUnsupported
+  : REG_STATUS.Idle;
+
+const REG_STATUS_BY_ERROR_NAME = {
+  AbortError: REG_STATUS.Aborted,
+  NotAllowedError: REG_STATUS.AuthenticatorError,
 };
 
 const REG_ERROR_MSG = {
@@ -26,71 +42,13 @@ const REG_ERROR_MSG = {
   [REG_STATUS.GeneralError]: "Something went wrong!",
 };
 
-export const USERNAME = {
-  minLength: 4,
-  maxLength: 30,
-  pattern: "^[a-z0-9._-]+$",
-  patternTitle: "Small letters, numbers, dots, hyphens, and underscores",
-};
+let regStatus, regErrMsg, abortController;
 
-const defaultRegStatus = typeof PublicKeyCredential === "undefined"
-  ? REG_STATUS.WebAuthnUnsupported
-  : REG_STATUS.Idle;
-
-let regStatus, regErrorMsg, abortController;
-
-export async function initReg(rootId) {
-  regStatus = signal(defaultRegStatus);
-  regErrorMsg = computed(computeRegErrorMsg);
+export async function initRegForm(rootId) {
+  regStatus = signal(DEFAULT_REG_STATUS);
+  regErrMsg = computed(() => REG_ERROR_MSG[regStatus.value]);
   const rootEl = document.getElementById(rootId);
   render(html`<${RegForm} />`, rootEl);
-}
-
-function computeFormDisabled() {
-  return regStatus.value === REG_STATUS.Pending;
-}
-
-function computeRegErrorMsg() {
-  return REG_ERROR_MSG[regStatus.value];
-}
-
-function RegForm() {
-  const isDisabled = useComputed(computeFormDisabled);
-
-  return html`
-    <form class="reg-form" onSubmit=${submitReg}>
-      <fieldset disabled=${isDisabled}>
-        <label for="username">Username:</label>
-        <input
-          id="username"
-          type="text"
-          minlength="${USERNAME.minLength}"
-          maxlength="${USERNAME.maxLength}"
-          pattern="${USERNAME.pattern}"
-          title="${USERNAME.patternTitle}"
-          autocomplete="off"
-          autocapitalize="off"
-          spellcheck=""
-          required
-        />
-        <button>Create Account</button>
-        <${Spinner}/>
-      </fieldset>
-    </form>
-    <${RegError}/>
-  `;
-}
-
-function Spinner() {
-  if (regStatus.value === REG_STATUS.Pending) {
-    return html`<span class="spinner small"></span>`;
-  }
-}
-
-function RegError() {
-  if (regErrorMsg.value) {
-    return html`<p class="error-msg">${regErrorMsg}</p>`;
-  }
 }
 
 async function submitReg(event) {
@@ -99,10 +57,12 @@ async function submitReg(event) {
   abortController = new AbortController();
   const username = event.target.username.value;
   try {
-    const pubKeyOptionsJson = await getPubKeyOptions(username);
-    if (!pubKeyOptionsJson) return;
-    await getPubKeyCredentials(pubKeyOptionsJson);
+    const pubKeyOptions = await getPubKeyOptions(username);
+    if (!pubKeyOptions) return;
+    const credential = await getPubKeyCredential(pubKeyOptions);
+    verifyPubKeyCredential(credential);
   } catch (error) {
+    console.log(error);
     setRegStatusFromError(error);
   }
 }
@@ -114,39 +74,90 @@ async function getPubKeyOptions(username) {
     signal: abortController.signal,
   });
   if (!resp.ok) {
-    const status = await resp.text();
-    if (!status) throw new Error();
-    regStatus.value = status;
+    const statusText = await resp.text();
+    if (!statusText) throw new Error();
+    regStatus.value = statusText;
   } else {
     return resp.json();
   }
 }
 
-async function getPubKeyCredentials(pubKeyOptionsJson) {
-  const pubKeyOptions = decodePubKeyOptions(pubKeyOptionsJson);
+function convertPubKeyOptions(pubKeyOptions) {
+  const result = { ...pubKeyOptions };
+  result.user.id = new TextEncoder().encode(pubKeyOptions.user.id);
+  result.challenge = base64UrlToBytes(pubKeyOptions.challenge);
+  return result;
+}
+
+function getPubKeyCredential(pubKeyOptions) {
   return navigator.credentials.create({
-    publicKey: pubKeyOptions,
+    publicKey: convertPubKeyOptions(pubKeyOptions),
     signal: abortController.signal,
   });
 }
 
-function decodePubKeyOptions(pubKeyOptionsJson) {
-  const decoded = { ...pubKeyOptionsJson };
-  decoded.challenge = base64ToBytes(pubKeyOptionsJson.challenge);
-  decoded.user.id = base64ToBytes(pubKeyOptionsJson.user.id);
-  return decoded;
+function convertPubKeyCredential(credential) {
+  return {
+    type: credential.type,
+    attestationObject: bufferToBase64(credential.response.attestationObject),
+    clientDataJson: bufferToBase64(credential.response.clientDataJSON),
+  };
 }
 
-function base64ToBytes(base64) {
-  const binString = atob(base64);
-  return Uint8Array.from(binString, (m) => m.codePointAt(0));
+async function verifyPubKeyCredential(credential) {
+  const resp = await fetch("/webauthn/verify-pubkey-credential", {
+    method: "post",
+    body: JSON.stringify(convertPubKeyCredential(credential)),
+  });
+  regStatus.value = resp.ok ? REG_STATUS.Success : REG_STATUS.GeneralError;
 }
 
 function setRegStatusFromError(error) {
-  const statusPerError = {
-    AbortError: REG_STATUS.Aborted,
-    NotAllowedError: REG_STATUS.AuthenticatorError,
-  };
-  const status = statusPerError[error.name];
-  regStatus.value = status || REG_STATUS.GeneralError;
+  regStatus.value = REG_STATUS_BY_ERROR_NAME[error.name] ||
+    REG_STATUS.GeneralError;
+}
+
+function RegForm() {
+  const disabled = useComputed(() => regStatus.value === REG_STATUS.Pending);
+  const loading = useComputed(() => regStatus.value === REG_STATUS.Pending);
+
+  return html`
+    <form class="reg-form" onSubmit=${submitReg}>
+      <fieldset disabled=${disabled}>
+        <label for="username">Username:</label>
+        <input
+          id="username"
+          type="text"
+          minlength="${USERNAME_CONSTRAINTS.minLength}"
+          maxlength="${USERNAME_CONSTRAINTS.maxLength}"
+          pattern="${USERNAME_CONSTRAINTS.pattern}"
+          title="${USERNAME_CONSTRAINTS.patternTitle}"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck=""
+          required
+        />
+        <button>Create Account</button>
+        <${Spinner} visible=${loading.value} />
+      </fieldset>
+    </form>
+    <${ErrorMsg} msg=${regErrMsg.value}/>
+  `;
+}
+
+function Spinner({ visible }) {
+  return visible && html`<span class="spinner small"></span>`;
+}
+
+function ErrorMsg({ msg }) {
+  return msg && html`<p class="error-msg">${msg}</p>`;
+}
+
+function base64UrlToBytes(base64Url) {
+  const base64 = base64Url.replaceAll("-", "+").replaceAll("_", "/");
+  return Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+}
+
+function bufferToBase64(buffer) {
+  return btoa(String.fromCharCode(...new Uint8Array(buffer)));
 }

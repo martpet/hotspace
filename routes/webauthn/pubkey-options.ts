@@ -11,10 +11,10 @@ import {
 import {
   REG_STATUS,
   REG_TIMEOUT,
-  USERNAME as USERNAME_CONSTRAINTS,
+  USERNAME_CONSTRAINTS,
 } from "../../static/webauthn.js";
 
-export default async function pubkeyOptionsHandler({ req }: Context) {
+export default async function pubkeyOptionsHandler({ req, url }: Context) {
   if (req.method !== "POST") {
     return new Response(null, { status: 405, headers: { allow: "POST" } });
   }
@@ -31,7 +31,7 @@ export default async function pubkeyOptionsHandler({ req }: Context) {
     return new Response(REG_STATUS.UsernameTaken, { status: 400 });
   }
 
-  const pubKeyOptions = createPubKeyOptionsJson(username);
+  const pubKeyOptions = createPubKeyOptionsJson(username, url);
 
   const regSession: RegSession = {
     id: ulid(),
