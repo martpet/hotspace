@@ -1,7 +1,8 @@
-import { decode as cborDecode } from "cbor-x";
+import { decode as decodeCbor } from "cbor-x";
 import { REG_TIMEOUT } from "../static/webauthn.js";
 
 export const REG_SESSION_COOKIE = "reg_session";
+export const SESSION_COOKIE = "session";
 
 export interface RegSession {
   id: string;
@@ -62,21 +63,26 @@ export function createPubKeyOptionsJson(username: string, url: URL) {
   };
 }
 
-export async function verifyRegResponse(opt: VerifyRegResponseOpts) {
-  const { credential } = opt;
+export async function verifyRegResponse(options: VerifyRegResponseOpts) {
+  const {
+    credential,
+    expectedChallenge,
+    expectedOrigin,
+    expectedRpId,
+  } = options;
   const { attestationObject, clientDataJson } = credential;
   const clientData = JSON.parse(base64ToUtf8(clientDataJson));
   const authData = decodeAuthData(attestationObject);
 
   const verified = credential.type === "public-key" &&
     clientData.type === "webauthn.create" &&
-    clientData.challenge === opt.expectedChallenge &&
-    clientData.origin === opt.expectedOrigin &&
-    await matchRpId(authData.rpIdHash, opt.expectedRpId) &&
+    clientData.challenge === expectedChallenge &&
+    clientData.origin === expectedOrigin &&
+    await matchRpId(authData.rpIdHash, expectedRpId) &&
     authData.flags.up &&
     authData.flags.uv &&
     !!authData.credentialId &&
-    // !!authData.publicKey &&
+    !!authData.publicKey &&
     !!authData.aaguid;
 
   return {
@@ -85,52 +91,54 @@ export async function verifyRegResponse(opt: VerifyRegResponseOpts) {
   };
 }
 
-function generateChallenge() {
-  const bytes = new Uint8Array(32);
-  crypto.getRandomValues(bytes);
-  return bufferToBase64Url(bytes);
-}
-
 function decodeAuthData(attestationObject: string) {
-  const decodedObject = cborDecode(base64ToBytes(attestationObject));
-  const data = decodedObject.authData as Uint8Array;
-  const dataView = new DataView(data.buffer, data.byteOffset, data.length);
-  const rpIdHash = data.slice(0, 32);
-  const flagsBytes = data.slice(32, 33);
-  const flagsInt = flagsBytes[0];
-  const aaguidBytes = data.slice(37, 53);
-  const credentialIdLen = dataView.getUint16(53);
-  const credentialIdBytes = data.slice(53, 53 + credentialIdLen);
-  // const publicKeyBytes = data.slice(53 + credentialIdLen);
+  const decodedObject = decodeCbor(base64ToBytes(attestationObject));
+  const authData = decodedObject.authData as Uint8Array;
+  let offset = 0;
+  const rpIdHash = authData.slice(offset, offset += 32);
+  const flagsBytes = authData.slice(offset, offset += 1);
+  const flags = flagsBytes[0];
+  const counterBytes = authData.slice(offset, offset += 4);
+  const counter = new DataView(counterBytes.buffer).getUint32(0);
+  const aaguidBytes = authData.slice(offset, offset += 16);
+  const credIdLenBytes = authData.slice(offset, offset += 2);
+  const credIdLen = new DataView(credIdLenBytes.buffer).getUint16(0);
+  const credIdBytes = authData.slice(offset, offset += credIdLen);
+  const publicKeyBytes = authData.slice(offset);
 
   return {
     rpIdHash,
-    credentialId: bufferToBase64Url(credentialIdBytes),
-    // publicKey: cborDecode(publicKeyBytes),
+    flags: covertFlags(flags),
+    counter,
+    credentialId: bufferToBase64Url(credIdBytes),
+    publicKey: decodeCbor(publicKeyBytes),
     aaguid: convertAaguid(aaguidBytes),
-    counter: dataView.getUint32(33),
-    flags: {
-      up: !!(flagsInt & (1 << 0)),
-      uv: !!(flagsInt & (1 << 2)),
-      be: !!(flagsInt & (1 << 3)),
-      bs: !!(flagsInt & (1 << 4)),
-      at: !!(flagsInt & (1 << 6)),
-      ed: !!(flagsInt & (1 << 7)),
-    },
   };
 }
 
-function convertAaguid(aaguid: Uint8Array) {
-  const hex = Array.from(aaguid)
-    .map((byte) => byte.toString(16).padStart(2, "0"))
-    .join("");
+function convertAaguid(aaguidBytes: Uint8Array) {
+  const hexArray = Array.from(aaguidBytes).map((byte) =>
+    byte.toString(16).padStart(2, "0")
+  );
+  const hexString = hexArray.join("");
   return [
-    hex.slice(0, 8),
-    hex.slice(8, 12),
-    hex.slice(12, 16),
-    hex.slice(16, 20),
-    hex.slice(20, 32),
+    hexString.slice(0, 8),
+    hexString.slice(8, 12),
+    hexString.slice(12, 16),
+    hexString.slice(16, 20),
+    hexString.slice(20, 32),
   ].join("-");
+}
+
+function covertFlags(flags: number) {
+  return {
+    up: !!(flags & (1 << 0)),
+    uv: !!(flags & (1 << 2)),
+    be: !!(flags & (1 << 3)),
+    bs: !!(flags & (1 << 4)),
+    at: !!(flags & (1 << 6)),
+    ed: !!(flags & (1 << 7)),
+  };
 }
 
 async function matchRpId(rpIdHash: Uint8Array, expectedRpId: string) {
@@ -141,13 +149,19 @@ async function matchRpId(rpIdHash: Uint8Array, expectedRpId: string) {
     rpIdHash.every((b, i) => b === expectedHash[i]);
 }
 
+function generateChallenge() {
+  const bytes = new Uint8Array(32);
+  crypto.getRandomValues(bytes);
+  return bufferToBase64Url(bytes);
+}
+
 function bufferToBase64Url(buffer: ArrayBuffer) {
   const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
   return base64.replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
 }
 
 function base64ToBytes(base64: string) {
-  return Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+  return Uint8Array.from(atob(base64), (byte) => byte.charCodeAt(0));
 }
 
 function base64ToUtf8(base64: string) {

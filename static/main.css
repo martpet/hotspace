@@ -1,3 +1,9 @@
+.success-msg {
+  color: green;
+  @media (prefers-color-scheme: dark) {
+    & { color: limegreen }
+  }
+}
 .error-msg {
   color: red;
   @media (prefers-color-scheme: dark) {
@@ -26,14 +32,9 @@
   display: inline-block;
   box-sizing: border-box;
   animation: rotation 0.5s linear infinite;
-  &.small {
-    width: 12px;
-    height: 12px;
-  }
+  &.small { width: 12px; height: 12px; }
   @media (prefers-color-scheme: dark) {
-    & { 
-      border-color: white white transparent;
-    }
+    & {  border-color: white white transparent; }
   }
 }
 

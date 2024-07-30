@@ -8,8 +8,7 @@
     "ulid": "jsr:@std/ulid",
     "deno-dom": "jsr:@b-fuze/deno-dom",
     "pretty": "npm:pretty",
-    "cbor-x": "npm:cbor-x@1.5.9",
-    "cborg": "npm:cborg@4.2.3"
+    "cbor-x": "npm:cbor-x@1.5.9"
   },
   "unstable": [
     "kv"

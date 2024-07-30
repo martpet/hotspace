@@ -7,7 +7,7 @@ import serverErrorHandler from "./routes/errors/error500.ts";
 import home from "./routes/home.ts";
 import userSpace from "./routes/user-space.ts";
 import pubKeyOptions from "./routes/webauthn/pubkey-options.ts";
-import verifyPubKeyCredential from "./routes/webauthn/verify-pubkey-credential.ts";
+import verifyRegResponse from "./routes/webauthn/verify-reg-response.ts";
 
 const HOSTNAME = "(hotspace.lol|localhost)";
 
@@ -23,7 +23,7 @@ app.addRoute("/static/*", staticFilesHandler);
 app.addRoute("/", home);
 app.addRoute({ pathname: "/", hostname: `:username.${HOSTNAME}` }, userSpace);
 app.addRoute("/webauthn/pubkey-options", pubKeyOptions);
-app.addRoute("/webauthn/verify-pubkey-credential", verifyPubKeyCredential);
+app.addRoute("/webauthn/verify-reg-response", verifyRegResponse);
 app.addRoute({ pathname: "*", hostname: "*" }, error404);
 
 app.listen();

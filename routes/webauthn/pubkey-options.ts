@@ -1,7 +1,7 @@
 import { setCookie } from "cookie";
 import { ulid } from "ulid";
 import type { Context } from "../../lib/app/types.ts";
-import { kv } from "../../utils/db.ts";
+import { kv, kvKeys } from "../../utils/db.ts";
 import {
   createPubKeyOptionsJson,
   REG_SESSION_COOKIE,
@@ -25,7 +25,7 @@ export default async function pubkeyOptionsHandler({ req, url }: Context) {
     return new Response(null, { status: 400 });
   }
 
-  const kvUser = await kv.get(["users_by_username"], username);
+  const kvUser = await kv.get(kvKeys.usersByUsername(username));
 
   if (kvUser.value) {
     return new Response(REG_STATUS.UsernameTaken, { status: 400 });
@@ -41,7 +41,7 @@ export default async function pubkeyOptionsHandler({ req, url }: Context) {
   };
 
   const kvRegSession = await kv.set(
-    ["reg_sessions", regSession.id],
+    kvKeys.regSessions(regSession.id),
     regSession,
     { expireIn: REG_TIMEOUT },
   );

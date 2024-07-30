@@ -301,7 +301,6 @@
       "jsr:@std/http",
       "jsr:@std/ulid",
       "npm:cbor-x@1.5.9",
-      "npm:cborg@4.2.3",
       "npm:pretty"
     ]
   }
