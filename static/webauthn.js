@@ -1,8 +1,8 @@
-let render, html, signal, computed, effect, useEffect;
+let render, html, signal, computed, effect;
 
 if (typeof document !== "undefined") {
   const preact = await import("/static/preact.js");
-  ({ render, html, signal, computed, effect, useEffect } = preact);
+  ({ render, html, signal, computed, effect } = preact);
 }
 
 export const REG_TIMEOUT = 1000 * 60;
@@ -113,7 +113,7 @@ async function submitReg(event) {
     const pubKeyOptions = await getPubKeyOptions();
     if (!pubKeyOptions) return;
     const credential = await getPubKeyCredential(pubKeyOptions);
-    verifyRegResponse(credential);
+    createUser(credential);
   } catch (error) {
     console.log(error);
     setRegStatusFromError(error);
@@ -157,7 +157,7 @@ function convertPubKeyCredential(credential) {
   };
 }
 
-async function verifyRegResponse(credential) {
+async function createUser(credential) {
   const resp = await fetch("/webauthn/verify-reg-response", {
     method: "post",
     body: JSON.stringify(convertPubKeyCredential(credential)),

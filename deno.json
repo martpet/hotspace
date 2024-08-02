@@ -3,12 +3,13 @@
     "start": "deno run -A --watch main.ts"
   },
   "imports": {
-    "file-server": "jsr:@std/http/file-server",
-    "cookie": "jsr:@std/http/cookie",
-    "ulid": "jsr:@std/ulid",
-    "deno-dom": "jsr:@b-fuze/deno-dom",
-    "pretty": "npm:pretty",
-    "cbor-x": "npm:cbor-x@1.5.9"
+    "$server": "./lib/server.ts",
+    "$webauthn": "./lib/webauthn.ts",
+    "@std/http": "jsr:@std/http@^0.224",
+    "@std/ulid": "jsr:@std/ulid@^1.0",
+    "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1",
+    "pretty": "npm:pretty@^2.0",
+    "cbor-x": "npm:cbor-x@^1.5"
   },
   "unstable": [
     "kv"

@@ -1,20 +1,16 @@
-import { setCookie } from "cookie";
-import { ulid } from "ulid";
-import type { Context } from "../../lib/app/types.ts";
-import { kv, kvKeys } from "../../utils/db.ts";
-import {
-  createPubKeyOptionsJson,
-  REG_SESSION_COOKIE,
-  type RegSession,
-  validateUsername,
-} from "../../utils/webauthn.ts";
+import { createPubKeyOptions, validateUsername } from "$webauthn";
+import { setCookie } from "@std/http";
+import { ulid } from "@std/ulid";
 import {
   REG_STATUS,
   REG_TIMEOUT,
   USERNAME_CONSTRAINTS,
 } from "../../static/webauthn.js";
+import { REG_SESSION_COOKIE } from "../../utils/consts.ts";
+import { kv, KV_KEYS } from "../../utils/db.ts";
+import type { AppContext, RegSession } from "../../utils/types.ts";
 
-export default async function pubkeyOptionsHandler({ req, url }: Context) {
+export default async function pubkeyOptionsHandler({ req, url }: AppContext) {
   if (req.method !== "POST") {
     return new Response(null, { status: 405, headers: { allow: "POST" } });
   }
@@ -25,13 +21,17 @@ export default async function pubkeyOptionsHandler({ req, url }: Context) {
     return new Response(null, { status: 400 });
   }
 
-  const kvUser = await kv.get(kvKeys.usersByUsername(username));
+  const kvUser = await kv.get(KV_KEYS.usersByUsername(username));
 
   if (kvUser.value) {
     return new Response(REG_STATUS.UsernameTaken, { status: 400 });
   }
 
-  const pubKeyOptions = createPubKeyOptionsJson(username, url);
+  const pubKeyOptions = createPubKeyOptions({
+    username,
+    url,
+    timeout: REG_TIMEOUT,
+  });
 
   const regSession: RegSession = {
     id: ulid(),
@@ -41,7 +41,7 @@ export default async function pubkeyOptionsHandler({ req, url }: Context) {
   };
 
   const kvRegSession = await kv.set(
-    kvKeys.regSessions(regSession.id),
+    KV_KEYS.regSessions(regSession.id),
     regSession,
     { expireIn: REG_TIMEOUT },
   );

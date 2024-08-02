@@ -3,5 +3,8 @@
   "deno.unstable": true,
   "deno.lint": true,
   "deno.disablePaths": ["static/"],
-  "editor.defaultFormatter": "denoland.vscode-deno"
+  "editor.defaultFormatter": "denoland.vscode-deno",
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "always"
+  }
 }

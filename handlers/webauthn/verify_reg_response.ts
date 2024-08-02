@@ -1,24 +1,23 @@
-import { deleteCookie, getCookies, setCookie } from "cookie";
-import { ulid } from "ulid";
-import type { Context } from "../../lib/app/types.ts";
-import {
-  REG_SESSION_COOKIE,
-  type RegSession,
-  SESSION_COOKIE,
-  verifyRegResponse,
-} from "../../utils/webauthn.ts";
+import { verifyRegResponse } from "$webauthn";
+import { deleteCookie, getCookies, setCookie } from "@std/http";
+import { ulid } from "@std/ulid";
+import { REG_SESSION_COOKIE, SESSION_COOKIE } from "../../utils/consts.ts";
 import {
   kv,
-  kvKeys,
-  type Passkey,
-  type Session,
+  KV_KEYS,
   setPasskey,
   setSession,
   setUser,
-  type User,
 } from "../../utils/db.ts";
+import type {
+  AppContext,
+  Passkey,
+  RegSession,
+  Session,
+  User,
+} from "../../utils/types.ts";
 
-export default async function verifyRegResponseHandler(ctx: Context) {
+export default async function verifyRegResponseHandler(ctx: AppContext) {
   const { req, url } = ctx;
 
   if (req.method !== "POST") {
@@ -26,10 +25,9 @@ export default async function verifyRegResponseHandler(ctx: Context) {
   }
 
   const headers = new Headers();
-
   deleteCookie(headers, REG_SESSION_COOKIE, { path: "/" });
-
   const negativeResponse = new Response(null, { status: 401, headers });
+
   const regSessionId = getCookies(req.headers)[REG_SESSION_COOKIE];
 
   if (!regSessionId) {
@@ -37,7 +35,7 @@ export default async function verifyRegResponseHandler(ctx: Context) {
   }
 
   const kvRegSession = await kv.get<RegSession>(
-    kvKeys.regSessions(regSessionId),
+    KV_KEYS.regSessions(regSessionId),
   );
 
   if (!kvRegSession.value) {

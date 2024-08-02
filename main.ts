@@ -1,29 +1,27 @@
-import App from "./lib/app/mod.ts";
-import htmlTemplateBuilder from "./utils/html_template.ts";
-import { requestLogger } from "./middleware/request-logger.ts";
-import staticFilesHandler from "./routes/static.ts";
-import error404 from "./routes/errors/error404.ts";
-import serverErrorHandler from "./routes/errors/error500.ts";
-import home from "./routes/home.ts";
-import userSpace from "./routes/user-space.ts";
-import pubKeyOptions from "./routes/webauthn/pubkey-options.ts";
-import verifyRegResponse from "./routes/webauthn/verify-reg-response.ts";
+import Server from "$server";
+import error404 from "./handlers/error/_404.ts";
+import error500 from "./handlers/error/_500.ts";
+import home from "./handlers/home.ts";
+import staticFiles from "./handlers/static-files.ts";
+import userHome from "./handlers/user-home.ts";
+import webauthnPubkeyOptions from "./handlers/webauthn/pubkey_options.ts";
+import webauthnVerifyReg from "./handlers/webauthn/verify_reg_response.ts";
+import { logger } from "./middleware/logger.ts";
 
-const HOSTNAME = "(hotspace.lol|localhost)";
+const HOSTNAME = "(hotspace.lol|localhost)"; // todo: add *.deno.dev
 
-const app = new App({
-  htmlTemplateBuilder,
-  serverErrorHandler,
-  hostnamePattern: HOSTNAME,
+const app = new Server({
+  errorHandler: error500,
+  urlPatternHostname: HOSTNAME,
 });
 
-app.addMiddleware(requestLogger);
+app.addMiddleware(logger);
 
-app.addRoute("/static/*", staticFilesHandler);
 app.addRoute("/", home);
-app.addRoute({ pathname: "/", hostname: `:username.${HOSTNAME}` }, userSpace);
-app.addRoute("/webauthn/pubkey-options", pubKeyOptions);
-app.addRoute("/webauthn/verify-reg-response", verifyRegResponse);
-app.addRoute({ pathname: "*", hostname: "*" }, error404);
+app.addRoute("/static/*", staticFiles);
+app.addRoute({ hostname: `:username.${HOSTNAME}`, pathname: "/" }, userHome);
+app.addRoute("/webauthn/pubkey-options", webauthnPubkeyOptions);
+app.addRoute("/webauthn/verify-reg-response", webauthnVerifyReg);
+app.addRoute("*", error404);
 
-app.listen();
+app.serve();

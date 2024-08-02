@@ -1,24 +1,12 @@
 import { decode as decodeCbor } from "cbor-x";
-import { REG_TIMEOUT } from "../static/webauthn.js";
 
-export const REG_SESSION_COOKIE = "reg_session";
-export const SESSION_COOKIE = "session";
-
-export interface RegSession {
-  id: string;
+interface CreatePubKeyOptions {
   username: string;
-  webauthnUserId: string;
-  challenge: string;
+  url: URL;
+  timeout: number;
 }
 
-interface UsernameContraints {
-  minLength: number;
-  maxLength: number;
-  pattern: string;
-  patternTitle: string;
-}
-
-interface VerifyRegResponseOpts {
+interface VerifyRegResponseOptions {
   expectedChallenge: string;
   expectedOrigin: string;
   expectedRpId: string;
@@ -29,9 +17,16 @@ interface VerifyRegResponseOpts {
   };
 }
 
+interface UsernameConstraints {
+  minLength: number;
+  maxLength: number;
+  pattern: string;
+  patternTitle: string;
+}
+
 export function validateUsername(
   username: string,
-  contsraints: UsernameContraints,
+  contsraints: UsernameConstraints,
 ) {
   return typeof username === "string" &&
     username.length >= contsraints.minLength &&
@@ -39,14 +34,15 @@ export function validateUsername(
     new RegExp(contsraints.pattern).test(username);
 }
 
-export function createPubKeyOptionsJson(username: string, url: URL) {
+export function createPubKeyOptions(opt: CreatePubKeyOptions) {
+  const { url, username, timeout } = opt;
   return {
     rp: {
       name: "Hotspace",
       id: url.hostname,
     },
     challenge: generateChallenge(),
-    timeout: REG_TIMEOUT,
+    timeout,
     user: {
       id: crypto.randomUUID(),
       name: username,
@@ -63,17 +59,16 @@ export function createPubKeyOptionsJson(username: string, url: URL) {
   };
 }
 
-export async function verifyRegResponse(options: VerifyRegResponseOpts) {
+export async function verifyRegResponse(opt: VerifyRegResponseOptions) {
   const {
     credential,
     expectedChallenge,
     expectedOrigin,
     expectedRpId,
-  } = options;
+  } = opt;
   const { attestationObject, clientDataJson } = credential;
   const clientData = JSON.parse(base64ToUtf8(clientDataJson));
   const authData = decodeAuthData(attestationObject);
-
   const verified = credential.type === "public-key" &&
     clientData.type === "webauthn.create" &&
     clientData.challenge === expectedChallenge &&
@@ -84,7 +79,6 @@ export async function verifyRegResponse(options: VerifyRegResponseOpts) {
     !!authData.credentialId &&
     !!authData.publicKey &&
     !!authData.aaguid;
-
   return {
     verified,
     authData,
@@ -105,7 +99,6 @@ function decodeAuthData(attestationObject: string) {
   const credIdLen = new DataView(credIdLenBytes.buffer).getUint16(0);
   const credIdBytes = authData.slice(offset, offset += credIdLen);
   const publicKeyBytes = authData.slice(offset);
-
   return {
     rpIdHash,
     flags: covertFlags(flags),
