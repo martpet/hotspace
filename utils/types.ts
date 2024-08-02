@@ -1,7 +1,7 @@
-import type { Context, Middleware } from "$server";
+import type { ServerContext, ServerMiddleware } from "$server";
 
-export type AppContext = Context<State>;
-export type AppMiddleware = Middleware<State>;
+export type Context = ServerContext<State>;
+export type Middleware = ServerMiddleware<State>;
 
 interface State {
   user?: User;
@@ -15,7 +15,6 @@ export interface User {
 export interface Session {
   id: string;
   userId: string;
-  createdAt: Date;
 }
 
 export interface RegSession {

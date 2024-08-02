@@ -10,14 +10,14 @@ import {
   setUser,
 } from "../../utils/db.ts";
 import type {
-  AppContext,
+  Context,
   Passkey,
   RegSession,
   Session,
   User,
 } from "../../utils/types.ts";
 
-export default async function verifyRegResponseHandler(ctx: AppContext) {
+export default async function verifyRegResponseHandler(ctx: Context) {
   const { req, url } = ctx;
 
   if (req.method !== "POST") {
@@ -34,17 +34,16 @@ export default async function verifyRegResponseHandler(ctx: AppContext) {
     return negativeResponse;
   }
 
-  const kvRegSession = await kv.get<RegSession>(
-    KV_KEYS.regSessions(regSessionId),
-  );
+  const regSession =
+    (await kv.get<RegSession>(KV_KEYS.regSessions(regSessionId))).value;
 
-  if (!kvRegSession.value) {
+  if (!regSession) {
     return negativeResponse;
   }
 
   const { verified, authData } = await verifyRegResponse({
     credential: await req.json(),
-    expectedChallenge: kvRegSession.value.challenge,
+    expectedChallenge: regSession.challenge,
     expectedOrigin: url.origin,
     expectedRpId: url.hostname,
   });
@@ -57,13 +56,13 @@ export default async function verifyRegResponseHandler(ctx: AppContext) {
 
   const user: User = {
     id: ulid(),
-    username: kvRegSession.value.username,
+    username: regSession.username,
   };
 
   const passkey: Passkey = {
     credId: authData.credentialId,
     userId: user.id,
-    webauthnUserId: kvRegSession.value.webauthnUserId,
+    webauthnUserId: regSession.webauthnUserId,
     pubKey: authData.publicKey,
     backupEligible: authData.flags.be,
     backedUp: authData.flags.bs,
@@ -75,7 +74,6 @@ export default async function verifyRegResponseHandler(ctx: AppContext) {
   const session: Session = {
     id: ulid(),
     userId: user.id,
-    createdAt: date,
   };
 
   const atomic = kv.atomic();
@@ -92,8 +90,8 @@ export default async function verifyRegResponseHandler(ctx: AppContext) {
   setCookie(headers, {
     name: SESSION_COOKIE,
     value: session.id,
-    httpOnly: true,
     path: "/",
+    httpOnly: true,
   });
 
   return new Response(null, { headers });

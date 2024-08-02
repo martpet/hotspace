@@ -5,8 +5,6 @@ if (typeof document !== "undefined") {
   ({ render, html, signal, computed, effect } = preact);
 }
 
-export const REG_TIMEOUT = 1000 * 60;
-
 export const USERNAME_CONSTRAINTS = {
   minLength: 4,
   maxLength: 30,

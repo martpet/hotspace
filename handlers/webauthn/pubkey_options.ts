@@ -1,16 +1,15 @@
 import { createPubKeyOptions, validateUsername } from "$webauthn";
 import { setCookie } from "@std/http";
 import { ulid } from "@std/ulid";
+import { REG_STATUS, USERNAME_CONSTRAINTS } from "../../static/webauthn.js";
 import {
-  REG_STATUS,
-  REG_TIMEOUT,
-  USERNAME_CONSTRAINTS,
-} from "../../static/webauthn.js";
-import { REG_SESSION_COOKIE } from "../../utils/consts.ts";
+  REG_SESSION_COOKIE,
+  REG_SESSION_DURATION,
+} from "../../utils/consts.ts";
 import { kv, KV_KEYS } from "../../utils/db.ts";
-import type { AppContext, RegSession } from "../../utils/types.ts";
+import type { Context, RegSession } from "../../utils/types.ts";
 
-export default async function pubkeyOptionsHandler({ req, url }: AppContext) {
+export default async function pubkeyOptionsHandler({ req, url }: Context) {
   if (req.method !== "POST") {
     return new Response(null, { status: 405, headers: { allow: "POST" } });
   }
@@ -21,16 +20,16 @@ export default async function pubkeyOptionsHandler({ req, url }: AppContext) {
     return new Response(null, { status: 400 });
   }
 
-  const kvUser = await kv.get(KV_KEYS.usersByUsername(username));
+  const user = (await kv.get(KV_KEYS.usersByUsername(username))).value;
 
-  if (kvUser.value) {
+  if (user) {
     return new Response(REG_STATUS.UsernameTaken, { status: 400 });
   }
 
   const pubKeyOptions = createPubKeyOptions({
     username,
     url,
-    timeout: REG_TIMEOUT,
+    timeout: REG_SESSION_DURATION,
   });
 
   const regSession: RegSession = {
@@ -43,7 +42,7 @@ export default async function pubkeyOptionsHandler({ req, url }: AppContext) {
   const kvRegSession = await kv.set(
     KV_KEYS.regSessions(regSession.id),
     regSession,
-    { expireIn: REG_TIMEOUT },
+    { expireIn: REG_SESSION_DURATION },
   );
 
   if (!kvRegSession.ok) {
@@ -58,7 +57,7 @@ export default async function pubkeyOptionsHandler({ req, url }: AppContext) {
     name: REG_SESSION_COOKIE,
     value: regSession.id,
     path: "/",
-    maxAge: REG_TIMEOUT / 1000,
+    maxAge: REG_SESSION_DURATION / 1000,
     httpOnly: true,
   });
 

@@ -1,43 +1,43 @@
-type State = {
-  [k: string]: unknown;
-};
+type State = { [k: string]: unknown };
 
-export interface Context<S = State> {
-  state: S;
+interface ServerOptions {
+  errorHandler?: ServerHandler;
+  urlPatternHostname?: string;
+}
+
+export interface ServerContext<S = State> {
   req: Request;
+  state: S;
   url: URL;
+  urlPattern: URLPattern;
   isDev: boolean;
   isHtmlRequest: boolean;
-  urlPattern?: URLPattern;
   error?: Error;
 }
 
-export type Handler<S = State> = (
-  ctx: Context<S>,
-) => Response | Promise<Response>;
+export type ServerHandler<S = State> = (ctx: ServerContext<S>) =>
+  | Response
+  | Promise<Response>;
 
-export type Middleware<S = State> = (
-  ctx: Context<S>,
-  next: () => ReturnType<Middleware>,
-) => Response | Promise<Response>;
-
-interface ServerOptions {
-  errorHandler?: Handler;
-  urlPatternHostname?: string;
-}
+export type ServerMiddleware<S = State> = (
+  ctx: ServerContext<S>,
+  next: () => ReturnType<ServerMiddleware>,
+) =>
+  | Response
+  | Promise<Response>;
 
 export default class Server {
   #errorHandler;
   #urlPatternHostname;
-  #routes: { urlPattern: URLPattern; handler: Handler }[] = [];
-  #middlewares: Middleware[] = [];
+  #routes: { urlPattern: URLPattern; handler: ServerHandler }[] = [];
+  #middlewares: ServerMiddleware[] = [];
 
   constructor(opt: ServerOptions) {
     this.#errorHandler = opt.errorHandler;
     this.#urlPatternHostname = opt.urlPatternHostname;
   }
 
-  addRoute(input: URLPatternInput, handler: Handler) {
+  addRoute(input: URLPatternInput, handler: ServerHandler) {
     if (typeof input === "string") {
       input = { pathname: input };
     }
@@ -48,19 +48,20 @@ export default class Server {
     });
   }
 
-  addMiddleware(middleware: Middleware) {
+  addMiddleware(middleware: ServerMiddleware) {
     this.#middlewares.push(middleware);
   }
 
   serve() {
-    Deno.serve((req) => this.#handleServe(req));
+    Deno.serve((req) => this.#serveHandler(req));
   }
 
-  async #handleServe(req: Request) {
-    const ctx: Context = {
-      state: {},
+  async #serveHandler(req: Request) {
+    const ctx: ServerContext = {
       req,
+      state: {},
       url: new URL(req.url),
+      urlPattern: new URLPattern({}),
       isDev: Deno.env.get("DENO_DEPLOYMENT_ID") === undefined,
       isHtmlRequest: !!req.headers.get("accept")?.includes("text/html"),
     };
@@ -86,7 +87,7 @@ export default class Server {
     }
   }
 
-  #applyMiddlewares(handler: Handler, ctx: Context, index = 0) {
+  #applyMiddlewares(handler: ServerHandler, ctx: ServerContext, index = 0) {
     if (index < this.#middlewares.length) {
       const next = () => this.#applyMiddlewares(handler, ctx, index + 1);
       return this.#middlewares[index](ctx, next);

@@ -1,7 +1,7 @@
 import { htmlResp } from "../utils/html.ts";
-import type { AppContext } from "../utils/types.ts";
+import type { Context } from "../utils/types.ts";
 
-export default function userHomeHandler({ req, urlPattern }: AppContext) {
+export default function userHomeHandler({ req, urlPattern }: Context) {
   const { username } = urlPattern!.exec(req.url)!.hostname.groups;
 
   return htmlResp(`

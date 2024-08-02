@@ -7,19 +7,22 @@ import userHome from "./handlers/user-home.ts";
 import webauthnPubkeyOptions from "./handlers/webauthn/pubkey_options.ts";
 import webauthnVerifyReg from "./handlers/webauthn/verify_reg_response.ts";
 import { logger } from "./middleware/logger.ts";
+import { sessions } from "./middleware/sessions.ts";
+import { STATIC_FILES_URL_PATTERN } from "./utils/consts.ts";
 
-const HOSTNAME = "(hotspace.lol|localhost)"; // todo: add *.deno.dev
+const HOSTNAMES = "(hotspace.lol|localhost)"; // todo: add *.deno.dev
 
 const app = new Server({
   errorHandler: error500,
-  urlPatternHostname: HOSTNAME,
+  urlPatternHostname: HOSTNAMES,
 });
 
 app.addMiddleware(logger);
+app.addMiddleware(sessions);
 
 app.addRoute("/", home);
-app.addRoute("/static/*", staticFiles);
-app.addRoute({ hostname: `:username.${HOSTNAME}`, pathname: "/" }, userHome);
+app.addRoute(STATIC_FILES_URL_PATTERN, staticFiles);
+app.addRoute({ hostname: `:username.${HOSTNAMES}`, pathname: "/" }, userHome);
 app.addRoute("/webauthn/pubkey-options", webauthnPubkeyOptions);
 app.addRoute("/webauthn/verify-reg-response", webauthnVerifyReg);
 app.addRoute("*", error404);

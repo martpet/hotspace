@@ -1,7 +1,7 @@
 import { buildHtml } from "../../utils/html.ts";
-import { AppContext } from "../../utils/types.ts";
+import { Context } from "../../utils/types.ts";
 
-export default function error400Handler(ctx: AppContext) {
+export default function error400Handler(ctx: Context) {
   const { isHtmlRequest } = ctx;
 
   if (!isHtmlRequest) {
