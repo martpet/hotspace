@@ -109,6 +109,17 @@ function decodeAuthData(attestationObject: string) {
   };
 }
 
+function covertFlags(flags: number) {
+  return {
+    up: !!(flags & (1 << 0)),
+    uv: !!(flags & (1 << 2)),
+    be: !!(flags & (1 << 3)),
+    bs: !!(flags & (1 << 4)),
+    at: !!(flags & (1 << 6)),
+    ed: !!(flags & (1 << 7)),
+  };
+}
+
 function convertAaguid(aaguidBytes: Uint8Array) {
   const hexArray = Array.from(aaguidBytes).map((byte) =>
     byte.toString(16).padStart(2, "0")
@@ -123,23 +134,12 @@ function convertAaguid(aaguidBytes: Uint8Array) {
   ].join("-");
 }
 
-function covertFlags(flags: number) {
-  return {
-    up: !!(flags & (1 << 0)),
-    uv: !!(flags & (1 << 2)),
-    be: !!(flags & (1 << 3)),
-    bs: !!(flags & (1 << 4)),
-    at: !!(flags & (1 << 6)),
-    ed: !!(flags & (1 << 7)),
-  };
-}
-
 async function matchRpId(rpIdHash: Uint8Array, expectedRpId: string) {
   const buffer = new TextEncoder().encode(expectedRpId);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", buffer);
-  const expectedHash = new Uint8Array(hashBuffer);
+  const hashBuf = await crypto.subtle.digest("SHA-256", buffer);
+  const expectedHash = new Uint8Array(hashBuf);
   return rpIdHash.length === expectedHash.length &&
-    rpIdHash.every((b, i) => b === expectedHash[i]);
+    rpIdHash.every((byte, i) => byte === expectedHash[i]);
 }
 
 function generateChallenge() {

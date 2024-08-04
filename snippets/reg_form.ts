@@ -1,8 +1,10 @@
 export const regForm = `
-  <noscript>Registration requires JavaScript!</noscript>
   <div id="reg-form-root"></div>
+  <noscript>Registration requires JavaScript!</noscript>
   <script type="module">
-    import { initRegForm } from "/static/webauthn.js";
-    initRegForm('reg-form-root');
+    import { RegForm } from "/static/webauthn.js";
+    import { render, html } from "/static/preact.js";
+    const root = document.getElementById("reg-form-root");
+    ${"render(html`<${RegForm} />`, root)"}
   </script>
 `;

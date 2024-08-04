@@ -17,7 +17,7 @@ import type {
   User,
 } from "../../utils/types.ts";
 
-export default async function verifyRegResponseHandler(ctx: Context) {
+export default async function verifyRegHandler(ctx: Context) {
   const { req, url } = ctx;
 
   if (req.method !== "POST") {
@@ -27,7 +27,6 @@ export default async function verifyRegResponseHandler(ctx: Context) {
   const headers = new Headers();
   deleteCookie(headers, REG_SESSION_COOKIE, { path: "/" });
   const negativeResponse = new Response(null, { status: 401, headers });
-
   const regSessionId = getCookies(req.headers)[REG_SESSION_COOKIE];
 
   if (!regSessionId) {
@@ -52,8 +51,6 @@ export default async function verifyRegResponseHandler(ctx: Context) {
     return negativeResponse;
   }
 
-  const date = new Date();
-
   const user: User = {
     id: ulid(),
     username: regSession.username,
@@ -67,8 +64,7 @@ export default async function verifyRegResponseHandler(ctx: Context) {
     backupEligible: authData.flags.be,
     backedUp: authData.flags.bs,
     counter: authData.counter,
-    createdAt: date,
-    lastUsed: date,
+    createdAt: new Date(),
   };
 
   const session: Session = {
@@ -80,10 +76,9 @@ export default async function verifyRegResponseHandler(ctx: Context) {
   setUser(user, atomic);
   setPasskey(passkey, atomic);
   setSession(session, atomic);
+  const commit = await atomic.commit();
 
-  const commitResult = await atomic.commit();
-
-  if (!commitResult.ok) {
+  if (!commit.ok) {
     return negativeResponse;
   }
 

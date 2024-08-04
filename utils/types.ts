@@ -33,5 +33,5 @@ export interface Passkey {
   backedUp: boolean;
   counter: number;
   createdAt: Date;
-  lastUsed: Date;
+  lastUsed?: Date;
 }

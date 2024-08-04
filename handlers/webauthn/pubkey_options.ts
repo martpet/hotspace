@@ -14,7 +14,7 @@ export default async function pubkeyOptionsHandler({ req, url }: Context) {
     return new Response(null, { status: 405, headers: { allow: "POST" } });
   }
 
-  const { username } = JSON.parse(await req.text());
+  const { username } = await req.json();
 
   if (!validateUsername(username, USERNAME_CONSTRAINTS)) {
     return new Response(null, { status: 400 });
@@ -39,19 +39,17 @@ export default async function pubkeyOptionsHandler({ req, url }: Context) {
     challenge: pubKeyOptions.challenge,
   };
 
-  const kvRegSession = await kv.set(
+  const regSessionCommit = await kv.set(
     KV_KEYS.regSessions(regSession.id),
     regSession,
     { expireIn: REG_SESSION_DURATION },
   );
 
-  if (!kvRegSession.ok) {
+  if (!regSessionCommit.ok) {
     return new Response(null, { status: 500 });
   }
 
-  const headers = new Headers({
-    "content-type": "application/json",
-  });
+  const headers = new Headers({ "content-type": "application/json" });
 
   setCookie(headers, {
     name: REG_SESSION_COOKIE,

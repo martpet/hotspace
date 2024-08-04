@@ -1,12 +1,12 @@
-let render, html, signal, computed, effect;
+let html, useSignal, useComputed;
 
 if (typeof document !== "undefined") {
   const preact = await import("/static/preact.js");
-  ({ render, html, signal, computed, effect } = preact);
+  ({ html, useSignal, useComputed } = preact);
 }
 
 export const USERNAME_CONSTRAINTS = {
-  minLength: 4,
+  minLength: 3,
   maxLength: 30,
   pattern: "^[a-z0-9_\\-]+$",
   patternTitle: "Small letters, numbers, underscores, and hyphens.",
@@ -16,63 +16,55 @@ export const REG_STATUS = {
   Idle: "IDLE",
   Pending: "PENDING",
   Success: "SUCCESS",
-  Aborted: "ABORTED",
   UsernameTaken: "USERNAME_TAKEN",
   WebAuthnUnsupported: "WEBAUTHN_UNSUPPORTED",
   AuthenticatorError: "AUTHENTICATOR_ERROR",
   GeneralError: "GENERAL_ERROR",
 };
 
-const DEFAULT_REG_STATUS = typeof PublicKeyCredential === "undefined"
-  ? REG_STATUS.WebAuthnUnsupported
-  : REG_STATUS.Idle;
+const REG_STATUS_ERROR_MSG = {
+  [REG_STATUS.UsernameTaken]: "Sorry, username is taken.",
+  [REG_STATUS.AuthenticatorError]: "Registration was not completed.",
+  [REG_STATUS.WebAuthnUnsupported]: "Your browser doesn't support Passkeys.",
+  [REG_STATUS.GeneralError]: "Something went wrong, try again!",
+};
 
-const REG_STATUS_BY_ERROR = {
-  AbortError: REG_STATUS.Aborted,
+const RUNTIME_ERROR_TO_REG_STATUS = {
   NotAllowedError: REG_STATUS.AuthenticatorError,
 };
 
-const REG_ERROR_MSG = {
-  [REG_STATUS.UsernameTaken]: "Username is already registered.",
-  [REG_STATUS.WebAuthnUnsupported]: "Your browser doesn't support Passkeys.",
-  [REG_STATUS.Aborted]: "Registration was canceled.",
-  [REG_STATUS.AuthenticatorError]: "Registration was not completed.",
-  [REG_STATUS.GeneralError]: "Something went wrong!",
-};
+const INITIAL_REG_STATUS = typeof PublicKeyCredential === "undefined"
+  ? REG_STATUS.WebAuthnUnsupported
+  : REG_STATUS.Idle;
 
-let abortController, regStatus, regErrorMsg, regUsername, regInProgress;
+export function RegForm() {
+  const username = useSignal("");
+  const status = useSignal(INITIAL_REG_STATUS);
+  const inProgress = useComputed(() => status.value === REG_STATUS.Pending);
+  const errorMsg = useComputed(() => REG_STATUS_ERROR_MSG[status.value]);
+  const successMsg = useComputed(() => {
+    if (status.value === REG_STATUS.Success) {
+      const url = new URL(location.href);
+      url.host = `${username.value}.${url.host}`;
+      return html`Registration complete! Go to <a href="${url.href}">${url.host}</a>`;
+    }
+  });
 
-export async function initRegForm(rootElId) {
-  regStatus = signal(DEFAULT_REG_STATUS);
-  regUsername = signal();
-  regErrorMsg = computed(computeRegErrorMsg);
-  regInProgress = computed(computeRegInProgress);
-  effect(regSuccessEffect);
-  render(html`<${RegForm} />`, document.getElementById(rootElId));
-}
-
-function computeRegErrorMsg() {
-  return REG_ERROR_MSG[regStatus.value];
-}
-
-function computeRegInProgress() {
-  return [REG_STATUS.Pending, REG_STATUS.Success].includes(regStatus.value);
-}
-
-function regSuccessEffect() {
-  if (regStatus.value === REG_STATUS.Success) {
-    location.hostname = regUsername.value + "." + location.hostname;
+  async function onSubmit(e) {
+    e.preventDefault();
+    status.value = REG_STATUS.Pending;
+    status.value = await register(username.value);
   }
-}
 
-function RegForm() {
   return html`
-    <form class="reg-form" onSubmit=${submitReg}>
-      <fieldset disabled=${regInProgress}>
+    <form class="reg-form" onSubmit=${onSubmit}>
+      <fieldset disabled=${inProgress}>
         <label for="username">Username:</label>
         <input
           id="username"
           type="text"
+          value="${username}"
+          onChange=${(e) => username.value = e.currentTarget.value}
           minlength="${USERNAME_CONSTRAINTS.minLength}"
           maxlength="${USERNAME_CONSTRAINTS.maxLength}"
           pattern="${USERNAME_CONSTRAINTS.pattern}"
@@ -83,89 +75,52 @@ function RegForm() {
           required
         />
         <button>Create Account</button>
-        <${RegStatus}/>
+        ${inProgress.value && html`<span class="spinner small"></span>`}
       </fieldset>
+      ${errorMsg.value && html`<p class="error-msg">${errorMsg}</p>`}
+      ${successMsg.value && html`<p class="success-msg">${successMsg}</p>`}
     </form>
   `;
 }
 
-function RegStatus() {
-  const elements = [];
-  if (regInProgress.value) {
-    elements.push(html`<span class="spinner small"></span>`);
-  }
-  if (regStatus.value === REG_STATUS.Success) {
-    elements.push(html`<span class="success-msg">Redirecting...</span>`);
-  } else if (regErrorMsg.value) {
-    elements.push(html`<span class="error-msg">${regErrorMsg}</span>`);
-  }
-  return elements;
-}
-
-async function submitReg(event) {
-  event.preventDefault();
-  regStatus.value = REG_STATUS.Pending;
-  abortController = new AbortController();
-  regUsername.value = event.target.username.value;
+async function register(username) {
   try {
-    const pubKeyOptions = await getPubKeyOptions();
-    if (!pubKeyOptions) return;
-    const credential = await getPubKeyCredential(pubKeyOptions);
-    createUser(credential);
-  } catch (error) {
-    console.log(error);
-    setRegStatusFromError(error);
+    const publicKey = await createPubKeyOptions(username);
+    if (publicKey.error) return publicKey.error;
+    const cred = await navigator.credentials.create({ publicKey });
+    return verifyReg(cred);
+  } catch (err) {
+    console.error(err);
+    return RUNTIME_ERROR_TO_REG_STATUS[err.name] || REG_STATUS.GeneralError;
   }
 }
 
-async function getPubKeyOptions() {
+async function createPubKeyOptions(username) {
   const resp = await fetch("/webauthn/pubkey-options", {
+    body: JSON.stringify({ username }),
     method: "post",
-    body: JSON.stringify({ username: regUsername.value }),
-    signal: abortController.signal,
   });
-  if (!resp.ok) {
-    const statusText = await resp.text();
-    if (!statusText) throw new Error();
-    regStatus.value = statusText;
+  if (resp.ok) {
+    const data = await resp.json();
+    data.challenge = base64UrlToBytes(data.challenge);
+    data.user.id = new TextEncoder().encode(data.user.id);
+    return data;
   } else {
-    return resp.json();
+    return { error: await resp.text() };
   }
 }
 
-function convertPubKeyOptions(pubKeyOptions) {
-  const result = { ...pubKeyOptions };
-  result.user.id = new TextEncoder().encode(pubKeyOptions.user.id);
-  result.challenge = base64UrlToBytes(pubKeyOptions.challenge);
-  return result;
-}
-
-function getPubKeyCredential(pubKeyOptions) {
-  return navigator.credentials.create({
-    publicKey: convertPubKeyOptions(pubKeyOptions),
-    signal: abortController.signal,
-  });
-}
-
-function convertPubKeyCredential(credential) {
-  return {
+async function verifyReg(credential) {
+  const regData = {
     type: credential.type,
     attestationObject: bufferToBase64(credential.response.attestationObject),
     clientDataJson: bufferToBase64(credential.response.clientDataJSON),
   };
-}
-
-async function createUser(credential) {
-  const resp = await fetch("/webauthn/verify-reg-response", {
+  const resp = await fetch("/webauthn/verify-reg", {
+    body: JSON.stringify(regData),
     method: "post",
-    body: JSON.stringify(convertPubKeyCredential(credential)),
-    signal: abortController.signal,
   });
-  regStatus.value = resp.ok ? REG_STATUS.Success : REG_STATUS.GeneralError;
-}
-
-function setRegStatusFromError(error) {
-  regStatus.value = REG_STATUS_BY_ERROR[error.name] || REG_STATUS.GeneralError;
+  return resp.ok ? REG_STATUS.Success : REG_STATUS.GeneralError;
 }
 
 function base64UrlToBytes(base64Url) {
