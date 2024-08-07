@@ -1,47 +1,28 @@
-type State = { [k: string]: unknown };
+import {
+  ServerContext,
+  ServerHandler,
+  ServerMiddleware,
+  ServerOptions,
+} from "./types.ts";
 
-interface ServerOptions {
-  errorHandler?: ServerHandler;
-  urlPatternHostname?: string;
-}
-
-export interface ServerContext<S = State> {
-  req: Request;
-  state: S;
-  url: URL;
-  urlPattern: URLPattern;
-  isDev: boolean;
-  isHtmlRequest: boolean;
-  error?: Error;
-}
-
-export type ServerHandler<S = State> = (ctx: ServerContext<S>) =>
-  | Response
-  | Promise<Response>;
-
-export type ServerMiddleware<S = State> = (
-  ctx: ServerContext<S>,
-  next: () => ReturnType<ServerMiddleware>,
-) =>
-  | Response
-  | Promise<Response>;
+export * from "./types.ts";
 
 export default class Server {
-  #errorHandler;
-  #urlPatternHostname;
   #routes: { urlPattern: URLPattern; handler: ServerHandler }[] = [];
   #middlewares: ServerMiddleware[] = [];
+  #errorHandler;
+  #baseHostnameUrlPattern;
 
   constructor(opt: ServerOptions) {
     this.#errorHandler = opt.errorHandler;
-    this.#urlPatternHostname = opt.urlPatternHostname;
+    this.#baseHostnameUrlPattern = opt.baseHostnameUrlPattern;
   }
 
   addRoute(input: URLPatternInput, handler: ServerHandler) {
     if (typeof input === "string") {
       input = { pathname: input };
     }
-    input.hostname ??= this.#urlPatternHostname;
+    input.hostname ??= this.#baseHostnameUrlPattern;
     this.#routes.push({
       urlPattern: new URLPattern(input),
       handler,
@@ -57,33 +38,35 @@ export default class Server {
   }
 
   async #serveHandler(req: Request) {
-    const ctx: ServerContext = {
+    const ctx = {
       req,
       state: {},
       url: new URL(req.url),
-      urlPattern: new URLPattern({}),
       isDev: Deno.env.get("DENO_DEPLOYMENT_ID") === undefined,
       isHtmlRequest: !!req.headers.get("accept")?.includes("text/html"),
     };
     try {
       const route = this.#matchRoute(req.url);
       if (!route) throw new Error("No route matched");
-      ctx.urlPattern = route.urlPattern;
-      return await this.#applyMiddlewares(route.handler, ctx);
-    } catch (err) {
+      return await this.#applyMiddlewares(route.handler, {
+        ...ctx,
+        routeHandler: route.handler,
+        urlPatternResult: route.patternResult,
+      });
+    } catch (error) {
       if (this.#errorHandler) {
-        console.error(err);
-        ctx.error = err;
-        return this.#errorHandler(ctx);
+        console.error(error);
+        return this.#errorHandler({ ...ctx, error } as ServerContext);
       } else {
-        throw err;
+        throw error;
       }
     }
   }
 
   #matchRoute(url: string) {
     for (const route of this.#routes) {
-      if (route.urlPattern.test(url)) return route;
+      const patternResult = route.urlPattern.exec(url);
+      if (patternResult) return { ...route, patternResult };
     }
   }
 

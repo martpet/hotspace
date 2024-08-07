@@ -42,6 +42,7 @@ export function RegForm() {
   const status = useSignal(INITIAL_REG_STATUS);
   const inProgress = useComputed(() => status.value === REG_STATUS.Pending);
   const errorMsg = useComputed(() => REG_STATUS_ERROR_MSG[status.value]);
+
   const successMsg = useComputed(() => {
     if (status.value === REG_STATUS.Success) {
       const url = new URL(location.href);

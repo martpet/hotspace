@@ -1,28 +1,26 @@
 import { DOMParser } from "@b-fuze/deno-dom";
 import pretty from "pretty";
+import type { Context } from "../utils/types.ts";
 
-export function buildHtml(input: string) {
-  const template = `
-    <html>
-      <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="color-scheme" content="dark light" />
-        <meta name="robots" content="noindex" />
-        <link href="/static/main.css" rel="stylesheet" />
-        <link rel="modulepreload" href="/static/preact.js" />
-        <link rel="icon" href="/static/favicon.ico" />
-      </head>
-      ${input}
-    </html>
-  `;
-  const doc = new DOMParser().parseFromString(template, "text/html");
-  const parsed = `<!DOCTYPE html>${doc.documentElement!.outerHTML}`;
-  return pretty(parsed, { ocd: true });
+export function htmlResp(html: string, { status = 200 } = {}) {
+  const doc = new DOMParser().parseFromString(html, "text/html");
+  const parsedHtml = `<!DOCTYPE html>${doc.documentElement!.outerHTML}`;
+  const prettyHtml = pretty(parsedHtml, { ocd: true });
+  const headers = { "content-type": "text/html" };
+  return new Response(prettyHtml, { status, headers });
 }
 
-export function htmlResp(input: string) {
-  return new Response(buildHtml(input), {
-    headers: { "content-type": "text/html" },
-  });
+type LayoutFn = (input: string, ctx: Context) => string | Promise<string>;
+
+type LayoutInputFn = (
+  ctx: Context,
+) => string | Promise<string> | Response | Promise<Response>;
+
+export function createHtmlHandler(layout: LayoutFn) {
+  return (inputFn: LayoutInputFn) => async (ctx: Context) => {
+    const input = await inputFn(ctx);
+    if (input instanceof Response) return input;
+    const html = await layout(input, ctx);
+    return htmlResp(html);
+  };
 }

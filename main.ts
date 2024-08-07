@@ -7,24 +7,22 @@ import userHome from "./handlers/user-home.ts";
 import webauthnPubkeyOptions from "./handlers/webauthn/pubkey_options.ts";
 import webauthnVerifyReg from "./handlers/webauthn/verify_reg.ts";
 import { logger } from "./middleware/logger.ts";
-import { sessions } from "./middleware/sessions.ts";
-import { STATIC_FILES_URL_PATTERN } from "./utils/consts.ts";
-
-const HOSTNAMES = "(hotspace.lol|localhost)"; // todo: add *.deno.dev
+import { session } from "./middleware/session.ts";
+import { BASE_HOSTNAME_URLPATTERN as HOSTNAME } from "./utils/consts.ts";
 
 const app = new Server({
   errorHandler: error500,
-  urlPatternHostname: HOSTNAMES,
+  baseHostnameUrlPattern: HOSTNAME,
 });
 
 app.addMiddleware(logger);
-app.addMiddleware(sessions);
+app.addMiddleware(session);
 
 app.addRoute("/", home);
-app.addRoute(STATIC_FILES_URL_PATTERN, staticFiles);
-app.addRoute({ hostname: `:username.${HOSTNAMES}`, pathname: "/" }, userHome);
+app.addRoute("/static/*", staticFiles);
+app.addRoute({ hostname: `:username.${HOSTNAME}`, pathname: "/" }, userHome);
 app.addRoute("/webauthn/pubkey-options", webauthnPubkeyOptions);
 app.addRoute("/webauthn/verify-reg", webauthnVerifyReg);
-app.addRoute("*", error404);
+app.addRoute({ hostname: "*", pathname: "*" }, error404);
 
 app.serve();

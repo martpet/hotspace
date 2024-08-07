@@ -1,20 +1,9 @@
-import { regForm } from "../snippets/reg_form.ts";
-import { htmlResp } from "../utils/html.ts";
-import type { Context } from "../utils/types.ts";
+import { page } from "../layouts/page.ts";
+import { regForm } from "../snippets/reg-form.ts";
 
-export default function homeHandler({ state }: Context) {
-  const { user } = state;
-
-  return htmlResp(`
+export default page(() => {
+  return `
     <title>Hotspace</title>
-    
-    <!-- 
-    <h1>Hello</h1>
-    <h2>Create New Account</h2>
-    -->
-
-    ${user ? `<p>Hello ${user.username}</p>` : ""}
-
     ${regForm}
-  `);
-}
+  `;
+});

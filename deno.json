@@ -3,7 +3,7 @@
     "start": "deno run -A --watch main.ts"
   },
   "imports": {
-    "$server": "./lib/server.ts",
+    "$server": "./lib/server/mod.ts",
     "$webauthn": "./lib/webauthn.ts",
     "@std/http": "jsr:@std/http@^0.224",
     "@std/ulid": "jsr:@std/ulid@^1.0",

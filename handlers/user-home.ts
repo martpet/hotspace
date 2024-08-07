@@ -1,10 +1,7 @@
-import { htmlResp } from "../utils/html.ts";
-import type { Context } from "../utils/types.ts";
+import { userPage } from "../layouts/user-page.ts";
 
-export default function userHomeHandler({ req, urlPattern }: Context) {
-  const { username } = urlPattern!.exec(req.url)!.hostname.groups;
-
-  return htmlResp(`
-    <h1>${username}</h1>
-  `);
-}
+export default userPage(() => {
+  return `
+    <p>test 123</p>
+  `;
+});
