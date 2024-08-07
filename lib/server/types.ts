@@ -1,28 +1,33 @@
+import type { VNode } from "preact";
+
 export interface ServerOptions {
-  errorHandler?: Handler;
+  errorHandler?: ServerHandler;
   baseHostnameUrlPattern?: string;
 }
 
-type State = { [k: string]: unknown };
+// deno-lint-ignore no-explicit-any
+type State = Record<string, any>;
 
-export interface Context<S = State> {
+export interface ServerContext<S = State> {
   req: Request;
+  respOpt: ResponseInit | Record<string, never>;
   state: S;
   url: URL;
   urlPatternResult: URLPatternResult;
   isDev: boolean;
   isHtmlRequest: boolean;
-  routeHandler: Handler<S>;
+  routeHandler: ServerHandler<S>;
   error?: Error;
 }
 
-export type Handler<S = State> = (ctx: Context<S>) =>
+export type ServerHandler<S = State> = (ctx: ServerContext<S>) =>
   | Response
-  | Promise<Response>;
+  | VNode
+  | Promise<Response | VNode>;
 
-export type Middleware<S = State> = (
-  ctx: Context<S>,
-  next: () => ReturnType<Middleware>,
+export type ServerMiddleware<S = State> = (
+  ctx: ServerContext<S>,
+  next: () => ReturnType<ServerMiddleware>,
 ) =>
   | Response
   | Promise<Response>;

@@ -25,6 +25,13 @@ export function setSession(session: Session, atomic = kv.atomic()) {
     .set(KV_KEYS.sessionsByUser(session.userId, session.id), session);
 }
 
+export function deleteSession(session: Session) {
+  return kv.atomic()
+    .delete(KV_KEYS.sessions(session.id))
+    .delete(KV_KEYS.sessionsByUser(session.userId, session.id))
+    .commit();
+}
+
 export function setPasskey(passkey: Passkey, atomic = kv.atomic()) {
   return atomic
     .set(KV_KEYS.passkeys(passkey.credId), passkey)

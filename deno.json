@@ -5,11 +5,11 @@
   "imports": {
     "$server": "./lib/server/mod.ts",
     "$webauthn": "./lib/webauthn.ts",
-    "@std/http": "jsr:@std/http@^0.224",
-    "@std/ulid": "jsr:@std/ulid@^1.0",
-    "@b-fuze/deno-dom": "jsr:@b-fuze/deno-dom@^0.1",
-    "pretty": "npm:pretty@^2.0",
-    "cbor-x": "npm:cbor-x@^1.5"
+    "@std/http": "jsr:@std/http@^1.0.2",
+    "@std/ulid": "jsr:@std/ulid@^1.0.0",
+    "preact": "npm:preact@^10.22.0",
+    "preact-render-to-string": "npm:preact-render-to-string@^6.4.2",
+    "cbor-x": "npm:cbor-x@^1.6.0"
   },
   "unstable": [
     "kv"
@@ -22,6 +22,8 @@
       "dom.extra",
       "deno.ns",
       "deno.unstable"
-    ]
+    ],
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
   }
 }

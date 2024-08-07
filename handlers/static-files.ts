@@ -1,6 +1,6 @@
 import { serveFile } from "@std/http";
-import { AppContext } from "../utils/types.ts";
+import type { Context } from "../utils/types.ts";
 
-export default function staticFilesHandler(ctx: AppContext) {
+export default function staticFilesHandler(ctx: Context) {
   return serveFile(ctx.req, "." + ctx.url.pathname);
 }

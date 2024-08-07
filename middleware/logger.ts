@@ -1,16 +1,16 @@
-import type { AppMiddleware } from "../utils/types.ts";
+import type { Middleware } from "../utils/types.ts";
 
-export const logger: AppMiddleware = async ({ req, url }, next) => {
-  if (url.hostname !== "localhost") {
+export const logger: Middleware = async ({ req, url, isDev }, next) => {
+  if (!isDev) {
     return next();
   }
-  const startTime = performance.now();
+
+  const begin = performance.now();
   const resp = await next();
+  const end = performance.now();
+  const duration = Math.round(begin - end);
 
-  const endTime = performance.now();
-  const duration = Math.round(endTime - startTime);
-
-  console.log(`[${req.method}] ${url.pathname} (${duration} ms)`);
+  console.log(`[${req.method}] ${url.pathname} (${duration}ms)`);
 
   return resp;
 };
