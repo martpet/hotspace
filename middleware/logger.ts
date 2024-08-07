@@ -1,6 +1,6 @@
-import type { Middleware } from "../utils/types.ts";
+import type { AppMiddleware } from "../utils/types.ts";
 
-export const logger: Middleware = async ({ req, url }, next) => {
+export const logger: AppMiddleware = async ({ req, url }, next) => {
   if (url.hostname !== "localhost") {
     return next();
   }

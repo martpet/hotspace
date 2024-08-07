@@ -4,10 +4,15 @@ import error500Handler from "../handlers/error/_500.ts";
 import staticFilesHandler from "../handlers/static-files.ts";
 import { SESSION_COOKIE } from "../utils/consts.ts";
 import { kv, KV_KEYS } from "../utils/db.ts";
-import type { Middleware, Session, User } from "../utils/types.ts";
+import type {
+  AppHandler,
+  AppMiddleware,
+  Session,
+  User,
+} from "../utils/types.ts";
 
-export const session: Middleware = async (ctx, next) => {
-  const skippedHandlers = [
+export const session: AppMiddleware = async (ctx, next) => {
+  const skippedHandlers: AppHandler[] = [
     staticFilesHandler,
     error400Handler,
     error500Handler,

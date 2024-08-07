@@ -9,7 +9,7 @@ export const USERNAME_CONSTRAINTS = {
   minLength: 3,
   maxLength: 30,
   pattern: "^[a-z0-9_\\-]+$",
-  patternTitle: "Small letters, numbers, underscores, and hyphens.",
+  patternTitle: "Lower case letters, numbers, underscores, and hyphens.",
 };
 
 export const REG_STATUS = {

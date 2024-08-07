@@ -1,26 +1,37 @@
 import { DOMParser } from "@b-fuze/deno-dom";
 import pretty from "pretty";
-import type { Context } from "../utils/types.ts";
+import type { AppContext } from "../utils/types.ts";
 
-export function htmlResp(html: string, { status = 200 } = {}) {
+interface ResponseOptions {
+  status?: number;
+  headers?: HeadersInit;
+}
+
+export function htmlResp(html: string, options: ResponseOptions = {}) {
+  const { status = 200 } = options;
   const doc = new DOMParser().parseFromString(html, "text/html");
   const parsedHtml = `<!DOCTYPE html>${doc.documentElement!.outerHTML}`;
   const prettyHtml = pretty(parsedHtml, { ocd: true });
-  const headers = { "content-type": "text/html" };
+  const headers = new Headers(options.headers);
+  headers.set("content-type", "text/html");
   return new Response(prettyHtml, { status, headers });
 }
 
-type LayoutFn = (input: string, ctx: Context) => string | Promise<string>;
+type LayoutFn = (input: string, ctx: AppContext) =>
+  | string
+  | Promise<string>;
 
-type LayoutInputFn = (
-  ctx: Context,
-) => string | Promise<string> | Response | Promise<Response>;
+type LayoutInputFn = (ctx: AppContext) =>
+  | string
+  | Promise<string>
+  | Response
+  | Promise<Response>;
 
-export function createHtmlHandler(layout: LayoutFn) {
-  return (inputFn: LayoutInputFn) => async (ctx: Context) => {
+export function createHtmlHandler(layoutFn: LayoutFn) {
+  return (inputFn: LayoutInputFn) => async (ctx: AppContext) => {
     const input = await inputFn(ctx);
     if (input instanceof Response) return input;
-    const html = await layout(input, ctx);
+    const html = await layoutFn(input, ctx);
     return htmlResp(html);
   };
 }

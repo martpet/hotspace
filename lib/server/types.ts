@@ -1,28 +1,28 @@
 export interface ServerOptions {
-  errorHandler?: ServerHandler;
+  errorHandler?: Handler;
   baseHostnameUrlPattern?: string;
 }
 
 type State = { [k: string]: unknown };
 
-export interface ServerContext<S = State> {
+export interface Context<S = State> {
   req: Request;
   state: S;
   url: URL;
   urlPatternResult: URLPatternResult;
   isDev: boolean;
   isHtmlRequest: boolean;
-  routeHandler: ServerHandler;
+  routeHandler: Handler<S>;
   error?: Error;
 }
 
-export type ServerHandler<S = State> = (ctx: ServerContext<S>) =>
+export type Handler<S = State> = (ctx: Context<S>) =>
   | Response
   | Promise<Response>;
 
-export type ServerMiddleware<S = State> = (
-  ctx: ServerContext<S>,
-  next: () => ReturnType<ServerMiddleware>,
+export type Middleware<S = State> = (
+  ctx: Context<S>,
+  next: () => ReturnType<Middleware>,
 ) =>
   | Response
   | Promise<Response>;

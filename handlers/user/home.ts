@@ -1,4 +1,4 @@
-import { userPage } from "../layouts/user-page.ts";
+import { userPage } from "../../layouts/user-page.ts";
 
 export default userPage(() => {
   return `

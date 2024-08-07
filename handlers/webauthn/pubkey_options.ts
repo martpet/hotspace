@@ -7,9 +7,9 @@ import {
   REG_SESSION_DURATION,
 } from "../../utils/consts.ts";
 import { kv, KV_KEYS } from "../../utils/db.ts";
-import type { Context, RegSession } from "../../utils/types.ts";
+import type { AppContext, RegSession } from "../../utils/types.ts";
 
-export default async function pubkeyOptionsHandler({ req, url }: Context) {
+export default async function pubkeyOptionsHandler({ req, url }: AppContext) {
   if (req.method !== "POST") {
     return new Response(null, { status: 405, headers: { allow: "POST" } });
   }

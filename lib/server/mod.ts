@@ -1,15 +1,10 @@
-import {
-  ServerContext,
-  ServerHandler,
-  ServerMiddleware,
-  ServerOptions,
-} from "./types.ts";
+import type { Context, Handler, Middleware, ServerOptions } from "./types.ts";
 
 export * from "./types.ts";
 
 export default class Server {
-  #routes: { urlPattern: URLPattern; handler: ServerHandler }[] = [];
-  #middlewares: ServerMiddleware[] = [];
+  #routes: { urlPattern: URLPattern; handler: Handler }[] = [];
+  #middlewares: Middleware[] = [];
   #errorHandler;
   #baseHostnameUrlPattern;
 
@@ -18,7 +13,7 @@ export default class Server {
     this.#baseHostnameUrlPattern = opt.baseHostnameUrlPattern;
   }
 
-  addRoute(input: URLPatternInput, handler: ServerHandler) {
+  addRoute(input: URLPatternInput, handler: Handler) {
     if (typeof input === "string") {
       input = { pathname: input };
     }
@@ -29,7 +24,7 @@ export default class Server {
     });
   }
 
-  addMiddleware(middleware: ServerMiddleware) {
+  addMiddleware(middleware: Middleware) {
     this.#middlewares.push(middleware);
   }
 
@@ -56,7 +51,7 @@ export default class Server {
     } catch (error) {
       if (this.#errorHandler) {
         console.error(error);
-        return this.#errorHandler({ ...ctx, error } as ServerContext);
+        return this.#errorHandler({ ...ctx, error } as Context);
       } else {
         throw error;
       }
@@ -70,7 +65,7 @@ export default class Server {
     }
   }
 
-  #applyMiddlewares(handler: ServerHandler, ctx: ServerContext, index = 0) {
+  #applyMiddlewares(handler: Handler, ctx: Context, index = 0) {
     if (index < this.#middlewares.length) {
       const next = () => this.#applyMiddlewares(handler, ctx, index + 1);
       return this.#middlewares[index](ctx, next);

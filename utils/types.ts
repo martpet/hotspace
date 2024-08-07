@@ -1,8 +1,8 @@
-import type { ServerContext, ServerHandler, ServerMiddleware } from "$server";
+import type { Context, Handler, Middleware } from "$server";
 
-export type Handler = ServerHandler<State>;
-export type Context = ServerContext<State>;
-export type Middleware = ServerMiddleware<State>;
+export type AppHandler = Handler<State>;
+export type AppContext = Context<State>;
+export type AppMiddleware = Middleware<State>;
 
 export interface State {
   user?: User;

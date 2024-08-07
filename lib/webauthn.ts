@@ -1,4 +1,5 @@
 import { decode as decodeCbor } from "cbor-x";
+import { SITE_NAME } from "../utils/consts.ts";
 
 interface CreatePubKeyOptions {
   username: string;
@@ -38,7 +39,7 @@ export function createPubKeyOptions(opt: CreatePubKeyOptions) {
   const { url, username, timeout } = opt;
   return {
     rp: {
-      name: "Hotspace",
+      name: SITE_NAME,
       id: url.hostname,
     },
     challenge: generateChallenge(),
