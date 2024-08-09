@@ -2,21 +2,23 @@ import type { VNode } from "preact";
 
 export interface ServerOptions {
   errorHandler?: ServerHandler;
-  baseHostnameUrlPattern?: string;
+  rootDomainURLPattern?: string;
+  trailingSlashMode?: "always" | "never" | "mixed";
 }
 
 // deno-lint-ignore no-explicit-any
 type State = Record<string, any>;
 
 export interface ServerContext<S = State> {
+  handler: ServerHandler<S>;
   req: Request;
-  respOpt: ResponseInit | Record<string, never>;
+  respInit: ResponseInit | Record<string, never>;
   state: S;
   url: URL;
   urlPatternResult: URLPatternResult;
+  get rootDomain(): URL;
   isDev: boolean;
   isHtmlRequest: boolean;
-  routeHandler: ServerHandler<S>;
   error?: Error;
 }
 

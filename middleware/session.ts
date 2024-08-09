@@ -13,7 +13,7 @@ export const session: Middleware = async (ctx, next) => {
     error500Handler,
   ];
 
-  if (skipHandlers.includes(ctx.routeHandler)) {
+  if (skipHandlers.includes(ctx.handler)) {
     return next();
   }
 
@@ -26,14 +26,16 @@ export const session: Middleware = async (ctx, next) => {
   const session = (await kv.get<Session>(KV_KEYS.sessions(sessionId))).value;
 
   if (session) {
-    ctx.state.user = (await kv.get<User>(KV_KEYS.users(session.userId))).value;
+    const user = (await kv.get<User>(KV_KEYS.users(session.userId))).value;
+    if (user) {
+      ctx.state.user = user;
+      ctx.state.session = session;
+    }
   }
 
   const resp = await next();
 
-  if (ctx.state.user) {
-    ctx.state.session = session;
-  } else {
+  if (!ctx.state.user) {
     deleteCookie(resp.headers, SESSION_COOKIE, { path: "/" });
   }
 

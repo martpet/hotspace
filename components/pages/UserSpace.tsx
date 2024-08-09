@@ -1,19 +1,18 @@
 import type { ComponentChildren } from "preact";
-import { findBaseUrl } from "../../utils/url.ts";
+import type { Context } from "../../utils/types.ts";
 import Page from "./Page.tsx";
 
 interface UserSpaceProps {
   children: ComponentChildren;
-  url: URL;
 }
 
-export default function UserSpace({ url }: UserSpaceProps) {
-  const head = <meta name="robots" content="noindex" />;
-  const baseUrl = findBaseUrl(url);
+export default function UserSpace({ children }: UserSpaceProps, ctx: Context) {
+  const metaNoIndex = <meta name="robots" content="noindex" />;
 
   return (
-    <Page head={head} baseUrl={baseUrl}>
-      <h1>To do</h1>
+    <Page head={metaNoIndex} baseUrl={ctx.rootDomain}>
+      <h1>Hi</h1>
+      {children}
     </Page>
   );
 }

@@ -6,12 +6,12 @@ export default function error404Handler(ctx: Context) {
     return new Response(null, { status: 404 });
   }
 
-  ctx.respOpt.status = 404;
-
   const title = "Error 404: Page Not Found";
 
+  ctx.respInit.status = 404;
+
   return (
-    <Page title={title}>
+    <Page title={title} baseUrl={ctx.rootDomain}>
       <h1>{title}</h1>
     </Page>
   );

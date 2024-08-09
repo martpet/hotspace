@@ -1,9 +1,8 @@
 import UserSpace from "../../components/pages/UserSpace.tsx";
-import type { Context } from "../../utils/types.ts";
 
-export default function userSpaceHomeHandler({ url }: Context) {
+export default function userspaceHomeHandler() {
   return (
-    <UserSpace url={url}>
+    <UserSpace>
       <p>test 123</p>
     </UserSpace>
   );

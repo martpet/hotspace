@@ -25,5 +25,10 @@
     ],
     "jsx": "react-jsx",
     "jsxImportSource": "preact"
+  },
+  "lint": {
+    "rules": {
+      "exclude": ["no-this-alias"]
+    }
   }
 }

@@ -86,7 +86,7 @@ export default async function verifyRegHandler(ctx: Context) {
     name: SESSION_COOKIE,
     value: session.id,
     path: "/",
-    domain: "localhost",
+    domain: ctx.rootDomain.hostname,
     httpOnly: true,
   });
 

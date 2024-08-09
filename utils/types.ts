@@ -9,8 +9,9 @@ export type Context = ServerContext<State>;
 export type Middleware = ServerMiddleware<State>;
 
 export interface State {
-  user?: User | null;
-  session?: Session | null;
+  user?: User;
+  session?: Session;
+  flash?: Flash;
 }
 
 export interface User {
@@ -40,4 +41,9 @@ export interface Passkey {
   counter: number;
   createdAt: Date;
   lastUsed?: Date;
+}
+
+export interface Flash {
+  msg: string;
+  type?: "info" | "success" | "warning" | "error";
 }
