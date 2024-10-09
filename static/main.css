@@ -1,0 +1,203 @@
+:root {
+  --canvas-color: white;
+  --canvas-text: black;
+  --color-success: green;
+  --color-warning: yellow;
+  --color-danger: red;
+  --gray-text: rgba(0, 0, 0, 0.247);
+  --gray-border: var(--gray-text);
+  --buttons-list-spacing: 0.5rem;
+
+  @media (prefers-color-scheme: dark) {
+    --canvas-color: rgb(30, 30, 30);
+    --canvas-text: white;
+    --gray-text: rgba(255, 255, 255, 0.247);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--canvas-color);
+  color: var(--canvas-text);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+footer {
+  margin-block: 1rem;
+}
+
+menu {
+  margin-inline: 0;
+  padding-inline: 0;
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--buttons-list-spacing);
+}
+
+textarea {
+  font-family: system-ui;
+}
+
+dialog {
+  h2 {
+    margin-top: 0.6rem;
+    font-size: 2rem;
+  }
+  &:has(.basic-form) {
+    min-width: min(25rem, 100%);
+  }
+}
+
+form.basic-form {
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin: 1.5rem 0;
+  }
+  input,
+  textarea {
+    width: 100%;
+  }
+  textarea {
+    max-width: 100%;
+  }
+  footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--buttons-list-spacing);
+    margin-top: 2rem;
+    dialog & {
+      margin-bottom: 0.3rem;
+    }
+  }
+}
+
+.alert {
+  padding: 0.25rem 0.4rem;
+  border-radius: 2px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  &.success {
+    background: var(--color-success);
+    color: white;
+  }
+  &.warning {
+    background: var(--color-warning);
+    color: black;
+  }
+  &.error {
+    background: var(--color-danger);
+    color: white;
+  }
+}
+
+.spinner {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 1px solid ButtonText;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.5s linear infinite;
+  &.sm {
+    width: 12px;
+    height: 12px;
+  }
+  &.xs {
+    width: 8px;
+    height: 8px;
+  }
+}
+
+.button-spinner {
+  .spinner {
+    display: none;
+    margin-left: 0.25rem;
+  }
+  &.spin .spinner {
+    display: inline-block;
+  }
+}
+
+form#create-credential {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  .alert {
+    width: fit-content;
+    margin-block: -1rem;
+    margin-left: 0.4rem;
+  }
+  @media (max-width: 400px) {
+    label {
+      width: 100%;
+    }
+    .alert {
+      margin: 0.2rem 0;
+    }
+  }
+}
+
+ul#passkeys {
+  width: max-content;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+
+  li:has(.delete-passkey button:active) {
+    background-color: Mark;
+    color: MarkText;
+  }
+  .rename-passkey {
+    padding: 0;
+    font: inherit;
+    font-style: italic;
+    background: none;
+    border: none;
+    border-bottom: 1px dashed #aaa;
+    outline: none;
+    cursor: default;
+    &:hover {
+      background-color: Mark;
+      color: MarkText;
+    }
+  }
+  .delete-passkey {
+    display: inline-block;
+    margin-left: 0.5rem;
+  }
+  .spinner {
+    margin-left: 0.3rem;
+  }
+}
+
+dialog#create-space {
+  textarea {
+    field-sizing: content;
+    min-height: 3.5rem;
+  }
+}
+
+p#flash {
+  width: fit-content;
+}
