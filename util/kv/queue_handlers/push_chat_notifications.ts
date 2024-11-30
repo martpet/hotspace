@@ -31,9 +31,9 @@ export function isPushChatNotifications(
 }
 
 export async function handlePushChatNotifications(msg: QueueMsgChatMsgPush) {
-  const nonce = (await getQueueNonce(msg.nonce)).value;
-  if (nonce === null) return;
-  await deleteQueueNonce(nonce);
+  const nonceEntry = await getQueueNonce(msg.nonce);
+  if (!nonceEntry.value) return;
+  deleteQueueNonce(msg.nonce);
 
   const { chatId, chatMsgId, pageTitle, chatUrl } = msg;
 
@@ -78,12 +78,12 @@ export async function handlePushChatNotifications(msg: QueueMsgChatMsgPush) {
               chatMsgId,
               chatUrl,
               pageTitle,
-            }).then(() =>
-              setChatSub(
-                { ...chatSub, hasCurrentNotification: true },
-                kv.atomic(),
-              ).commit()
-            ),
+            }).then(() => {
+              setChatSub({
+                ...chatSub,
+                hasCurrentNotification: true,
+              }, kv.atomic()).commit();
+            }),
           );
         }
       } catch (err) {

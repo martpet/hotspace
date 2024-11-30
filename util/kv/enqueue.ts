@@ -20,7 +20,7 @@ export function setQueueNonce(nonce: string, atomic: Deno.AtomicOperation) {
 }
 
 export function getQueueNonce(nonce: string) {
-  return kv.get<string>(["queue_nonces", nonce]);
+  return kv.get<true>(["queue_nonces", nonce]);
 }
 
 export function deleteQueueNonce(nonce: string) {

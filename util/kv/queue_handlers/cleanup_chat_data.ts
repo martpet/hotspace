@@ -38,9 +38,9 @@ export function isCleanupChatData(
 }
 
 export async function handleCleanupChatData(msg: QueueMsgCleanupChatData) {
-  const nonce = (await getQueueNonce(msg.nonce)).value;
-  if (nonce === null) return;
-  await deleteQueueNonce(nonce);
+  const nonceEntry = await getQueueNonce(msg.nonce);
+  if (!nonceEntry.value) return;
+  await deleteQueueNonce(msg.nonce);
 
   await Promise.all([
     deleteChatMessages(msg.chatId),
