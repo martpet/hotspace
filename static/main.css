@@ -1,0 +1,304 @@
+:root {
+  --canvas-bg-color: white;
+  --canvas-text-color: black;
+  --text-gray: silver;
+  --small-text-gray: darkGrey;
+  --border-gray: lightGray;
+
+  @media (prefers-color-scheme: dark) {
+    --canvas-bg-color: rgb(30, 30, 30);
+    --canvas-text-color: white;
+    --text-gray: dimGray;
+    --small-text-gray: gray;
+    --border-gray: rgb(80, 80, 80);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+html {
+  background: var(--canvas-bg-color);
+  color: var(--canvas-text-color);
+  &[data-device-type="mobile"] {
+    input[type="text"],
+    textarea {
+      font-size: 16px;
+    }
+  }
+}
+
+footer {
+  margin-block: 1rem;
+}
+
+menu {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-inline: 0;
+  padding-inline: 0;
+  list-style: none;
+}
+
+img {
+  max-width: 100%;
+}
+
+label {
+  small {
+    color: var(--small-text-gray);
+  }
+}
+
+input[type="checkbox"] {
+  margin-inline: 2px;
+}
+
+textarea {
+  font-family: system-ui;
+}
+
+dialog {
+  border-width: 3px;
+  background: var(--canvas-bg-color);
+  h2 {
+    margin-top: 0.6rem;
+    font-size: 2rem;
+  }
+  &:has(.basic-form) {
+    min-width: min(25rem, 100%);
+  }
+}
+
+#flash {
+  width: fit-content;
+}
+
+form.basic-form {
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin: 1.5rem 0;
+  }
+  input,
+  textarea {
+    width: 100%;
+  }
+  textarea {
+    max-width: 100%;
+  }
+  footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-top: 2rem;
+    dialog & {
+      margin-bottom: 0.3rem;
+    }
+  }
+}
+
+.alert,
+[role="alert"] {
+  padding: 0.25rem 0.4rem;
+  border-radius: 2px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  &:empty {
+    display: none;
+  }
+  &.success {
+    background: green;
+    color: white;
+  }
+  &.warning {
+    background: yellow;
+    color: black;
+  }
+  &.error {
+    background: red;
+    color: white;
+  }
+}
+
+.spinner,
+[class*="spinner-"] {
+  &::after {
+    display: inline-block;
+    width: 24px;
+    aspect-ratio: 1;
+    content: "";
+    border: 1px solid currentColor;
+    border-bottom-color: transparent !important;
+    border-radius: 50%;
+    animation: spin 0.5s linear infinite;
+  }
+  &.spinner-sm::after {
+    width: 12px;
+  }
+  &.spinner-xs::after,
+  button&::after {
+    width: 8px;
+  }
+  button&::after {
+    margin-left: 0.25rem;
+    color: ButtonText;
+  }
+}
+
+.dots {
+  display: inline-flex;
+  --size: 0.4em;
+  --active-dot-bg: hsl(from currentColor h s calc(l - 50));
+  @media (prefers-color-scheme: dark) {
+    --active-dot-bg: hsl(from currentColor h s calc(l + 50));
+  }
+  * {
+    width: var(--size);
+    height: var(--size);
+    border-radius: 50%;
+    animation: dots ease-in-out 1s infinite;
+    background: currentColor;
+    &:nth-of-type(2) {
+      margin: 0 calc(var(--size) * 0.9);
+      animation-delay: 0.2s;
+    }
+    &:nth-of-type(3) {
+      animation-delay: 0.3s;
+    }
+  }
+}
+@keyframes dots {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+    background: var(--active-dot-bg);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+form#create-credential {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  @media (max-width: 400px) {
+    label {
+      width: 100%;
+    }
+  }
+  ~ p.error {
+    width: fit-content;
+  }
+}
+
+ul#passkeys {
+  width: max-content;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+
+  li:has(.delete-passkey button:active) {
+    background-color: Mark;
+    color: MarkText;
+  }
+  .rename-passkey {
+    padding: 0;
+    font: inherit;
+    font-style: italic;
+    background: none;
+    border: none;
+    border-bottom: 1px dashed #aaa;
+    outline: none;
+    cursor: default;
+    &:hover {
+      background-color: Mark;
+      color: MarkText;
+    }
+  }
+  .delete-passkey {
+    display: inline-block;
+    margin-left: 0.5rem;
+  }
+  .spinner {
+    margin-left: 0.3rem;
+  }
+}
+
+dialog#create-space {
+  textarea {
+    field-sizing: content;
+    min-height: 3.5rem;
+  }
+}
+
+.tooltip {
+  display: inline-blockl;
+  .anchor {
+    cursor: default;
+    &:hover {
+      + .infobox {
+        opacity: 1;
+        z-index: unset;
+        transition: opacity 200ms ease-out;
+      }
+      .help-sign {
+        border-color: var(--canvas-text-color);
+      }
+    }
+  }
+  .infobox {
+    position: absolute;
+    opacity: 0;
+    z-index: -1;
+    @supports (position-area: top) {
+      position-area: top right;
+      position-try-fallbacks: flip-block, flip-inline;
+      width: 22rem;
+      max-width: fit-content;
+    }
+    @supports not (position-area: top) {
+      max-width: 22rem;
+      margin-top: 0.3em;
+    }
+    padding: 0.6em 0.75em;
+    font: 0.85rem/1.3 system-ui;
+    background: black;
+    color: white;
+    border-radius: 5px;
+  }
+}
+
+.help-sign {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 10px;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  border: 1px solid var(--border-gray);
+}
