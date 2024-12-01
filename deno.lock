@@ -1,9 +1,11 @@
 {
   "version": "4",
   "specifiers": {
+    "jsr:@henrygd/semaphore@0.0.2": "0.0.2",
     "jsr:@negrel/http-ece@0.6.0": "0.6.0",
     "jsr:@negrel/webpush@0.3.0": "0.3.0",
     "jsr:@std/assert@0.224": "0.224.0",
+    "jsr:@std/async@^1.0.9": "1.0.9",
     "jsr:@std/bytes@0.224.0": "0.224.0",
     "jsr:@std/bytes@1.0.2": "1.0.2",
     "jsr:@std/cli@^1.0.3": "1.0.6",
@@ -27,6 +29,9 @@
     "npm:preact@10.22.0": "10.22.0"
   },
   "jsr": {
+    "@henrygd/semaphore@0.0.2": {
+      "integrity": "cdf678250474b9445648d4fb8d8c636fe313f54893a50de616bf8d3e14f3b51e"
+    },
     "@negrel/http-ece@0.6.0": {
       "integrity": "7afdd81b86ea5b21a9677b323c01c3338705e11cc2bfed250870f5349d8f86f7",
       "dependencies": [
@@ -46,6 +51,9 @@
     },
     "@std/assert@0.224.0": {
       "integrity": "8643233ec7aec38a940a8264a6e3eed9bfa44e7a71cc6b3c8874213ff401967f"
+    },
+    "@std/async@1.0.9": {
+      "integrity": "c6472fd0623b3f3daae023cdf7ca5535e1b721dfbf376562c0c12b3fb4867f91"
     },
     "@std/bytes@0.224.0": {
       "integrity": "a2250e1d0eb7d1c5a426f21267ab9bdeac2447fa87a3d0d1a467d3f7a6058e49"
@@ -121,7 +129,9 @@
   },
   "workspace": {
     "dependencies": [
+      "jsr:@henrygd/semaphore@0.0.2",
       "jsr:@negrel/webpush@0.3.0",
+      "jsr:@std/async@^1.0.9",
       "jsr:@std/bytes@1.0.2",
       "jsr:@std/collections@1.0.7",
       "jsr:@std/datetime@0.225.1",
