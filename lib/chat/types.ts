@@ -32,8 +32,8 @@ export interface ChatMessage extends RawChatMessage {
   createdAt: Date;
 }
 
-export interface QueueMsgChatMsgPush {
-  type: "push-chat-notifications";
+export interface QueueMsgChatPush {
+  type: "chat-push";
   chatId: string;
   chatMsgId: string;
   pageTitle: string;

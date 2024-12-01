@@ -2,7 +2,7 @@ import {
   ChatSub,
   deleteChatSub,
   listChatSubs,
-  type QueueMsgChatMsgPush,
+  type QueueMsgChatPush,
   setChatSub,
 } from "$chat";
 import { getSemaphore } from "@henrygd/semaphore";
@@ -17,18 +17,12 @@ import { deleteQueueNonce, getQueueNonce } from "../enqueue.ts";
 import { kv } from "../kv.ts";
 import { keys as subscribersKeys } from "../subscribers.ts";
 
-export function isPushChatNotifications(
-  msg: unknown,
-): msg is QueueMsgChatMsgPush {
-  const {
-    type,
-    chatId,
-    chatMsgId,
-    pageTitle,
-    chatUrl,
-  } = msg as Partial<QueueMsgChatMsgPush>;
+export function isChatPush(msg: unknown): msg is QueueMsgChatPush {
+  const { type, chatId, chatMsgId, pageTitle, chatUrl } = msg as Partial<
+    QueueMsgChatPush
+  >;
   return typeof msg === "object" &&
-    type === "push-chat-notifications" &&
+    type === "chat-push" &&
     typeof chatId === "string" &&
     typeof chatMsgId === "string" &&
     typeof pageTitle === "string" &&
@@ -37,10 +31,9 @@ export function isPushChatNotifications(
 
 let pushLock = Promise.resolve();
 
-export async function handlePushChatNotifications(
-  queueMsg: QueueMsgChatMsgPush,
-) {
-  if ((await getQueueNonce(queueMsg.nonce)).value) {
+export async function handleChatPush(queueMsg: QueueMsgChatPush) {
+  const nonceEntry = await getQueueNonce(queueMsg.nonce);
+  if (nonceEntry.value) {
     deleteQueueNonce(queueMsg.nonce);
   } else {
     return;
