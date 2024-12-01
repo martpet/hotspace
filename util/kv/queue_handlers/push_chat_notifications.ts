@@ -61,12 +61,13 @@ export async function handlePushChatNotifications(
     .filter((sub) => !sub.isSubscriberInChat && !sub.hasCurrentNotification)
     .map((sub) => sub.subscriberId);
 
+  const promises: Promise<unknown>[] = [];
+
   for (const chunkedIds of chunk(subscriberIds, 10)) {
     const subscribersEntries = await kv.getMany<Subscriber[]>(
       chunkedIds.map((id) => subscribersKeys.byId(id)),
       { consistency: "eventual" },
     );
-
     for (const { value: subscriber } of subscribersEntries) {
       if (subscriber) {
         await pushLock;
@@ -77,11 +78,12 @@ export async function handlePushChatNotifications(
           chatUrl,
           pageTitle,
         };
-        sendChatPush({ subscriber, chatSub, pushMsg });
+        promises.push(sendChatPush({ subscriber, chatSub, pushMsg }));
         await delay(100);
       }
     }
   }
+  await Promise.allSettled(promises);
 }
 
 async function sendChatPush({
@@ -98,24 +100,25 @@ async function sendChatPush({
 
   try {
     if (isChatSubExpired(subscriber)) {
-      deleteChatSub(chatSub, kv.atomic()).commit();
-    } else if (subscriber.pushSub?.endpoint) {
+      return deleteChatSub(chatSub, kv.atomic()).commit();
+    }
+    if (subscriber.pushSub?.endpoint) {
       await sendPushNotification(subscriber.pushSub, pushMsg);
       const newChatSub = { ...chatSub, hasCurrentNotification: true };
-      setChatSub(newChatSub, kv.atomic()).commit();
+      return setChatSub(newChatSub, kv.atomic()).commit();
     }
   } catch (err) {
-    if (err instanceof PushMessageError) {
-      if (err.response.status === STATUS_CODE.Gone) {
-        deleteChatSub(chatSub, kv.atomic()).commit();
-      } else if (err.response.status === STATUS_CODE.TooManyRequests) {
-        pushLock = delay(1000);
-        await pushLock;
-        sendChatPush({ subscriber, chatSub, pushMsg });
-      }
-    } else {
-      console.error(err);
+    const isPushErr = err instanceof PushMessageError;
+
+    if (isPushErr && err.response.status === STATUS_CODE.Gone) {
+      return deleteChatSub(chatSub, kv.atomic()).commit();
     }
+    if (isPushErr && err.response.status === STATUS_CODE.TooManyRequests) {
+      pushLock = delay(1000);
+      await pushLock;
+      return sendChatPush({ subscriber, chatSub, pushMsg });
+    }
+    console.error(err);
   } finally {
     sem.release();
   }
