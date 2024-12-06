@@ -4,7 +4,7 @@ import { AppChatConnection } from "../../util/chat.ts";
 import { keys as spaceKeys } from "../../util/kv/spaces.ts";
 import type { AppContext, Space } from "../../util/types.ts";
 
-export default function spaceChatHandler(ctx: AppContext) {
+export default function chatConnectionHandler(ctx: AppContext) {
   const { spaceId } = ctx.urlPatternResult.pathname.groups;
   const urlParams = new URLSearchParams(ctx.url.search);
   const chatUrl = urlParams.get("chatUrl");

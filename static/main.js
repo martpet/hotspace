@@ -406,3 +406,19 @@ export function createSignal(initialValue) {
     },
   };
 }
+
+// =====================
+// Chat Lazy Loading
+// =====================
+
+export const chatRendered = Promise.withResolvers();
+
+if (!isServiceWorkerScope) {
+  const rootEl = document.getElementById("chat_root");
+  if (rootEl) {
+    const spaceId = rootEl.dataset.spaceId;
+    const resp = await fetch(`/chat_html/${spaceId}`);
+    rootEl.outerHTML = await resp.text();
+    chatRendered.resolve();
+  }
+}

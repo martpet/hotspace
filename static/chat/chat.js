@@ -1,5 +1,6 @@
 import {
   browserName,
+  chatRendered,
   collapseLineBreaks,
   createPushSub,
   createSignal,
@@ -11,6 +12,8 @@ import {
   SESSION_EXPIRED_ERR_MSG,
   syncPushSub,
 } from "$main";
+
+await chatRendered.promise;
 
 const rootEl = document.getElementById("chat");
 const chatBox = document.getElementById("chat-box");
@@ -68,7 +71,7 @@ let currentUserTypingSession;
 let hasCurrentNotification;
 let isSubscriberDispatched;
 
-socketUrl.pathname = `/chat/space/${chatId}`;
+socketUrl.pathname = `/chat_connection/${chatId}`;
 socketUrl.protocol = location.protocol === "https:" ? "wss:" : "ws:";
 socketUrl.searchParams.set("chatUrl", location.origin + location.pathname);
 socketUrl.searchParams.set("pageTitle", pageTitle);
@@ -481,8 +484,9 @@ textareaNewMsg?.addEventListener("input", async () => {
 /**
  * Service Worker Message
  */
-navigator.serviceWorker.addEventListener("message", ({ data }) => {
+navigator.serviceWorker.addEventListener("message", async ({ data }) => {
   if (data.type === "chat-msg-notification-click") {
+    await chatRendered.promise;
     const msgEl = document.getElementById(data.chatMsgId);
     hasCurrentNotification = false;
     unseenChatMsgSignal.set(null);

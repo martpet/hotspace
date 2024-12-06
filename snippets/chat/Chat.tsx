@@ -1,5 +1,4 @@
 import { CHAT_MSG_FOLLOWUP_DURATION, type ChatMessage } from "$chat";
-import { asset } from "$server";
 import { CHAT_SUB_WITHOUT_PUSH_SUB_EXPIRES } from "../../util/chat.ts";
 import type { AppContext, Space } from "../../util/types.ts";
 import Dots from "../Dots.tsx";
@@ -43,9 +42,6 @@ export default function Chat(props: Props, ctx: AppContext) {
       cata-chat-sub-expires={CHAT_SUB_WITHOUT_PUSH_SUB_EXPIRES}
       data-locale={locale}
     >
-      <script type="module" src={asset("chat/chat.js")} />
-      <link rel="modulepreload" href={asset("db.js")} />
-
       <div id="chat-box">
         <div id="chat-main">
           {olderMsgsCursor && (
