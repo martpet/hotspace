@@ -27,10 +27,17 @@ export default function ChatMessages(props: Props, ctx: AppContext) {
           Loading older messages
         </p>
       )}
+
       <p id="chat-beginning" class="splash" hidden={!!olderMsgsCursor}>
         <em>This is the beginning of the conversation.</em>
       </p>
-      <div id="chat-msgs" role="log">
+
+      <div
+        id="chat-msgs"
+        role="log"
+        data-older-msgs-cursor={olderMsgsCursor}
+        data-last-seen-feed-item-id={messages.at(-1)?.feedItemId}
+      >
         {Object.entries(msgsByDay).map(([day, msgs]) => (
           <>
             <DayHeading>{day}</DayHeading>
