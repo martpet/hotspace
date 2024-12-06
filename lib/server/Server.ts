@@ -97,7 +97,7 @@ export class Server {
 
     const ctx: Context = {
       req,
-      res: { headers: new Headers() },
+      respOpt: { headers: new Headers() },
       state: {},
       handler: route.handler,
       url,
@@ -186,7 +186,7 @@ export class Server {
     if (typeof flash === "string") {
       flash = { msg: flash, type: "success" };
     }
-    setCookie(ctx.res.headers, {
+    setCookie(ctx.respOpt.headers, {
       name: FLASH_COOKIE,
       value: encodeURIComponent(JSON.stringify(flash)),
       domain: ctx.rootDomainUrl?.hostname,
@@ -199,27 +199,28 @@ export class Server {
   #createResponse(ctx: Context, ...params: Parameters<CtxRespondFn>) {
     let [body, status, headers] = params;
     if (body instanceof Response) ({ body, status, headers } = body);
-    if (status) ctx.res.status = status;
+    if (status) ctx.respOpt.status = status;
     if (headers) {
-      new Headers(headers).forEach((v, k) => ctx.res.headers.set(k, v));
+      new Headers(headers).forEach((v, k) => ctx.respOpt.headers.set(k, v));
     }
-    return new Response(body, ctx.res);
+    return new Response(body, ctx.respOpt);
   }
 
   #jsx(ctx: Context, ...[vnode]: Parameters<CtxJsxFn>) {
-    ctx.res.headers.set(HEADER.ContentType, contentType("html"));
-    const html = "<!DOCTYPE html>" + renderToString(vnode, ctx);
+    ctx.respOpt.headers.set(HEADER.ContentType, contentType("html"));
+    let html = renderToString(vnode, ctx);
+    if (!ctx.respOpt.skipDosctype) html = "<!DOCTYPE html>" + html;
     return this.#createResponse(ctx, html);
   }
 
   #json(ctx: Context, ...[input, status]: Parameters<CtxJsonFn>) {
-    ctx.res.headers.set(HEADER.ContentType, contentType("json"));
+    ctx.respOpt.headers.set(HEADER.ContentType, contentType("json"));
     return this.#createResponse(ctx, JSON.stringify(input), status);
   }
 
   #redirect(ctx: Context, ...[path, status]: Parameters<CtxRedirectFn>) {
-    ctx.res.headers.set(HEADER.Location, path);
-    ctx.res.status = status || STATUS_CODE.SeeOther;
+    ctx.respOpt.headers.set(HEADER.Location, path);
+    ctx.respOpt.status = status || STATUS_CODE.SeeOther;
     return this.#createResponse(ctx, null);
   }
 

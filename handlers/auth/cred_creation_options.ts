@@ -64,7 +64,7 @@ export default async function credentialCreationOptionsHandler(
     return ctx.respond(null, STATUS_CODE.Conflict);
   }
 
-  setCookie(ctx.res.headers, {
+  setCookie(ctx.respOpt.headers, {
     name: CREDENTIAL_CREATION_SESSION_COOKIE,
     value: creationSession.id,
     maxAge: WEBAUTHN_TIMEOUT / 1000,

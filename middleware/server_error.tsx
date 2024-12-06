@@ -7,7 +7,7 @@ export const errorMiddleware: AppMiddleware = async (ctx, next) => {
     return await next();
   } catch (error) {
     console.error(error);
-    ctx.res.status = STATUS_CODE.InternalServerError;
+    ctx.respOpt.status = STATUS_CODE.InternalServerError;
     if (!accepts(ctx.req).includes("text/html")) {
       return ctx.respond();
     }

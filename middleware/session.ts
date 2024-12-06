@@ -30,7 +30,7 @@ export const sessionMiddleware: AppMiddleware = async (ctx, next) => {
       ctx.state.user = userEntry.value;
       ctx.state.userEntry = userEntry;
     } else {
-      deleteCookie(ctx.res.headers, SESSION_COOKIE, { path: "/" });
+      deleteCookie(ctx.respOpt.headers, SESSION_COOKIE, { path: "/" });
     }
 
     return next();

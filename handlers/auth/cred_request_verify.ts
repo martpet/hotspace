@@ -12,7 +12,7 @@ import { setSession } from "../../util/kv/sessions.ts";
 import type { AppContext, Session } from "../../util/types.ts";
 
 export default async function credentialRequestVerifyHandler(ctx: AppContext) {
-  deleteCookie(ctx.res.headers, CREDENTIAL_REQUEST_SESSION_COOKIE, {
+  deleteCookie(ctx.respOpt.headers, CREDENTIAL_REQUEST_SESSION_COOKIE, {
     path: "/",
   });
 
@@ -69,7 +69,7 @@ export default async function credentialRequestVerifyHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.Conflict);
   }
 
-  setCookie(ctx.res.headers, {
+  setCookie(ctx.respOpt.headers, {
     name: SESSION_COOKIE,
     value: session.id,
     maxAge: SESSION_TIMEOUT / 1000,

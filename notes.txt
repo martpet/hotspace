@@ -1,0 +1,31 @@
+interface Space {
+  owner: string;
+}
+
+interface Item = (
+  id: string;
+  type: string;
+  name: string;
+  description?: string;
+}
+
+interface Folder extends Item {
+  type: 'folder';
+}
+
+interface Upload extends Item {
+  type: 'uplaod';
+  folderId: string;
+}
+
+items / #id / { item }
+items_by_space / foo / #id / { item }
+items_by_folder / #id / #item_name / { item }
+folders / foo / photos / 2012 / holiday / { folder_item }
+
+https://hotspace.lol/gogo/trips/2024/corfu/
+https://hotspace.lol/gogo/trips/2024/corfu/photo25.jpeg
+
+
+- чат
+- пърмишъни

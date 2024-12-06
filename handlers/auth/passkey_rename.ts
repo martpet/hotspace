@@ -25,7 +25,7 @@ export default async function passkeyRenameHandler(ctx: AppContext) {
   const { ok } = await setPasskey(passkey).commit();
 
   if (!ok) {
-    ctx.res.status = STATUS_CODE.Conflict;
+    ctx.respOpt.status = STATUS_CODE.Conflict;
   }
 
   return ctx.respond();

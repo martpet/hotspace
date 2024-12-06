@@ -15,7 +15,7 @@ import { setUser } from "../../util/kv/users.ts";
 import type { AppContext, Passkey, Session, User } from "../../util/types.ts";
 
 export default async function credentialCreationVerifyHandler(ctx: AppContext) {
-  deleteCookie(ctx.res.headers, CREDENTIAL_CREATION_SESSION_COOKIE, {
+  deleteCookie(ctx.respOpt.headers, CREDENTIAL_CREATION_SESSION_COOKIE, {
     path: "/",
   });
 
@@ -66,7 +66,7 @@ export default async function credentialCreationVerifyHandler(ctx: AppContext) {
     setUser(newUser, atomic);
     setSession(session, atomic);
 
-    setCookie(ctx.res.headers, {
+    setCookie(ctx.respOpt.headers, {
       name: SESSION_COOKIE,
       value: session.id,
       maxAge: SESSION_TIMEOUT / 1000,

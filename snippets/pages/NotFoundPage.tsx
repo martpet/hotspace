@@ -4,7 +4,7 @@ import HomeLink from "../HomeLink.tsx";
 import Page from "./Page.tsx";
 
 export default function NotFoundPage(_: unknown, ctx: AppContext) {
-  ctx.res.status = STATUS_CODE.NotFound;
+  ctx.respOpt.status = STATUS_CODE.NotFound;
 
   return (
     <Page title="Error: Page Not Found">

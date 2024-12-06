@@ -11,7 +11,7 @@ export default function credentialRequestOptionsHandler(ctx: AppContext) {
     rpId: ctx.url.hostname,
   });
 
-  setCookie(ctx.res.headers, {
+  setCookie(ctx.respOpt.headers, {
     name: CREDENTIAL_REQUEST_SESSION_COOKIE,
     value: credRequestOptions.challenge,
     maxAge: WEBAUTHN_TIMEOUT / 1000,

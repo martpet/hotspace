@@ -8,8 +8,9 @@ export interface ServerOptions {
   trailingSlashMode?: TrailingSlashMode;
 }
 
-export type ServerResponseInit = Omit<ResponseInit, "headers"> & {
+export type ResponseOptions = Omit<ResponseInit, "headers"> & {
   headers: Headers;
+  skipDosctype?: boolean;
 };
 
 export type CtxJsxFn = (input: VNode) => Response;
@@ -31,7 +32,7 @@ export interface Flash {
 
 export interface Context<S = Record<string, never>> {
   req: Request;
-  res: ServerResponseInit;
+  respOpt: ResponseOptions;
   state: S;
   url: URL;
   urlPatternResult: URLPatternResult;

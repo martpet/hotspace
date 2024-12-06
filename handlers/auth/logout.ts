@@ -10,7 +10,7 @@ export default async function logoutHandler(ctx: AppContext) {
     await deleteSession(session).commit();
   }
 
-  deleteCookie(ctx.res.headers, SESSION_COOKIE, { path: "/" });
+  deleteCookie(ctx.respOpt.headers, SESSION_COOKIE, { path: "/" });
 
   ctx.setFlash("Signed out");
 
