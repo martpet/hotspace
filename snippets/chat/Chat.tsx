@@ -60,7 +60,9 @@ export default function Chat(props: Props, ctx: AppContext) {
                 <div
                   id="chat_lazy_root"
                   data-space-id={space.id}
-                />
+                  class="spinner"
+                >
+                </div>
               )
               : (
                 <ChatMessages

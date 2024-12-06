@@ -1,16 +1,16 @@
 :root {
   --canvas-bg-color: white;
   --canvas-text-color: black;
-  --text-gray: silver;
-  --small-text-gray: darkGrey;
-  --border-gray: lightGray;
+  --text-grey: silver;
+  --small-text-grey: darkGrey;
+  --border-grey: lightGray;
 
   @media (prefers-color-scheme: dark) {
     --canvas-bg-color: rgb(30, 30, 30);
     --canvas-text-color: white;
-    --text-gray: dimGray;
-    --small-text-gray: gray;
-    --border-gray: rgb(80, 80, 80);
+    --text-grey: dimGray;
+    --small-text-grey: grey;
+    --border-grey: rgb(80, 80, 80);
   }
 }
 
@@ -61,7 +61,7 @@ img {
 
 label {
   small {
-    color: var(--small-text-gray);
+    color: var(--small-text-grey);
   }
 }
 
@@ -300,5 +300,5 @@ dialog#create-space {
   width: 1rem;
   height: 1rem;
   border-radius: 50%;
-  border: 1px solid var(--border-gray);
+  border: 1px solid var(--border-grey);
 }

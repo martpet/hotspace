@@ -1,3 +1,11 @@
+#chat_lazy_root {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--border-grey);
+}
+
 #chat {
   --msg-hover-color: #f2f2f2;
   --red-color: crimson;
@@ -25,7 +33,7 @@
   min-height: 5rem;
   min-width: 10rem;
   max-width: 100%;
-  border: 1px solid var(--border-gray);
+  border: 1px solid var(--border-grey);
 }
 
 #chat-main {
@@ -53,7 +61,7 @@
   align-items: center;
   margin: 0 0 0.25rem;
   gap: 0.35rem;
-  color: var(--text-gray);
+  color: var(--text-grey);
   &:not(.visible) {
     visibility: hidden;
   }
@@ -64,7 +72,7 @@
 
 #chat-beginning {
   text-align: center;
-  color: var(--text-gray);
+  color: var(--text-grey);
 }
 
 #chat-msgs {
@@ -75,12 +83,12 @@
     align-items: center;
     gap: 0.2em;
     font: inherit;
-    color: var(--text-gray);
+    color: var(--text-grey);
     &::before,
     &::after {
       content: "";
       flex-grow: 1;
-      border-top: 1px solid var(--border-gray);
+      border-top: 1px solid var(--border-grey);
     }
     &:has(+ .first-new-msg) {
       color: var(--red-color);
@@ -120,18 +128,18 @@
     margin-top: 0.2rem;
     [class*="spinner-"] {
       margin-right: 0.2rem;
-      color: var(--text-gray);
+      color: var(--text-grey);
     }
   }
   time {
     font-size: 0.8em;
-    color: var(--text-gray);
+    color: var(--text-grey);
   }
   .text {
     margin-right: 0.5rem;
     white-space: pre-line;
     .pending & {
-      color: var(--text-gray);
+      color: var(--text-grey);
     }
     .deleted & {
       text-decoration: line-through;
@@ -140,7 +148,7 @@
   .edited-tag {
     font-size: 0.85rem;
     font-style: italic;
-    color: var(--text-gray);
+    color: var(--text-grey);
   }
 }
 
@@ -259,7 +267,7 @@
   align-items: center;
   gap: 0.5rem;
   font: 0.7rem system-ui;
-  color: var(--small-text-gray);
+  color: var(--small-text-grey);
   .names:empty + .dots {
     display: none;
   }
