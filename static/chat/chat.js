@@ -1,6 +1,6 @@
 import {
   browserName,
-  chatRendered,
+  chatMsgsRendered,
   collapseLineBreaks,
   createPushSub,
   createSignal,
@@ -13,10 +13,17 @@ import {
   syncPushSub,
 } from "$main";
 
-await chatRendered.promise;
-
-const rootEl = document.getElementById("chat");
+// =====================
+// Before Lazy Loading
+// =====================
 const chatBox = document.getElementById("chat-box");
+applyChatBoxSize();
+await chatMsgsRendered.promise;
+
+// =====================
+// DOM Elements
+// =====================
+const rootEl = document.getElementById("chat");
 const mainBox = document.getElementById("chat-main");
 const msgsBox = document.getElementById("chat-msgs");
 const msgTmpl = document.getElementById("msg-template");
@@ -63,7 +70,7 @@ const networkOnlineSignal = createSignal(navigator.onLine);
 const unseenChatMsgSignal = createSignal();
 const userActivitySignal = createSignal(new Date());
 
-let { olderMsgsCursor, lastSeenFeedItemId } = rootEl.dataset;
+let { olderMsgsCursor, lastSeenFeedItemId } = msgsBox.dataset;
 let socket;
 let newMsgSeen;
 let loadOlderMsgsLocked;
@@ -77,10 +84,8 @@ socketUrl.searchParams.set("chatUrl", location.origin + location.pathname);
 socketUrl.searchParams.set("pageTitle", pageTitle);
 
 // =====================
-// On Document Parsed
+// After Lazy Loading
 // =====================
-
-applyChatboxSize();
 scrollToBottom(mainBox);
 connectSocket();
 prepareFormFields();
@@ -486,7 +491,7 @@ textareaNewMsg?.addEventListener("input", async () => {
  */
 navigator.serviceWorker.addEventListener("message", async ({ data }) => {
   if (data.type === "chat-msg-notification-click") {
-    await chatRendered.promise;
+    await chatMsgsRendered.promise;
     const msgEl = document.getElementById(data.chatMsgId);
     hasCurrentNotification = false;
     unseenChatMsgSignal.set(null);
@@ -891,7 +896,7 @@ function prepareFormFields() {
   formNewMsg.querySelector("fieldset button").hidden = deviceType !== "mobile";
 }
 
-function applyChatboxSize() {
+function applyChatBoxSize() {
   const size = JSON.parse(localStorage.getItem("chatbox-size"));
   if (size?.width) chatBox.style.width = size.width;
   if (size?.height) chatBox.style.height = size.height;

@@ -23,3 +23,10 @@ export class AppChatConnection extends ChatConnection {
     });
   }
 }
+
+export function chatIntlFmt(locale: string | undefined) {
+  return {
+    dateFmt: new Intl.DateTimeFormat(locale, { dateStyle: "long" }),
+    timeFmt: new Intl.DateTimeFormat(locale, { timeStyle: "short" }),
+  };
+}

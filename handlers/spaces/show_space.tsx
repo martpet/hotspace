@@ -1,6 +1,6 @@
 import { asset } from "$server";
 import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
-import ChatLazyLoad from "../../snippets/chat/ChatLazyLoad.tsx";
+import Chat from "../../snippets/chat/Chat.tsx";
 import HomeLink from "../../snippets/HomeLink.tsx";
 import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";
 import Page from "../../snippets/pages/Page.tsx";
@@ -44,7 +44,7 @@ export default async function showSpaceHandler(ctx: AppContext) {
       {!space.chatDisabled && (
         <aside>
           <h2>Chat</h2>
-          <ChatLazyLoad spaceId={space.id} />
+          <Chat space={space} lazyLoad />
         </aside>
       )}
       <footer>

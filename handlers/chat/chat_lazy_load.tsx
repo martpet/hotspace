@@ -1,11 +1,11 @@
 import { listChatMessages, MESSAGES_PER_FETCH } from "$chat";
 import { STATUS_CODE } from "@std/http";
-import Chat from "../../snippets/chat/Chat.tsx";
+import ChatMessages from "../../snippets/chat/ChatMessages.tsx";
 import { kv } from "../../util/kv/kv.ts";
 import { getSpaceById } from "../../util/kv/spaces.ts";
 import type { AppContext } from "../../util/types.ts";
 
-export default async function chatHtmlHandler(ctx: AppContext) {
+export default async function chatLazyLoadHandler(ctx: AppContext) {
   const spaceId = ctx.urlPatternResult.pathname.groups.spaceId!;
   const space = (await getSpaceById(spaceId)).value;
 
@@ -28,10 +28,10 @@ export default async function chatHtmlHandler(ctx: AppContext) {
   ctx.respOpt.skipDosctype = true;
 
   return (
-    <Chat
-      space={space}
+    <ChatMessages
       messages={messages}
       olderMsgsCursor={nextCursor}
+      isAdmin={space.ownerUsername === ctx.state.user?.username}
     />
   );
 }
