@@ -1,6 +1,5 @@
 import {
   browserName,
-  chatMsgsRendered,
   collapseLineBreaks,
   createPushSub,
   createSignal,
@@ -19,16 +18,12 @@ import {
 
 const chatBox = document.getElementById("chat-box");
 applyChatBoxSize();
+lazyLoadMsgs();
 toggleIosSafariHelp();
-await chatMsgsRendered.promise;
-
-// =====================
-// DOM Elements
-// =====================
+syncPushSub().then(() => checkExpiredChatSub());
 
 const rootEl = document.getElementById("chat");
 const mainBox = document.getElementById("chat-main");
-const msgsBox = document.getElementById("chat-msgs");
 const msgTmpl = document.getElementById("msg-template");
 const tmplDayHeading = document.getElementById("day-heading-template");
 const tmplMsgEditedTag = document.getElementById("msg-edited-label-tag");
@@ -62,6 +57,7 @@ const {
 const HIGH_FREQUENCY_EVENT_DELAY = 100;
 const USER_TYPING_SEND_INTERVAL = 5000;
 
+const msgsBoxReady = Promise.withResolvers();
 const socketUrl = new URL(location.origin);
 const typingUsers = new Map();
 const timeFmt = new Intl.DateTimeFormat(locale, { timeStyle: "short" });
@@ -73,7 +69,9 @@ const networkOnlineSignal = createSignal(navigator.onLine);
 const unseenChatMsgSignal = createSignal();
 const userActivitySignal = createSignal(new Date());
 
-let { olderMsgsCursor, lastSeenFeedItemId } = msgsBox.dataset;
+let msgsBox;
+let olderMsgsCursor;
+let lastSeenFeedItemId;
 let socket;
 let newMsgSeen;
 let loadOlderMsgsLocked;
@@ -90,10 +88,13 @@ socketUrl.searchParams.set("pageTitle", pageTitle);
 // After Lazy Loading
 // =====================
 
-scrollToBottom(mainBox);
-connectSocket();
-prepareFormFields();
-syncPushSub().then(() => checkExpiredChatSub());
+msgsBoxReady.promise.then(() => {
+  msgsBox = document.getElementById("chat-msgs");
+  ({ olderMsgsCursor, lastSeenFeedItemId } = msgsBox.dataset);
+  scrollToBottom(mainBox);
+  connectSocket();
+  prepareFormFields();
+});
 
 // =====================
 // Signal's Effects
@@ -397,19 +398,23 @@ btnAllowChatSub?.addEventListener("click", async () => {
 /**
  * MsgsBox MouseOver
  */
-msgsBox.addEventListener(
-  "mouseover",
-  debouncedEvent((event) => {
-    insertMsgMenuMaybe(event.target.closest(".chat-msg"));
-  }),
-);
+msgsBoxReady.promise.then(() => {
+  msgsBox.addEventListener(
+    "mouseover",
+    debouncedEvent((event) => {
+      insertMsgMenuMaybe(event.target.closest(".chat-msg"));
+    }),
+  );
+});
 
 /**
  * MsgsBox Click
  */
-msgsBox.addEventListener("click", ({ target }) => {
-  const isBtnShowDialog = target.classList.contains("show-msg-dialog-btn");
-  if (isBtnShowDialog) showMsgDialog(target);
+msgsBoxReady.promise.then(() => {
+  msgsBox.addEventListener("click", ({ target }) => {
+    const isBtnShowDialog = target.classList.contains("show-msg-dialog-btn");
+    if (isBtnShowDialog) showMsgDialog(target);
+  });
 });
 
 /**
@@ -494,7 +499,7 @@ textareaNewMsg?.addEventListener("input", async () => {
  */
 navigator.serviceWorker.addEventListener("message", async ({ data }) => {
   if (data.type === "chat-msg-notification-click") {
-    await chatMsgsRendered.promise;
+    await msgsBoxReady.promise;
     const msgEl = document.getElementById(data.chatMsgId);
     hasCurrentNotification = false;
     unseenChatMsgSignal.set(null);
@@ -703,6 +708,18 @@ async function dispatchSubscriberOnline({ skipChatSubUpdate } = {}) {
         skipChatSubUpdate,
       },
     });
+  }
+}
+
+async function lazyLoadMsgs() {
+  const lazyRootEl = document.getElementById("chat_lazy_root");
+  if (!lazyRootEl) {
+    msgsBoxReady.resolve();
+  } else {
+    const spaceId = lazyRootEl.dataset.spaceId;
+    const resp = await fetch(`/chat_lazy_load/${spaceId}`);
+    lazyRootEl.outerHTML = await resp.text();
+    msgsBoxReady.resolve();
   }
 }
 

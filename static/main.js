@@ -349,25 +349,6 @@ function equalPushSubs(a, b) {
 }
 
 // =====================
-// Chat Lazy Loading
-// =====================
-export const chatMsgsRendered = Promise.withResolvers();
-
-if (!isServiceWorkerScope) {
-  (async () => {
-    const rootEl = document.getElementById("chat_lazy_root");
-    if (!rootEl) {
-      chatMsgsRendered.resolve();
-    } else {
-      const spaceId = rootEl.dataset.spaceId;
-      const resp = await fetch(`/chat_lazy_load/${spaceId}`);
-      rootEl.outerHTML = await resp.text();
-      chatMsgsRendered.resolve();
-    }
-  })();
-}
-
-// =====================
 // Utils
 // =====================
 
