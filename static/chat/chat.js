@@ -16,13 +16,16 @@ import {
 // =====================
 // Before Lazy Loading
 // =====================
+
 const chatBox = document.getElementById("chat-box");
 applyChatBoxSize();
+toggleIosSafariHelp();
 await chatMsgsRendered.promise;
 
 // =====================
 // DOM Elements
 // =====================
+
 const rootEl = document.getElementById("chat");
 const mainBox = document.getElementById("chat-main");
 const msgsBox = document.getElementById("chat-msgs");
@@ -86,10 +89,10 @@ socketUrl.searchParams.set("pageTitle", pageTitle);
 // =====================
 // After Lazy Loading
 // =====================
+
 scrollToBottom(mainBox);
 connectSocket();
 prepareFormFields();
-toggleIosSafariHelp();
 syncPushSub().then(() => checkExpiredChatSub());
 
 // =====================
