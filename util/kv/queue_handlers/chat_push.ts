@@ -118,7 +118,7 @@ async function sendChatPush({
 }
 
 function isChatSubExpired(subscriber: Subscriber) {
-  return subscriber && !subscriber.pushSub?.endpoint &&
+  return subscriber && !subscriber.pushSub && subscriber.pushSubUpdatedAt &&
     new Date().getTime() - subscriber.pushSubUpdatedAt.getTime() >
       CHAT_SUB_WITHOUT_PUSH_SUB_EXPIRES;
 }

@@ -681,8 +681,8 @@ async function checkExpiredChatSub() {
 }
 
 function isChatSubExpired(subscriber) {
-  return subscriber && !subscriber.pushSub?.endpoint &&
-    new Date().getTime() - new Date(subscriber.pushSubUpdatedAt.getTime()) >
+  return subscriber && !subscriber.pushSub &&
+    new Date().getTime() - new Date(subscriber.pushSubUpdatedAt).getTime() >
       Number(chatSubExpires);
 }
 
