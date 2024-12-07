@@ -9,7 +9,7 @@ export default function MessageEditedTag(props: Props) {
   const titleAttr = `${dateFmt.format(editedAt)} ${timeFmt.format(editedAt)}`;
 
   return (
-    <small class="edited-tag" title={titleAttr}>
+    <small class="tag-edited" title={titleAttr}>
       (edited)
     </small>
   );

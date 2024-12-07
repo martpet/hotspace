@@ -38,9 +38,7 @@ insertMessageDialogs();
 syncPushSub().then(() => checkExpiredChatSub());
 
 const mainBox = document.getElementById("chat-main");
-const msgTmpl = document.getElementById("msg-template");
-const tmplDayHeading = document.getElementById("day-heading-template");
-const tmplMsgEditedTag = document.getElementById("msg-edited-label-tag");
+const chatTmpl = document.getElementById("chat-template");
 const dialogEditMsg = document.getElementById("edit-chat-msg-dialog");
 const dialogDelMsg = document.getElementById("delete-chat-msg-dialog");
 const textareaEditMsg = dialogEditMsg?.querySelector("textarea");
@@ -860,7 +858,8 @@ function renderUsersTyping(username, isTyping = true) {
 
 function buildMsgEl(data) {
   const { id, username, text, createdAt, editedAt, container } = data;
-  const el = data.el || msgTmpl.content.cloneNode(true).firstChild;
+  let el = data.el;
+  el ??= chatTmpl.content.querySelector(".chat-msg").cloneNode(true);
   const mainEl = el.querySelector(".main");
   const canEdit = username === currentUserUsername;
   const canDelete = canEdit || isAdmin;
@@ -880,12 +879,12 @@ function buildMsgEl(data) {
     if (isFollowUp) el.classList.add("follow-up");
   }
   if (editedAt) {
-    let editTagEl = mainEl.querySelector(".edited-tag");
-    if (!editTagEl) {
-      editTagEl = tmplMsgEditedTag.content.cloneNode(true).firstChild;
-      mainEl.append(editTagEl);
+    let tagEdited = mainEl.querySelector(".tag-edited");
+    if (!tagEdited) {
+      tagEdited = chatTmpl.content.querySelector(".tag-edited").cloneNode(true);
+      mainEl.append(tagEdited);
     }
-    editTagEl.title = `${dateFmt.format(editedAt)} ${timeFmt.format(editedAt)}`;
+    tagEdited.title = `${dateFmt.format(editedAt)} ${timeFmt.format(editedAt)}`;
   }
   return el;
 }
@@ -902,9 +901,9 @@ function appendDayElMaybe({ createdAt, container = msgsBox }) {
   const prevDayHeading = container.querySelector(".day:last-of-type");
   const dateStr = dateFmt.format(createdAt);
   if (!prevDayHeading || prevDayHeading.textContent !== dateStr) {
-    const headingEl = tmplDayHeading.content.cloneNode(true).firstChild;
-    headingEl.textContent = dateStr;
-    container.append(headingEl);
+    const dayEl = chatTmpl.content.querySelector(".day").cloneNode(true);
+    dayEl.textContent = dateStr;
+    container.append(dayEl);
   }
 }
 

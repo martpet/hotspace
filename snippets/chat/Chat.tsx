@@ -79,30 +79,24 @@ export default function Chat(props: Props, ctx: AppContext) {
           <span class="names"></span> <Dots />
         </p>
 
-        {/* https://caniuse.com/mdn-javascript_statements_import_service_worker_support */}
         {userAgent.browser.name !== "Firefox" && <Subscription />}
-
-        <template id="msg-template">
-          <Message
-            msg={{ createdAt: new Date(), username: "" } as ChatMessage}
-            isAdmin={false}
-            timeFmt={timeFmt}
-            dateFmt={dateFmt}
-          />
-        </template>
-
-        <template id="day-heading-template">
-          <DayHeading />
-        </template>
-
-        <template id="msg-edited-label-tag">
-          <MessageEditedTag
-            editedAt={new Date()}
-            timeFmt={timeFmt}
-            dateFmt={dateFmt}
-          />
-        </template>
+        {/* https://caniuse.com/mdn-javascript_statements_import_service_worker_support */}
       </div>
+
+      <template id="chat-template">
+        <DayHeading />
+        <Message
+          msg={{ createdAt: new Date(), username: "" } as ChatMessage}
+          isAdmin={false}
+          timeFmt={timeFmt}
+          dateFmt={dateFmt}
+        />
+        <MessageEditedTag
+          editedAt={new Date()}
+          timeFmt={timeFmt}
+          dateFmt={dateFmt}
+        />
+      </template>
     </>
   );
 }

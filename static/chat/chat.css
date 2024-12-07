@@ -145,7 +145,7 @@
       text-decoration: line-through;
     }
   }
-  .edited-tag {
+  .tag-edited {
     font-size: 0.85rem;
     font-style: italic;
     color: var(--text-grey);
