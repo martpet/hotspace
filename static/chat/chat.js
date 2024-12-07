@@ -1032,7 +1032,7 @@ function insertMessageDialogs() {
     return `
       <blockquote class="preview">
         <p class="chat-msg"></p>
-        ${editMode && textareaNewMsg.outerHTML}
+        ${editMode ? textareaNewMsg.outerHTML : ""}
       </blockquote>
     `;
   }
