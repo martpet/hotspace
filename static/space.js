@@ -4,21 +4,45 @@ import { GENERAL_ERR_MSG } from "$main";
 // Create space
 // =====================
 
-const dialogCreate = document.getElementById("create-space");
+const btnOpenCreateDialog = document.getElementById("open-create-space-dialog");
 
-if (dialogCreate) {
-  const dialog = dialogCreate;
+if (btnOpenCreateDialog) {
+  const template = document.getElementById("create-space-template");
+  const nameInput = template.content.querySelector("input");
+  const textarea = template.content.querySelector("textarea");
+
+  btnOpenCreateDialog.insertAdjacentHTML(
+    "afterend",
+    `
+     <dialog id="create-space-dialog">
+        <h2>Create New Space</h2>
+        <form method="post" action="/spaces" class="basic-form">
+          <p role="alert" class="error"></p>
+          <label>Name: ${nameInput.outerHTML}</label>
+          <label>
+            <span>Description: <small>(optional)</small></span>
+            ${textarea.outerHTML}
+          </label>
+          <footer>
+            <button type="reset" id="cancel-create-space">Cancel</button>
+            <button id="submit-create-space">Create Space</button>
+          </footer>
+        </form>
+      </dialog>
+    `,
+  );
+
+  const dialog = document.getElementById("create-space-dialog");
   const form = dialog.querySelector("form");
   const nameField = dialog.querySelector("[name=name]");
   const descriptionField = dialog.querySelector("[name=description]");
-  const btnOpen = document.getElementById("open-create-space");
   const btnSubmit = document.getElementById("submit-create-space");
   const btnCancel = document.getElementById("cancel-create-space");
   const errorEl = form.querySelector("p.error");
 
-  btnOpen.disabled = false;
+  btnOpenCreateDialog.disabled = false;
 
-  btnOpen.addEventListener("click", () => {
+  btnOpenCreateDialog.addEventListener("click", () => {
     dialog.showModal();
   });
 
@@ -91,16 +115,41 @@ if (dialogCreate) {
 // Delete space
 // =====================
 
-const dialogDelete = document.getElementById("delete-space");
+const btnOpenDelDialog = document.getElementById("open-del-space-dialog");
 
-if (dialogDelete) {
-  const dialog = dialogDelete;
+if (btnOpenDelDialog) {
+  const spaceName = btnOpenDelDialog.dataset.spaceName;
+  btnOpenDelDialog.insertAdjacentHTML(
+    "afterend",
+    `
+    <dialog id="delete-space-dialog">
+      <h2>Delete Space '${spaceName}'</h2>
+      <form method="post" action="/spaces/delete" class="basic-form">
+        <p class="alert warning">
+          Are you sure you want to delete space <strong>${spaceName}</strong>?
+          <br />This action cannot be undone.
+        </p>
+        <input type="hidden" name="spaceName" value="${spaceName}" />
+        <label>
+          Enter space name:
+          <input type="text" required pattern="${spaceName}" />
+        </label>
+        <footer>
+          <button form="close-space-dialog">Cancel</button>
+          <button>Delete Space Forever</button>
+        </footer>
+      </form>
+      <form method="dialog" id="close-space-dialog" />
+    </dialog>
+  `,
+  );
+
+  const dialog = document.getElementById("delete-space-dialog");
   const form = dialog.querySelector("form");
-  const btnOpen = document.getElementById("open-delete-space");
 
-  btnOpen.disabled = false;
+  btnOpenDelDialog.disabled = false;
 
-  btnOpen.addEventListener("click", () => {
+  btnOpenDelDialog.addEventListener("click", () => {
     dialog.showModal();
   });
 

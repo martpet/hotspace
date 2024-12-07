@@ -248,7 +248,14 @@ ul#passkeys {
   }
 }
 
-dialog#create-space {
+#open-create-space-dialog,
+#open-del-space-dialog {
+  &[disabled] {
+    cursor: wait;
+  }
+}
+
+#create-space-dialog {
   textarea {
     field-sizing: content;
     min-height: 3.5rem;
