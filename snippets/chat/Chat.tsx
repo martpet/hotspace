@@ -6,13 +6,11 @@ import {
 } from "../../util/chat.ts";
 import type { AppContext, Space } from "../../util/types.ts";
 import Dots from "../Dots.tsx";
+import ChatFooter from "./ChatFooter.tsx";
 import ChatMessages from "./ChatMessages.tsx";
 import DayHeading from "./DayHeading.tsx";
-import DeleteMessageDialog from "./DeleteMessageDialog.tsx";
-import EditMessageDialog from "./EditMessageDialog.tsx";
 import Message from "./Message.tsx";
 import MessageEditedTag from "./MessageEditedTag.tsx";
-import MessageTextarea from "./MessageTextarea.tsx";
 import Subscription from "./Subscription.tsx";
 
 type Props =
@@ -59,8 +57,8 @@ export default function Chat(props: Props, ctx: AppContext) {
               ? (
                 <div
                   id="chat_lazy_root"
-                  data-space-id={space.id}
                   class="spinner"
+                  data-space-id={space.id}
                 >
                 </div>
               )
@@ -73,23 +71,7 @@ export default function Chat(props: Props, ctx: AppContext) {
               )}
           </div>
           <div id="chat-footer">
-            {user && (
-              <form id="chat-msg-form">
-                <fieldset disabled>
-                  <MessageTextarea />
-                  <button hidden>Send</button>
-                </fieldset>
-              </form>
-            )}
-            <button
-              id="scrollto-unseen-msg-btn"
-              type="button"
-              title="See new message"
-              aria-live="polite"
-              hidden
-            >
-              {userAgent.device.type === "mobile" ? "↓" : "⬇"}
-            </button>
+            <ChatFooter hasUser={!!user} />
           </div>
         </div>
 
@@ -99,13 +81,6 @@ export default function Chat(props: Props, ctx: AppContext) {
 
         {/* https://caniuse.com/mdn-javascript_statements_import_service_worker_support */}
         {userAgent.browser.name !== "Firefox" && <Subscription />}
-
-        {user && (
-          <>
-            <EditMessageDialog />
-            <DeleteMessageDialog />
-          </>
-        )}
 
         <template id="msg-template">
           <Message

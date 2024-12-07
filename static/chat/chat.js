@@ -13,24 +13,36 @@ import {
 } from "$main";
 
 // =====================
-// Before Lazy Loading
+// Before Lazy Load
 // =====================
 
+const rootEl = document.getElementById("chat");
 const chatBox = document.getElementById("chat-box");
+const formNewMsg = document.getElementById("chat-msg-form");
+const textareaNewMsg = formNewMsg?.querySelector("textarea");
+
+const {
+  locale,
+  chatId,
+  pageTitle,
+  msgFollowupDuration,
+  currentUserUsername,
+  isAdmin,
+  chatSubExpires,
+} = rootEl.dataset;
+
 applyChatBoxSize();
 lazyLoadMsgs();
 toggleIosSafariHelp();
+insertMessageDialogs();
 syncPushSub().then(() => checkExpiredChatSub());
 
-const rootEl = document.getElementById("chat");
 const mainBox = document.getElementById("chat-main");
 const msgTmpl = document.getElementById("msg-template");
 const tmplDayHeading = document.getElementById("day-heading-template");
 const tmplMsgEditedTag = document.getElementById("msg-edited-label-tag");
 const dialogEditMsg = document.getElementById("edit-chat-msg-dialog");
 const dialogDelMsg = document.getElementById("delete-chat-msg-dialog");
-const formNewMsg = document.getElementById("chat-msg-form");
-const textareaNewMsg = formNewMsg?.querySelector("textarea");
 const textareaEditMsg = dialogEditMsg?.querySelector("textarea");
 const formEditMsg = dialogEditMsg?.querySelector("form");
 const btnEditMsgSubmit = dialogEditMsg?.querySelector("button.submit");
@@ -44,19 +56,6 @@ const chatSubDeniedTag = document.getElementById("chat-sub-denied");
 const chatSubHelp = document.getElementById("chat-sub-help");
 const btnAllowChatSub = document.getElementById("chat-sub-allow");
 
-const {
-  locale,
-  chatId,
-  pageTitle,
-  msgFollowupDuration,
-  currentUserUsername,
-  isAdmin,
-  chatSubExpires,
-} = rootEl.dataset;
-
-const HIGH_FREQUENCY_EVENT_DELAY = 100;
-const USER_TYPING_SEND_INTERVAL = 5000;
-
 const msgsBoxReady = Promise.withResolvers();
 const socketUrl = new URL(location.origin);
 const typingUsers = new Map();
@@ -68,6 +67,9 @@ const chatSubLockSignal = createSignal(false);
 const networkOnlineSignal = createSignal(navigator.onLine);
 const unseenChatMsgSignal = createSignal();
 const userActivitySignal = createSignal(new Date());
+
+const HIGH_FREQUENCY_EVENT_DELAY = 100;
+const USER_TYPING_SEND_INTERVAL = 5000;
 
 let msgsBox;
 let olderMsgsCursor;
@@ -85,7 +87,7 @@ socketUrl.searchParams.set("chatUrl", location.origin + location.pathname);
 socketUrl.searchParams.set("pageTitle", pageTitle);
 
 // =====================
-// After Lazy Loading
+// After Lazy
 // =====================
 
 msgsBoxReady.promise.then(() => {
@@ -1021,5 +1023,44 @@ function insertMsgMenuMaybe(msgEl) {
         </button>
       </span>
     `,
+  );
+}
+
+function insertMessageDialogs() {
+  if (!currentUserUsername) return;
+  function msgPreview({ editMode } = {}) {
+    return `
+      <blockquote class="preview">
+        <p class="chat-msg" />
+        ${editMode && textareaNewMsg.outerHTML}
+      </blockquote>
+    `;
+  }
+  rootEl.insertAdjacentHTML(
+    "beforeend",
+    `
+      <dialog id="edit-chat-msg-dialog" class="chat-msg-dialog">
+        <h2>Edit Message</h2>
+        <form class="basic-form">
+          ${msgPreview({ editMode: true })}
+          <footer>
+            <button formmethod="dialog" formnovalidate>Cancel</button>
+            <button class="submit">Submit</button>
+          </footer>
+        </form>
+      </dialog>
+      
+      <dialog id="delete-chat-msg-dialog" class="chat-msg-dialog">
+        <h2>Delete Message</h2>
+        <p class="alert warning">Are you sure you want to delete this message?</p>
+        ${msgPreview()}
+        <form method="dialog" class="basic-form">
+          <footer>
+            <button>Cancel</button>
+            <button autofocus class="submit">Delete Message</button>
+          </footer>
+        </form>
+      </dialog>
+  `,
   );
 }
