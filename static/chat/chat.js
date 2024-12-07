@@ -1031,7 +1031,7 @@ function insertMessageDialogs() {
   function msgPreview({ editMode } = {}) {
     return `
       <blockquote class="preview">
-        <p class="chat-msg" />
+        <p class="chat-msg"></p>
         ${editMode && textareaNewMsg.outerHTML}
       </blockquote>
     `;
