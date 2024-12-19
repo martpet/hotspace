@@ -1,0 +1,31 @@
+{
+  "tasks": {
+    "start": "deno run -A --env-file --watch main.ts"
+  },
+  "imports": {
+    "$server": "./lib/server/mod.ts",
+    "$webauthn": "./lib/webauthn/mod.ts",
+    "$chat": "./lib/chat/mod.ts",
+    "$util": "./lib/util/mod.ts",
+    "@henrygd/semaphore": "jsr:@henrygd/semaphore@0.0.2",
+    "@negrel/webpush": "jsr:@negrel/webpush@0.3.0",
+    "@std/async": "jsr:@std/async@^1.0.9",
+    "@std/bytes": "jsr:@std/bytes@1.0.2",
+    "@std/collections": "jsr:@std/collections@1.0.7",
+    "@std/datetime": "jsr:@std/datetime@0.225.1",
+    "@std/encoding": "jsr:@std/encoding@1.0.1",
+    "@std/http": "jsr:@std/http@1.0.2",
+    "@std/media-types": "jsr:@std/media-types@1.0.3",
+    "@std/ulid": "jsr:@std/ulid@1.0.0",
+    "preact": "npm:preact@10.22.0",
+    "preact-render-to-string": "npm:preact-render-to-string@6.5.9"
+  },
+  "unstable": [
+    "kv",
+    "broadcast-channel"
+  ],
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
+  }
+}
