@@ -24,7 +24,7 @@ export default async function createDirHandler(ctx: AppContext) {
 
   const reqData = await ctx.req.json();
 
-  if (!isValidReqData(reqData.pathname)) {
+  if (!isValidReqData(reqData)) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
