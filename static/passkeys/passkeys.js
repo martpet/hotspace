@@ -30,7 +30,7 @@ document.querySelectorAll("button.rename-passkey").forEach((button) => {
 
     if (!spinner) {
       spinner = document.createElement("span");
-      spinner.classList.add("spinner");
+      spinner.classList.add("spinner-xs");
       spinner.role = "progressbar";
       button.insertAdjacentElement("afterend", spinner);
     }
