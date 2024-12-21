@@ -8,19 +8,21 @@ import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";
 import Page from "../../snippets/pages/Page.tsx";
 import { getDirByPath, listInodesByDir } from "../../util/kv/inodes.ts";
 import type { AppContext } from "../../util/types.ts";
-import { getDirPathInfo } from "../../util/url.ts";
+import { getPathParts } from "../../util/url.ts";
 
 export default async function showInodeHandler(ctx: AppContext) {
   const { user } = ctx.state;
   const { pathname } = ctx.url;
-  const { isRootDir, dirPathParts } = getDirPathInfo(pathname);
+  const { isRootDir, pathParts } = getPathParts(pathname);
 
   if (isRootDir && pathname.endsWith("/")) {
-    const urlWithourTrailSlash = ctx.req.url.slice(0, -1);
-    return ctx.redirect(urlWithourTrailSlash, STATUS_CODE.PermanentRedirect);
+    return ctx.redirect(
+      ctx.req.url.slice(0, -1),
+      STATUS_CODE.PermanentRedirect,
+    );
   }
 
-  const dir = (await getDirByPath(dirPathParts)).value;
+  const dir = (await getDirByPath(pathParts)).value;
 
   if (!dir) {
     return <NotFoundPage />;
@@ -39,10 +41,10 @@ export default async function showInodeHandler(ctx: AppContext) {
   );
 
   return (
-    <Page title={dir.name} head={head}>
+    <Page title={dir.name} head={head} breadcrumb>
       <h1>{dir.name}</h1>
       {isOwner && (
-        <menu>
+        <menu class="inodes-menu">
           <ButtonCreateDir />
           <ButtonToggleChat inode={dir} />
         </menu>

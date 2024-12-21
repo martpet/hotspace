@@ -1,37 +1,40 @@
 import type { AppContext } from "../util/types.ts";
 import ButtonLogout from "./auth/ButtonLogout.tsx";
 import LoginOrRegister from "./auth/LoginOrRegister.tsx";
+import Breadcrumb from "./Breadcrumb.tsx";
 
 export interface PageHeaderProps {
-  skipReg?: boolean;
   siteNameIsHeading?: boolean;
+  breadcrumb?: boolean;
+  skipReg?: boolean;
 }
 
 export default function PageHeader(props: PageHeaderProps, ctx: AppContext) {
-  const { skipReg, siteNameIsHeading } = props;
+  const { siteNameIsHeading, breadcrumb, skipReg } = props;
   const { user } = ctx.state;
 
   return (
     <header class="page-header">
-      <SiteName isHeading={siteNameIsHeading} />
+      {breadcrumb ? <Breadcrumb /> : <SiteName isHeading={siteNameIsHeading} />}
       {user
-        ? <UserNav username={user.username} />
+        ? <AccountNav username={user.username} />
         : <LoginOrRegister skipReg={skipReg} />}
     </header>
   );
 }
 
-function SiteName(props: { isHeading?: boolean }) {
-  const NameEl = props.isHeading ? "h1" : "p";
-  return <NameEl class="site-name">HotSpace</NameEl>;
+function SiteName(props: { isHeading?: boolean; isLink?: boolean }) {
+  return props.isHeading
+    ? <h1 class="site-name">HotSpace</h1>
+    : <p class="site-name">HotSpace</p>;
 }
 
-function UserNav(props: { username: string }, ctx: AppContext) {
+function AccountNav(props: { username: string }, ctx: AppContext) {
   const { username } = props;
-  const isHome = new URL(ctx.req.url).pathname === "/";
+  const isAccountPage = new URL(ctx.req.url).pathname === "/account";
   return (
     <>
-      {isHome ? username : <a href="/">{username}</a>}
+      {isAccountPage ? username : <a href="/account">{username}</a>}
       <ButtonLogout />
     </>
   );

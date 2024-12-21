@@ -4,7 +4,7 @@ import ChatMessages from "../../snippets/chat/ChatMessages.tsx";
 import { getDirByPath } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import type { AppContext } from "../../util/types.ts";
-import { getDirPathInfo } from "../../util/url.ts";
+import { getPathParts } from "../../util/url.ts";
 
 // TODO: skip this route and return messages from socket connection
 
@@ -15,8 +15,8 @@ export default async function chatLazyLoadHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  const { dirPathParts } = getDirPathInfo(new URL(referer).pathname);
-  const dir = (await getDirByPath(dirPathParts)).value;
+  const { pathParts } = getPathParts(new URL(referer).pathname);
+  const dir = (await getDirByPath(pathParts)).value;
 
   if (!dir) {
     return ctx.respond(null, STATUS_CODE.NotFound);

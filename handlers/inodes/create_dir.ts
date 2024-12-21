@@ -9,7 +9,7 @@ import {
 import { kv } from "../../util/kv/kv.ts";
 import { reservedWords } from "../../util/reserved_words.ts";
 import type { AppContext, DirNode } from "../../util/types.ts";
-import { getDirPathInfo, isValidPathname } from "../../util/url.ts";
+import { getPathParts, isValidPathname } from "../../util/url.ts";
 
 interface ReqData {
   pathname: string;
@@ -29,11 +29,11 @@ export default async function createDirHandler(ctx: AppContext) {
   }
 
   const {
-    dirName,
+    currentPathPart: dirName,
     isRootDir,
-    dirPathParts,
-    parentDirPathParts,
-  } = getDirPathInfo(reqData.pathname);
+    pathParts,
+    parentPathParts,
+  } = getPathParts(reqData.pathname);
 
   if (!dirName) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
@@ -47,13 +47,13 @@ export default async function createDirHandler(ctx: AppContext) {
   let parentDirEntry;
 
   if (!isRootDir) {
-    parentDirEntry = await getDirByPath(parentDirPathParts);
+    parentDirEntry = await getDirByPath(parentPathParts);
     if (!parentDirEntry.value || parentDirEntry.value.ownerId !== user.id) {
       return ctx.respond(null, STATUS_CODE.Forbidden);
     }
   }
 
-  const currentDirByPathEntry = await getDirByPath(dirPathParts);
+  const currentDirByPathEntry = await getDirByPath(pathParts);
   const currentDirByPath = currentDirByPathEntry.value;
 
   if (currentDirByPath) {
@@ -75,7 +75,7 @@ export default async function createDirHandler(ctx: AppContext) {
   };
 
   const atomic = kv.atomic();
-  setDirByPath({ dir, dirPathParts, atomic }).check(currentDirByPathEntry);
+  setDirByPath({ dir, pathParts, atomic }).check(currentDirByPathEntry);
   if (isRootDir) {
     setRootDirByOwner(dir, atomic);
   } else if (parentDirEntry) {

@@ -20,8 +20,9 @@ export default async function passkeysHandler(ctx: AppContext) {
   );
 
   return (
-    <Page title="Passkeys" head={head}>
-      <h1>Passkeys</h1>
+    <Page title="Your account" head={head}>
+      <h1>Your account</h1>
+      <h2>Passkeys</h2>
       <ul class="passkeys-list">
         {passkeys.map((passkey) => (
           <PasskeyItem passkey={passkey} count={passkeys.length} />
@@ -30,7 +31,7 @@ export default async function passkeysHandler(ctx: AppContext) {
       <RegForm />
       <footer>
         <p>
-          <a href="/">Back home</a>
+          <a href="/">Home</a>
         </p>
       </footer>
     </Page>

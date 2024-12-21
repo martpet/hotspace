@@ -4,8 +4,8 @@ import {
   Server,
   type ServerOptions,
 } from "$server";
+import account from "./handlers/account/account.tsx";
 import logout from "./handlers/account/logout.ts";
-import passkeys from "./handlers/account/passkeys.tsx";
 import register from "./handlers/account/register.tsx";
 import credCreatOpt from "./handlers/auth/cred_creation_options.ts";
 import credCreatVer from "./handlers/auth/cred_creation_verify.ts";
@@ -54,7 +54,7 @@ app.post("/auth/cred-creation-options", credCreatOpt);
 app.post("/auth/cred-creation-verify", credCreatVer);
 app.post("/auth/cred-request-options", credReqOpt);
 app.post("/auth/cred-request-verify", credReqVer);
-app.get("/account/passkeys", passkeys);
+app.get("/account", account);
 app.post("/account/passkeys/delete", passkeyDelete);
 app.post("/account/passkeys/rename", passkeyRename);
 app.post("/push-subs/subscribers", subscribers);

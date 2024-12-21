@@ -15,12 +15,12 @@ export function isValidPathname(pathname: unknown): pathname is string {
     );
 }
 
-export function getDirPathInfo(pathname: string) {
+export function getPathParts(pathname: string) {
   const pathParts = pathnameToParts(pathname);
   return {
-    dirPathParts: pathnameToParts(pathname),
-    dirName: pathParts.at(-1),
+    pathParts,
+    parentPathParts: pathParts.slice(0, -1),
+    currentPathPart: pathParts.at(-1),
     isRootDir: pathParts.length === 1,
-    parentDirPathParts: pathParts.slice(0, -1),
   };
 }

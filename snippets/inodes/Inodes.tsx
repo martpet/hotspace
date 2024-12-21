@@ -7,14 +7,13 @@ interface Props {
 export default function Inodes(props: Props, ctx: AppContext) {
   const { inodes } = props;
   const { pathname } = ctx.url;
-
   if (!inodes.length) return null;
 
   return (
-    <ul>
+    <ul class="inodes">
       {inodes.map((inode) => (
         <li>
-          📁 <a href={inodeHref(inode, pathname)}>{inode.name}</a>
+          📁 <a href={inodeHref(inode, pathname)}>{inode.name}/</a>
         </li>
       ))}
     </ul>

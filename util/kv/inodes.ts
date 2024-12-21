@@ -38,14 +38,14 @@ export async function listInodesByDir(
 
 export function setDirByPath({
   dir,
-  dirPathParts,
+  pathParts,
   atomic = kv.atomic(),
 }: {
   dir: DirNode;
-  dirPathParts: string[];
+  pathParts: string[];
   atomic?: Deno.AtomicOperation;
 }) {
-  return atomic.set(keys.dirsByPath(dirPathParts), dir);
+  return atomic.set(keys.dirsByPath(pathParts), dir);
 }
 
 export function getDirByPath(pathParts: string[]) {

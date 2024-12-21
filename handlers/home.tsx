@@ -1,15 +1,15 @@
 import ButtonCreateDir from "../snippets/inodes/ButtonCreateDir.tsx";
-import UserRootDirs from "../snippets/inodes/UserRootDirs.tsx";
+import SpacesList from "../snippets/inodes/SpacesList.tsx";
 import Page from "../snippets/pages/Page.tsx";
 import { listRootDirsByOwner } from "../util/kv/inodes.ts";
 import type { AppContext, DirNode } from "../util/types.ts";
 
 export default async function homeHandler(ctx: AppContext) {
   const user = ctx.state.user;
-  let rootDirs: DirNode[] = [];
+  let spaces: DirNode[] = [];
 
   if (user) {
-    rootDirs = await listRootDirsByOwner(user.id, { reverse: true });
+    spaces = await listRootDirsByOwner(user.id);
   }
 
   return (
@@ -17,10 +17,8 @@ export default async function homeHandler(ctx: AppContext) {
       {user && (
         <>
           <h2>Your spaces</h2>
+          <SpacesList dirs={spaces} />
           <ButtonCreateDir isRootDir />
-          <UserRootDirs dirs={rootDirs} />
-          <h2>Account</h2>
-          <a href="/account/passkeys">Passkeys</a>
         </>
       )}
     </Page>

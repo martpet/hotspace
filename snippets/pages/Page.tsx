@@ -15,12 +15,11 @@ interface Props extends PageHeaderProps {
   children?: ComponentChildren;
   head?: JSX.Element;
   title?: string;
-  siteNameIsHeading?: boolean;
 }
 
 export default function Page(props: Props, ctx: AppContext) {
-  const { children, head, title, skipReg, siteNameIsHeading } = props;
   const { flash, userAgent } = ctx;
+  const { children, head, title, ...pageHeaderProps } = props;
 
   return (
     <html
@@ -47,7 +46,7 @@ export default function Page(props: Props, ctx: AppContext) {
         {head}
       </head>
       <body>
-        <PageHeader skipReg={skipReg} siteNameIsHeading={siteNameIsHeading} />
+        <PageHeader {...pageHeaderProps} />
         {flash && <Flash type={flash.type}>{flash.msg}</Flash>}
         {children}
       </body>

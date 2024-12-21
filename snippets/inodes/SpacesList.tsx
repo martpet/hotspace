@@ -4,7 +4,7 @@ interface Props {
   dirs: DirNode[];
 }
 
-export default function UserRootDirs({ dirs }: Props) {
+export default function SpacesList({ dirs }: Props) {
   return (
     <>
       {dirs.length > 0 && (
