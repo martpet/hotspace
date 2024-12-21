@@ -7,7 +7,11 @@ import type { AppContext, Passkey } from "../../util/types.ts";
 
 export default async function passkeysHandler(ctx: AppContext) {
   const user = ctx.state.user;
-  if (!user) return <LoginPage />;
+  const title = "Your account";
+
+  if (!user) {
+    return <LoginPage title={title} />;
+  }
 
   const passkeys = await listPasskeysByUser(user.id);
 
@@ -20,8 +24,8 @@ export default async function passkeysHandler(ctx: AppContext) {
   );
 
   return (
-    <Page title="Your account" head={head}>
-      <h1>Your account</h1>
+    <Page title={title} head={head}>
+      <h1>{title}</h1>
       <h2>Passkeys</h2>
       <ul class="passkeys-list">
         {passkeys.map((passkey) => (

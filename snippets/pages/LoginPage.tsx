@@ -1,10 +1,14 @@
 import ButtonLogin from "../auth/ButtonLogin.tsx";
 import Page from "./Page.tsx";
 
-export default function LoginPage() {
+interface Props {
+  title?: string;
+}
+
+export default function LoginPage(props: Props) {
   return (
-    <Page title="Log in">
-      <h1>Log in to continue</h1>
+    <Page title={props.title || "Log in"} siteNameIsHeading>
+      <h2>Log in to continue</h2>
       <ButtonLogin />
     </Page>
   );
