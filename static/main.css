@@ -41,6 +41,10 @@ html {
   }
 }
 
+body {
+  margin-block: 0;
+}
+
 section {
   margin-bottom: 2rem;
 }
