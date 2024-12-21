@@ -312,7 +312,8 @@ button.wait-disabled[disabled] {
     display: inline;
     &::after {
       content: "/";
-      margin-inline: 0.7em;
+      margin-inline: 0.8em;
+      color: grey;
     }
   }
 }
