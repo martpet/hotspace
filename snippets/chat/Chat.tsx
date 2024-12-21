@@ -37,7 +37,7 @@ export default function Chat(props: Props, ctx: AppContext) {
       <script type="module" src={asset("chat/chat.js")} />
       <link rel="modulepreload" href={asset("db.js")} />
 
-      <div
+      <section
         id="chat"
         data-chat-id={chatId}
         data-chat-title={chatTitle}
@@ -47,6 +47,7 @@ export default function Chat(props: Props, ctx: AppContext) {
         data-chat-sub-expires={CHAT_SUB_WITHOUT_PUSH_SUB_EXPIRES}
         data-locale={locale}
       >
+        <h1>Chat</h1>
         <div id="chat-box">
           <div id="chat-main">
             {messages
@@ -65,7 +66,7 @@ export default function Chat(props: Props, ctx: AppContext) {
           <span class="names"></span> <Dots />
         </p>
         {ctx.state.canUseServiceWorker && <Subscription />}
-      </div>
+      </section>
 
       <template id="chat-template">
         <DayHeading />

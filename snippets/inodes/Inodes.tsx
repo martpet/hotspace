@@ -1,4 +1,5 @@
-import type { AppContext, DirNode, Inode } from "../../util/types.ts";
+import type { AppContext, Inode } from "../../util/types.ts";
+import { getInodeHref } from "../../util/url.ts";
 
 interface Props {
   inodes: Inode[];
@@ -7,25 +8,21 @@ interface Props {
 export default function Inodes(props: Props, ctx: AppContext) {
   const { inodes } = props;
   const { pathname } = ctx.url;
-  if (!inodes.length) return null;
+
+  if (!inodes.length) {
+    return null;
+  }
 
   return (
-    <ul class="inodes">
-      {inodes.map((inode) => (
-        <li>
-          📁 <a href={inodeHref(inode, pathname)}>{inode.name}/</a>
-        </li>
-      ))}
+    <ul class="inodes-list">
+      {inodes.map((inode) => {
+        const href = getInodeHref(inode, pathname);
+        return (
+          <li class={inode.type}>
+            <a href={href}>{inode.name}/</a>
+          </li>
+        );
+      })}
     </ul>
   );
-}
-
-function inodeHref(
-  inode: Inode,
-  pathname: string,
-) {
-  let href = inode.name;
-  if ((inode as DirNode).type === "dir") href = href + "/";
-  if (!pathname.endsWith("/")) href = pathname + "/" + href;
-  return href;
 }

@@ -258,20 +258,6 @@ button.wait-disabled[disabled] {
   border: 1px solid var(--border-grey);
 }
 
-#reg-form {
-  display: flex;
-  flex-wrap: wrap;
-  row-gap: 0.4rem;
-  column-gap: 0.3rem;
-  align-items: flex-start;
-  label {
-    width: 100%;
-  }
-  ~ .error {
-    width: fit-content;
-  }
-}
-
 .page-header {
   display: flex;
   min-height: 3.2rem;
@@ -299,12 +285,6 @@ button.wait-disabled[disabled] {
   }
 }
 
-.inodes {
-  list-style: none;
-  margin-block: 1.3em;
-  padding-inline: 0;
-}
-
 .breadcrumb ol {
   list-style: none;
   padding-inline: 0;
@@ -315,5 +295,44 @@ button.wait-disabled[disabled] {
       margin-inline: 0.8em;
       color: grey;
     }
+  }
+}
+
+#reg-form {
+  display: flex;
+  flex-wrap: wrap;
+  row-gap: 0.4rem;
+  column-gap: 0.3rem;
+  align-items: flex-start;
+  label {
+    width: 100%;
+  }
+  ~ .error {
+    width: fit-content;
+  }
+}
+
+.space-list {
+  margin-bottom: 1.5rem;
+}
+
+.inodes-list {
+  margin-block: 1.3em;
+  padding-inline: 0;
+  list-style: none;
+  li {
+    padding: 0.2em 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    &.dir::before {
+      content: "📁";
+    }
+  }
+}
+
+.inodes-page {
+  #chat {
+    margin-top: 3rem;
   }
 }

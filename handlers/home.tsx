@@ -8,7 +8,7 @@ export default async function homeHandler(ctx: AppContext) {
   const user = ctx.state.user;
 
   return (
-    <Page siteNameIsHeading>
+    <Page header={{ siteNameIsHeading: true }}>
       {user && <UserHome spaces={await listRootDirsByOwner(user.id)} />}
     </Page>
   );

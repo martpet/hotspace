@@ -41,7 +41,12 @@ export default async function showInodeHandler(ctx: AppContext) {
   );
 
   return (
-    <Page title={dir.name} head={head} breadcrumb>
+    <Page
+      title={dir.name}
+      head={head}
+      header={{ breadcrumb: true }}
+      class="inodes-page"
+    >
       <h1>{dir.name}</h1>
       {isOwner && (
         <menu class="inodes-menu">
@@ -51,14 +56,11 @@ export default async function showInodeHandler(ctx: AppContext) {
       )}
       <Inodes inodes={inodes} />
       {dir.chatEnabled && (
-        <section>
-          <h2>Chat</h2>
-          <Chat
-            chatId={dir.id}
-            chatTitle={dir.name}
-            isAdmin={isOwner}
-          />
-        </section>
+        <Chat
+          chatId={dir.id}
+          chatTitle={dir.name}
+          isAdmin={isOwner}
+        />
       )}
     </Page>
   );

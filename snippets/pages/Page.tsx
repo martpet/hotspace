@@ -11,15 +11,22 @@ const importmap = {
   },
 };
 
-interface Props extends PageHeaderProps {
+interface Props extends JSX.HTMLAttributes<HTMLBodyElement> {
   children?: ComponentChildren;
   head?: JSX.Element;
   title?: string;
+  header?: PageHeaderProps;
 }
 
 export default function Page(props: Props, ctx: AppContext) {
   const { flash, userAgent } = ctx;
-  const { children, head, title, ...pageHeaderProps } = props;
+  const {
+    children,
+    head,
+    title,
+    header: headerProps = {},
+    ...bodyElProps
+  } = props;
 
   return (
     <html
@@ -45,8 +52,8 @@ export default function Page(props: Props, ctx: AppContext) {
         <link rel="stylesheet" href={asset("main.css")} />
         {head}
       </head>
-      <body>
-        <PageHeader {...pageHeaderProps} />
+      <body {...bodyElProps}>
+        <PageHeader {...headerProps} />
         {flash && <Flash type={flash.type}>{flash.msg}</Flash>}
         {children}
       </body>

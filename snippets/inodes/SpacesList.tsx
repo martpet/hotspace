@@ -5,10 +5,14 @@ interface Props {
 }
 
 export default function SpacesList({ dirs }: Props) {
+  if (!dirs.length) {
+    return null;
+  }
+
   return (
     <>
       {dirs.length > 0 && (
-        <ul>
+        <ul class="space-list">
           {dirs.map((dir) => (
             <li>
               <a href={`${dir.name}`}>{dir.name}</a>
