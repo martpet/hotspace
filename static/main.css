@@ -1,13 +1,9 @@
 :root {
-  --canvas-bg-color: white;
-  --canvas-text-color: black;
   --text-grey: silver;
   --small-text-grey: darkGrey;
   --border-grey: lightGray;
 
   @media (prefers-color-scheme: dark) {
-    --canvas-bg-color: rgb(30, 30, 30);
-    --canvas-text-color: white;
     --text-grey: dimGray;
     --small-text-grey: grey;
     --border-grey: rgb(80, 80, 80);
@@ -31,8 +27,6 @@
 }
 
 html {
-  background: var(--canvas-bg-color);
-  color: var(--canvas-text-color);
   &[data-device-type="mobile"] {
     input[type="text"],
     textarea {
@@ -83,7 +77,6 @@ textarea {
 
 dialog {
   border-width: 3px;
-  background: var(--canvas-bg-color);
   h2 {
     margin-top: 0.6rem;
     font-size: 2rem;
@@ -221,7 +214,7 @@ button.wait-disabled[disabled] {
         transition: opacity 200ms ease-out;
       }
       .help-sign {
-        border-color: var(--canvas-text-color);
+        border-color: unset;
       }
     }
   }
