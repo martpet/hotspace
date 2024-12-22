@@ -37,7 +37,11 @@ export function isCleanupChat(
 
 export async function handleCleanupChat(msg: QueueMsgCleanupChat) {
   const nonceEntry = await getQueueNonce(msg.nonce);
-  if (!nonceEntry.value) return;
+
+  if (!nonceEntry.value) {
+    return;
+  }
+
   await deleteQueueNonce(msg.nonce);
 
   await Promise.all([
@@ -48,31 +52,21 @@ export async function handleCleanupChat(msg: QueueMsgCleanupChat) {
 }
 
 async function deleteChatMessages(chatId: string) {
-  const { messages } = await listChatMessages({
-    kv,
-    chatId,
-    listOptions: { limit: 500 },
-  });
+  const { messages } = await listChatMessages({ kv, chatId });
   if (!messages.length) {
     return;
   }
   for (const msg of messages) {
     await deleteChatMessage(msg, kv.atomic()).commit();
   }
-  return deleteChatMessages(chatId);
 }
 
 async function deleteChatFeedItems(chatId: string) {
-  const feedItems = await listFeedItemsByChat({
-    kv,
-    chatId,
-    listOptions: { limit: 500 },
-  });
+  const feedItems = await listFeedItemsByChat({ kv, chatId });
   if (!feedItems.length) {
     return;
   }
   for (const item of feedItems) {
     await deleteChatFeedItem(item, kv);
   }
-  return deleteChatFeedItems(chatId);
 }
