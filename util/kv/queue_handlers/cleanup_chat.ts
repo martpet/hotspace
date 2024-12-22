@@ -1,14 +1,16 @@
 import {
   deleteChatFeedItem,
   deleteChatMessage,
+  deleteChatSub,
   deleteLastFeedItemIdByChat,
   listChatMessages,
+  listChatSubs,
   listFeedItemsByChat,
 } from "$chat";
 import { deleteQueueNonce, enqueue, getQueueNonce } from "../enqueue.ts";
 import { kv } from "../kv.ts";
 
-export interface QueueMsgCleanupChat {
+export interface CleanupChatQueueMsg {
   type: "cleanup-chat";
   chatId: string;
   nonce: string;
@@ -18,7 +20,7 @@ export function enqueueCleanupChat(
   chatId: string,
   atomic: Deno.AtomicOperation,
 ) {
-  const msg: Omit<QueueMsgCleanupChat, "nonce"> = {
+  const msg: Omit<CleanupChatQueueMsg, "nonce"> = {
     type: "cleanup-chat",
     chatId,
   };
@@ -27,46 +29,45 @@ export function enqueueCleanupChat(
 
 export function isCleanupChat(
   msg: unknown,
-): msg is QueueMsgCleanupChat {
-  const { type, nonce, chatId } = msg as Partial<QueueMsgCleanupChat>;
+): msg is CleanupChatQueueMsg {
+  const { type, nonce, chatId } = msg as Partial<CleanupChatQueueMsg>;
   return typeof msg === "object" &&
     type === "cleanup-chat" &&
     typeof nonce === "string" &&
     typeof chatId === "string";
 }
 
-export async function handleCleanupChat(msg: QueueMsgCleanupChat) {
-  const nonceEntry = await getQueueNonce(msg.nonce);
-
-  if (!nonceEntry.value) {
-    return;
-  }
-
-  await deleteQueueNonce(msg.nonce);
+export async function handleCleanupChat(msg: CleanupChatQueueMsg) {
+  const { nonce, chatId } = msg;
+  const nonceEntry = await getQueueNonce(nonce);
+  if (!nonceEntry.value) return;
 
   await Promise.all([
-    deleteChatMessages(msg.chatId),
-    deleteChatFeedItems(msg.chatId),
-    deleteLastFeedItemIdByChat(msg.chatId, kv),
+    deleteQueueNonce(nonce),
+    deleteChatMessages(chatId),
+    deleteChatFeedItems(chatId),
+    deleteChatSubs(chatId),
+    deleteLastFeedItemIdByChat(chatId, kv),
   ]);
 }
 
 async function deleteChatMessages(chatId: string) {
   const { messages } = await listChatMessages({ kv, chatId });
-  if (!messages.length) {
-    return;
-  }
   for (const msg of messages) {
     await deleteChatMessage(msg, kv.atomic()).commit();
   }
 }
 
 async function deleteChatFeedItems(chatId: string) {
-  const feedItems = await listFeedItemsByChat({ kv, chatId });
-  if (!feedItems.length) {
-    return;
-  }
-  for (const item of feedItems) {
+  const items = await listFeedItemsByChat({ kv, chatId });
+  for (const item of items) {
     await deleteChatFeedItem(item, kv);
+  }
+}
+
+async function deleteChatSubs(chatId: string) {
+  const subs = await listChatSubs({ kv, chatId });
+  for (const sub of subs) {
+    await deleteChatSub(sub, kv.atomic()).commit();
   }
 }

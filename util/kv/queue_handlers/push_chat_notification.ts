@@ -2,7 +2,7 @@ import {
   ChatSub,
   deleteChatSub,
   listChatSubs,
-  type QueueMsgPushChatNotification,
+  type PushChatNotificationQueueMsg,
   setChatSub,
 } from "$chat";
 import { getSemaphore } from "@henrygd/semaphore";
@@ -19,9 +19,9 @@ import { keys as subscribersKeys } from "../push_subscribers.ts";
 
 export function isPushChatNotification(
   msg: unknown,
-): msg is QueueMsgPushChatNotification {
+): msg is PushChatNotificationQueueMsg {
   const { type, chatId, chatMsgId, chatTitle, chatPageUrl } = msg as Partial<
-    QueueMsgPushChatNotification
+    PushChatNotificationQueueMsg
   >;
   return typeof msg === "object" &&
     type === "push-chat-notification" &&
@@ -34,7 +34,7 @@ export function isPushChatNotification(
 let pushLock = Promise.resolve();
 
 export async function handlePushChatNotification(
-  queueMsg: QueueMsgPushChatNotification,
+  queueMsg: PushChatNotificationQueueMsg,
 ) {
   const nonceEntry = await getQueueNonce(queueMsg.nonce);
   if (nonceEntry.value) {

@@ -13,7 +13,7 @@ import type {
   ChatMessage,
   NewChatMsgEventResp,
   NewChatMsgFeedItem,
-  QueueMsgPushChatNotification,
+  PushChatNotificationQueueMsg,
 } from "../types.ts";
 
 export const newChatMsgHandler: ChatEventHandler<NewChatMsgEventResp> = async (
@@ -53,7 +53,7 @@ export const newChatMsgHandler: ChatEventHandler<NewChatMsgEventResp> = async (
     },
   };
 
-  const kvQueueMsg: Omit<QueueMsgPushChatNotification, "nonce"> = {
+  const kvQueueMsg: Omit<PushChatNotificationQueueMsg, "nonce"> = {
     type: "push-chat-notification",
     chatId: chat.id,
     chatMsgId: msg.id,
