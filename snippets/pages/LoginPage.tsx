@@ -7,7 +7,7 @@ interface Props {
 
 export default function LoginPage(props: Props) {
   return (
-    <Page title={props.title || "Log in"} siteNameIsHeading>
+    <Page title={props.title || "Log in"} header={{ siteNameIsHeading: true }}>
       <h2>Log in to continue</h2>
       <ButtonLogin />
     </Page>
