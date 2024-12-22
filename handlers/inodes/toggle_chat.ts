@@ -69,7 +69,7 @@ export default async function toggleChatHandler(ctx: AppContext) {
   const { ok } = await atomic.commit();
 
   if (ok) {
-    ctx.setFlash(`The chat was ${dir.chatEnabled ? "enabled" : "disabled"} `);
+    // ctx.setFlash(`The chat was ${dir.chatEnabled ? "enabled" : "disabled"} `);
   } else {
     ctx.setFlash({ type: "error", msg: GENERAL_ERR_MSG });
   }
