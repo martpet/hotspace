@@ -1,14 +1,14 @@
-import { handleChatPush, isChatPush } from "./chat_push.ts";
+import { handleCleanupChat, isCleanupChat } from "./cleanup_chat.ts";
 import {
-  handleCleanupChatData,
-  isCleanupChatData,
-} from "./cleanup_chat_data.ts";
+  handlePushChatNotification,
+  isPushChatNotification,
+} from "./push_chat_notification.ts";
 
 export function queueHandler(msg: unknown) {
-  if (isCleanupChatData(msg)) {
-    handleCleanupChatData(msg);
-  } else if (isChatPush(msg)) {
-    handleChatPush(msg);
+  if (isCleanupChat(msg)) {
+    handleCleanupChat(msg);
+  } else if (isPushChatNotification(msg)) {
+    handlePushChatNotification(msg);
   } else {
     console.error("Unknown KV Queue msg received", msg);
   }

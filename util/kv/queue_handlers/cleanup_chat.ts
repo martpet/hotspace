@@ -1,5 +1,3 @@
-// TODO: delete chat subs
-
 import {
   deleteChatFeedItem,
   deleteChatMessage,
@@ -10,34 +8,34 @@ import {
 import { deleteQueueNonce, enqueue, getQueueNonce } from "../enqueue.ts";
 import { kv } from "../kv.ts";
 
-export interface QueueMsgCleanupChatData {
-  type: "cleanup-chat-data";
+export interface QueueMsgCleanupChat {
+  type: "cleanup-chat";
   chatId: string;
   nonce: string;
 }
 
-export function enqueueCleanupChatData(
+export function enqueueCleanupChat(
   chatId: string,
   atomic: Deno.AtomicOperation,
 ) {
-  const msg: Omit<QueueMsgCleanupChatData, "nonce"> = {
-    type: "cleanup-chat-data",
+  const msg: Omit<QueueMsgCleanupChat, "nonce"> = {
+    type: "cleanup-chat",
     chatId,
   };
   return enqueue(msg, atomic);
 }
 
-export function isCleanupChatData(
+export function isCleanupChat(
   msg: unknown,
-): msg is QueueMsgCleanupChatData {
-  const { type, nonce, chatId } = msg as Partial<QueueMsgCleanupChatData>;
+): msg is QueueMsgCleanupChat {
+  const { type, nonce, chatId } = msg as Partial<QueueMsgCleanupChat>;
   return typeof msg === "object" &&
-    type === "cleanup-chat-data" &&
+    type === "cleanup-chat" &&
     typeof nonce === "string" &&
     typeof chatId === "string";
 }
 
-export async function handleCleanupChatData(msg: QueueMsgCleanupChatData) {
+export async function handleCleanupChat(msg: QueueMsgCleanupChat) {
   const nonceEntry = await getQueueNonce(msg.nonce);
   if (!nonceEntry.value) return;
   await deleteQueueNonce(msg.nonce);
