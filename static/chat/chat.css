@@ -10,7 +10,7 @@
   --msg-hover-color: #f2f2f2;
   --red-color: crimson;
   @media (prefers-color-scheme: dark) {
-    --msg-hover-color: rgba(20, 20, 20);
+    --msg-hover-color: rgba(0, 0, 0, 0.3);
     --red-color: darkred;
   }
 
@@ -267,7 +267,7 @@
   align-items: center;
   gap: 0.5rem;
   font: 0.7rem system-ui;
-  color: var(--small-text-grey);
+  color: var(--text-grey);
   .names:empty + .dots {
     display: none;
   }

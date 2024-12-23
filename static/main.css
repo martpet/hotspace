@@ -1,12 +1,10 @@
 :root {
-  --text-grey: silver;
-  --small-text-grey: darkGrey;
+  --text-grey: darkGrey;
   --border-grey: lightGray;
 
   @media (prefers-color-scheme: dark) {
-    --text-grey: dimGray;
-    --small-text-grey: grey;
-    --border-grey: rgb(80, 80, 80);
+    --text-grey: rgba(255, 255, 255, 0.37);
+    --border-grey: rgba(255, 255, 255, 0.2);
   }
 }
 
@@ -63,7 +61,7 @@ img {
 
 label {
   small {
-    color: var(--small-text-grey);
+    color: var(--text-grey);
   }
 }
 
@@ -285,8 +283,9 @@ button.wait-disabled[disabled] {
     display: inline;
     &::after {
       content: "/";
+      /* content: "→"; */
       margin-inline: 0.8em;
-      color: grey;
+      color: var(--text-grey);
     }
   }
 }
