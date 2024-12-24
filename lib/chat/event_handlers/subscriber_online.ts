@@ -1,6 +1,6 @@
-import { assertSubscriberOnlineEvent } from "../assertions.ts";
-import { getChatSub, setChatSub } from "../kv/chat_subs.ts";
-import type { ChatEventHandler } from "../types.ts";
+import { assertSubscriberOnlineEvent } from "../util/assertions.ts";
+import { getChatSub, setChatSub } from "../util/kv/chat_subs.ts";
+import type { ChatEventHandler } from "../util/types.ts";
 
 export const subscriberOnlineHandler: ChatEventHandler = async (
   event,

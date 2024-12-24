@@ -28,8 +28,8 @@
   flex-direction: column;
   overflow: auto;
   resize: both;
-  width: 14rem;
-  height: 14rem;
+  width: 23rem;
+  height: 19rem;
   min-height: 5rem;
   min-width: 10rem;
   max-width: 100%;
@@ -263,7 +263,7 @@
 #chat-users-typing {
   display: flex;
   min-height: 1rem;
-  margin: 0.4rem 0.2rem;
+  margin: 0.3rem 0.2rem;
   align-items: center;
   gap: 0.5rem;
   font: 0.7rem system-ui;
@@ -280,7 +280,7 @@
   display: flex;
   flex-wrap: wrap;
   min-height: 1.3rem;
-  margin-block: 0.8rem;
+  margin-block: 0.6rem;
   gap: 0.3em;
   align-items: center;
   font: 0.8em system-ui;

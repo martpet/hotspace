@@ -4,14 +4,14 @@ import {
   assertChatEntry,
   assertDeletedChatMsgEvent,
   assertUserEntry,
-} from "../assertions.ts";
-import { setChatFeedItem } from "../kv/chat_feed_items.ts";
-import { deleteChatMessage, getChatMessage } from "../kv/chat_messages.ts";
+} from "../util/assertions.ts";
+import { setChatFeedItem } from "../util/kv/chat_feed_items.ts";
+import { deleteChatMessage, getChatMessage } from "../util/kv/chat_messages.ts";
 import type {
   ChatEventHandler,
   DeletedChatMsgEventResp,
   DeletedChatMsgFeedItem,
-} from "../types.ts";
+} from "../util/types.ts";
 
 export const deletedChatMsgHandler: ChatEventHandler<DeletedChatMsgEventResp> =
   async (event, conn) => {

@@ -1,10 +1,13 @@
-import { listChatMessages } from "$chat";
 import {
   assertChatEntry,
   assertLoadOlderMessagesEvent,
-} from "../assertions.ts";
-import { MESSAGES_PER_FETCH } from "../consts.ts";
-import type { ChatEventHandler, LoadOlderMessagesEventResp } from "../types.ts";
+} from "../util/assertions.ts";
+import { MESSAGES_PER_FETCH } from "../util/consts.ts";
+import { listChatMessages } from "../util/kv/chat_messages.ts";
+import type {
+  ChatEventHandler,
+  LoadOlderMessagesEventResp,
+} from "../util/types.ts";
 
 export const loadOlderMessagesHandler: ChatEventHandler<
   LoadOlderMessagesEventResp

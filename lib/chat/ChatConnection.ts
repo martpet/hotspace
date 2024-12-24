@@ -1,15 +1,15 @@
 import { Chat } from "./Chat.ts";
 import { ChatUser } from "./ChatUser.ts";
-import { ChatError } from "./errors.ts";
 import { config as handlersConfig } from "./event_handlers/config.ts";
-import { getChatSub, setChatSub } from "./kv/chat_subs.ts";
+import { ChatError } from "./util/errors.ts";
+import { getChatSub, setChatSub } from "./util/kv/chat_subs.ts";
 import type {
   ChatFeedItem,
   CheckAdminFn,
   InboundChatEvent,
   KvEnqueueFn,
   OutboundChatEvent,
-} from "./types.ts";
+} from "./util/types.ts";
 
 interface ChatConnectionOptions {
   request: Request;

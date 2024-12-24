@@ -1,5 +1,5 @@
 import type { AsyncQueue, MaybePromise } from "$util";
-import type { ChatConnection } from "./ChatConnection.ts";
+import type { ChatConnection } from "../ChatConnection.ts";
 
 export interface ChatResource {
   id: string;

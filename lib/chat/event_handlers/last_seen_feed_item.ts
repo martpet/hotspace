@@ -1,5 +1,5 @@
-import { assertLastSeenFeedItemEvent } from "../assertions.ts";
-import type { ChatEventHandler } from "../types.ts";
+import { assertLastSeenFeedItemEvent } from "../util/assertions.ts";
+import type { ChatEventHandler } from "../util/types.ts";
 
 export const lastSeenFeedItemHandler: ChatEventHandler = (event, conn) => {
   assertLastSeenFeedItemEvent(event);

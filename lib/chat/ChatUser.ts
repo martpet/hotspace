@@ -1,6 +1,6 @@
 import { watchKv } from "$util";
 import type { ChatConnection } from "./ChatConnection.ts";
-import type { ChatUserResource } from "./types.ts";
+import type { ChatUserResource } from "./util/types.ts";
 
 export interface ChatUserOptions {
   id: string;

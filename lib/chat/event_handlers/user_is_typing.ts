@@ -1,10 +1,9 @@
-import { UserTypingEvent } from "$chat";
 import {
   assertChatEntry,
   assertUserEntry,
   assertUserTypingEvent,
-} from "../assertions.ts";
-import type { ChatEventHandler } from "../types.ts";
+} from "../util/assertions.ts";
+import type { ChatEventHandler, UserTypingEvent } from "../util/types.ts";
 
 export const userTypingHandler: ChatEventHandler<UserTypingEvent> = (
   event,

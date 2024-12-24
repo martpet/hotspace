@@ -1,5 +1,5 @@
 import { CHAT_MSG_FOLLOWUP_DURATION, type ChatMessage } from "$chat";
-import { asset } from "../../lib/server/asset_path.ts";
+import { asset } from "$server";
 import { CHAT_SUB_WITHOUT_PUSH_SUB_EXPIRES } from "../../util/consts.ts";
 import type { AppContext } from "../../util/types.ts";
 import Dots from "../Dots.tsx";

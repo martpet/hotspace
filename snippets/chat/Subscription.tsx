@@ -1,4 +1,4 @@
-import { asset } from "../../lib/server/asset_path.ts";
+import { asset } from "$server";
 import { AppContext } from "../../util/types.ts";
 import { HelpTooltip } from "../Tooltip.tsx";
 
@@ -24,7 +24,7 @@ export default function Subscription(_props: unknown, ctx: AppContext) {
       <div id="chat-sub">
         <label>
           <input id="chat-sub-checkbox" type="checkbox" disabled />
-          Chat notifications
+          Chat Notifications
         </label>
 
         <HelpTooltip id="chat-sub-help">

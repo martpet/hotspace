@@ -4,17 +4,17 @@ import {
   assertChatEntry,
   assertNewChatMsgEvent,
   assertUserEntry,
-} from "../assertions.ts";
-import { setChatFeedItem } from "../kv/chat_feed_items.ts";
-import { setChatMessage } from "../kv/chat_messages.ts";
-import sanitizeChatMsgText from "../sanitize_msg.ts";
+} from "../util/assertions.ts";
+import { setChatFeedItem } from "../util/kv/chat_feed_items.ts";
+import { setChatMessage } from "../util/kv/chat_messages.ts";
+import sanitizeChatMsgText from "../util/sanitize_msg.ts";
 import type {
   ChatEventHandler,
   ChatMessage,
   NewChatMsgEventResp,
   NewChatMsgFeedItem,
   PushChatNotificationQueueMsg,
-} from "../types.ts";
+} from "../util/types.ts";
 
 export const newChatMsgHandler: ChatEventHandler<NewChatMsgEventResp> = async (
   event,

@@ -1,5 +1,5 @@
 import { AsyncQueue } from "$util";
-import type { HandlerConfig, InboundChatEvent } from "../types.ts";
+import type { HandlerConfig, InboundChatEvent } from "../util/types.ts";
 import { deletedChatMsgHandler } from "./delete_chat_msg.ts";
 import { editedChatMsgHandler } from "./edit_chat_msg.ts";
 import { lastSeenFeedItemHandler } from "./last_seen_feed_item.ts";

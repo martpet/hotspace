@@ -1,4 +1,4 @@
-import { CHAT_MESSAGE_CONTRAINTS } from "../../lib/chat/consts.ts";
+import { CHAT_MESSAGE_CONTRAINTS } from "$chat";
 import type { AppContext } from "../../util/types.ts";
 
 export default function ChatFooter(_props: unknown, ctx: AppContext) {

@@ -1,8 +1,11 @@
-import { feedItemsKeys, listFeedItemsByChat } from "$chat";
 import { watchKv } from "$util";
 import type { ChatConnection } from "./ChatConnection.ts";
-import { listChatSubs } from "./kv/chat_subs.ts";
-import type { ChatResource, OutboundChatEvent } from "./types.ts";
+import {
+  feedItemsKeys,
+  listFeedItemsByChat,
+} from "./util/kv/chat_feed_items.ts";
+import { listChatSubs } from "./util/kv/chat_subs.ts";
+import type { ChatResource, OutboundChatEvent } from "./util/types.ts";
 
 export interface ChatOptions {
   id: string;
