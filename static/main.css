@@ -3,7 +3,7 @@
   --border-grey: lightGray;
 
   @media (prefers-color-scheme: dark) {
-    --text-grey: rgba(255, 255, 255, 0.37);
+    --text-grey: rgba(255, 255, 255, 0.35);
     --border-grey: rgba(255, 255, 255, 0.2);
   }
 }
@@ -281,11 +281,10 @@ button.wait-disabled[disabled] {
   padding-inline: 0;
   li {
     display: inline;
-    &::after {
-      content: "/";
-      /* content: "→"; */
+    &:not(:last-child)::after {
+      content: "→";
       margin-inline: 0.8em;
-      color: var(--text-grey);
+      color: grey;
     }
   }
 }
