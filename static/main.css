@@ -284,7 +284,7 @@ button.wait-disabled[disabled] {
     &:not(:last-child)::after {
       content: "→";
       margin-inline: 0.8em;
-      color: grey;
+      color: var(--text-grey);
     }
   }
 }
