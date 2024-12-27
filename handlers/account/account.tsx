@@ -24,20 +24,19 @@ export default async function passkeysHandler(ctx: AppContext) {
   );
 
   return (
-    <Page title={title} head={head}>
-      <h1>{title}</h1>
-      <h2>Passkeys</h2>
-      <ul class="passkeys-list">
-        {passkeys.map((passkey) => (
-          <PasskeyItem passkey={passkey} count={passkeys.length} />
-        ))}
-      </ul>
+    <Page title={title} head={head} header={{ breadcrumb: true }}>
+      <section>
+        <h1>{title}</h1>
+        <section>
+          <h1>Passkeys</h1>
+          <ul class="passkeys-list">
+            {passkeys.map((passkey) => (
+              <PasskeyItem passkey={passkey} count={passkeys.length} />
+            ))}
+          </ul>
+        </section>
+      </section>
       <RegForm />
-      <footer>
-        <p>
-          <a href="/">Home</a>
-        </p>
-      </footer>
     </Page>
   );
 }
