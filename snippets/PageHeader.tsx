@@ -5,17 +5,20 @@ import Breadcrumb from "./Breadcrumb.tsx";
 
 export interface PageHeaderProps {
   siteNameIsHeading?: boolean;
+  siteNameIsLink?: boolean;
   breadcrumb?: boolean;
   skipReg?: boolean;
 }
 
 export default function PageHeader(props: PageHeaderProps, ctx: AppContext) {
-  const { siteNameIsHeading, breadcrumb, skipReg } = props;
+  const { siteNameIsHeading, siteNameIsLink, breadcrumb, skipReg } = props;
   const { user } = ctx.state;
 
   return (
     <header class="page-header">
-      {breadcrumb ? <Breadcrumb /> : <SiteName isHeading={siteNameIsHeading} />}
+      {breadcrumb
+        ? <Breadcrumb />
+        : <SiteName isHeading={siteNameIsHeading} isLink={siteNameIsLink} />}
       {user
         ? <AccountNav username={user.username} />
         : <LoginOrRegister skipReg={skipReg} />}
@@ -26,7 +29,11 @@ export default function PageHeader(props: PageHeaderProps, ctx: AppContext) {
 function SiteName(props: { isHeading?: boolean; isLink?: boolean }) {
   return props.isHeading
     ? <h1 class="site-name">HotSpace</h1>
-    : <p class="site-name">HotSpace</p>;
+    : (
+      <p class="site-name">
+        {props.isLink ? <a href="/">HotSpace</a> : "HotSpace"}
+      </p>
+    );
 }
 
 function AccountNav(props: { username: string }, ctx: AppContext) {

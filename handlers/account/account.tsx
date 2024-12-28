@@ -22,9 +22,11 @@ export default async function passkeysHandler(ctx: AppContext) {
   const passkeys = await listPasskeysByUser(user.id);
 
   return (
-    <Page title={title} head={head} header={{ breadcrumb: true }}>
+    <Page title={title} head={head} header={{ siteNameIsLink: true }}>
       <section>
-        <h1>{title}</h1>
+        <h1>
+          {title} (<em>{user.username}</em>)
+        </h1>
         <Passkeys passkeys={passkeys} />
       </section>
     </Page>
