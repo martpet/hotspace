@@ -10,7 +10,7 @@ export default function LoginOrRegister({ skipReg }: Props) {
       <ButtonLogin />
       {!skipReg && (
         <>
-          or <a href="/register">Register</a>
+          or <a href="/register">register</a>
         </>
       )}
     </div>
