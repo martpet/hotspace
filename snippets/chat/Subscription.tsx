@@ -16,7 +16,7 @@ export default function Subscription(_props: unknown, ctx: AppContext) {
       `Notifications for new messages appear when ${browser.name} is closed, or when this page is closed, or when another tab is focused.`;
   } else {
     help =
-      `Notifications for new messages appear when ${browser.name} is opened and either this page is closed or another tab is focused.`;
+      `Notifications for new messages appear when ${browser.name} is opened and this page is closed or another tab is focused.`;
   }
 
   return (
