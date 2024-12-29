@@ -24,7 +24,7 @@ self.addEventListener("push", (event) => {
   const data = event.data.json();
   if (data.type === "test-notification") {
     event.waitUntil(showNotification({
-      title: "HotSpace test notification",
+      title: "Test notification",
       body: "Please, ignore. Thank you!",
     }));
   } else if (data.type === "new-chat-msg") {
