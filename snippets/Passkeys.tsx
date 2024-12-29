@@ -45,8 +45,8 @@ function ListItem(
     <li>
       <ButtonRename passkey={passkey} /> —{" "}
       {count > 1 && <ButtonDelete passkey={passkey} />}
-      Created {dateFmt.format(createdAt)},{"  "}
-      {lastUsedAt ? `last used ${dateFmt.format(lastUsedAt)}` : "never used"}
+      Created {dateFmt.format(createdAt)}.{"  "}
+      {lastUsedAt ? `Last used ${dateFmt.format(lastUsedAt)}` : "Never used"}
     </li>
   );
 }

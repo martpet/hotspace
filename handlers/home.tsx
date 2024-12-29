@@ -8,7 +8,7 @@ export default async function homeHandler(ctx: AppContext) {
   const user = ctx.state.user;
 
   return (
-    <Page header={{ siteNameIsHeading: true }}>
+    <Page>
       {user && <UserHome spaces={await listRootDirsByOwner(user.id)} />}
     </Page>
   );
@@ -17,7 +17,7 @@ export default async function homeHandler(ctx: AppContext) {
 function UserHome(props: { spaces: DirNode[] }) {
   return (
     <>
-      <h2>Your spaces</h2>
+      <h1>Your spaces</h1>
       <SpacesList dirs={props.spaces} />
       <ButtonCreateDir isRootDir />
     </>

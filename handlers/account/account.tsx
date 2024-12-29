@@ -23,12 +23,10 @@ export default async function passkeysHandler(ctx: AppContext) {
 
   return (
     <Page title={title} head={head} header={{ siteNameIsLink: true }}>
-      <section>
-        <h1>
-          {title} (<em>{user.username}</em>)
-        </h1>
-        <Passkeys passkeys={passkeys} />
-      </section>
+      <h1>
+        {title} <small>({user.username})</small>
+      </h1>
+      <Passkeys passkeys={passkeys} />
     </Page>
   );
 }

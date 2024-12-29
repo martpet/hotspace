@@ -23,13 +23,13 @@ if (btnOpenCreateDirDialog) {
     "afterend",
     `
      <dialog id="create-dir-dialog">
-        <h2>${dialogTitle}</h2>
+        <h1>${dialogTitle}</h1>
         <p role="alert" class="error"></p>
         <form class="basic-form">
           <label>
             Name:
             ${tmplDirNameField.outerHTML}
-            <em>${location.hostname}${docPath}<output name="dirNamePreview"></output></em>
+            <small><em>${location.hostname}${docPath}<output name="dirNamePreview"></output></em></small>
           </label>
           <footer>
             <button type="reset">Cancel</button>
