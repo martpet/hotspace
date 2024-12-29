@@ -88,7 +88,7 @@ form.basic-form {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
-    margin: 1.5rem 0;
+    margin: 1.3rem 0;
   }
   input,
   textarea {
@@ -314,6 +314,7 @@ button.wait-disabled[disabled] {
     gap: 0.5em;
     &.dir::before {
       content: "📁";
+      font-size: 1.2em;
     }
   }
 }
