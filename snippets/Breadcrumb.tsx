@@ -9,7 +9,7 @@ export default function Breadcrumb(_: unknown, ctx: AppContext) {
     <nav aria-label="Breadcrumb" class="breadcrumb">
       <ol>
         <li>
-          {user ? <a href="/">Home</a> : "Home"}
+          {user ? <a href="/">Home</a> : "HotSpace"}
         </li>
         {parts.map((part, i) => (
           <li>

@@ -1,4 +1,5 @@
 import { type Handler, staticFilesHandler } from "$server";
+import { uploadWorkerHandler } from "$upload";
 import { SESSION_COOKIE } from "$webauthn";
 import { deleteCookie, getCookies } from "@std/http";
 import { getSessionById } from "../util/kv/sessions.ts";
@@ -8,6 +9,7 @@ import type { AppMiddleware } from "../util/types.ts";
 export const sessionMiddleware: AppMiddleware = async (ctx, next) => {
   const skip: Handler[] = [
     staticFilesHandler,
+    uploadWorkerHandler,
   ];
 
   if (skip.includes(ctx.handler)) return next();

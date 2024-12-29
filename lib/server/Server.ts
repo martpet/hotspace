@@ -1,4 +1,4 @@
-import { LimitedMap } from "$util";
+import { fileUrlToRelative, LimitedMap } from "$util";
 import {
   HEADER,
   type Method,
@@ -8,9 +8,9 @@ import {
 } from "@std/http";
 import { contentType } from "@std/media-types";
 import { renderToString } from "preact-render-to-string";
-import { FLASH_COOKIE, STATIC_FILES_PATH } from "./consts.ts";
-import { flashMiddleware } from "./flash_middleware.ts";
-import { staticFilesHandler } from "./static_files_handler.ts";
+import { staticFilesHandler } from "./handlers/static_files_handler.ts";
+import { flashMiddleware } from "./middleware/flash_middleware.ts";
+import { FLASH_COOKIE, STATIC_FILES_PATH } from "./util/consts.ts";
 import type {
   Context,
   CtxFlashFn,
@@ -25,7 +25,7 @@ import type {
   RouteMethod,
   ServerOptions,
   TrailingSlashMode,
-} from "./types.ts";
+} from "./util/types.ts";
 
 export class Server {
   #routes: Route[] = [];
@@ -126,6 +126,8 @@ export class Server {
     };
     return this.#handleRoute(ctx);
   }
+
+  #createContext() {}
 
   #matchRoute(req: Request): RouteMatch | undefined {
     const method = req.method as Method;
@@ -228,5 +230,17 @@ export class Server {
   #redirectBack(ctx: Context) {
     const path = ctx.req.headers.get(HEADER.Referer) || ctx.url.origin;
     return this.#redirect(ctx, path);
+  }
+
+  static serveFileUrl(ctx: Context, fileUrl: string) {
+    const relPath = fileUrlToRelative(fileUrl);
+    const newUrl = new URL(relPath, ctx.url.origin);
+    ctx.url = newUrl;
+    ctx.req = new Request(newUrl.href, {
+      method: ctx.req.method,
+      headers: ctx.req.headers,
+      body: ctx.req.body,
+    });
+    return staticFilesHandler(ctx);
   }
 }

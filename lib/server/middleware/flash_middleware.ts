@@ -1,6 +1,6 @@
 import { deleteCookie, getCookies } from "@std/http";
-import { FLASH_COOKIE } from "./consts.ts";
-import type { Middleware } from "./types.ts";
+import { FLASH_COOKIE } from "../util/consts.ts";
+import type { Middleware } from "../util/types.ts";
 
 export const flashMiddleware: Middleware = (ctx, next) => {
   const encodedFlash = getCookies(ctx.req.headers)[FLASH_COOKIE];

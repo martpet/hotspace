@@ -12,8 +12,13 @@ if (DEPLOYMENT_ID) {
   hex = encodeHex(await crypto.subtle.digest("SHA-1", bytes));
 }
 
-export function asset(fileName: string) {
-  const filePath = `${STATIC_FILES_PATH}/${fileName}`;
-  if (!hex) return filePath;
-  return `${filePath}?${ASSET_CACHE_PARAM}=${hex}`;
+interface AssetOptions {
+  raw?: boolean;
+}
+
+export function asset(fileName: string, opt: AssetOptions = {}) {
+  let path = fileName;
+  if (!opt.raw) path = STATIC_FILES_PATH + "/" + path;
+  if (!hex) return path;
+  return `${path}?${ASSET_CACHE_PARAM}=${hex}`;
 }

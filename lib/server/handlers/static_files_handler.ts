@@ -1,7 +1,7 @@
 import { DAY } from "@std/datetime";
 import { HEADER, serveDir } from "@std/http";
-import { ASSET_CACHE_PARAM } from "./consts.ts";
-import type { Context } from "./types.ts";
+import { ASSET_CACHE_PARAM } from "../util/consts.ts";
+import type { Context } from "../util/types.ts";
 
 export async function staticFilesHandler(ctx: Context) {
   const resp = await serveDir(ctx.req, { quiet: true });
