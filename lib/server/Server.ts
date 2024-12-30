@@ -212,7 +212,7 @@ export class Server {
   #jsx(ctx: Context, ...[vnode]: Parameters<CtxJsxFn>) {
     ctx.resp.headers.set(HEADER.ContentType, contentType("html"));
     let html = renderToString(vnode, ctx);
-    if (!ctx.resp.skipDosctype) html = "<!DOCTYPE html>" + html;
+    if (!ctx.resp.skipDoctype) html = "<!DOCTYPE html>" + html;
     return this.#createResponse(ctx, html);
   }
 

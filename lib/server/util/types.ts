@@ -13,7 +13,7 @@ export interface ServerOptions {
 
 export type ResponseOptions = Omit<ResponseInit, "headers"> & {
   headers: Headers;
-  skipDosctype?: boolean;
+  skipDoctype?: boolean;
 };
 
 export type CtxJsxFn = (input: VNode) => Response;

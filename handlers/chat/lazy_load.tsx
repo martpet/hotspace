@@ -34,7 +34,7 @@ export default async function chatLazyLoadHandler(ctx: AppContext) {
 
   messages.reverse();
 
-  ctx.resp.skipDosctype = true;
+  ctx.resp.skipDoctype = true;
 
   return (
     <ChatMessages
