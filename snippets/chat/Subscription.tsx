@@ -45,10 +45,13 @@ export default function Subscription(_props: unknown, ctx: AppContext) {
         </button>
       </div>
 
-      {browser.name === "Mobile Safari" && (
-        <details id="chat-sub-safari-standalone-help" hidden>
+      {os.name === "iOS" && (
+        <details id="ios-chat-sub-help" hidden>
           <summary>Chat notifications</summary>
-          <p>To enable notifications, add the website to your Home Screen:</p>
+          <p>
+            To subscribe for chat notifications on iOS, add this website to your
+            Home Screen:
+          </p>
           <figure>
             <img loading="lazy" src={asset("img/ios-add-homescreen-1.png")} />
             <img loading="lazy" src={asset("img/ios-add-homescreen-2.png")} />

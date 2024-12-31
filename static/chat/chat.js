@@ -6,6 +6,7 @@ import {
   debounce,
   deviceType,
   getPushSub,
+  osName,
   pushSubLockSignal,
   syncPushSub,
 } from "$main";
@@ -32,7 +33,7 @@ const {
 
 applyChatBoxSize();
 lazyLoadMsgs();
-showMobileSafariInfo();
+showIosChatSubHelp();
 insertMessageDialogs();
 syncPushSub().then(() => checkExpiredChatSub());
 
@@ -993,10 +994,9 @@ async function renderSubscriptionUi() {
   chatSubHelp.hidden = !isDeniedTagHidden || !isBtnAllowHidden;
 }
 
-function showMobileSafariInfo() {
-  const el = document.getElementById("chat-sub-safari-standalone-help");
-  if (el && !navigator.standalone) {
-    el.hidden = false;
+function showIosChatSubHelp() {
+  if (osName === "iOS" && !navigator.standalone) {
+    document.getElementById("ios-chat-sub-help").hidden = false;
     chatSubEl.hidden = true;
     return true;
   }
