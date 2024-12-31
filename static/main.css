@@ -156,7 +156,6 @@ button.wait-disabled[disabled] {
   }
   button&::after {
     margin-left: 0.25rem;
-    color: ButtonText;
   }
 }
 
