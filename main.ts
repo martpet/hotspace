@@ -28,6 +28,10 @@ import { headersMiddleware } from "./middleware/headers.ts";
 import { errorMiddleware } from "./middleware/server_error.tsx";
 import { sessionMiddleware } from "./middleware/session.ts";
 import { stateMiddleware } from "./middleware/state.ts";
+import { kv } from "./util/kv/kv.ts";
+import { queueHandler } from "./util/kv/queue_handlers/main_handler.ts";
+
+kv.listenQueue(queueHandler);
 
 const options: ServerOptions = {
   trailingSlashMode: "mixed",
@@ -42,12 +46,6 @@ if (IS_LOCAL_DEV) {
 }
 
 const app = new Server(options);
-
-app.use(errorMiddleware);
-app.use(headersMiddleware);
-app.use(sessionMiddleware);
-app.use(stateMiddleware);
-app.use(flashMiddleware);
 
 app.get("/temp", tempHandler);
 app.get("/", home);
@@ -69,5 +67,11 @@ app.post("/inodes/dirs", createDir);
 app.post("/inodes/toggle_chat", toggleChat);
 app.get("/upload/worker.js", uploadWorkerHandler);
 app.get("*", showInode);
+
+app.use(errorMiddleware);
+app.use(headersMiddleware);
+app.use(sessionMiddleware);
+app.use(stateMiddleware);
+app.use(flashMiddleware);
 
 app.serve();
