@@ -1,5 +1,4 @@
 import {
-  browserName,
   canUserServiceWorker,
   collapseLineBreaks,
   createPushSub,
@@ -7,7 +6,6 @@ import {
   debounce,
   deviceType,
   getPushSub,
-  osName,
   pushSubLockSignal,
   syncPushSub,
 } from "$main";
@@ -18,6 +16,7 @@ import {
 
 const rootEl = document.getElementById("chat");
 const chatBox = document.getElementById("chat-box");
+const chatSubEl = document.getElementById("chat-sub");
 const formNewMsg = document.getElementById("chat-msg-form");
 const textareaNewMsg = formNewMsg?.querySelector("textarea");
 
@@ -33,7 +32,7 @@ const {
 
 applyChatBoxSize();
 lazyLoadMsgs();
-toggleIosSafariHelp();
+showMobileSafariInfo();
 insertMessageDialogs();
 syncPushSub().then(() => checkExpiredChatSub());
 
@@ -48,7 +47,6 @@ const btnScrollToUnseen = document.getElementById("scrollto-unseen-msg-btn");
 const chatBeginning = document.getElementById("chat-beginning");
 const msgsLoader = document.getElementById("chat-msgs-loader");
 const usersTypingEl = document.querySelector("#chat-users-typing .names");
-const chatSubEl = document.getElementById("chat-sub");
 const chatSubCheckbox = document.getElementById("chat-sub-checkbox");
 const chatSubDeniedTag = document.getElementById("chat-sub-denied");
 const chatSubHelp = document.getElementById("chat-sub-help");
@@ -995,9 +993,9 @@ async function renderSubscriptionUi() {
   chatSubHelp.hidden = !isDeniedTagHidden || !isBtnAllowHidden;
 }
 
-function toggleIosSafariHelp() {
-  if (osName === "iOS" && browserName === "Safari" && !navigator.standalone) {
-    const el = document.getElementById("notifications-ios-help");
+function showMobileSafariInfo() {
+  const el = document.getElementById("chat-sub-safari-standalone-help");
+  if (el && !navigator.standalone) {
     el.hidden = false;
     chatSubEl.hidden = true;
     return true;
