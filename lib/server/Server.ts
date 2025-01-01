@@ -31,14 +31,12 @@ export class Server {
   #routes: Route[] = [];
   #middlewares: Middleware[] = [];
   #rootHostnameURLPattern: string | undefined;
-  #trailingSlashMode: TrailingSlashMode;
+  #trailingSlash: TrailingSlashMode;
   #matchedRoutes = new LimitedMap<string, RouteMatch>(1000);
-  #serveOptions: ServerOptions["serveOptions"];
 
   constructor(opt: ServerOptions = {}) {
     this.#rootHostnameURLPattern = opt.rootHostnameURLPattern;
-    this.#trailingSlashMode = opt.trailingSlashMode || "never";
-    this.#serveOptions = opt.serveOptions;
+    this.#trailingSlash = opt.trailingSlash || "never";
     this.get(`${STATIC_FILES_PATH}/*`, staticFilesHandler);
   }
 
@@ -71,11 +69,8 @@ export class Server {
     this.#middlewares.push(middleware);
   }
 
-  serve() {
-    Deno.serve(
-      this.#serveOptions || {},
-      (req) => this.#serveHandler(req),
-    );
+  serve(options?: Deno.ServeTcpOptions & Deno.TlsCertifiedKeyPem) {
+    Deno.serve(options || {}, (req) => this.#serveHandler(req));
   }
 
   #serveHandler(req: Request): Response | Promise<Response> {
@@ -160,14 +155,14 @@ export class Server {
   }
 
   #fixTrailingSlash(url: URL): URL | undefined {
-    const mode = this.#trailingSlashMode;
+    const mode = this.#trailingSlash;
     if (url.pathname === "/" || mode === "mixed") return;
-    const slash = url.pathname.endsWith("/");
+    const hasSlash = url.pathname.endsWith("/");
     const fix = new URL(url);
-    if (slash && mode === "never") {
+    if (hasSlash && mode === "never") {
       fix.pathname = url.pathname.slice(0, -1);
       return fix;
-    } else if (!slash && mode === "always") {
+    } else if (!hasSlash && mode === "always") {
       fix.pathname = url.pathname + "/";
       return fix;
     }

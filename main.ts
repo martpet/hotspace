@@ -1,9 +1,4 @@
-import {
-  flashMiddleware,
-  IS_LOCAL_DEV,
-  Server,
-  type ServerOptions,
-} from "$server";
+import { flashMiddleware, IS_LOCAL_DEV, Server } from "$server";
 import { uploadWorkerHandler } from "$upload";
 import account from "./handlers/account/account.tsx";
 import logout from "./handlers/account/logout.ts";
@@ -31,21 +26,13 @@ import { stateMiddleware } from "./middleware/state.ts";
 import { kv } from "./util/kv/kv.ts";
 import { queueHandler } from "./util/kv/queue_handlers/main_handler.ts";
 
-kv.listenQueue(queueHandler);
+const app = new Server({ trailingSlash: "mixed" });
 
-const options: ServerOptions = {
-  trailingSlashMode: "mixed",
-};
-
-if (IS_LOCAL_DEV) {
-  options.serveOptions = {
-    cert: await Deno.readTextFile("util/cert/hotspace.local.crt"),
-    key: await Deno.readTextFile("util/cert/hotspace.local.key"),
-    port: 443,
-  };
-}
-
-const app = new Server(options);
+app.use(errorMiddleware);
+app.use(headersMiddleware);
+app.use(sessionMiddleware);
+app.use(stateMiddleware);
+app.use(flashMiddleware);
 
 app.get("/temp", tempHandler);
 app.get("/", home);
@@ -68,10 +55,16 @@ app.post("/inodes/toggle_chat", toggleChat);
 app.get("/upload/worker.js", uploadWorkerHandler);
 app.get("*", showInode);
 
-app.use(errorMiddleware);
-app.use(headersMiddleware);
-app.use(sessionMiddleware);
-app.use(stateMiddleware);
-app.use(flashMiddleware);
+let serveOptions;
 
-app.serve();
+if (IS_LOCAL_DEV) {
+  serveOptions = {
+    cert: await Deno.readTextFile("util/cert/hotspace.local.crt"),
+    key: await Deno.readTextFile("util/cert/hotspace.local.key"),
+    port: 443,
+  };
+}
+
+app.serve(serveOptions);
+
+kv.listenQueue(queueHandler);

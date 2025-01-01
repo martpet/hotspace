@@ -5,10 +5,7 @@ export type TrailingSlashMode = "always" | "never" | "mixed";
 
 export interface ServerOptions {
   rootHostnameURLPattern?: string;
-  trailingSlashMode?: TrailingSlashMode;
-  serveOptions?:
-    | Deno.ServeTcpOptions
-    | (Deno.ServeTcpOptions & Deno.TlsCertifiedKeyPem);
+  trailingSlash?: TrailingSlashMode;
 }
 
 export type ResponseOptions = Omit<ResponseInit, "headers"> & {
