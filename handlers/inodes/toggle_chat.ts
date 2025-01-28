@@ -8,7 +8,7 @@ import {
 } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import type { AppContext } from "../../util/types.ts";
-import { getPathParts, isValidPathname } from "../../util/url.ts";
+import { getPathParts, isValidDirPath } from "../../util/url.ts";
 
 interface FormEntries {
   pathname: string;
@@ -79,5 +79,5 @@ export default async function toggleChatHandler(ctx: AppContext) {
 
 function isValidFormEntries(entries: unknown): entries is FormEntries {
   const { pathname } = entries as FormEntries;
-  return typeof entries === "object" && isValidPathname(pathname);
+  return typeof entries === "object" && isValidDirPath(pathname);
 }

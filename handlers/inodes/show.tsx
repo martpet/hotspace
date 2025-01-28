@@ -3,7 +3,8 @@ import { STATUS_CODE } from "@std/http";
 import Chat from "../../snippets/chat/Chat.tsx";
 import ButtonCreateDir from "../../snippets/inodes/ButtonCreateDir.tsx";
 import ButtonToggleChat from "../../snippets/inodes/ButtonToggleChat.tsx";
-import Inodes from "../../snippets/inodes/Inodes.tsx";
+import ButtonUpload from "../../snippets/inodes/ButtonUpload.tsx";
+import InodesList from "../../snippets/inodes/InodesList.tsx";
 import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";
 import Page from "../../snippets/pages/Page.tsx";
 import { getDirByPath, listInodesByDir } from "../../util/kv/inodes.ts";
@@ -15,26 +16,23 @@ export default async function showInodeHandler(ctx: AppContext) {
   const { pathname } = ctx.url;
   const { isRootDir, pathParts } = getPathParts(pathname);
 
-  if (isRootDir && pathname.endsWith("/")) {
-    return ctx.redirect(
-      ctx.req.url.slice(0, -1),
-      STATUS_CODE.PermanentRedirect,
-    );
+  if (isRootDir && !pathname.endsWith("/")) {
+    ctx.redirect(ctx.req.url + "/", STATUS_CODE.PermanentRedirect);
   }
 
-  const dir = (await getDirByPath(pathParts)).value;
+  const dirNode = (await getDirByPath(pathParts)).value;
 
-  if (!dir) {
+  if (!dirNode) {
     return <NotFoundPage />;
   }
 
-  const isOwner = dir.ownerId === user?.id;
-  const inodes = await listInodesByDir(dir.id);
+  const isOwner = dirNode.ownerId === user?.id;
+  const inodes = await listInodesByDir(dirNode.id);
 
   const head = (
     <>
       <meta name="robots" content="noindex, nofollow" />
-      {dir.chatEnabled && (
+      {dirNode.chatEnabled && (
         <link rel="stylesheet" href={asset("chat/chat.css")} />
       )}
     </>
@@ -42,23 +40,24 @@ export default async function showInodeHandler(ctx: AppContext) {
 
   return (
     <Page
-      title={dir.name}
+      title={dirNode.name}
       head={head}
       header={{ breadcrumb: true }}
-      class="inodes-page"
+      id="inodes-page"
     >
-      <h1>{dir.name}</h1>
+      <h1>{dirNode.name}</h1>
       {isOwner && (
         <menu class="inodes-menu">
+          <ButtonUpload />
           <ButtonCreateDir />
-          <ButtonToggleChat inode={dir} />
+          <ButtonToggleChat inode={dirNode} />
         </menu>
       )}
-      <Inodes inodes={inodes} />
-      {dir.chatEnabled && (
+      <InodesList inodes={inodes} />
+      {dirNode.chatEnabled && (
         <Chat
-          chatId={dir.id}
-          chatTitle={dir.name}
+          chatId={dirNode.id}
+          chatTitle={dirNode.name}
           isAdmin={isOwner}
         />
       )}

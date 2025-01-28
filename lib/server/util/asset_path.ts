@@ -13,12 +13,12 @@ if (DEPLOYMENT_ID) {
 }
 
 interface AssetOptions {
-  raw?: boolean;
+  rawPath?: boolean;
 }
 
 export function asset(fileName: string, opt: AssetOptions = {}) {
   let path = fileName;
-  if (!opt.raw) path = STATIC_FILES_PATH + "/" + path;
+  if (!opt.rawPath) path = STATIC_FILES_PATH + "/" + path;
   if (!hex) return path;
   return `${path}?${ASSET_CACHE_PARAM}=${hex}`;
 }

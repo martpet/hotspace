@@ -10,7 +10,7 @@
   --msg-hover-color: #f2f2f2;
   --red-color: crimson;
   @media (prefers-color-scheme: dark) {
-    --msg-hover-color: rgba(0, 0, 0, 0.8);
+    --msg-hover-color: black;
     --red-color: darkred;
   }
 
@@ -20,6 +20,9 @@
     min-height: 1.1rem;
     padding: 0.1rem 0.25rem;
     font-size: 14px;
+    &::placeholder {
+      font-size: 13px;
+    }
   }
 }
 

@@ -18,7 +18,8 @@ import showInode from "./handlers/inodes/show.tsx";
 import toggleChat from "./handlers/inodes/toggle_chat.ts";
 import subscribers from "./handlers/push_sub/subscribers.ts";
 import vapid from "./handlers/push_sub/vapid.ts";
-import tempHandler from "./handlers/temp.tsx";
+import completeUpload from "./handlers/upload/complete.tsx";
+import initiateUpload from "./handlers/upload/initiate.tsx";
 import { headersMiddleware } from "./middleware/headers.ts";
 import { errorMiddleware } from "./middleware/server_error.tsx";
 import { sessionMiddleware } from "./middleware/session.ts";
@@ -34,7 +35,6 @@ app.use(sessionMiddleware);
 app.use(stateMiddleware);
 app.use(flashMiddleware);
 
-app.get("/temp", tempHandler);
 app.get("/", home);
 app.get("/register", register);
 app.post("/logout", logout);
@@ -53,6 +53,8 @@ app.all("/chat/subs", chatSubs);
 app.post("/inodes/dirs", createDir);
 app.post("/inodes/toggle_chat", toggleChat);
 app.get("/upload/worker.js", uploadWorkerHandler);
+app.post("/upload/initiate", initiateUpload);
+app.post("/upload/complete", completeUpload);
 app.get("*", showInode);
 
 let serveOptions;

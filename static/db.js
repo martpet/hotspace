@@ -1,38 +1,38 @@
-const CHAT_SUBSCRIPTIONS = "chat_subscriptions";
+const CHAT_SUBS = "chat_subscriptions";
 const CONFIG = "config";
 
-let opened;
+let dbOpened;
 
-function open() {
-  if (opened) return opened.promise;
-  opened = Promise.withResolvers();
-  const request = indexedDB.open("hotspace", 1);
+function openDb() {
+  if (dbOpened) return dbOpened.promise;
+  dbOpened = Promise.withResolvers();
+  const openReq = indexedDB.open("hotspace", 1);
 
-  request.onupgradeneeded = (event) => {
+  openReq.onupgradeneeded = (event) => {
     const db = event.target.result;
     if (!db.objectStoreNames.contains(CONFIG)) {
       db.createObjectStore(CONFIG);
     }
-    if (!db.objectStoreNames.contains(CHAT_SUBSCRIPTIONS)) {
-      db.createObjectStore(CHAT_SUBSCRIPTIONS, { keyPath: "chatId" });
+    if (!db.objectStoreNames.contains(CHAT_SUBS)) {
+      db.createObjectStore(CHAT_SUBS, { keyPath: "chatId" });
     }
   };
 
-  request.onsuccess = (event) => {
+  openReq.onsuccess = (event) => {
     const db = event.target.result;
-    opened.resolve(db);
-    db.onclose = () => opened = null;
+    dbOpened.resolve(db);
+    db.onclose = () => dbOpened = null;
   };
 
-  return opened.promise;
+  return dbOpened.promise;
 }
 
-/**
- * Subscriber
- */
+// =====================
+// Push Subscriber
+// =====================
 
 export async function getSubscriber() {
-  const db = await open();
+  const db = await openDb();
   return new Promise((resolve) => {
     db.transaction(CONFIG)
       .objectStore(CONFIG)
@@ -41,7 +41,7 @@ export async function getSubscriber() {
 }
 
 export async function setSubscriber(subscriber) {
-  const db = await open();
+  const db = await openDb();
   return new Promise((resolve) => {
     db.transaction(CONFIG, "readwrite")
       .objectStore(CONFIG)
@@ -49,33 +49,33 @@ export async function setSubscriber(subscriber) {
   });
 }
 
-/**
- * Chat Subscription
- */
+// =====================
+// Chat Subs
+// =====================
 
 export async function getChatSub(chatId) {
-  const db = await open();
+  const db = await openDb();
   return new Promise((resolve) => {
-    db.transaction(CHAT_SUBSCRIPTIONS)
-      .objectStore(CHAT_SUBSCRIPTIONS)
+    db.transaction(CHAT_SUBS)
+      .objectStore(CHAT_SUBS)
       .get(chatId).onsuccess = (ev) => resolve(ev.target.result);
   });
 }
 
 export async function setChatSub(data) {
-  const db = await open();
+  const db = await openDb();
   return new Promise((resolve) => {
-    db.transaction(CHAT_SUBSCRIPTIONS, "readwrite")
-      .objectStore(CHAT_SUBSCRIPTIONS)
+    db.transaction(CHAT_SUBS, "readwrite")
+      .objectStore(CHAT_SUBS)
       .put(data).onsuccess = resolve;
   });
 }
 
 export async function deleteChatSub(chatId) {
-  const db = await open();
+  const db = await openDb();
   return new Promise((resolve) => {
-    db.transaction(CHAT_SUBSCRIPTIONS, "readwrite")
-      .objectStore(CHAT_SUBSCRIPTIONS)
+    db.transaction(CHAT_SUBS, "readwrite")
+      .objectStore(CHAT_SUBS)
       .delete(chatId).onsuccess = resolve;
   });
 }

@@ -7,12 +7,11 @@ import { decodeBase64Url, encodeBase64, GENERAL_ERR_MSG } from "$main";
 const form = document.getElementById("reg-form");
 const button = form.querySelector("button");
 const usernameField = document.getElementById("username");
-const errorEl = form.nextElementSibling;
 const isNewAccount = !!usernameField;
 
 const generalRegFlowErrorMsg = isNewAccount
   ? "Registration was not completed"
-  : "A passkey was not created";
+  : "A passkey was not added";
 
 function setInProgress(inProgrss) {
   if (usernameField) usernameField.disabled = inProgrss;
@@ -21,8 +20,15 @@ function setInProgress(inProgrss) {
 }
 
 function setError(msg) {
-  errorEl.textContent = msg;
-  if (msg) setInProgress(false);
+  if (msg) {
+    setInProgress(false);
+    form.insertAdjacentHTML(
+      "beforeend",
+      `<p role="alert" class="error">${msg}</p>`,
+    );
+  } else {
+    form.querySelector("p.error")?.remove();
+  }
 }
 
 form?.addEventListener("submit", async (e) => {

@@ -14,6 +14,7 @@ export type ResponseOptions = Omit<ResponseInit, "headers"> & {
 };
 
 export type CtxJsxFn = (input: VNode) => Response;
+export type CtxJsxPartialFn = (input: VNode) => Response;
 export type CtxJsonFn = (input: unknown, status?: number | null) => Response;
 export type CtxRedirectFn = (path: string, status?: RedirectStatus) => Response;
 export type CtxRedirectBackFn = () => Response;
@@ -43,6 +44,7 @@ export interface Context<S = Record<string, never>> {
   handler: Handler;
   respond: CtxRespondFn;
   jsx: CtxJsxFn;
+  jsxPartial: CtxJsxPartialFn;
   json: CtxJsonFn;
   redirect: CtxRedirectFn;
   redirectBack: CtxRedirectBackFn;

@@ -28,7 +28,7 @@ if (!isServiceWorkerScope && canUserServiceWorker) {
 }
 
 // =====================
-// Fetch Monkey Patch
+// Fetch Patch
 // =====================
 
 if (!isServiceWorkerScope) {
@@ -158,14 +158,14 @@ export async function getPushSub() {
 }
 
 export async function createPushSub({ db, forceNew } = {}) {
-  if (pushSubLockSignal.get()) return;
-  pushSubLockSignal.set(true);
+  if (pushSubLockSignal.value) return;
+  pushSubLockSignal.value = true;
 
   if (Notification.permission === "default") {
     await Notification.requestPermission();
   }
   if (Notification.permission !== "granted") {
-    pushSubLockSignal.set(false);
+    pushSubLockSignal.value = false;
     return;
   }
   db ??= await import("$db");
@@ -189,19 +189,19 @@ export async function createPushSub({ db, forceNew } = {}) {
   if (!subscriber || !equalPushSubs(subscriber.pushSub, pushSub)) {
     subscriber = await postSubscriber({ db, subscriber, pushSub });
   }
-  pushSubLockSignal.set(false);
+  pushSubLockSignal.value = false;
   return subscriber;
 }
 
 export async function syncPushSub({ db } = {}) {
   if (!canUserServiceWorker) return;
-  if (pushSubLockSignal.get()) return;
+  if (pushSubLockSignal.value) return;
 
-  pushSubLockSignal.set(true);
+  pushSubLockSignal.value = true;
   db ??= await import("$db");
   const subscriber = await db.getSubscriber();
   if (!subscriber) {
-    pushSubLockSignal.set(false);
+    pushSubLockSignal.value = false;
     return;
   }
   const pushSub = await getPushSub();
@@ -220,7 +220,7 @@ export async function syncPushSub({ db } = {}) {
   } catch (err) {
     console.error(err);
   } finally {
-    pushSubLockSignal.set(false);
+    pushSubLockSignal.value = false;
   }
 }
 
@@ -285,10 +285,13 @@ export function createSignal(initialValue) {
   let value = initialValue;
   let prevValue = undefined;
   const listeners = new Set();
-  const notify = () => listeners.forEach((fn) => fn(value, prevValue));
+  const notify = () =>
+    setTimeout(() => listeners.forEach((fn) => fn(value, prevValue)));
   return {
-    get: () => value,
-    set: (newValue) => {
+    get value() {
+      return value;
+    },
+    set value(newValue) {
       if (value !== newValue) {
         prevValue = value;
         value = newValue;

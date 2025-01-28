@@ -9,7 +9,7 @@ export default function RegForm(_props: unknown, ctx: AppContext) {
       <form id="reg-form">
         {!user && (
           <>
-            <label for="username">Username:</label>
+            <label>Username:</label>
             <input
               id="username"
               type="text"
@@ -25,7 +25,6 @@ export default function RegForm(_props: unknown, ctx: AppContext) {
           {!user ? "Create account" : "Add Passkey"}
         </button>
       </form>
-      <p role="alert" class="error" />
     </>
   );
 }

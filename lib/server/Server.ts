@@ -16,6 +16,7 @@ import type {
   CtxFlashFn,
   CtxJsonFn,
   CtxJsxFn,
+  CtxJsxPartialFn,
   CtxRedirectFn,
   CtxRespondFn,
   Handler,
@@ -100,12 +101,13 @@ export class Server {
       urlPatternResult: route.patternResult,
       userAgent: new UserAgent(req.headers.get("user-agent")),
       locale: req.headers.get(HEADER.AcceptLanguage)?.split(",")[0],
-      respond: (...x) => this.#createResponse(ctx, ...x),
-      jsx: (...x) => this.#jsx(ctx, ...x),
-      json: (...x) => this.#json(ctx, ...x),
-      redirect: (...x) => this.#redirect(ctx, ...x),
+      respond: (...r) => this.#createResponse(ctx, ...r),
+      jsx: (...r) => this.#jsx(ctx, ...r),
+      jsxPartial: (...r) => this.#jsxPartial(ctx, ...r),
+      json: (...r) => this.#json(ctx, ...r),
+      redirect: (...r) => this.#redirect(ctx, ...r),
       redirectBack: () => this.#redirectBack(ctx),
-      setFlash: (...x) => this.#setFlash(ctx, ...x),
+      setFlash: (...r) => this.#setFlash(ctx, ...r),
       get rootDomainUrl() {
         rootDomainUrl ??= that.#getRootDomainUrl(ctx);
         return rootDomainUrl;
@@ -121,8 +123,6 @@ export class Server {
     };
     return this.#handleRoute(ctx);
   }
-
-  #createContext() {}
 
   #matchRoute(req: Request): RouteMatch | undefined {
     const method = req.method as Method;
@@ -209,6 +209,11 @@ export class Server {
     let html = renderToString(vnode, ctx);
     if (!ctx.resp.skipDoctype) html = "<!DOCTYPE html>" + html;
     return this.#createResponse(ctx, html);
+  }
+
+  #jsxPartial(ctx: Context, ...rest: Parameters<CtxJsxPartialFn>) {
+    ctx.resp.skipDoctype = true;
+    return this.#jsx(ctx, ...rest);
   }
 
   #json(ctx: Context, ...[input, status]: Parameters<CtxJsonFn>) {

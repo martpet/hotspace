@@ -5,9 +5,9 @@ import {
   type PushChatNotificationQueueMsg,
   setChatSub,
 } from "$chat";
-import { getSemaphore } from "@henrygd/semaphore";
+import { newQueue } from "@henrygd/queue";
 import { PushMessageError } from "@negrel/webpush";
-import { delay } from "@std/async";
+import { retry } from "@std/async/retry";
 import { associateBy, chunk } from "@std/collections";
 import { STATUS_CODE } from "@std/http";
 import { CHAT_SUB_WITHOUT_PUSH_SUB_EXPIRES } from "../../consts.ts";
@@ -31,98 +31,97 @@ export function isPushChatNotification(
     typeof chatPageUrl === "string";
 }
 
-let pushLock = Promise.resolve();
-
 export async function handlePushChatNotification(
-  queueMsg: PushChatNotificationQueueMsg,
+  {
+    chatId,
+    chatMsgId,
+    chatTitle,
+    chatPageUrl,
+    nonce,
+  }: PushChatNotificationQueueMsg,
 ) {
-  const nonceEntry = await getQueueNonce(queueMsg.nonce);
-  if (nonceEntry.value) {
-    deleteQueueNonce(queueMsg.nonce);
-  } else {
-    return;
-  }
-  const { chatId, chatMsgId, chatTitle, chatPageUrl } = queueMsg;
+  const nonceEntry = await getQueueNonce(nonce);
+  if (!nonceEntry.value) return;
+  deleteQueueNonce(nonce);
 
   const chatSubs = await listChatSubs({
-    kv,
     chatId,
-    listOptions: {
-      consistency: "eventual",
-    },
+    listOptions: { consistency: "eventual" },
+    kv,
   });
 
-  const chatSubsBySubscriber = associateBy(chatSubs, (sub) => sub.subscriberId);
+  const chatSubsBySubscriber = associateBy(chatSubs, (s) => s.subscriberId);
 
   const subscriberIds = chatSubs
-    .filter((sub) => !sub.isSubscriberInChat && !sub.hasCurrentNotification)
-    .map((sub) => sub.subscriberId);
+    .filter((chatSub) =>
+      !chatSub.isSubscriberInChat && !chatSub.hasCurrentNotification
+    )
+    .map((chatSub) => chatSub.subscriberId);
 
-  const promises: Promise<unknown>[] = [];
+  const itemsToPush: {
+    subscriber: PushSubscriber;
+    chatSub: ChatSub;
+    pushMsg: PushMessage;
+  }[] = [];
 
-  for (const chunkedIds of chunk(subscriberIds, 10)) {
-    const subscribersEntries = await kv.getMany<PushSubscriber[]>(
-      chunkedIds.map((id) => subscribersKeys.byId(id)),
-      { consistency: "eventual" },
-    );
-    for (const { value: subscriber } of subscribersEntries) {
-      if (subscriber) {
-        await pushLock;
-        const chatSub = chatSubsBySubscriber[subscriber.id];
-        const pushMsg = {
+  for (const idChunk of chunk(subscriberIds, 10)) {
+    const kvKeys = idChunk.map((id) => subscribersKeys.byId(id));
+    const entries = await kv.getMany<PushSubscriber[]>(kvKeys, {
+      consistency: "eventual",
+    });
+    for (const { value: subscriber } of entries) {
+      if (!subscriber) continue;
+      itemsToPush.push({
+        subscriber,
+        chatSub: chatSubsBySubscriber[subscriber.id],
+        pushMsg: {
           type: "new-chat-msg",
           chatMsgId,
           chatPageUrl,
           chatTitle,
-        };
-        promises.push(sendChatPush({ subscriber, chatSub, pushMsg }));
-        await delay(100);
-      }
+        },
+      });
     }
   }
-  await Promise.allSettled(promises);
-}
 
-async function sendChatPush({
-  subscriber,
-  chatSub,
-  pushMsg,
-}: {
-  subscriber: PushSubscriber;
-  chatSub: ChatSub;
-  pushMsg: PushMessage;
-}) {
-  const sem = getSemaphore("push-chat-notification", 10);
-  await sem.acquire();
+  const queue = newQueue(10);
 
-  try {
-    if (isChatSubExpired(subscriber)) {
-      return deleteChatSub(chatSub, kv.atomic()).commit();
-    }
-    if (subscriber.pushSub?.endpoint) {
-      await sendPushNotification(subscriber.pushSub, pushMsg);
-      const newChatSub = { ...chatSub, hasCurrentNotification: true };
-      return setChatSub(newChatSub, kv.atomic()).commit();
-    }
-  } catch (err) {
-    const isPushErr = err instanceof PushMessageError;
+  for (const item of itemsToPush) {
+    const { subscriber, chatSub, pushMsg } = item;
 
-    if (isPushErr && err.response.status === STATUS_CODE.Gone) {
-      return deleteChatSub(chatSub, kv.atomic()).commit();
-    }
-    if (isPushErr && err.response.status === STATUS_CODE.TooManyRequests) {
-      pushLock = delay(1000);
-      await pushLock;
-      return sendChatPush({ subscriber, chatSub, pushMsg });
-    }
-    console.error(err);
-  } finally {
-    sem.release();
+    queue.add(() =>
+      retry(async () => {
+        if (isChatSubExpired(subscriber)) {
+          return deleteChatSub(chatSub, kv.atomic()).commit();
+        }
+        if (!subscriber.pushSub) {
+          return;
+        }
+        try {
+          await sendPushNotification(subscriber.pushSub, pushMsg);
+          return setChatSub(
+            { ...chatSub, hasCurrentNotification: true },
+            kv.atomic(),
+          ).commit();
+        } catch (err) {
+          if (
+            err instanceof PushMessageError &&
+            err.response.status === STATUS_CODE.Gone
+          ) {
+            return deleteChatSub(chatSub, kv.atomic()).commit();
+          }
+
+          throw err;
+        }
+      })
+    );
   }
+
+  await queue.done();
 }
 
 function isChatSubExpired(subscriber: PushSubscriber) {
   return subscriber && !subscriber.pushSub && subscriber.pushSubUpdatedAt &&
-    new Date().getTime() - subscriber.pushSubUpdatedAt.getTime() >
+    Date.now() - subscriber.pushSubUpdatedAt.getTime() >
       CHAT_SUB_WITHOUT_PUSH_SUB_EXPIRES;
 }

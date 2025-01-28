@@ -1,3 +1,4 @@
+import { INODES_BUCKET_URL } from "../util/consts.ts";
 import type { AppMiddleware } from "../util/types.ts";
 
 export const headersMiddleware: AppMiddleware = (ctx, next) => {
@@ -7,7 +8,7 @@ export const headersMiddleware: AppMiddleware = (ctx, next) => {
 
   ctx.resp.headers.set(
     "Content-Security-Policy",
-    `default-src 'self'; script-src 'self' 'nonce-${ctx.scpNonce}';`,
+    `connect-src 'self' ${INODES_BUCKET_URL}; default-src 'self'; script-src 'self' 'nonce-${ctx.scpNonce}';`,
   );
 
   return next();

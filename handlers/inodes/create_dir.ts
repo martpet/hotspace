@@ -9,7 +9,7 @@ import {
 import { kv } from "../../util/kv/kv.ts";
 import { reservedWords } from "../../util/reserved_words.ts";
 import type { AppContext, DirNode } from "../../util/types.ts";
-import { getPathParts, isValidPathname } from "../../util/url.ts";
+import { getPathParts, isValidDirPath } from "../../util/url.ts";
 
 interface ReqData {
   pathname: string;
@@ -90,14 +90,13 @@ export default async function createDirHandler(ctx: AppContext) {
   if (!commit.ok) {
     return ctx.respond(null, STATUS_CODE.Conflict);
   } else {
-    ctx.setFlash(
-      `Successfully created ${isRootDir ? "space" : "folder"} '${dirName}'`,
-    );
+    // const dirType = isRootDir ? "space" : "folder";
+    // ctx.setFlash(`Successfully created ${dirType} '${dirName}'`);
     return ctx.respond();
   }
 }
 
 function isValidReqData(data: unknown): data is ReqData {
   const { pathname } = data as Partial<ReqData>;
-  return typeof data === "object" && isValidPathname(pathname);
+  return typeof data === "object" && isValidDirPath(pathname);
 }

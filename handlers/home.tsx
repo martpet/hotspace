@@ -19,7 +19,7 @@ function UserHome(props: { spaces: DirNode[] }) {
     <>
       <h1>Your spaces</h1>
       <SpacesList dirs={props.spaces} />
-      <ButtonCreateDir isRootDir />
+      <ButtonCreateDir isRoot />
     </>
   );
 }

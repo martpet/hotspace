@@ -8,6 +8,7 @@ import {
   getPushSub,
   osName,
   pushSubLockSignal,
+  SESSION_EXPIRED_ERR_MSG,
   syncPushSub,
 } from "$main";
 
@@ -305,8 +306,8 @@ function handleInboundFeed(feedItems) {
     if (!document.hasFocus()) {
       showChatMsgNotification(firstNewMsg);
     }
-    if (!unseenChatMsgSignal.get()) {
-      unseenChatMsgSignal.set(document.getElementById(firstNewMsg.id));
+    if (!unseenChatMsgSignal.value) {
+      unseenChatMsgSignal.value = document.getElementById(firstNewMsg.id);
     }
   }
 }
@@ -318,8 +319,8 @@ function handleInboundFeed(feedItems) {
 /**
  * Window Online
  */
-addEventListener("online", () => networkOnlineSignal.set(true));
-addEventListener("offline", () => networkOnlineSignal.set(false));
+addEventListener("online", () => networkOnlineSignal.value = true);
+addEventListener("offline", () => networkOnlineSignal.value = false);
 
 /**
  * Window Focus
@@ -372,7 +373,7 @@ mainBox.addEventListener(
  * Button "Scroll To Unseen" Click
  */
 btnScrollToUnseen.addEventListener("click", () => {
-  const msgEl = unseenChatMsgSignal.get();
+  const msgEl = unseenChatMsgSignal.value;
   msgEl.scrollIntoView({ behavior: "smooth" });
 });
 
@@ -380,19 +381,19 @@ btnScrollToUnseen.addEventListener("click", () => {
  * Checkbox "Subscribe" Change
  */
 chatSubCheckbox?.addEventListener("change", async () => {
-  chatSubLockSignal.set(true);
+  chatSubLockSignal.value = true;
   const subscriber = await createPushSub();
   if (subscriber) await toggleChatSub(chatSubCheckbox.checked);
-  chatSubLockSignal.set(false);
+  chatSubLockSignal.value = false;
 });
 
 /**
  * Button "Allow Subscribe" Click
  */
 btnAllowChatSub?.addEventListener("click", async () => {
-  chatSubLockSignal.set(true);
+  chatSubLockSignal.value = true;
   await createPushSub();
-  chatSubLockSignal.set(false);
+  chatSubLockSignal.value = false;
 });
 
 /**
@@ -438,7 +439,7 @@ formNewMsg?.addEventListener("submit", (event) => {
   const data = { clientMsgId: crypto.randomUUID(), text };
   outboundQueue.add({ type: "new-chat-msg", data });
   renderOutboundNewMsg(data);
-  unseenChatMsgSignal.set(null);
+  unseenChatMsgSignal.value = null;
   currentUserTypingSession = null;
   textareaNewMsg.value = "";
 });
@@ -502,10 +503,10 @@ navigator.serviceWorker.addEventListener("message", async ({ data }) => {
     await msgsBoxReady.promise;
     const msgEl = document.getElementById(data.chatMsgId);
     hasCurrentNotification = false;
-    unseenChatMsgSignal.set(null);
+    unseenChatMsgSignal.value = null;
     msgEl.scrollIntoView();
     setTimeout(() => {
-      unseenChatMsgSignal.set(msgEl);
+      unseenChatMsgSignal.value = msgEl;
     }, 200);
   }
 });
@@ -558,7 +559,7 @@ function mainBoxIntersectionObserved(entries) {
 // =====================
 
 function userActive() {
-  userActivitySignal.set(Date.now());
+  userActivitySignal.value = Date.now();
 }
 
 function reloadWithAlert(msg) {
@@ -674,18 +675,18 @@ async function toggleChatSub(isSubscribe) {
 
 async function checkExpiredChatSub() {
   if (!canUserServiceWorker) return;
-  chatSubLockSignal.set(true);
+  chatSubLockSignal.value = true;
   const db = await import("$db");
   const subscriber = await db.getSubscriber();
   if (isChatSubExpired(subscriber)) {
     await db.deleteChatSub(chatId);
   }
-  chatSubLockSignal.set(false);
+  chatSubLockSignal.value = false;
 }
 
 function isChatSubExpired(subscriber) {
   return subscriber && !subscriber.pushSub &&
-    new Date().getTime() - new Date(subscriber.pushSubUpdatedAt).getTime() >
+    Date.now() - new Date(subscriber.pushSubUpdatedAt).getTime() >
       Number(chatSubExpires);
 }
 
@@ -923,14 +924,14 @@ function applyChatBoxSize() {
 }
 
 function renderUnseenMsgSigns() {
-  const msgEl = unseenChatMsgSignal.get();
+  const msgEl = unseenChatMsgSignal.value;
   if (!msgEl) {
     btnScrollToUnseen.hidden = true;
     const prevMsgEl = msgsBox.querySelector(".first-new-msg");
     prevMsgEl?.classList.remove("first-new-msg");
     newMsgSeen = false;
   } else if (newMsgSeen) {
-    unseenChatMsgSignal.set(null);
+    unseenChatMsgSignal.value = null;
   } else {
     msgEl.classList.add("first-new-msg");
     const inView = msgIsInView(msgEl);
@@ -971,8 +972,8 @@ async function renderSubscriptionUi() {
   if (!chatSubCheckbox || chatSubEl.hidden) {
     return;
   }
-  const chatSubLocked = chatSubLockSignal.get();
-  const pushSubLocked = pushSubLockSignal.get();
+  const chatSubLocked = chatSubLockSignal.value;
+  const pushSubLocked = pushSubLockSignal.value;
   const [chatSub, pushSub] = await Promise.all([
     import("$db").then((db) => db.getChatSub(chatId)),
     getPushSub(),

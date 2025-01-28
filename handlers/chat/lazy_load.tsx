@@ -6,7 +6,7 @@ import { kv } from "../../util/kv/kv.ts";
 import type { AppContext } from "../../util/types.ts";
 import { getPathParts } from "../../util/url.ts";
 
-// TODO: skip this route and return messages from socket connection
+// TODO(?): return messages from socket connection instead
 
 export default async function chatLazyLoadHandler(ctx: AppContext) {
   const referer = ctx.req.headers.get("referer");
@@ -34,13 +34,11 @@ export default async function chatLazyLoadHandler(ctx: AppContext) {
 
   messages.reverse();
 
-  ctx.resp.skipDoctype = true;
-
-  return (
+  return ctx.jsxPartial(
     <ChatMessages
       messages={messages}
       olderMsgsCursor={nextCursor}
       isAdmin={dir.ownerId === ctx.state.user?.id}
-    />
+    />,
   );
 }
