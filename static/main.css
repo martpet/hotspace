@@ -39,7 +39,7 @@ body {
 }
 
 section {
-  margin-bottom: 2rem;
+  margin-block: 2rem;
 }
 
 footer {
@@ -69,6 +69,7 @@ textarea {
 }
 
 dialog {
+  text-align: initial;
   border-width: 3px;
   h1 {
     font-size: 2em;
@@ -310,6 +311,9 @@ button.wait-disabled[disabled] {
     &.dir::before {
       content: "📁";
       font-size: 1.2em;
+    }
+    &.file::before {
+      content: "📄";
     }
   }
 }

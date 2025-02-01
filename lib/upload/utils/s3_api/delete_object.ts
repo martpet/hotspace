@@ -32,9 +32,7 @@ export default async function deleteObject(options: Options) {
     initParser(),
   ]);
 
-  if (!resp.ok) {
+  if (!resp.ok && resp.status !== 404) {
     throw new Error(await resp.json());
   }
-
-  return Object.fromEntries(resp.headers.entries());
 }

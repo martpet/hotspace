@@ -3,7 +3,7 @@ import { kv } from "./kv.ts";
 
 export function enqueue(
   msg: { type: string; nonce?: string },
-  atomic: Deno.AtomicOperation,
+  atomic: Deno.AtomicOperation = kv.atomic(),
 ) {
   msg.nonce = ulid();
   setQueueNonce(msg.nonce, atomic);

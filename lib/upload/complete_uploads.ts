@@ -2,24 +2,19 @@ import { newQueue } from "@henrygd/queue";
 import { completeMultipartUpload } from "./utils/s3_api/complete_multipart_upload.ts";
 import deleteObject from "./utils/s3_api/delete_object.ts";
 import headObject from "./utils/s3_api/head_object.ts";
-import type {
-  S3Options,
-  UploadCompleteData,
-  UploadsCompletedResult,
-} from "./utils/types.ts";
+import type { CompletedUpload, S3Options } from "./utils/types.ts";
 
 interface Options extends S3Options {
-  uploads: UploadCompleteData[];
+  uploads: CompletedUpload[];
 }
 
 export async function completeUploads(
   options: Options,
-): Promise<UploadsCompletedResult> {
-  const { uploads, ...s3Opt } = options;
+) {
   const queue = newQueue(10);
-  const completedIds: string[] = [];
-  const failedIds: string[] = [];
-  let uploadedSize = 0;
+  const { uploads, ...s3Opt } = options;
+  const completedUploads: ({ fileSize: number } & CompletedUpload)[] = [];
+  const failedUploads: CompletedUpload[] = [];
 
   for (const upload of uploads) {
     const { s3Key } = upload;
@@ -32,11 +27,13 @@ export async function completeUploads(
             throw err;
           },
         );
-        completedIds.push(upload.uploadId);
-        uploadedSize += Number(objHeaders["content-length"]);
+        completedUploads.push({
+          fileSize: Number(objHeaders["content-length"]),
+          ...upload,
+        });
       } catch (err) {
         console.error(err);
-        failedIds.push(upload.uploadId);
+        failedUploads.push(upload);
       }
     });
   }
@@ -44,8 +41,7 @@ export async function completeUploads(
   await queue.done();
 
   return {
-    completedIds,
-    failedIds,
-    uploadedSize,
+    completedUploads,
+    failedUploads,
   };
 }

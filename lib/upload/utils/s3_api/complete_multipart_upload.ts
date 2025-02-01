@@ -2,9 +2,9 @@ import { DOMParser, initParser } from "@b-fuze/deno-dom/wasm-noinit";
 import { retry, type RetryOptions } from "@std/async";
 import { AWSSignerV4 } from "deno_aws_sign_v4";
 import { textToSha256Hex } from "../encode.ts";
-import type { S3Options, UploadCompleteData } from "../types.ts";
+import type { CompletedUpload, S3Options } from "../types.ts";
 
-interface Options extends S3Options, UploadCompleteData {
+interface Options extends S3Options, CompletedUpload {
   retryOptions?: RetryOptions;
 }
 

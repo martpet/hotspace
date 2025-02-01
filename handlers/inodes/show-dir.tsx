@@ -1,5 +1,4 @@
 import { asset } from "$server";
-import { STATUS_CODE } from "@std/http";
 import Chat from "../../snippets/chat/Chat.tsx";
 import ButtonCreateDir from "../../snippets/inodes/ButtonCreateDir.tsx";
 import ButtonToggleChat from "../../snippets/inodes/ButtonToggleChat.tsx";
@@ -9,25 +8,19 @@ import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";
 import Page from "../../snippets/pages/Page.tsx";
 import { getDirByPath, listInodesByDir } from "../../util/kv/inodes.ts";
 import type { AppContext } from "../../util/types.ts";
-import { getPathParts } from "../../util/url.ts";
+import { getPathSegments } from "../../util/url.ts";
 
 export default async function showInodeHandler(ctx: AppContext) {
   const { user } = ctx.state;
-  const { pathname } = ctx.url;
-  const { isRootDir, pathParts } = getPathParts(pathname);
-
-  if (isRootDir && !pathname.endsWith("/")) {
-    ctx.redirect(ctx.req.url + "/", STATUS_CODE.PermanentRedirect);
-  }
-
-  const dirNode = (await getDirByPath(pathParts)).value;
+  const seg = getPathSegments(ctx.url.pathname);
+  const dirNode = (await getDirByPath(seg.pathSegments)).value;
 
   if (!dirNode) {
     return <NotFoundPage />;
   }
 
-  const isOwner = dirNode.ownerId === user?.id;
   const inodes = await listInodesByDir(dirNode.id);
+  const isOwner = dirNode.ownerId === user?.id;
 
   const head = (
     <>

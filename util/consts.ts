@@ -16,33 +16,27 @@ export const PUSH_SUB_HOSTS = [
   "notify.windows.com",
 ];
 
-// =====================
-// ENV Vars
-// =====================
-
 const env = Deno.env.toObject();
-
-assert(env.AWS_REGION);
 assert(env.ADMIN_EMAIL);
 assert(env.VAPID_KEYS);
+export const { VAPID_KEYS, ADMIN_EMAIL } = env;
+
+// =====================
+// AWS
+// =====================
+
+assert(env.AWS_REGION);
+export const { AWS_REGION } = env;
 
 if (isProd) {
-  assert(env.INODES_BUCKET_PROD);
   assert(env.AWS_ACCESS_KEY_ID_PROD);
   assert(env.AWS_SECRET_ACCESS_KEY_PROD);
+  assert(env.INODES_BUCKET_PROD);
 } else {
-  assert(env.INODES_BUCKET_DEV);
   assert(env.AWS_ACCESS_KEY_ID_DEV);
   assert(env.AWS_SECRET_ACCESS_KEY_DEV);
+  assert(env.INODES_BUCKET_DEV);
 }
-
-export const INODES_BUCKET = isProd
-  ? env.INODES_BUCKET_PROD
-  : env.INODES_BUCKET_DEV;
-
-export const INODES_BUCKET_URL = `https://${INODES_BUCKET}.s3.amazonaws.com`;
-
-export const { AWS_REGION, ADMIN_EMAIL, VAPID_KEYS } = env;
 
 export const AWS_CREDENTIALS = {
   accessKeyId: isProd ? env.AWS_ACCESS_KEY_ID_PROD : env.AWS_ACCESS_KEY_ID_DEV,
@@ -50,3 +44,14 @@ export const AWS_CREDENTIALS = {
     ? env.AWS_SECRET_ACCESS_KEY_PROD
     : env.AWS_SECRET_ACCESS_KEY_DEV,
 };
+
+export const INODES_BUCKET = isProd
+  ? env.INODES_BUCKET_PROD
+  : env.INODES_BUCKET_DEV;
+
+export const S3_ACCELERATE_ENDPOINT = "s3-accelerate.amazonaws.com";
+
+export const INODES_BUCKET_URL = `https://${INODES_BUCKET}.s3.amazonaws.com`;
+
+export const INODES_BUCKET_TA_URL =
+  `https://${INODES_BUCKET}.${S3_ACCELERATE_ENDPOINT}`;

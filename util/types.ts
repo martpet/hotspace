@@ -60,7 +60,7 @@ export interface PushSubscriber {
 }
 
 export interface Inode extends ChatResource {
-  type: string;
+  type: "dir" | "file";
   name: string;
   ownerId: string;
   description?: string;
@@ -70,10 +70,9 @@ export interface DirNode extends Inode {
   type: "dir";
 }
 
-export interface LeafNode extends Inode {
-  dirId: string;
-}
-
-export interface FileNode extends LeafNode {
+export interface FileNode extends Inode {
   type: "file";
+  fileType: string;
+  fileSize: number;
+  s3Key: string;
 }

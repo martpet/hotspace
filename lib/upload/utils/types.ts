@@ -25,27 +25,16 @@ export interface SavedUpload {
 
 export interface UploadInitData {
   fileType: string;
+  fileName: string;
   numberOfParts: number;
   savedUpload?: SavedUpload;
 }
 
-export interface UploadInitResult {
-  uploadId: string;
-  s3Key: string;
-  createdOn: number;
-  finishedParts: FinishedUploadPart[];
-}
-
-export interface UploadCompleteData {
+export interface CompletedUpload {
   uploadId: string;
   s3Key: string;
   checksum: string;
   fileName: string;
+  fileType: string;
   finishedParts: FinishedUploadPart[];
-}
-
-export interface UploadsCompletedResult {
-  completedIds: string[];
-  failedIds: string[];
-  uploadedSize: number;
 }

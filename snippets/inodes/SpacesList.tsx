@@ -1,4 +1,5 @@
 import type { DirNode } from "../../util/types.ts";
+import ButtonCreateDir from "./ButtonCreateDir.tsx";
 
 interface Props {
   dirs: DirNode[];
@@ -20,6 +21,7 @@ export default function SpacesList({ dirs }: Props) {
           ))}
         </ul>
       )}
+      <ButtonCreateDir isRoot />
     </>
   );
 }

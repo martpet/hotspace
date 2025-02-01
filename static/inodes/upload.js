@@ -5,8 +5,8 @@ const { workerSrc } = btnShowDialog.dataset;
 const EXIT_MSG = "Do you really want to stop the upload?";
 
 const endpoints = {
-  initiate: "/upload/initiate",
-  complete: "/upload/complete",
+  initiate: "/inodes/upload/initiate",
+  complete: "/inodes/upload/complete",
 };
 
 let dialog;
@@ -116,8 +116,14 @@ statusSignal.subscribe((status) => {
     progressSignal.value = { isPreparing: true };
     worker = new Worker(workerSrc, { type: "module" });
     worker.onmessage = onWorkerMessage;
-    const { files } = fileInput;
-    worker.postMessage({ type: "start", data: { files, endpoints } });
+    worker.postMessage({
+      type: "start",
+      data: {
+        endpoints,
+        files: fileInput.files,
+        pathname: location.pathname,
+      },
+    });
   } else if (status === "completed") {
     worker.postMessage({ type: "close" });
     location.reload();
@@ -186,5 +192,5 @@ function renderProgress(opt) {
   const infoEl = document.getElementById("upload-progress-info");
 
   progEl.value = perc;
-  infoEl.innerHTML = isPreparing ? "<small>Preparing…</small>" : `${perc} %`;
+  infoEl.innerText = isPreparing ? "Starting…" : `${perc} %`;
 }

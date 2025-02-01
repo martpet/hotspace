@@ -8,7 +8,7 @@ import {
 } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import type { AppContext } from "../../util/types.ts";
-import { getPathParts, isValidDirPath } from "../../util/url.ts";
+import { getPathSegments, isValidDirPath } from "../../util/url.ts";
 
 interface FormEntries {
   pathname: string;
@@ -28,10 +28,10 @@ export default async function toggleChatHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  const { isRootDir, pathParts, parentPathParts } = getPathParts(
+  const { isRootDir, pathSegments, parentPathSegments } = getPathSegments(
     formEntries.pathname,
   );
-  const dirEntry = await getDirByPath(pathParts);
+  const dirEntry = await getDirByPath(pathSegments);
   const dir = dirEntry.value;
 
   if (!dir) {
@@ -47,7 +47,7 @@ export default async function toggleChatHandler(ctx: AppContext) {
   let parentDir;
 
   if (!isRootDir) {
-    parentDir = (await getDirByPath(parentPathParts)).value;
+    parentDir = (await getDirByPath(parentPathSegments)).value;
     if (!parentDir) {
       return ctx.redirectBack();
     }
@@ -56,7 +56,7 @@ export default async function toggleChatHandler(ctx: AppContext) {
   dir.chatEnabled = !dir.chatEnabled;
 
   const atomic = kv.atomic();
-  setDirByPath({ dir, pathParts, atomic }).check(dirEntry);
+  setDirByPath({ dir, pathSegments, atomic }).check(dirEntry);
   if (isRootDir) {
     setRootDirByOwner(dir, atomic);
   } else if (parentDir) {

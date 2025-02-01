@@ -18,7 +18,7 @@ export interface CleanupChatQueueMsg {
 
 export function enqueueCleanupChat(
   chatId: string,
-  atomic: Deno.AtomicOperation,
+  atomic?: Deno.AtomicOperation,
 ) {
   const msg: Omit<CleanupChatQueueMsg, "nonce"> = {
     type: "cleanup-chat",

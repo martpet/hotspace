@@ -1,4 +1,3 @@
-import ButtonCreateDir from "../snippets/inodes/ButtonCreateDir.tsx";
 import SpacesList from "../snippets/inodes/SpacesList.tsx";
 import Page from "../snippets/pages/Page.tsx";
 import { listRootDirsByOwner } from "../util/kv/inodes.ts";
@@ -19,7 +18,6 @@ function UserHome(props: { spaces: DirNode[] }) {
     <>
       <h1>Your spaces</h1>
       <SpacesList dirs={props.spaces} />
-      <ButtonCreateDir isRoot />
     </>
   );
 }

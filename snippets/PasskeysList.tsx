@@ -6,10 +6,9 @@ interface Props {
   passkeys: Passkey[];
 }
 
-export default function passkeysHandler({ passkeys }: Props) {
+export default function PasskeysList({ passkeys }: Props) {
   return (
-    <section>
-      <h1>Passkeys</h1>
+    <>
       <script type="module" src={asset("passkeys/passkeys.js")} />
       <script type="module" src={asset("reg.js")} />
 
@@ -22,7 +21,7 @@ export default function passkeysHandler({ passkeys }: Props) {
         ))}
       </ul>
       <RegForm />
-    </section>
+    </>
   );
 }
 
@@ -58,7 +57,7 @@ function ButtonRename(props: { passkey: Passkey }) {
       title="Rename passkey"
       data-cred-id={props.passkey.credId}
     >
-      {props.passkey.name || "Untitled"}
+      {props.passkey.name || "untitled"}
     </button>
   );
 }

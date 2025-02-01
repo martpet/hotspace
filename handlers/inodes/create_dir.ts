@@ -9,13 +9,13 @@ import {
 import { kv } from "../../util/kv/kv.ts";
 import { reservedWords } from "../../util/reserved_words.ts";
 import type { AppContext, DirNode } from "../../util/types.ts";
-import { getPathParts, isValidDirPath } from "../../util/url.ts";
+import { getPathSegments, isValidDirPath } from "../../util/url.ts";
 
 interface ReqData {
   pathname: string;
 }
 
-export default async function createDirHandler(ctx: AppContext) {
+export default async function createDirNodeHandler(ctx: AppContext) {
   const { user } = ctx.state;
 
   if (!user) {
@@ -29,11 +29,11 @@ export default async function createDirHandler(ctx: AppContext) {
   }
 
   const {
-    currentPathPart: dirName,
+    pathSegments,
+    parentPathSegments,
+    lastPathSegment: dirName,
     isRootDir,
-    pathParts,
-    parentPathParts,
-  } = getPathParts(reqData.pathname);
+  } = getPathSegments(reqData.pathname);
 
   if (!dirName) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
@@ -47,19 +47,19 @@ export default async function createDirHandler(ctx: AppContext) {
   let parentDirEntry;
 
   if (!isRootDir) {
-    parentDirEntry = await getDirByPath(parentPathParts);
+    parentDirEntry = await getDirByPath(parentPathSegments);
     if (!parentDirEntry.value || parentDirEntry.value.ownerId !== user.id) {
       return ctx.respond(null, STATUS_CODE.Forbidden);
     }
   }
 
-  const currentDirByPathEntry = await getDirByPath(pathParts);
-  const currentDirByPath = currentDirByPathEntry.value;
+  const currentDirEntry = await getDirByPath(pathSegments);
+  const currentDir = currentDirEntry.value;
 
-  if (currentDirByPath) {
+  if (currentDir) {
     let errMsg;
     if (isRootDir) {
-      const who = currentDirByPath.ownerId === user.id ? "you" : "another user";
+      const who = currentDir.ownerId === user.id ? "you" : "another user";
       errMsg = `Space '${dirName}' is already created by ${who}`;
     } else {
       errMsg = `Folder '${dirName}' already exists`;
@@ -75,7 +75,7 @@ export default async function createDirHandler(ctx: AppContext) {
   };
 
   const atomic = kv.atomic();
-  setDirByPath({ dir, pathParts, atomic }).check(currentDirByPathEntry);
+  setDirByPath({ dir, pathSegments, atomic }).check(currentDirEntry);
   if (isRootDir) {
     setRootDirByOwner(dir, atomic);
   } else if (parentDirEntry) {

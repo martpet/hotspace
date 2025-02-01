@@ -9,6 +9,18 @@ self.addEventListener("activate", (event) => {
   event.waitUntil(clients.claim());
 });
 
+self.addEventListener("fetch", (event) => {
+  const url = new URL(event.request.url);
+  if (
+    event.request.method === "GET" && (
+      url.hostname === "uploads-dev-hotspace-lol.s3-accelerate.amazonaws.com" ||
+      url.hostname === "uploads-hotspace-lol.s3-accelerate.amazonaws.com"
+    )
+  ) {
+    event.respondWith(uploadsCacheHandler(event.request, url));
+  }
+});
+
 self.addEventListener("pushsubscriptionchange", (event) => {
   if (self.registration.pushManager) {
     if (event.newSubscription) {
@@ -93,4 +105,15 @@ async function handleChatMsgNotificationClick(notification) {
   });
   await client.focus();
   notification.close();
+}
+
+// a substitute for "No-Vary-Search" header
+async function uploadsCacheHandler(request, url) {
+  const cache = await caches.open("uploads-cache");
+  const cacheKey = new Request(url.origin + url.pathname, request);
+  const cachedResp = await cache.match(cacheKey);
+  if (cachedResp) return cachedResp;
+  const resp = await fetch(request, { mode: "cors" });
+  if (resp.ok) cache.put(cacheKey, resp.clone());
+  return resp;
 }

@@ -84,7 +84,9 @@ btnShowDialog.addEventListener("click", () => {
     setError("");
     const resp = await fetch("/inodes/dirs", {
       method: "post",
-      body: JSON.stringify({ pathname: location.pathname + inputField.value }),
+      body: JSON.stringify({
+        pathname: location.pathname + inputField.value,
+      }),
     });
     if (resp.ok) {
       location.reload();

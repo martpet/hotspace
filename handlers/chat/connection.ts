@@ -5,7 +5,7 @@ import { keys as inodesKeys } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { keys as userKvKeys } from "../../util/kv/users.ts";
 import type { AppContext, Inode } from "../../util/types.ts";
-import { getPathParts } from "../../util/url.ts";
+import { getPathSegments } from "../../util/url.ts";
 
 export default function chatConnectionHandler(ctx: AppContext) {
   const searchParams = new URLSearchParams(ctx.url.search);
@@ -27,14 +27,14 @@ export default function chatConnectionHandler(ctx: AppContext) {
     return !!user && user.id === (inode as Inode).ownerId;
   };
 
-  const { pathParts } = getPathParts(new URL(chatPageUrl).pathname);
+  const seg = getPathSegments(new URL(chatPageUrl).pathname);
 
   const conn = new ChatConnection({
     request: ctx.req,
     chatId,
     chatPageUrl,
     chatTitle,
-    chatKvKey: inodesKeys.dirsByPath(pathParts),
+    chatKvKey: inodesKeys.dirsByPath(seg.pathSegments),
     userId: user?.id,
     userKvKey: userKvKeys.byId(user?.id!),
     lastSeenFeedItemId,

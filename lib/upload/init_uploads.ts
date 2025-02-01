@@ -7,49 +7,48 @@ import type {
   S3Options,
   SavedUpload,
   UploadInitData,
-  UploadInitResult,
 } from "./utils/types.ts";
 
 const QUEUE_CONCURRENCY = 10;
 const DEFAULT_SIGNED_URL_EXPIRES_IN = DAY / 1000;
 
 interface Options extends S3Options {
-  uploadsInitData: UploadInitData[];
+  uploads: UploadInitData[];
   savedUploadExpiresIn: number;
   signedUrlExpiresIn?: number;
+  s3Endpoint?: string;
+  headersFn?: (u: UploadInitData) => Headers;
 }
 
-export async function initUploads(
-  options: Options,
-): Promise<{
-  uploads: UploadInitResult[];
-  signedUrls: string[];
-  uploadedSize: number;
-}> {
+export async function initUploads(options: Options) {
   const {
-    uploadsInitData,
+    uploads,
     region,
     bucket,
     credentials,
     savedUploadExpiresIn,
     signedUrlExpiresIn = DEFAULT_SIGNED_URL_EXPIRES_IN,
+    s3Endpoint,
+    headersFn,
   } = options;
+
+  const signedUrls: string[] = [];
+  let uploadedSize = 0;
+
   const { accessKeyId, secretAccessKey } = credentials;
+  const queue = newQueue(QUEUE_CONCURRENCY);
+
   const signatureKey = getSignatureKey({
     date: new Date(),
     region,
     secretAccessKey,
   });
-  const queue = newQueue(QUEUE_CONCURRENCY);
-  const signedUrls: string[] = [];
-  let uploadedSize = 0;
 
-  const uploads = await Promise.all(
-    uploadsInitData.map((item) =>
+  const uploadsResult = await Promise.all(
+    uploads.map((uplaod) =>
       queue.add(async () => {
-        const { fileType, numberOfParts, savedUpload } = item;
+        const { numberOfParts, savedUpload } = uplaod;
         const finishedPartsNumbers = [];
-
         let uploadId;
         let s3Key;
         let createdOn;
@@ -57,7 +56,6 @@ export async function initUploads(
 
         if (isValidSavedUpload(savedUpload, savedUploadExpiresIn)) {
           ({ uploadId, s3Key, createdOn, finishedParts } = savedUpload);
-
           for (const { partSize, partNumber } of finishedParts) {
             uploadedSize += partSize;
             finishedPartsNumbers.push(partNumber);
@@ -66,10 +64,10 @@ export async function initUploads(
           s3Key = crypto.randomUUID();
           uploadId = await createMultipartUpload({
             s3Key,
-            fileType,
             region,
             bucket,
             credentials,
+            headers: headersFn?.(uplaod),
           });
           finishedParts = [];
           createdOn = Date.now();
@@ -83,6 +81,7 @@ export async function initUploads(
               accessKeyId,
               secretAccessKey,
               signatureKey,
+              ...(s3Endpoint && { endpoint: s3Endpoint }),
               key: s3Key,
               expiresIn: signedUrlExpiresIn,
               method: "PUT",
@@ -105,7 +104,7 @@ export async function initUploads(
   );
 
   return {
-    uploads,
+    uploadsResult,
     signedUrls,
     uploadedSize,
   };

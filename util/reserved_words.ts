@@ -15,6 +15,7 @@ export const reservedWords = [
   "contacts",
   "delete",
   "download",
+  "downloads",
   "feed",
   "help",
   "home",

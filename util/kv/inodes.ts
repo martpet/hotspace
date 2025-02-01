@@ -7,7 +7,7 @@ export const keys = {
     inodeName: string,
   ) => ["inodes_by_dir", dirId, inodeName],
 
-  dirsByPath: (pathParts: string[]) => ["dirs_by_path", ...pathParts],
+  dirsByPath: (pathSegments: string[]) => ["dirs_by_path", ...pathSegments],
 
   rootDirsByOwner: (
     ownerId: string,
@@ -27,6 +27,10 @@ export function setInodeByDir({
   return atomic.set(keys.inodesByDir(dirId, inode.name), inode);
 }
 
+export function getInodeByDir<T = Inode>(dirId: string, inodeName: string) {
+  return kv.get<T>(keys.inodesByDir(dirId, inodeName));
+}
+
 export async function listInodesByDir(
   dirId: string,
   options?: Deno.KvListOptions,
@@ -38,18 +42,18 @@ export async function listInodesByDir(
 
 export function setDirByPath({
   dir,
-  pathParts,
+  pathSegments,
   atomic = kv.atomic(),
 }: {
   dir: DirNode;
-  pathParts: string[];
+  pathSegments: string[];
   atomic?: Deno.AtomicOperation;
 }) {
-  return atomic.set(keys.dirsByPath(pathParts), dir);
+  return atomic.set(keys.dirsByPath(pathSegments), dir);
 }
 
-export function getDirByPath(pathParts: string[]) {
-  return kv.get<DirNode>(keys.dirsByPath(pathParts));
+export function getDirByPath(pathSegments: string[]) {
+  return kv.get<DirNode>(keys.dirsByPath(pathSegments));
 }
 
 export function setRootDirByOwner(dir: DirNode, atomic = kv.atomic()) {

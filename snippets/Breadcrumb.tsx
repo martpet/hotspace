@@ -1,9 +1,11 @@
 import { AppContext } from "../util/types.ts";
-import { getPathParts } from "../util/url.ts";
+import { getPathSegments } from "../util/url.ts";
 
 export default function Breadcrumb(_: unknown, ctx: AppContext) {
   const { user } = ctx.state;
-  const { parentPathParts: parts } = getPathParts(ctx.url.pathname);
+  const { pathname } = ctx.url;
+  const isDir = pathname.endsWith("/");
+  const { parentPathSegments: segments } = getPathSegments(ctx.url.pathname);
 
   return (
     <nav aria-label="Breadcrumb" class="breadcrumb">
@@ -11,11 +13,17 @@ export default function Breadcrumb(_: unknown, ctx: AppContext) {
         <li>
           {user ? <a href="/">HotSpace</a> : "HotSpace"}
         </li>
-        {parts.map((part, i) => (
-          <li>
-            <a href={"../".repeat(parts.length - i)}>{part}</a>
-          </li>
-        ))}
+        {segments.map((seg, i) => {
+          const relativeUrl = !isDir && i === segments.length - 1
+            ? "./"
+            : "../".repeat(segments.length - i);
+
+          return (
+            <li>
+              <a href={relativeUrl}>{seg}</a>
+            </li>
+          );
+        })}
       </ol>
     </nav>
   );

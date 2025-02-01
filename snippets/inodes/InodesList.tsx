@@ -14,9 +14,19 @@ export default function InodesList(props: Props) {
   return (
     <ul class="inodes-list">
       {inodes.map((inode) => {
+        let href = `./${inode.name}`;
+        let name = inode.name;
+
+        if (inode.type === "file") {
+          name = decodeURIComponent(name);
+        } else {
+          href = href + "/";
+          name = name + "/";
+        }
+
         return (
           <li class={inode.type}>
-            <a href={`./${inode.name}/`}>{inode.name}</a>
+            <a href={href}>{name}</a>
           </li>
         );
       })}
