@@ -13,7 +13,7 @@ import { getPathSegments } from "../../util/url.ts";
 export default async function showInodeHandler(ctx: AppContext) {
   const { user } = ctx.state;
   const seg = getPathSegments(ctx.url.pathname);
-  const dirNode = (await getDirByPath(seg.pathSegments)).value;
+  const dirNode = (await getDirByPath(seg.pathSegments, "eventual")).value;
 
   if (!dirNode) {
     return <NotFoundPage />;

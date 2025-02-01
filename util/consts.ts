@@ -3,7 +3,6 @@ import { assert } from "jsr:@std/assert@0.224/assert";
 import { prodKvEntry } from "./kv/kv.ts";
 
 export const isProd = prodKvEntry.value === true;
-console.log("isProd", isProd);
 
 export const GENERAL_ERR_MSG = "Oops, something went wrong, try again!";
 export const SESSION_TIMEOUT = WEEK * 4;

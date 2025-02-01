@@ -52,8 +52,11 @@ export function setDirByPath({
   return atomic.set(keys.dirsByPath(pathSegments), dir);
 }
 
-export function getDirByPath(pathSegments: string[]) {
-  return kv.get<DirNode>(keys.dirsByPath(pathSegments));
+export function getDirByPath(
+  pathSegments: string[],
+  consistency?: Deno.KvConsistencyLevel,
+) {
+  return kv.get<DirNode>(keys.dirsByPath(pathSegments), { consistency });
 }
 
 export function setRootDirByOwner(dir: DirNode, atomic = kv.atomic()) {

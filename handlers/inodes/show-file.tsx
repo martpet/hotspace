@@ -22,7 +22,8 @@ export default async function showFileHandler(ctx: AppContext) {
     return ctx.redirect(ctx.req.url + "/", STATUS_CODE.PermanentRedirect);
   }
 
-  const dirNode = (await getDirByPath(seg.parentPathSegments)).value;
+  const dirNode =
+    (await getDirByPath(seg.parentPathSegments, "eventual")).value;
 
   if (!dirNode) {
     return <NotFoundPage />;
