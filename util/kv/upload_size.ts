@@ -18,6 +18,9 @@ export function setUploadSize(options: {
     .sum(keys.totalSize(), bigintSize);
 }
 
-export function getUploadSizeByUser(user: User) {
-  return kv.get<bigint>(keys.byUser(user.id));
+export function getUploadSizeByUser(
+  user: User,
+  consistency?: Deno.KvConsistencyLevel,
+) {
+  return kv.get<bigint>(keys.byUser(user.id), { consistency });
 }

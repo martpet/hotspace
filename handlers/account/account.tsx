@@ -23,7 +23,7 @@ export default async function passkeysHandler(ctx: AppContext) {
 
   const [passkeys, { value: uploadedSize }] = await Promise.all([
     listPasskeysByUser(user.id),
-    getUploadSizeByUser(user),
+    getUploadSizeByUser(user, "eventual"),
   ]);
 
   return (
