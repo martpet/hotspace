@@ -6,10 +6,6 @@ interface Props {
 }
 
 export default function SpacesList({ dirs }: Props) {
-  if (!dirs.length) {
-    return null;
-  }
-
   return (
     <>
       {dirs.length > 0 && (
