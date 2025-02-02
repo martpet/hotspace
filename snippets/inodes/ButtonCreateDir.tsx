@@ -19,7 +19,7 @@ export default function ButtonCreateDir(props: Props) {
         type="button"
         class="wait-disabled"
         disabled
-        data-is-root={isRoot}
+        data-is-root-dir={isRoot}
         data-constraints={JSON.stringify(DIRNODE_NAME_CONSTRAINTS)}
       >
         {isRoot ? "Create Space" : "Create Folder"}…

@@ -19,8 +19,22 @@ export default async function showInodeHandler(ctx: AppContext) {
     return <NotFoundPage />;
   }
 
-  const inodes = await listInodesByDir(dirNode.id);
   const isOwner = dirNode.ownerId === user?.id;
+  const inodesListOnly = ctx.url.searchParams.get("inodesList");
+  const inodes = await listInodesByDir(dirNode.id, {
+    consistency: inodesListOnly ? "strong" : "eventual",
+  });
+
+  const inodesList = (
+    <InodesList
+      id="inodesList"
+      inodes={inodes}
+    />
+  );
+
+  if (inodesListOnly) {
+    return ctx.jsxFragment(inodesList);
+  }
 
   const head = (
     <>
@@ -46,7 +60,7 @@ export default async function showInodeHandler(ctx: AppContext) {
           <ButtonToggleChat inode={dirNode} />
         </menu>
       )}
-      <InodesList inodes={inodes} />
+      {inodesList}
       {dirNode.chatEnabled && (
         <Chat
           chatId={dirNode.id}

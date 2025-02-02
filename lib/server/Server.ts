@@ -16,7 +16,7 @@ import type {
   CtxFlashFn,
   CtxJsonFn,
   CtxJsxFn,
-  CtxJsxPartialFn,
+  CtxJsxFragmentFn,
   CtxRedirectFn,
   CtxRespondFn,
   Handler,
@@ -103,7 +103,7 @@ export class Server {
       locale: req.headers.get(HEADER.AcceptLanguage)?.split(",")[0],
       respond: (...r) => this.#createResponse(ctx, ...r),
       jsx: (...r) => this.#jsx(ctx, ...r),
-      jsxPartial: (...r) => this.#jsxPartial(ctx, ...r),
+      jsxFragment: (...r) => this.#jsxFragment(ctx, ...r),
       json: (...r) => this.#json(ctx, ...r),
       redirect: (...r) => this.#redirect(ctx, ...r),
       redirectBack: () => this.#redirectBack(ctx),
@@ -211,7 +211,7 @@ export class Server {
     return this.#createResponse(ctx, html);
   }
 
-  #jsxPartial(ctx: Context, ...rest: Parameters<CtxJsxPartialFn>) {
+  #jsxFragment(ctx: Context, ...rest: Parameters<CtxJsxFragmentFn>) {
     ctx.resp.skipDoctype = true;
     return this.#jsx(ctx, ...rest);
   }

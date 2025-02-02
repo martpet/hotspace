@@ -262,6 +262,13 @@ export function collapseLineBreaks(text, maxBreaks) {
   return text.replace(regex, replacement).trim();
 }
 
+export async function replaceFragment(id) {
+  const url = new URL(location.href);
+  url.searchParams.set(id, true);
+  const html = await fetch(url).then((resp) => resp.text());
+  document.getElementById(id).outerHTML = html;
+}
+
 export function debounce(func, delay) {
   let timeout;
   return function (...args) {

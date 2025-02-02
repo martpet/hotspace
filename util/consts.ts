@@ -52,7 +52,5 @@ export const INODES_BUCKET = isProd
 
 export const S3_ACCELERATE_ENDPOINT = "s3-accelerate.amazonaws.com";
 
-export const INODES_BUCKET_URL = `https://${INODES_BUCKET}.s3.amazonaws.com`;
-
-export const INODES_BUCKET_TA_URL =
+export const INODES_BUCKET_URL =
   `https://${INODES_BUCKET}.${S3_ACCELERATE_ENDPOINT}`;

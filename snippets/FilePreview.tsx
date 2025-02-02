@@ -7,30 +7,25 @@ interface Props {
 
 export default function FilePreview({ inode, url }: Props) {
   const { fileType } = inode;
-  const [type, substype] = fileType.split("/");
+  const [mainType, subType] = fileType.split("/");
 
   return (
     <>
-      {type === "image" && (
-        <a href={url} target="_blank">
-          <img src={url} height={200} />
-        </a>
-      )}
+      {mainType === "image" && <img src={url} height={200} />}
 
-      {type === "video" && <video controls src={url} height={200} />}
+      {mainType === "video" && <video controls src={url} height={200} />}
 
-      {(substype === "pdf" || type === "text" ||
-        fileType === "application/x-javascript") && (
-        <>
-          <h2>Preview</h2>
-          <iframe
-            src={url}
-            width="400"
-            height="200"
-          >
-            Preview not available
-          </iframe>
-        </>
+      {(
+        mainType === "text" ||
+        subType === "pdf" ||
+        fileType === "application/x-javascript"
+      ) && (
+        <iframe
+          sandbox=""
+          src={url}
+          width="400"
+          height="200"
+        />
       )}
     </>
   );

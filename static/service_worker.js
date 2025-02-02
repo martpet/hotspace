@@ -1,6 +1,9 @@
 import * as db from "./db.js";
 import { createPushSub, syncPushSub } from "./main.js";
 
+const UPLOADS_PROD = "uploads-hotspace-lol.s3-accelerate.amazonaws.com";
+const UPLOADS_DEV = "uploads-dev-hotspace-lol.s3-accelerate.amazonaws.com";
+
 self.addEventListener("install", () => {
   self.skipWaiting();
 });
@@ -12,10 +15,8 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   const url = new URL(event.request.url);
   if (
-    event.request.method === "GET" && (
-      url.hostname === "uploads-dev-hotspace-lol.s3-accelerate.amazonaws.com" ||
-      url.hostname === "uploads-hotspace-lol.s3-accelerate.amazonaws.com"
-    )
+    [UPLOADS_PROD, UPLOADS_DEV].includes(url.hostname) &&
+    event.request.method === "GET"
   ) {
     event.respondWith(uploadsCacheHandler(event.request, url));
   }

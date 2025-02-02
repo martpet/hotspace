@@ -1,9 +1,11 @@
+import { createSignal, GENERAL_ERR_MSG, replaceFragment } from "$main";
+
 const btnShowDialog = document.getElementById("show-create-dir");
-const { isRoot } = btnShowDialog.dataset;
+const { isRootDir } = btnShowDialog.dataset;
 
 let dialog;
 let form;
-let inputField;
+let nameInput;
 let previewEl;
 let btnSubmit;
 let btnClose;
@@ -16,104 +18,140 @@ btnShowDialog.disabled = false;
 // =====================
 
 btnShowDialog.addEventListener("click", () => {
-  if (dialog) {
+  if (!dialog) {
+    renderDialog();
+    initDialogEvents();
+  }
+  statusSignal.value = "idle";
+});
+
+function initDialogEvents() {
+  btnClose.onclick = () => {
+    statusSignal.value = "closed";
+  };
+
+  dialog.oncancel = (e) => {
+    e.preventDefault();
+    statusSignal.value = "closed";
+  };
+
+  form.onsubmit = (e) => {
+    e.preventDefault();
+    statusSignal.value = "submitted";
+  };
+
+  if (isRootDir) {
+    nameInput.oninput = () => {
+      renderNamePreview();
+    };
+  }
+}
+
+// =====================
+// Signals
+// =====================
+
+const statusSignal = createSignal("closed");
+const errorSignal = createSignal("");
+
+statusSignal.subscribe((status) => {
+  renderStatusChange();
+
+  if (status === "closed") {
+    dialog.close();
+    form.reset();
+    errorSignal.value = "";
+  } else if (status === "idle") {
     dialog.showModal();
+  } else if (status === "submitted") {
+    submitData();
+    errorSignal.value = "";
+  }
+});
+
+errorSignal.subscribe((msg) => {
+  renderError(msg);
+});
+
+// =====================
+// Util
+// =====================
+
+async function submitData() {
+  const pathname = location.pathname + nameInput.value;
+  const resp = await fetch("/inodes/dirs", {
+    method: "post",
+    body: JSON.stringify({ pathname }),
+  });
+  if (!resp.ok) {
+    errorSignal.value = await resp.text() || GENERAL_ERR_MSG;
+    statusSignal.value = "idle";
+    nameInput.focus();
     return;
   }
-
-  const dialogTitle = btnShowDialog.textContent.replace("…", "");
-  const constraints = JSON.parse(btnShowDialog.dataset.constraints);
-
-  btnShowDialog.insertAdjacentHTML(
-    "afterend",
-    `
-      <dialog id="create-dir-dialog">
-        <h1>${dialogTitle}</h1>
-        <p role="alert" class="error" hidden></p>
-        <form class="basic-form">
-          <label>
-            Name:
-            <input type="text" name="dirName" required />
-            <small ${!isRoot && "hidden"}>
-              ${location.href}<output name="namePreview"></output>
-            </small>
-          </label>
-          <footer>
-            <button class="close" type="button">Cancel</button>
-            <button class="submit">${dialogTitle}</button>
-          </footer>
-        </form>
-      </dialog>
-    `,
-  );
-
-  dialog = document.getElementById("create-dir-dialog");
-  form = dialog.querySelector("form");
-  inputField = form.elements.dirName;
-  previewEl = form.elements.namePreview;
-  btnSubmit = form.querySelector("button.submit");
-  btnClose = form.querySelector("button.close");
-  errorEl = dialog.querySelector("p.error");
-
-  dialog.showModal();
-
-  for (const entry of Object.entries(constraints)) {
-    inputField.setAttribute(...entry);
-  }
-
-  btnClose.addEventListener("click", () => {
-    dialog.close();
-  });
-
-  dialog.addEventListener("close", () => {
-    form.reset();
-  });
-
-  form.addEventListener("reset", () => {
-    setError("");
-    toggleProgress(false);
-  });
-
-  inputField.addEventListener("input", () => {
-    previewEl.value = inputField.value;
-  });
-
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
-    toggleProgress(true);
-    setError("");
-    const resp = await fetch("/inodes/dirs", {
-      method: "post",
-      body: JSON.stringify({
-        pathname: location.pathname + inputField.value,
-      }),
-    });
-    if (resp.ok) {
-      location.reload();
-    } else {
-      toggleProgress(false);
-      setError(await resp.text() || GENERAL_ERR_MSG);
-      inputField.focus();
-    }
-  });
-});
+  await replaceFragment(isRootDir ? "spacesList" : "inodesList");
+  statusSignal.value = "closed";
+}
 
 // =====================
 // Rendering
 // =====================
 
-function toggleProgress(inProgress) {
-  disableControls(inProgress);
-  btnSubmit.classList.toggle("spinner", inProgress);
+function renderDialog() {
+  const title = btnShowDialog.textContent.replace("…", "");
+  btnShowDialog.insertAdjacentHTML(
+    "afterend",
+    `
+      <dialog id="create-dir-dialog">
+        <h1>${title}</h1>
+        <p role="alert" class="error" hidden></p>
+        <form class="basic-form">
+          <label>
+            Name:
+            <input type="text" name="dirName" required />
+            <small ${!isRootDir && "hidden"}>
+              ${location.href}<output name="namePreview"></output>
+            </small>
+          </label>
+          <footer>
+            <button class="close" type="button">Cancel</button>
+            <button class="submit">${title}</button>
+          </footer>
+        </form>
+      </dialog>
+    `,
+  );
+  dialog = document.getElementById("create-dir-dialog");
+  form = dialog.querySelector("form");
+  nameInput = form.elements.dirName;
+  previewEl = form.elements.namePreview;
+  btnSubmit = form.querySelector("button.submit");
+  btnClose = form.querySelector("button.close");
+  errorEl = dialog.querySelector("p.error");
+
+  const nameConstraints = JSON.parse(btnShowDialog.dataset.constraints);
+  for (const entry of Object.entries(nameConstraints)) {
+    nameInput.setAttribute(...entry);
+  }
 }
 
-function disableControls(disable) {
-  btnSubmit.disabled = disable;
-  btnClose.disabled = disable;
-  inputField.style.pointerEvents = disable ? "none" : "auto";
+function renderStatusChange() {
+  const submitted = statusSignal.value === "submitted";
+  disableControls(submitted);
+  btnSubmit.classList.toggle("spinner", submitted);
 }
 
-function setError(msg) {
+function renderError(msg) {
   errorEl.textContent = msg;
   errorEl.hidden = !msg;
+}
+
+function renderNamePreview() {
+  previewEl.value = nameInput.value;
+}
+
+function disableControls(disabled) {
+  btnSubmit.disabled = disabled;
+  btnClose.disabled = disabled;
+  nameInput.style.pointerEvents = disabled ? "none" : "auto";
 }

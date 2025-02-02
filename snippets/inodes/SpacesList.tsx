@@ -1,23 +1,23 @@
+import { type JSX } from "preact";
 import type { DirNode } from "../../util/types.ts";
-import ButtonCreateDir from "./ButtonCreateDir.tsx";
 
-interface Props {
+interface Props extends JSX.HTMLAttributes<HTMLUListElement> {
   dirs: DirNode[];
 }
 
-export default function SpacesList({ dirs }: Props) {
+export default function SpacesList({ dirs, ...ulProps }: Props) {
+  if (!dirs.length) return null;
+
+  let classes = `spaces-list`;
+  if (ulProps.class) classes += ` ${ulProps.class}`;
+
   return (
-    <>
-      {dirs.length > 0 && (
-        <ul class="space-list">
-          {dirs.map((dir) => (
-            <li>
-              <a href={`${dir.name}`}>{dir.name}</a>
-            </li>
-          ))}
-        </ul>
-      )}
-      <ButtonCreateDir isRoot />
-    </>
+    <ul {...ulProps} class={classes}>
+      {dirs.map((dir) => (
+        <li>
+          <a href={`${dir.name}`}>{dir.name}</a>
+        </li>
+      ))}
+    </ul>
   );
 }
