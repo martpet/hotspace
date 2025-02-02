@@ -56,6 +56,7 @@ export default async function showFileHandler(ctx: AppContext) {
     <Page
       title={fileName}
       header={{ breadcrumb: true }}
+      head={<meta name="robots" content="noindex, nofollow" />}
     >
       <h1>{fileName}</h1>
 
