@@ -27,8 +27,12 @@ export function setInodeByDir({
   return atomic.set(keys.inodesByDir(dirId, inode.name), inode);
 }
 
-export function getInodeByDir<T = Inode>(dirId: string, inodeName: string) {
-  return kv.get<T>(keys.inodesByDir(dirId, inodeName));
+export function getInodeByDir<T = Inode>(
+  dirId: string,
+  inodeName: string,
+  consistency?: Deno.KvConsistencyLevel,
+) {
+  return kv.get<T>(keys.inodesByDir(dirId, inodeName), { consistency });
 }
 
 export async function listInodesByDir(
