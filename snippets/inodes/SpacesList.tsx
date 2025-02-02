@@ -6,8 +6,6 @@ interface Props extends JSX.HTMLAttributes<HTMLUListElement> {
 }
 
 export default function SpacesList({ dirs, ...ulProps }: Props) {
-  if (!dirs.length) return null;
-
   let classes = `spaces-list`;
   if (ulProps.class) classes += ` ${ulProps.class}`;
 

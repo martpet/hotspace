@@ -100,7 +100,7 @@ statusSignal.subscribe(async (status) => {
     progressSignal.value = { pending: true };
     errorSignal.value = "";
   } else if (status === "completed") {
-    await replaceFragment("inodesList");
+    await replaceFragment("inodes");
     statusSignal.value = "closed";
   }
 });

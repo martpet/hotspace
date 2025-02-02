@@ -12,22 +12,21 @@ import { getPathSegments } from "../../util/url.ts";
 
 export default async function showInodeHandler(ctx: AppContext) {
   const { user } = ctx.state;
-  const seg = getPathSegments(ctx.url.pathname);
-  const dirNode = (await getDirByPath(seg.pathSegments, "eventual")).value;
+  const { pathSegments } = getPathSegments(ctx.url.pathname);
+  const dirNode = (await getDirByPath(pathSegments, "eventual")).value;
 
   if (!dirNode) {
     return <NotFoundPage />;
   }
 
-  const isOwner = dirNode.ownerId === user?.id;
-  const inodesListOnly = ctx.url.searchParams.get("inodesList");
+  const inodesListOnly = ctx.url.searchParams.get("inodes");
   const inodes = await listInodesByDir(dirNode.id, {
     consistency: inodesListOnly ? "strong" : "eventual",
   });
 
   const inodesList = (
     <InodesList
-      id="inodesList"
+      id="inodes"
       inodes={inodes}
     />
   );
@@ -45,12 +44,14 @@ export default async function showInodeHandler(ctx: AppContext) {
     </>
   );
 
+  const isOwner = dirNode.ownerId === user?.id;
+
   return (
     <Page
+      id="inodes-page"
       title={dirNode.name}
       head={head}
       header={{ breadcrumb: true }}
-      id="inodes-page"
     >
       <h1>{dirNode.name}</h1>
       {isOwner && (

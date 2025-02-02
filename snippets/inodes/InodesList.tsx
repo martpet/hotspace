@@ -6,13 +6,11 @@ interface Props extends JSX.HTMLAttributes<HTMLUListElement> {
 }
 
 export default function InodesList({ inodes, ...ulProps }: Props) {
-  if (!inodes.length) return null;
-
   let classes = `inodes-list`;
   if (ulProps.class) classes += ` ${ulProps.class}`;
 
   return (
-    <ul class={classes}>
+    <ul {...ulProps} class={classes}>
       {inodes.map((inode) => {
         let href = `./${inode.name}`;
         let name = inode.name;

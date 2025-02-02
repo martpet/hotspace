@@ -11,7 +11,11 @@ export default function FilePreview({ inode, url }: Props) {
 
   return (
     <>
-      {mainType === "image" && <img src={url} height={200} />}
+      {mainType === "image" && (
+        <a href={url} target="_blank">
+          <img src={url} height={200} />
+        </a>
+      )}
 
       {mainType === "video" && <video controls src={url} height={200} />}
 

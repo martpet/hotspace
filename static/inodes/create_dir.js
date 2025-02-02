@@ -89,7 +89,7 @@ async function submitData() {
     nameInput.focus();
     return;
   }
-  await replaceFragment(isRootDir ? "spacesList" : "inodesList");
+  await replaceFragment(isRootDir ? "spaces" : "inodes");
   statusSignal.value = "closed";
 }
 

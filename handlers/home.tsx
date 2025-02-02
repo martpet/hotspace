@@ -8,14 +8,14 @@ export default async function homeHandler(ctx: AppContext) {
   const user = ctx.state.user;
   if (!user) return <Page />;
 
-  const spacesListOnly = ctx.url.searchParams.get("spacesList");
+  const spacesListOnly = ctx.url.searchParams.get("spaces");
   const rootDirs = await listRootDirsByOwner(user.id, {
     consistency: spacesListOnly ? "strong" : "eventual",
   });
 
   const spacesList = (
     <SpacesList
-      id="spacesList"
+      id="spaces"
       dirs={rootDirs}
     />
   );
