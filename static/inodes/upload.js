@@ -172,11 +172,12 @@ function renderDialog() {
 }
 
 function renderStatusChange() {
-  const isStarted = statusSignal.value === "started";
-  fileInput.disabled = isStarted;
-  btnSubmit.disabled = isStarted;
-  btnSubmit.textContent = isStarted ? "Uploading" : "Start Upload";
-  btnSubmit.classList.toggle("spinner", isStarted);
+  const runningStatus = ["started", "completed"];
+  const isRunning = runningStatus.includes(statusSignal.value);
+  fileInput.disabled = isRunning;
+  btnSubmit.disabled = isRunning;
+  btnSubmit.textContent = isRunning ? "Uploading" : "Start Upload";
+  btnSubmit.classList.toggle("spinner", isRunning);
 }
 
 function renderError(msg) {
