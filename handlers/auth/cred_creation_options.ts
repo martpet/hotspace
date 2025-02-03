@@ -71,7 +71,7 @@ export default async function credentialCreationOptionsHandler(
     name: CREDENTIAL_CREATION_SESSION_COOKIE,
     value: creationSession.id,
     maxAge: WEBAUTHN_TIMEOUT / 1000,
-    secure: !ctx.isLocalhostSafari,
+    secure: true,
     path: "/",
     httpOnly: true,
   });

@@ -49,7 +49,6 @@ export interface Context<S = Record<string, never>> {
   redirect: CtxRedirectFn;
   redirectBack: CtxRedirectBackFn;
   get rootDomainUrl(): URL | undefined;
-  get isLocalhostSafari(): boolean;
   get scpNonce(): string;
 }
 

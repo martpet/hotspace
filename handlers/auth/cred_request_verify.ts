@@ -74,7 +74,7 @@ export default async function credentialRequestVerifyHandler(ctx: AppContext) {
     value: session.id,
     maxAge: SESSION_TIMEOUT / 1000,
     path: "/",
-    secure: !ctx.isLocalhostSafari,
+    secure: true,
     httpOnly: true,
   });
 

@@ -112,10 +112,6 @@ export class Server {
         rootDomainUrl ??= that.#getRootDomainUrl(ctx);
         return rootDomainUrl;
       },
-      get isLocalhostSafari() {
-        return this.userAgent.browser.name === "Safari" &&
-          this.url.hostname.endsWith("localhost");
-      },
       get scpNonce() {
         scpNonce ??= crypto.randomUUID();
         return scpNonce;
@@ -187,9 +183,8 @@ export class Server {
     setCookie(ctx.resp.headers, {
       name: FLASH_COOKIE,
       value: encodeURIComponent(JSON.stringify(flash)),
-      domain: ctx.rootDomainUrl?.hostname,
       path: "/",
-      secure: !ctx.isLocalhostSafari,
+      secure: true,
       httpOnly: true,
     });
   }

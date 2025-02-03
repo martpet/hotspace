@@ -16,7 +16,7 @@ export default function credentialRequestOptionsHandler(ctx: AppContext) {
     value: credRequestOptions.challenge,
     maxAge: WEBAUTHN_TIMEOUT / 1000,
     path: "/",
-    secure: !ctx.isLocalhostSafari,
+    secure: true,
     httpOnly: true,
   });
 
