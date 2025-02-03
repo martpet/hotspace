@@ -1,4 +1,4 @@
-import { INODES_BUCKET_URL } from "../util/consts.ts";
+import { INODES_BUCKET_URL, INODES_CLOUDFRONT_URL } from "../util/consts.ts";
 import type { AppMiddleware } from "../util/types.ts";
 
 export const headersMiddleware: AppMiddleware = (ctx, next) => {
@@ -6,10 +6,13 @@ export const headersMiddleware: AppMiddleware = (ctx, next) => {
     ctx.resp.headers.set("Service-Worker-Allowed", "/");
   }
 
-  ctx.resp.headers.set(
-    "Content-Security-Policy",
-    `default-src 'self' ${INODES_BUCKET_URL}; script-src 'self' 'nonce-${ctx.scpNonce}';`,
-  );
+  const csp = [
+    `default-src 'self'  ${INODES_CLOUDFRONT_URL}`,
+    `connect-src 'self' ${INODES_BUCKET_URL}`,
+    `script-src 'self' 'nonce-${ctx.scpNonce}'`,
+  ];
+
+  ctx.resp.headers.set("Content-Security-Policy", csp.join(";"));
 
   return next();
 };

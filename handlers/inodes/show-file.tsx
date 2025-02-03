@@ -1,15 +1,12 @@
-import { HOUR } from "@std/datetime";
-
 import { STATUS_CODE } from "@std/http";
-import { getSignedUrl } from "aws_s3_presign";
 import FilePreview from "../../snippets/FilePreview.tsx";
 import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";
 import Page from "../../snippets/pages/Page.tsx";
+import { signCloudFrontUrl } from "../../util/cloudfront_signer.ts";
 import {
-  AWS_CREDENTIALS,
-  AWS_REGION,
-  INODES_BUCKET,
-  S3_ACCELERATE_ENDPOINT,
+  CLOUDFRONT_KEYPAIR_ID,
+  CLOUDFRONT_SIGNER_PRIVATE_KEY,
+  INODES_CLOUDFRONT_URL,
 } from "../../util/consts.ts";
 import { getDirByPath, getInodeByDir } from "../../util/kv/inodes.ts";
 import { type AppContext, FileNode } from "../../util/types.ts";
@@ -40,17 +37,13 @@ export default async function showFileHandler(ctx: AppContext) {
     return <NotFoundPage />;
   }
 
-  const fileName = decodeURIComponent(fileNode.name);
-
-  const fileUrl = getSignedUrl({
-    region: AWS_REGION,
-    bucket: INODES_BUCKET,
-    accessKeyId: AWS_CREDENTIALS.accessKeyId,
-    secretAccessKey: AWS_CREDENTIALS.secretAccessKey,
-    key: fileNode.s3Key,
-    expiresIn: HOUR * 24 / 1000,
-    endpoint: S3_ACCELERATE_ENDPOINT,
+  const url = await signCloudFrontUrl({
+    url: `${INODES_CLOUDFRONT_URL}/${fileNode.s3Key}`,
+    keyPairId: CLOUDFRONT_KEYPAIR_ID,
+    privateKey: CLOUDFRONT_SIGNER_PRIVATE_KEY,
   });
+
+  const fileName = decodeURIComponent(fileNode.name);
 
   return (
     <Page
@@ -62,11 +55,11 @@ export default async function showFileHandler(ctx: AppContext) {
 
       <FilePreview
         inode={fileNode}
-        url={fileUrl}
+        url={url}
       />
 
       <p>
-        <a href={fileUrl} target="_blank">Open file &#x2197;</a>
+        <a href={url} target="_blank">Open file &#x2197;</a>
       </p>
     </Page>
   );

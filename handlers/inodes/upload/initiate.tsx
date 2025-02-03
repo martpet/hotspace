@@ -6,7 +6,7 @@ import {
   AWS_CREDENTIALS,
   AWS_REGION,
   INODES_BUCKET,
-  S3_ACCELERATE_ENDPOINT,
+  S3_ACCELERATE_HOST,
   SAVED_UPLOAD_EXPIRES,
 } from "../../../util/consts.ts";
 import type { AppContext } from "../../../util/types.ts";
@@ -37,7 +37,7 @@ export default async function initiateUploadHandler(ctx: AppContext) {
     bucket: INODES_BUCKET,
     credentials: AWS_CREDENTIALS,
     savedUploadExpiresIn: SAVED_UPLOAD_EXPIRES,
-    s3Endpoint: S3_ACCELERATE_ENDPOINT,
+    s3Endpoint: S3_ACCELERATE_HOST,
     headersFn,
   });
 

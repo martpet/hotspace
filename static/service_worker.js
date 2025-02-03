@@ -1,25 +1,12 @@
 import * as db from "./db.js";
 import { createPushSub, syncPushSub } from "./main.js";
 
-const UPLOADS_PROD = "uploads-hotspace-lol.s3-accelerate.amazonaws.com";
-const UPLOADS_DEV = "uploads-dev-hotspace-lol.s3-accelerate.amazonaws.com";
-
 self.addEventListener("install", () => {
   self.skipWaiting();
 });
 
 self.addEventListener("activate", (event) => {
   event.waitUntil(clients.claim());
-});
-
-self.addEventListener("fetch", (event) => {
-  const url = new URL(event.request.url);
-  if (
-    [UPLOADS_PROD, UPLOADS_DEV].includes(url.hostname) &&
-    event.request.method === "GET"
-  ) {
-    event.respondWith(uploadsCacheHandler(event.request, url));
-  }
 });
 
 self.addEventListener("pushsubscriptionchange", (event) => {
@@ -32,7 +19,6 @@ self.addEventListener("pushsubscriptionchange", (event) => {
   }
 });
 
-// https://issues.chromium.org/issues/378103918
 self.addEventListener("push", (event) => {
   const data = event.data.json();
   if (data.type === "test-notification") {
@@ -106,15 +92,4 @@ async function handleChatMsgNotificationClick(notification) {
   });
   await client.focus();
   notification.close();
-}
-
-// a substitute for "No-Vary-Search" header
-async function uploadsCacheHandler(request, url) {
-  const cache = await caches.open("uploads-cache");
-  const cacheKey = new Request(url.origin + url.pathname, request);
-  const cachedResp = await cache.match(cacheKey);
-  if (cachedResp) return cachedResp;
-  const resp = await fetch(request, { mode: "cors" });
-  if (resp.ok) cache.put(cacheKey, resp.clone());
-  return resp;
 }

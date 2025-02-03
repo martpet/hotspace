@@ -33,10 +33,16 @@ if (isProd) {
   assert(env.AWS_ACCESS_KEY_ID_PROD);
   assert(env.AWS_SECRET_ACCESS_KEY_PROD);
   assert(env.INODES_BUCKET_PROD);
+  assert(env.CLOUDFRONT_SIGNER_PRIVATE_KEY_PROD);
+  assert(env.CLOUDFRONT_KEYPAIR_ID_PROD);
+  assert(env.INODES_CLOUDFRONT_URL_PROD);
 } else {
   assert(env.AWS_ACCESS_KEY_ID_DEV);
   assert(env.AWS_SECRET_ACCESS_KEY_DEV);
   assert(env.INODES_BUCKET_DEV);
+  assert(env.CLOUDFRONT_SIGNER_PRIVATE_KEY_DEV);
+  assert(env.CLOUDFRONT_KEYPAIR_ID_DEV);
+  assert(env.INODES_CLOUDFRONT_URL_DEV);
 }
 
 export const AWS_CREDENTIALS = {
@@ -50,7 +56,19 @@ export const INODES_BUCKET = isProd
   ? env.INODES_BUCKET_PROD
   : env.INODES_BUCKET_DEV;
 
-export const S3_ACCELERATE_ENDPOINT = "s3-accelerate.amazonaws.com";
+export const S3_ACCELERATE_HOST = "s3-accelerate.amazonaws.com";
 
 export const INODES_BUCKET_URL =
-  `https://${INODES_BUCKET}.${S3_ACCELERATE_ENDPOINT}`;
+  `https://${INODES_BUCKET}.${S3_ACCELERATE_HOST}`;
+
+export const CLOUDFRONT_SIGNER_PRIVATE_KEY = isProd
+  ? env.CLOUDFRONT_SIGNER_PRIVATE_KEY_PROD
+  : env.CLOUDFRONT_SIGNER_PRIVATE_KEY_DEV;
+
+export const CLOUDFRONT_KEYPAIR_ID = isProd
+  ? env.CLOUDFRONT_KEYPAIR_ID_PROD
+  : env.CLOUDFRONT_KEYPAIR_ID_DEV;
+
+export const INODES_CLOUDFRONT_URL = isProd
+  ? env.INODES_CLOUDFRONT_URL_PROD
+  : env.INODES_CLOUDFRONT_URL_DEV;
