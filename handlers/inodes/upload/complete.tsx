@@ -1,4 +1,5 @@
-import { type CompletedUpload, completeUploads } from "$upload";
+import { type CompletedUpload } from "$aws";
+import { completeUploads } from "$upload";
 import { STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
 import {

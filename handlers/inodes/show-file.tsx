@@ -1,8 +1,8 @@
+import { signCloudFrontUrl } from "$aws";
 import { STATUS_CODE } from "@std/http";
 import FilePreview from "../../snippets/FilePreview.tsx";
 import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";
 import Page from "../../snippets/pages/Page.tsx";
-import { signCloudFrontUrl } from "../../util/cloudfront_signer.ts";
 import {
   CLOUDFRONT_KEYPAIR_ID,
   CLOUDFRONT_SIGNER_PRIVATE_KEY,

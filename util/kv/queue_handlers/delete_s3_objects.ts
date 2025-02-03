@@ -1,5 +1,5 @@
+import { s3DeleteObject } from "$aws";
 import { newQueue } from "@henrygd/queue";
-import deleteObject from "../../../lib/upload/utils/s3_api/delete_object.ts";
 import { AWS_CREDENTIALS, AWS_REGION } from "../../consts.ts";
 import { enqueue } from "../enqueue.ts";
 
@@ -37,7 +37,7 @@ export function handleDeleteS3Objects(msg: DeleteS3ObjectsQueueMsg) {
 
   s3Keys.forEach((s3Key) =>
     queue.add(() =>
-      deleteObject({
+      s3DeleteObject({
         s3Key,
         bucket,
         credentials: AWS_CREDENTIALS,

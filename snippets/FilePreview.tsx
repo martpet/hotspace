@@ -25,7 +25,6 @@ export default function FilePreview({ inode, url }: Props) {
         fileType === "application/x-javascript"
       ) && (
         <iframe
-          sandbox=""
           src={url}
           width="400"
           height="200"

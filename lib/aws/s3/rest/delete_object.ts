@@ -1,7 +1,7 @@
 import { initParser } from "@b-fuze/deno-dom/wasm-noinit";
 import { retry, type RetryOptions } from "@std/async";
 import { AWSSignerV4 } from "deno_aws_sign_v4";
-import { textToSha256Hex } from "../encode.ts";
+import { textToSha256Hex } from "../../util.ts";
 import type { S3Options } from "../types.ts";
 
 interface Options extends S3Options {
@@ -9,7 +9,7 @@ interface Options extends S3Options {
   retryOptions?: RetryOptions;
 }
 
-export default async function deleteObject(options: Options) {
+export async function s3DeleteObject(options: Options) {
   const { s3Key, bucket, region, credentials, retryOptions = {} } = options;
   const url = `https://${bucket}.s3.amazonaws.com/${s3Key}`;
 

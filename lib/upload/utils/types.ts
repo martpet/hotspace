@@ -1,27 +1,4 @@
-export interface S3Options {
-  bucket: string;
-  region: string;
-  credentials: AwsCredentials;
-}
-
-export interface AwsCredentials {
-  accessKeyId: string;
-  secretAccessKey: string;
-}
-
-export interface FinishedUploadPart {
-  partNumber: number;
-  partSize: number;
-  etag: string;
-}
-
-export interface SavedUpload {
-  uploadId: string;
-  s3Key: string;
-  checksum: string;
-  createdOn: number;
-  finishedParts: FinishedUploadPart[];
-}
+import type { FinishedUploadPart } from "$aws";
 
 export interface UploadInitData {
   fileType: string;
@@ -30,11 +7,10 @@ export interface UploadInitData {
   savedUpload?: SavedUpload;
 }
 
-export interface CompletedUpload {
+export interface SavedUpload {
   uploadId: string;
   s3Key: string;
   checksum: string;
-  fileName: string;
-  fileType: string;
+  createdOn: number;
   finishedParts: FinishedUploadPart[];
 }

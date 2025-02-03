@@ -1,13 +1,12 @@
+import {
+  type FinishedUploadPart,
+  s3CreateMultipartUpload,
+  type S3Options,
+} from "$aws";
 import { newQueue } from "@henrygd/queue";
 import { DAY } from "@std/datetime";
 import { getSignatureKey, getSignedUrl } from "aws_s3_presign";
-import { createMultipartUpload } from "./utils/s3_api/create_multipart_upload.ts";
-import type {
-  FinishedUploadPart,
-  S3Options,
-  SavedUpload,
-  UploadInitData,
-} from "./utils/types.ts";
+import type { SavedUpload, UploadInitData } from "./utils/types.ts";
 
 const QUEUE_CONCURRENCY = 10;
 const DEFAULT_SIGNED_URL_EXPIRES_IN = DAY / 1000;
@@ -62,7 +61,7 @@ export async function initUploads(options: Options) {
           }
         } else {
           s3Key = crypto.randomUUID();
-          uploadId = await createMultipartUpload({
+          uploadId = await s3CreateMultipartUpload({
             s3Key,
             region,
             bucket,
