@@ -1,7 +1,7 @@
 import { listChatMessages, MESSAGES_PER_FETCH } from "$chat";
 import { STATUS_CODE } from "@std/http";
 import ChatMessages from "../../snippets/chat/ChatMessages.tsx";
-import { getDirByPath } from "../../util/kv/inodes.ts";
+import { getDir } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import type { AppContext } from "../../util/types.ts";
 import { parsePath } from "../../util/url.ts";
@@ -14,7 +14,7 @@ export default async function chatLazyLoadHandler(ctx: AppContext) {
   }
 
   const path = parsePath(new URL(referer).pathname);
-  const dir = (await getDirByPath(path.segments)).value;
+  const dir = (await getDir(path.segments)).value;
 
   if (!dir) {
     return ctx.respond(null, STATUS_CODE.NotFound);

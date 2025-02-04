@@ -1,11 +1,6 @@
 import { STATUS_CODE } from "@std/http";
 import { GENERAL_ERR_MSG } from "../../util/consts.ts";
-import {
-  getDirByPath,
-  setDirByPath,
-  setInodeByDir,
-  setRootDirByOwner,
-} from "../../util/kv/inodes.ts";
+import { getDir, setDir } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import type { AppContext } from "../../util/types.ts";
 import { isValidDirPath, parsePath } from "../../util/url.ts";
@@ -29,14 +24,14 @@ export default async function toggleChatHandler(ctx: AppContext) {
   }
 
   const path = parsePath(formEntries.pathname);
-  const dirEntry = await getDirByPath(path.segments);
-  const dir = dirEntry.value;
+  const inodeEntry = await getDir(path.segments);
+  const inode = inodeEntry.value;
 
-  if (!dir) {
+  if (!inode) {
     return ctx.redirectBack();
   }
 
-  if (dir.ownerId !== user.id) {
+  if (inode.ownerId !== user.id) {
     const msg = "You don't have permissions to toggle the chat";
     ctx.setFlash({ type: "error", msg });
     return ctx.redirectBack();
@@ -45,31 +40,25 @@ export default async function toggleChatHandler(ctx: AppContext) {
   let parentDir;
 
   if (!path.isRootSegment) {
-    parentDir = (await getDirByPath(path.parentSegments)).value;
-    if (!parentDir) {
-      return ctx.redirectBack();
-    }
+    parentDir = (await getDir(path.parentSegments)).value;
+    if (!parentDir) return ctx.redirectBack();
   }
 
-  dir.chatEnabled = !dir.chatEnabled;
+  inode.chatEnabled = !inode.chatEnabled;
 
   const atomic = kv.atomic();
-  setDirByPath({ dir, pathSegments: path.segments, atomic });
-  atomic.check(dirEntry);
-  if (path.isRootSegment) {
-    setRootDirByOwner(dir, atomic);
-  } else if (parentDir) {
-    setInodeByDir({
-      dirId: parentDir.id,
-      inode: dir,
-      atomic,
-    });
-  }
-  const { ok } = await atomic.commit();
+  atomic.check(inodeEntry);
 
-  if (ok) {
-    // ctx.setFlash(`The chat was ${dir.chatEnabled ? "enabled" : "disabled"} `);
-  } else {
+  setDir({
+    dir: inode,
+    parentDir,
+    pathSegments: path.segments,
+    atomic,
+  });
+
+  const commit = await atomic.commit();
+
+  if (!commit.ok) {
     ctx.setFlash({ type: "error", msg: GENERAL_ERR_MSG });
   }
 

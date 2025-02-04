@@ -1,11 +1,6 @@
 import { STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
-import {
-  getDirByPath,
-  setDirByPath,
-  setInodeByDir,
-  setRootDirByOwner,
-} from "../../util/kv/inodes.ts";
+import { getDir, setDir } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { reservedWords } from "../../util/reserved_words.ts";
 import type { AppContext, DirNode } from "../../util/types.ts";
@@ -44,13 +39,13 @@ export default async function createDirNodeHandler(ctx: AppContext) {
   let parentDirEntry;
 
   if (!isRootDir) {
-    parentDirEntry = await getDirByPath(path.parentSegments);
+    parentDirEntry = await getDir(path.parentSegments);
     if (!parentDirEntry.value || parentDirEntry.value.ownerId !== user.id) {
       return ctx.respond(null, STATUS_CODE.Forbidden);
     }
   }
 
-  const currentDirEntry = await getDirByPath(path.segments);
+  const currentDirEntry = await getDir(path.segments);
   const currentDir = currentDirEntry.value;
 
   if (currentDir) {
@@ -72,26 +67,23 @@ export default async function createDirNodeHandler(ctx: AppContext) {
   };
 
   const atomic = kv.atomic();
-  setDirByPath({ dir, pathSegments: path.segments, atomic });
   atomic.check(currentDirEntry);
-  if (isRootDir) {
-    setRootDirByOwner(dir, atomic);
-  } else if (parentDirEntry) {
-    setInodeByDir({
-      dirId: parentDirEntry.value.id,
-      inode: dir,
-      atomic,
-    }).check(parentDirEntry);
-  }
+  if (parentDirEntry) atomic.check(parentDirEntry);
+
+  setDir({
+    dir,
+    parentDir: parentDirEntry?.value,
+    pathSegments: path.segments,
+    atomic,
+  });
+
   const commit = await atomic.commit();
 
   if (!commit.ok) {
     return ctx.respond(null, STATUS_CODE.Conflict);
-  } else {
-    // const dirType = isRootDir ? "space" : "folder";
-    // ctx.setFlash(`Successfully created ${dirType} '${dirName}'`);
-    return ctx.respond();
   }
+
+  return ctx.respond();
 }
 
 function isValidReqData(data: unknown): data is ReqData {

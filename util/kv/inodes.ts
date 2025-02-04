@@ -15,19 +15,19 @@ export const keys = {
   ) => ["root_dirs_by_owner", ownerId, dirId],
 };
 
-export function setInodeByDir({
-  dirId,
+export function setInode({
   inode,
+  parentDirId,
   atomic = kv.atomic(),
 }: {
-  dirId: string;
   inode: Inode;
+  parentDirId: string;
   atomic?: Deno.AtomicOperation;
 }) {
-  return atomic.set(keys.inodesByDir(dirId, inode.name), inode);
+  return atomic.set(keys.inodesByDir(parentDirId, inode.name), inode);
 }
 
-export function getInodeByDir<T = Inode>(
+export function getInode<T = Inode>(
   dirId: string,
   inodeName: string,
   consistency?: Deno.KvConsistencyLevel,
@@ -44,27 +44,31 @@ export async function listInodesByDir(
   return (await Array.fromAsync(iter)).map((x) => x.value);
 }
 
-export function setDirByPath({
+export function setDir({
   dir,
+  parentDir,
   pathSegments,
   atomic = kv.atomic(),
 }: {
   dir: DirNode;
+  parentDir?: DirNode;
   pathSegments: string[];
   atomic?: Deno.AtomicOperation;
 }) {
-  return atomic.set(keys.dirsByPath(pathSegments), dir);
+  atomic.set(keys.dirsByPath(pathSegments), dir);
+  if (parentDir) {
+    setInode({ inode: dir, parentDirId: parentDir.id, atomic });
+  } else {
+    atomic.set(keys.rootDirsByOwner(dir.ownerId, dir.id), dir);
+  }
+  return atomic;
 }
 
-export function getDirByPath(
+export function getDir(
   pathSegments: string[],
   consistency?: Deno.KvConsistencyLevel,
 ) {
   return kv.get<DirNode>(keys.dirsByPath(pathSegments), { consistency });
-}
-
-export function setRootDirByOwner(dir: DirNode, atomic = kv.atomic()) {
-  return atomic.set(keys.rootDirsByOwner(dir.ownerId, dir.id), dir);
 }
 
 export async function listRootDirsByOwner(

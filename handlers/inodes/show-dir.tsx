@@ -6,14 +6,14 @@ import ButtonUpload from "../../snippets/inodes/ButtonUpload.tsx";
 import InodesList from "../../snippets/inodes/InodesList.tsx";
 import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";
 import Page from "../../snippets/pages/Page.tsx";
-import { getDirByPath, listInodesByDir } from "../../util/kv/inodes.ts";
+import { getDir, listInodesByDir } from "../../util/kv/inodes.ts";
 import type { AppContext } from "../../util/types.ts";
 import { parsePath } from "../../util/url.ts";
 
 export default async function showInodeHandler(ctx: AppContext) {
   const { user } = ctx.state;
   const path = parsePath(ctx.url.pathname);
-  const dirNode = (await getDirByPath(path.segments, "eventual")).value;
+  const dirNode = (await getDir(path.segments, "eventual")).value;
 
   if (!dirNode) {
     return <NotFoundPage />;

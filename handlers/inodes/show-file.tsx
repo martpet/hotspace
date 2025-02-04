@@ -8,7 +8,7 @@ import {
   CLOUDFRONT_SIGNER_PRIVATE_KEY,
   INODES_CLOUDFRONT_URL,
 } from "../../util/consts.ts";
-import { getDirByPath, getInodeByDir } from "../../util/kv/inodes.ts";
+import { getDir, getInode } from "../../util/kv/inodes.ts";
 import { type AppContext, FileNode } from "../../util/types.ts";
 import { parsePath } from "../../util/url.ts";
 
@@ -19,13 +19,13 @@ export default async function showFileHandler(ctx: AppContext) {
     return ctx.redirect(ctx.req.url + "/", STATUS_CODE.PermanentRedirect);
   }
 
-  const dirNode = (await getDirByPath(path.parentSegments, "eventual")).value;
+  const dirNode = (await getDir(path.parentSegments, "eventual")).value;
 
   if (!dirNode) {
     return <NotFoundPage />;
   }
 
-  const fileNode = (await getInodeByDir<FileNode>(
+  const fileNode = (await getInode<FileNode>(
     dirNode.id,
     path.lastSegment,
     "eventual",
