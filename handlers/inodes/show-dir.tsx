@@ -19,15 +19,15 @@ export default async function showInodeHandler(ctx: AppContext) {
     return <NotFoundPage />;
   }
 
-  const inodesListOnly = ctx.url.searchParams.get("inodes");
+  const fragmentId = ctx.url.searchParams.get("fragment");
 
   const inodes = await listInodesByDir(dirNode.id, {
-    consistency: inodesListOnly ? "strong" : "eventual",
+    consistency: fragmentId ? "strong" : "eventual",
   });
 
   const inodesList = <InodesList id="inodes" inodes={inodes} />;
 
-  if (inodesListOnly) {
+  if (fragmentId === "inodes") {
     return ctx.jsxFragment(inodesList);
   }
 

@@ -264,7 +264,7 @@ export function collapseLineBreaks(text, maxBreaks) {
 
 export async function replaceFragment(id) {
   const url = new URL(location.href);
-  url.searchParams.set(id, true);
+  url.searchParams.set("fragment", id);
   const html = await fetch(url).then((resp) => resp.text());
   document.getElementById(id).outerHTML = html;
 }

@@ -8,9 +8,10 @@ export default async function homeHandler(ctx: AppContext) {
   const user = ctx.state.user;
   if (!user) return <Page />;
 
-  const spacesListOnly = ctx.url.searchParams.get("spaces");
+  const fragmentId = ctx.url.searchParams.get("fragment");
+
   const rootDirs = await listRootDirsByOwner(user.id, {
-    consistency: spacesListOnly ? "strong" : "eventual",
+    consistency: fragmentId ? "strong" : "eventual",
   });
 
   const spacesList = (
@@ -20,7 +21,7 @@ export default async function homeHandler(ctx: AppContext) {
     />
   );
 
-  if (spacesListOnly) {
+  if (fragmentId === "spaces") {
     return ctx.jsxFragment(spacesList);
   }
 
