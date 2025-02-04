@@ -1,28 +1,20 @@
 import { listChatMessages, MESSAGES_PER_FETCH } from "$chat";
-import { STATUS_CODE } from "@std/http";
+import { STATUS_CODE } from "@std/http/status";
 import ChatMessages from "../../snippets/chat/ChatMessages.tsx";
-import { getDir } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import type { AppContext } from "../../util/types.ts";
-import { parsePath } from "../../util/url.ts";
 
 export default async function chatLazyLoadHandler(ctx: AppContext) {
-  const referer = ctx.req.headers.get("referer");
+  const { chatId } = ctx.urlPatternResult.pathname.groups;
+  const isAdmin = !!ctx.url.searchParams.get("isAdmin");
 
-  if (!referer) {
+  if (!chatId) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
-  }
-
-  const path = parsePath(new URL(referer).pathname);
-  const dir = (await getDir(path.segments)).value;
-
-  if (!dir) {
-    return ctx.respond(null, STATUS_CODE.NotFound);
   }
 
   const { messages, nextCursor } = await listChatMessages({
     kv,
-    chatId: dir.id,
+    chatId,
     listOptions: {
       limit: MESSAGES_PER_FETCH,
       consistency: "eventual",
@@ -36,7 +28,7 @@ export default async function chatLazyLoadHandler(ctx: AppContext) {
     <ChatMessages
       messages={messages}
       olderMsgsCursor={nextCursor}
-      isAdmin={dir.ownerId === ctx.state.user?.id}
+      isAdmin={isAdmin}
     />,
   );
 }

@@ -12,6 +12,7 @@ import Subscription from "./Subscription.tsx";
 
 type Props = (PropsWithLazyLoad | PropsWithoutLazyLoad) & {
   chatId: string;
+  parentDirId?: string;
   chatTitle: string;
   isAdmin: boolean;
 };
@@ -27,7 +28,8 @@ interface PropsWithoutLazyLoad {
 }
 
 export default function Chat(props: Props, ctx: AppContext) {
-  const { chatId, chatTitle, isAdmin, messages, olderMsgsCursor } = props;
+  const { chatId, parentDirId, chatTitle, isAdmin, messages, olderMsgsCursor } =
+    props;
   const { user } = ctx.state;
   const { locale } = ctx;
   const { dateFmt, timeFmt } = chatIntlFmt(locale);
@@ -40,6 +42,7 @@ export default function Chat(props: Props, ctx: AppContext) {
       <section
         id="chat"
         data-chat-id={chatId}
+        data-parent-dir-id={parentDirId}
         data-chat-title={chatTitle}
         data-is-admin={isAdmin ? "1" : null}
         data-current-user-username={user?.username}

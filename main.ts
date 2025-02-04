@@ -52,7 +52,7 @@ app.post("/inodes/upload/initiate", initiateUpload);
 app.post("/inodes/upload/complete", completeUpload);
 app.get("/inodes/upload/worker.js", uploadWorkerHandler);
 app.get("/chat/lazy-load/:chatId", chatLazyLoad);
-app.get("/chat/connection/:chatId", chatConnection);
+app.get("/chat/connection/:chatId/(:parentDirId)?", chatConnection);
 app.all("/chat/subs", chatSubs);
 app.post("/push-subs/subscribers", subscribers);
 app.get("/push-subs/vapid", vapid);

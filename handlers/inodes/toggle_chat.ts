@@ -1,9 +1,9 @@
 import { STATUS_CODE } from "@std/http";
 import { GENERAL_ERR_MSG } from "../../util/consts.ts";
-import { getDir, setDir } from "../../util/kv/inodes.ts";
+import { getDir, getInode, setDir, setInode } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
-import type { AppContext } from "../../util/types.ts";
-import { isValidDirPath, parsePath } from "../../util/url.ts";
+import type { AppContext, DirNode } from "../../util/types.ts";
+import { parsePath } from "../../util/url.ts";
 
 interface FormEntries {
   pathname: string;
@@ -24,37 +24,57 @@ export default async function toggleChatHandler(ctx: AppContext) {
   }
 
   const path = parsePath(formEntries.pathname);
-  const inodeEntry = await getDir(path.segments);
-  const inode = inodeEntry.value;
 
-  if (!inode) {
-    return ctx.redirectBack();
-  }
-
-  if (inode.ownerId !== user.id) {
-    const msg = "You don't have permissions to toggle the chat";
-    ctx.setFlash({ type: "error", msg });
-    return ctx.redirectBack();
-  }
-
-  let parentDir;
+  let inodeEntry;
+  let parentDirEntry;
 
   if (!path.isRootSegment) {
-    parentDir = (await getDir(path.parentSegments)).value;
-    if (!parentDir) return ctx.redirectBack();
+    parentDirEntry = await getDir(path.parentSegments);
+    if (!parentDirEntry.value) {
+      return ctx.redirectBack();
+    }
+  }
+
+  if (path.isDir) {
+    inodeEntry = await getDir(path.segments);
+  } else {
+    inodeEntry = await getInode({
+      inodeName: path.lastSegment,
+      parentDirId: parentDirEntry!.value.id,
+    });
+  }
+
+  if (!inodeEntry?.value) {
+    return ctx.redirectBack();
+  }
+
+  const inode = inodeEntry.value;
+
+  if (inode.ownerId !== user.id) {
+    ctx.setFlash({ type: "error", msg: "Not allowed" });
+    return ctx.redirectBack();
   }
 
   inode.chatEnabled = !inode.chatEnabled;
 
   const atomic = kv.atomic();
   atomic.check(inodeEntry);
+  if (parentDirEntry) atomic.check(parentDirEntry);
 
-  setDir({
-    dir: inode,
-    parentDir,
-    pathSegments: path.segments,
-    atomic,
-  });
+  if (path.isDir) {
+    setDir({
+      dir: inode as DirNode,
+      parentDirId: parentDirEntry?.value.id,
+      pathSegments: path.segments,
+      atomic,
+    });
+  } else {
+    setInode({
+      inode,
+      parentDirId: parentDirEntry!.value.id,
+      atomic,
+    });
+  }
 
   const commit = await atomic.commit();
 
@@ -66,6 +86,6 @@ export default async function toggleChatHandler(ctx: AppContext) {
 }
 
 function isValidFormEntries(entries: unknown): entries is FormEntries {
-  const { pathname } = entries as FormEntries;
-  return typeof entries === "object" && isValidDirPath(pathname);
+  const { pathname } = entries as Partial<FormEntries>;
+  return typeof entries === "object" && typeof pathname === "string";
 }

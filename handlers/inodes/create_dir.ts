@@ -72,7 +72,7 @@ export default async function createDirNodeHandler(ctx: AppContext) {
 
   setDir({
     dir,
-    parentDir: parentDirEntry?.value,
+    parentDirId: parentDirEntry?.value.id,
     pathSegments: path.segments,
     atomic,
   });

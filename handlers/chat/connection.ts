@@ -8,12 +8,11 @@ import type { AppContext, Inode } from "../../util/types.ts";
 import { parsePath } from "../../util/url.ts";
 
 export default function chatConnectionHandler(ctx: AppContext) {
-  const searchParams = new URLSearchParams(ctx.url.search);
   const { user } = ctx.state;
   const { chatId } = ctx.urlPatternResult.pathname.groups;
-  const chatTitle = searchParams.get("title");
-  const chatPageUrl = searchParams.get("location");
-  const lastSeenFeedItemId = searchParams.get("lastSeenFeedItemId");
+  const chatTitle = ctx.url.searchParams.get("title");
+  const chatPageUrl = ctx.url.searchParams.get("location");
+  const lastSeenFeedItemId = ctx.url.searchParams.get("lastSeenFeedItemId");
 
   if (!chatId || !chatTitle || !chatPageUrl) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
@@ -29,12 +28,20 @@ export default function chatConnectionHandler(ctx: AppContext) {
 
   const path = parsePath(new URL(chatPageUrl).pathname);
 
+  let chatKvKey = inodesKeys.dirsByPath(path.segments);
+
+  if (!path.isDir) {
+    const parentDirId = ctx.url.searchParams.get("parentDirId");
+    if (!parentDirId) return ctx.respond(null, STATUS_CODE.NotFound);
+    chatKvKey = inodesKeys.inodesByDir(parentDirId, path.lastSegment);
+  }
+
   const conn = new ChatConnection({
     request: ctx.req,
     chatId,
     chatPageUrl,
     chatTitle,
-    chatKvKey: inodesKeys.dirsByPath(path.segments),
+    chatKvKey,
     userId: user?.id,
     userKvKey: userKvKeys.byId(user?.id!),
     lastSeenFeedItemId,

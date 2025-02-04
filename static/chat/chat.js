@@ -25,6 +25,7 @@ const textareaNewMsg = formNewMsg?.querySelector("textarea");
 const {
   locale,
   chatId,
+  parentDirId,
   chatTitle,
   msgFollowupDuration,
   currentUserUsername,
@@ -74,6 +75,7 @@ socketUrl.pathname = `/chat/connection/${chatId}`;
 socketUrl.protocol = location.protocol === "https:" ? "wss:" : "ws:";
 socketUrl.searchParams.set("title", chatTitle);
 socketUrl.searchParams.set("location", location.href);
+if (parentDirId) socketUrl.searchParams.set("parentDirId", parentDirId);
 
 let msgsBox;
 let olderMsgsCursor;
@@ -712,7 +714,9 @@ async function lazyLoadMsgs() {
   if (!lazyRootEl) {
     msgsBoxReady.resolve();
   } else {
-    const resp = await fetch(`/chat/lazy-load/${chatId}`);
+    const url = new URL(`/chat/lazy-load/${chatId}`, location.origin);
+    if (isAdmin) url.searchParams.set("isAdmin", true);
+    const resp = await fetch(url.href);
     if (!resp.ok) {
       showChatError(GENERAL_CHAT_ERR_MSG);
     } else {
