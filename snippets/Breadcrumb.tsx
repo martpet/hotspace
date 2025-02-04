@@ -3,9 +3,8 @@ import { parsePath } from "../util/url.ts";
 
 export default function Breadcrumb(_: unknown, ctx: AppContext) {
   const { user } = ctx.state;
-  const { pathname } = ctx.url;
-  const isDir = pathname.endsWith("/");
   const path = parsePath(ctx.url.pathname);
+  const segments = path.parentSegments;
 
   return (
     <nav aria-label="Breadcrumb" class="breadcrumb">
@@ -13,10 +12,10 @@ export default function Breadcrumb(_: unknown, ctx: AppContext) {
         <li>
           {user ? <a href="/">HotSpace</a> : "HotSpace"}
         </li>
-        {path.segments.map((seg, i) => {
-          const relativeUrl = !isDir && i === path.segments.length - 1
+        {segments.map((seg, i) => {
+          const relativeUrl = !path.isDir && i === segments.length - 1
             ? "./"
-            : "../".repeat(path.segments.length - i);
+            : "../".repeat(segments.length - i);
 
           return (
             <li>
