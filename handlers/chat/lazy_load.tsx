@@ -4,7 +4,7 @@ import ChatMessages from "../../snippets/chat/ChatMessages.tsx";
 import { getDirByPath } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import type { AppContext } from "../../util/types.ts";
-import { getPathSegments } from "../../util/url.ts";
+import { parsePath } from "../../util/url.ts";
 
 export default async function chatLazyLoadHandler(ctx: AppContext) {
   const referer = ctx.req.headers.get("referer");
@@ -13,8 +13,8 @@ export default async function chatLazyLoadHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  const seg = getPathSegments(new URL(referer).pathname);
-  const dir = (await getDirByPath(seg.pathSegments)).value;
+  const path = parsePath(new URL(referer).pathname);
+  const dir = (await getDirByPath(path.segments)).value;
 
   if (!dir) {
     return ctx.respond(null, STATUS_CODE.NotFound);

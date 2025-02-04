@@ -8,12 +8,12 @@ import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";
 import Page from "../../snippets/pages/Page.tsx";
 import { getDirByPath, listInodesByDir } from "../../util/kv/inodes.ts";
 import type { AppContext } from "../../util/types.ts";
-import { getPathSegments } from "../../util/url.ts";
+import { parsePath } from "../../util/url.ts";
 
 export default async function showInodeHandler(ctx: AppContext) {
   const { user } = ctx.state;
-  const { pathSegments } = getPathSegments(ctx.url.pathname);
-  const dirNode = (await getDirByPath(pathSegments, "eventual")).value;
+  const path = parsePath(ctx.url.pathname);
+  const dirNode = (await getDirByPath(path.segments, "eventual")).value;
 
   if (!dirNode) {
     return <NotFoundPage />;

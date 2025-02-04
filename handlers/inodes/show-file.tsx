@@ -10,18 +10,16 @@ import {
 } from "../../util/consts.ts";
 import { getDirByPath, getInodeByDir } from "../../util/kv/inodes.ts";
 import { type AppContext, FileNode } from "../../util/types.ts";
-import { getPathSegments } from "../../util/url.ts";
+import { parsePath } from "../../util/url.ts";
 
 export default async function showFileHandler(ctx: AppContext) {
-  const { isRootDir, parentPathSegments, lastPathSegment } = getPathSegments(
-    ctx.url.pathname,
-  );
+  const path = parsePath(ctx.url.pathname);
 
-  if (isRootDir) {
+  if (path.isRootSegment) {
     return ctx.redirect(ctx.req.url + "/", STATUS_CODE.PermanentRedirect);
   }
 
-  const dirNode = (await getDirByPath(parentPathSegments, "eventual")).value;
+  const dirNode = (await getDirByPath(path.parentSegments, "eventual")).value;
 
   if (!dirNode) {
     return <NotFoundPage />;
@@ -29,7 +27,7 @@ export default async function showFileHandler(ctx: AppContext) {
 
   const fileNode = (await getInodeByDir<FileNode>(
     dirNode.id,
-    lastPathSegment!,
+    path.lastSegment,
     "eventual",
   )).value;
 

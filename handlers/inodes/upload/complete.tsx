@@ -16,7 +16,7 @@ import { kv } from "../../../util/kv/kv.ts";
 import { enqueueDeleteS3Objects } from "../../../util/kv/queue_handlers/delete_s3_objects.ts";
 import { setUploadSize } from "../../../util/kv/upload_size.ts";
 import type { AppContext, DirNode, FileNode } from "../../../util/types.ts";
-import { getPathSegments } from "../../../util/url.ts";
+import { parsePath } from "../../../util/url.ts";
 
 type ReqData = {
   uploads: CompletedUpload[];
@@ -36,13 +36,13 @@ export default async function completeUploadHandler(ctx: AppContext) {
   }
 
   const { uploads, pathname } = reqData;
-  const { pathSegments } = getPathSegments(pathname);
+  const path = parsePath(pathname);
 
   const checkDirOwner = (
     entry: Deno.KvEntryMaybe<DirNode>,
   ): entry is Deno.KvEntry<DirNode> => entry.value?.ownerId === user.id;
 
-  let dirEntry = await getDirByPath(pathSegments);
+  let dirEntry = await getDirByPath(path.segments);
 
   if (!checkDirOwner(dirEntry)) {
     return ctx.respond(null, STATUS_CODE.Forbidden);
@@ -76,7 +76,7 @@ export default async function completeUploadHandler(ctx: AppContext) {
 
       if (i > 0) {
         inode.name += `-${i + 1}`;
-        dirEntry = await getDirByPath(pathSegments);
+        dirEntry = await getDirByPath(path.segments);
       }
 
       if (!checkDirOwner(dirEntry)) {

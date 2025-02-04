@@ -9,7 +9,7 @@ import {
 import { kv } from "../../util/kv/kv.ts";
 import { reservedWords } from "../../util/reserved_words.ts";
 import type { AppContext, DirNode } from "../../util/types.ts";
-import { getPathSegments, isValidDirPath } from "../../util/url.ts";
+import { isValidDirPath, parsePath } from "../../util/url.ts";
 
 interface ReqData {
   pathname: string;
@@ -28,12 +28,9 @@ export default async function createDirNodeHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  const {
-    pathSegments,
-    parentPathSegments,
-    lastPathSegment: dirName,
-    isRootDir,
-  } = getPathSegments(reqData.pathname);
+  const path = parsePath(reqData.pathname);
+  const dirName = path.lastSegment;
+  const isRootDir = path.isRootSegment;
 
   if (!dirName) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
@@ -47,13 +44,13 @@ export default async function createDirNodeHandler(ctx: AppContext) {
   let parentDirEntry;
 
   if (!isRootDir) {
-    parentDirEntry = await getDirByPath(parentPathSegments);
+    parentDirEntry = await getDirByPath(path.parentSegments);
     if (!parentDirEntry.value || parentDirEntry.value.ownerId !== user.id) {
       return ctx.respond(null, STATUS_CODE.Forbidden);
     }
   }
 
-  const currentDirEntry = await getDirByPath(pathSegments);
+  const currentDirEntry = await getDirByPath(path.segments);
   const currentDir = currentDirEntry.value;
 
   if (currentDir) {
@@ -75,7 +72,8 @@ export default async function createDirNodeHandler(ctx: AppContext) {
   };
 
   const atomic = kv.atomic();
-  setDirByPath({ dir, pathSegments, atomic }).check(currentDirEntry);
+  setDirByPath({ dir, pathSegments: path.segments, atomic });
+  atomic.check(currentDirEntry);
   if (isRootDir) {
     setRootDirByOwner(dir, atomic);
   } else if (parentDirEntry) {
