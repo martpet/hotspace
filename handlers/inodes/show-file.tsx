@@ -15,6 +15,8 @@ import { getDir, getInode } from "../../util/kv/inodes.ts";
 import { type AppContext, FileNode } from "../../util/types.ts";
 import { parsePath } from "../../util/url.ts";
 
+const IS_PUBLIC_ACCESS_ENABLED = true;
+
 export default async function showFileHandler(ctx: AppContext) {
   const { user } = ctx.state;
   const path = parsePath(ctx.url.pathname);
@@ -39,14 +41,17 @@ export default async function showFileHandler(ctx: AppContext) {
     return <NotFoundPage />;
   }
 
-  const url = await signCloudFrontUrl({
-    url: `${INODES_CLOUDFRONT_URL}/${fileNode.s3Key}`,
-    keyPairId: CLOUDFRONT_KEYPAIR_ID,
-    privateKey: CLOUDFRONT_SIGNER_PRIVATE_KEY,
-  });
+  let fileUrl = `${INODES_CLOUDFRONT_URL}/${fileNode.s3Key}`;
+
+  if (!IS_PUBLIC_ACCESS_ENABLED) {
+    fileUrl = await signCloudFrontUrl({
+      url: fileUrl,
+      keyPairId: CLOUDFRONT_KEYPAIR_ID,
+      privateKey: CLOUDFRONT_SIGNER_PRIVATE_KEY,
+    });
+  }
 
   const fileName = decodeURIComponent(fileNode.name);
-
   const isOwner = fileNode.ownerId === user?.id;
 
   const head = (
@@ -74,11 +79,11 @@ export default async function showFileHandler(ctx: AppContext) {
 
       <FilePreview
         inode={fileNode}
-        url={url}
+        url={fileUrl}
       />
 
       <p>
-        <a href={url} target="_blank">Open file &#x2197;</a>
+        <a href={fileUrl} target="_blank">Open file &#x2197;</a>
       </p>
 
       {fileNode.chatEnabled && (
