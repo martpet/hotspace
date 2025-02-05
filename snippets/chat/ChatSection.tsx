@@ -11,6 +11,7 @@ import MessageEditedTag from "./MessageEditedTag.tsx";
 import Subscription from "./Subscription.tsx";
 
 type Props = (PropsWithLazyLoad | PropsWithoutLazyLoad) & {
+  enabled: boolean | undefined;
   chatId: string;
   parentDirId?: string;
   chatTitle: string;
@@ -27,49 +28,62 @@ interface PropsWithoutLazyLoad {
   olderMsgsCursor: string | null;
 }
 
-export default function Chat(props: Props, ctx: AppContext) {
-  const { chatId, parentDirId, chatTitle, isAdmin, messages, olderMsgsCursor } =
-    props;
+export default function ChatSection(props: Props, ctx: AppContext) {
+  const {
+    chatId,
+    enabled,
+    parentDirId,
+    chatTitle,
+    isAdmin,
+    messages,
+    olderMsgsCursor,
+  } = props;
+
+  if (!enabled) {
+    return <div id="chat" hidden />;
+  }
+
   const { user } = ctx.state;
   const { locale } = ctx;
   const { dateFmt, timeFmt } = chatIntlFmt(locale);
 
   return (
-    <>
-      <script type="module" src={asset("chat/chat.js")} />
+    <section
+      id="chat"
+      data-chat-id={chatId}
+      data-parent-dir-id={parentDirId}
+      data-chat-title={chatTitle}
+      data-is-admin={isAdmin ? "1" : null}
+      data-current-user-username={user?.username}
+      data-msg-followup-duration={CHAT_MSG_FOLLOWUP_DURATION}
+      data-chat-sub-expires={CHAT_SUB_WITHOUT_PUSH_SUB_EXPIRES}
+      data-locale={locale}
+    >
+      <script id="chat-script" type="module" src={asset("chat/chat.js")} />
       <link rel="modulepreload" href={asset("db.js")} />
+      <link rel="stylesheet" href={asset("chat/chat.css")} />
 
-      <section
-        id="chat"
-        data-chat-id={chatId}
-        data-parent-dir-id={parentDirId}
-        data-chat-title={chatTitle}
-        data-is-admin={isAdmin ? "1" : null}
-        data-current-user-username={user?.username}
-        data-msg-followup-duration={CHAT_MSG_FOLLOWUP_DURATION}
-        data-chat-sub-expires={CHAT_SUB_WITHOUT_PUSH_SUB_EXPIRES}
-        data-locale={locale}
-      >
-        <h1>Chat</h1>
-        <div id="chat-box">
-          <div id="chat-main">
-            {messages
-              ? (
-                <ChatMessages
-                  messages={messages}
-                  olderMsgsCursor={olderMsgsCursor}
-                  isAdmin={isAdmin}
-                />
-              )
-              : <div id="chat-lazy-root" class="spinner" />}
-          </div>
-          <ChatFooter />
+      <h1>Chat</h1>
+      <div id="chat-box">
+        <div id="chat-main">
+          {messages
+            ? (
+              <ChatMessages
+                messages={messages}
+                olderMsgsCursor={olderMsgsCursor}
+                isAdmin={isAdmin}
+              />
+            )
+            : <div id="chat-lazy-root" class="spinner" />}
         </div>
-        <p id="chat-users-typing" aria-live="polite">
-          <span class="names"></span> <Dots />
-        </p>
-        {ctx.state.canUseServiceWorker && <Subscription />}
-      </section>
+        <ChatFooter />
+      </div>
+
+      <p id="chat-users-typing" aria-live="polite">
+        <span class="names"></span> <Dots />
+      </p>
+
+      {ctx.state.canUseServiceWorker && <Subscription />}
 
       <template id="chat-template">
         <DayHeading />
@@ -85,6 +99,6 @@ export default function Chat(props: Props, ctx: AppContext) {
           dateFmt={dateFmt}
         />
       </template>
-    </>
+    </section>
   );
 }

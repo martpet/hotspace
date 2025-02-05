@@ -1,4 +1,3 @@
-import { asset } from "$server";
 import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
 import ChatSection from "../../snippets/chat/ChatSection.tsx";
 import ButtonCreateDir from "../../snippets/inodes/ButtonCreateDir.tsx";
@@ -14,13 +13,10 @@ export default async function showInodeHandler(ctx: AppContext) {
   const { user } = ctx.state;
   const path = parsePath(ctx.url.pathname);
   const dirNode = (await getDir(path.segments, "eventual")).value;
-
-  if (!dirNode) {
-    return <NotFoundPage />;
-  }
+  if (!dirNode) return <NotFoundPage />;
 
   const fragmentId = ctx.url.searchParams.get("fragment");
-
+  const isOwner = dirNode.ownerId === user?.id;
   const inodes = await listInodesByDir(dirNode.id, {
     consistency: fragmentId ? "strong" : "eventual",
   });
@@ -31,40 +27,36 @@ export default async function showInodeHandler(ctx: AppContext) {
     return ctx.jsxFragment(inodesList);
   }
 
-  const head = (
-    <>
-      <meta name="robots" content="noindex, nofollow" />
-      {dirNode.chatEnabled && (
-        <link rel="stylesheet" href={asset("chat/chat.css")} />
-      )}
-    </>
+  const chatSection = (
+    <ChatSection
+      enabled={dirNode.chatEnabled}
+      chatId={dirNode.id}
+      chatTitle={dirNode.name}
+      isAdmin={isOwner}
+    />
   );
 
-  const isOwner = dirNode.ownerId === user?.id;
+  if (fragmentId === "chat") {
+    return ctx.jsxFragment(chatSection);
+  }
 
   return (
     <Page
       id="inodes-page"
       title={dirNode.name}
-      head={head}
       header={{ breadcrumb: true }}
+      head={<meta name="robots" content="noindex, nofollow" />}
     >
       <h1>{dirNode.name}</h1>
       {isOwner && (
         <menu class="inodes-menu">
           <ButtonUpload />
           <ButtonCreateDir />
-          <ButtonToggleChat inode={dirNode} />
+          <ButtonToggleChat chatEnabled={dirNode.chatEnabled} />
         </menu>
       )}
       {inodesList}
-      {dirNode.chatEnabled && (
-        <ChatSection
-          chatId={dirNode.id}
-          chatTitle={dirNode.name}
-          isAdmin={isOwner}
-        />
-      )}
+      {chatSection}
     </Page>
   );
 }

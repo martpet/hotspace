@@ -1,16 +1,23 @@
-import type { AppContext, Inode } from "../../util/types.ts";
+import { asset } from "$server";
 
 interface Props {
-  inode: Inode;
+  chatEnabled: boolean | undefined;
 }
 
-export default function ButtonToggleChat({ inode }: Props, ctx: AppContext) {
-  const { chatEnabled } = inode;
+export default function ButtonToggleChat(props: Props) {
+  const { chatEnabled } = props;
 
   return (
-    <form method="post" action="/chat/toggle_chat">
-      <input type="hidden" name="pathname" value={ctx.url.pathname} />
-      <button>{chatEnabled ? "Disable" : "Enable"} Chat</button>
-    </form>
+    <>
+      <script type="module" src={asset("chat/toggle_chat.js")} />
+      <button
+        id="toggle-chat"
+        type="button"
+        disabled
+        class="wait-disabled"
+      >
+        {chatEnabled ? "Disable" : "Enable"} Chat
+      </button>
+    </>
   );
 }

@@ -1,11 +1,10 @@
 import { STATUS_CODE } from "@std/http";
-import { GENERAL_ERR_MSG } from "../../util/consts.ts";
 import { getDir, getInode, setDir, setInode } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import type { AppContext, DirNode } from "../../util/types.ts";
 import { parsePath } from "../../util/url.ts";
 
-interface FormEntries {
+interface ReqData {
   pathname: string;
 }
 
@@ -16,14 +15,13 @@ export default async function toggleChatHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.Unauthorized);
   }
 
-  const formData = await ctx.req.formData();
-  const formEntries = Object.fromEntries(formData.entries());
+  const reqData = await ctx.req.json();
 
-  if (!isValidFormEntries(formEntries)) {
+  if (!isValidReqData(reqData)) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  const path = parsePath(formEntries.pathname);
+  const path = parsePath(reqData.pathname);
 
   let inodeEntry;
   let parentDirEntry;
@@ -31,7 +29,7 @@ export default async function toggleChatHandler(ctx: AppContext) {
   if (!path.isRootSegment) {
     parentDirEntry = await getDir(path.parentSegments);
     if (!parentDirEntry.value) {
-      return ctx.redirectBack();
+      return ctx.respond(null, STATUS_CODE.NotFound);
     }
   }
 
@@ -45,14 +43,13 @@ export default async function toggleChatHandler(ctx: AppContext) {
   }
 
   if (!inodeEntry?.value) {
-    return ctx.redirectBack();
+    return ctx.respond(null, STATUS_CODE.NotFound);
   }
 
   const inode = inodeEntry.value;
 
   if (inode.ownerId !== user.id) {
-    ctx.setFlash({ type: "error", msg: "Not allowed" });
-    return ctx.redirectBack();
+    return ctx.respond(null, STATUS_CODE.NotFound);
   }
 
   inode.chatEnabled = !inode.chatEnabled;
@@ -79,13 +76,13 @@ export default async function toggleChatHandler(ctx: AppContext) {
   const commit = await atomic.commit();
 
   if (!commit.ok) {
-    ctx.setFlash({ type: "error", msg: GENERAL_ERR_MSG });
+    return ctx.respond(null, STATUS_CODE.Conflict);
   }
 
-  return ctx.redirectBack();
+  return ctx.respond();
 }
 
-function isValidFormEntries(entries: unknown): entries is FormEntries {
-  const { pathname } = entries as Partial<FormEntries>;
-  return typeof entries === "object" && typeof pathname === "string";
+function isValidReqData(data: unknown): data is ReqData {
+  const { pathname } = data as Partial<ReqData>;
+  return typeof data === "object" && typeof pathname === "string";
 }
