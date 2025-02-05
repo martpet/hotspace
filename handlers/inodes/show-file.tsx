@@ -1,9 +1,9 @@
 import { signCloudFrontUrl } from "$aws";
 import { asset } from "$server";
 import { STATUS_CODE } from "@std/http";
+import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
 import Chat from "../../snippets/chat/Chat.tsx";
 import FilePreview from "../../snippets/FilePreview.tsx";
-import ButtonToggleChat from "../../snippets/inodes/ButtonToggleChat.tsx";
 import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";
 import Page from "../../snippets/pages/Page.tsx";
 import {

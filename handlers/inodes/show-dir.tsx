@@ -1,7 +1,7 @@
 import { asset } from "$server";
+import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
 import Chat from "../../snippets/chat/Chat.tsx";
 import ButtonCreateDir from "../../snippets/inodes/ButtonCreateDir.tsx";
-import ButtonToggleChat from "../../snippets/inodes/ButtonToggleChat.tsx";
 import ButtonUpload from "../../snippets/inodes/ButtonUpload.tsx";
 import InodesList from "../../snippets/inodes/InodesList.tsx";
 import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";

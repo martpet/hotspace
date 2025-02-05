@@ -8,7 +8,7 @@ export default function ButtonToggleChat({ inode }: Props, ctx: AppContext) {
   const { chatEnabled } = inode;
 
   return (
-    <form method="post" action="/inodes/toggle_chat">
+    <form method="post" action="/chat/toggle_chat">
       <input type="hidden" name="pathname" value={ctx.url.pathname} />
       <button>{chatEnabled ? "Disable" : "Enable"} Chat</button>
     </form>
