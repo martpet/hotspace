@@ -2,7 +2,7 @@ import { signCloudFrontUrl } from "$aws";
 import { asset } from "$server";
 import { STATUS_CODE } from "@std/http";
 import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
-import Chat from "../../snippets/chat/Chat.tsx";
+import ChatSection from "../../snippets/chat/ChatSection.tsx";
 import FilePreview from "../../snippets/FilePreview.tsx";
 import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";
 import Page from "../../snippets/pages/Page.tsx";
@@ -87,7 +87,7 @@ export default async function showFileHandler(ctx: AppContext) {
       </p>
 
       {fileNode.chatEnabled && (
-        <Chat
+        <ChatSection
           chatId={fileNode.id}
           parentDirId={parentDir.id}
           chatTitle={fileNode.name}

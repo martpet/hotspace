@@ -1,6 +1,6 @@
 import { asset } from "$server";
 import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
-import Chat from "../../snippets/chat/Chat.tsx";
+import ChatSection from "../../snippets/chat/ChatSection.tsx";
 import ButtonCreateDir from "../../snippets/inodes/ButtonCreateDir.tsx";
 import ButtonUpload from "../../snippets/inodes/ButtonUpload.tsx";
 import InodesList from "../../snippets/inodes/InodesList.tsx";
@@ -59,7 +59,7 @@ export default async function showInodeHandler(ctx: AppContext) {
       )}
       {inodesList}
       {dirNode.chatEnabled && (
-        <Chat
+        <ChatSection
           chatId={dirNode.id}
           chatTitle={dirNode.name}
           isAdmin={isOwner}
