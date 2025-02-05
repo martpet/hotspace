@@ -61,7 +61,11 @@ export default function ChatSection(props: Props, ctx: AppContext) {
     >
       <script id="chat-script" type="module" src={asset("chat/chat.js")} />
       <link rel="modulepreload" href={asset("db.js")} />
-      <link rel="stylesheet" href={asset("chat/chat.css")} />
+      <link
+        rel="stylesheet"
+        href={asset("chat/chat.css")}
+        {...{ blocking: "render" }}
+      />
 
       <h1>Chat</h1>
       <div id="chat-box">
