@@ -1,9 +1,8 @@
 import { signCloudFrontUrl } from "$aws";
-import { asset } from "$server";
 import { STATUS_CODE } from "@std/http";
-import Chat from "../../snippets/chat/Chat.tsx";
+import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
+import Chat from "../../snippets/chat/ChatSection.tsx";
 import FilePreview from "../../snippets/FilePreview.tsx";
-import ButtonToggleChat from "../../snippets/inodes/ButtonToggleChat.tsx";
 import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";
 import Page from "../../snippets/pages/Page.tsx";
 import {
@@ -31,16 +30,35 @@ export default async function showFileHandler(ctx: AppContext) {
     return <NotFoundPage />;
   }
 
+  const fragmentId = ctx.url.searchParams.get("fragment");
+
   const fileNode = (await getInode<FileNode>({
     inodeName: path.lastSegment,
     parentDirId: parentDir.id,
-    consistency: "eventual",
+    consistency: fragmentId ? "strong" : "eventual",
   })).value;
 
   if (!fileNode) {
     return <NotFoundPage />;
   }
 
+  const isOwner = fileNode.ownerId === user?.id;
+
+  const chatSection = (
+    <Chat
+      enabled={fileNode.chatEnabled}
+      chatId={fileNode.id}
+      parentDirId={parentDir.id}
+      chatTitle={fileNode.name}
+      isAdmin={isOwner}
+    />
+  );
+
+  if (fragmentId === "chat") {
+    return ctx.jsxFragment(chatSection);
+  }
+
+  const fileName = decodeURIComponent(fileNode.name);
   let fileUrl = `${INODES_CLOUDFRONT_URL}/${fileNode.s3Key}`;
 
   if (!IS_PUBLIC_ACCESS_ENABLED) {
@@ -51,29 +69,17 @@ export default async function showFileHandler(ctx: AppContext) {
     });
   }
 
-  const fileName = decodeURIComponent(fileNode.name);
-  const isOwner = fileNode.ownerId === user?.id;
-
-  const head = (
-    <>
-      <meta name="robots" content="noindex, nofollow" />
-      {fileNode.chatEnabled && (
-        <link rel="stylesheet" href={asset("chat/chat.css")} />
-      )}
-    </>
-  );
-
   return (
     <Page
       title={fileName}
       header={{ breadcrumb: true }}
-      head={head}
+      head={<meta name="robots" content="noindex, nofollow" />}
     >
       <h1>{fileName}</h1>
 
       {isOwner && (
         <menu class="inodes-menu">
-          <ButtonToggleChat inode={fileNode} />
+          <ButtonToggleChat chatEnabled={fileNode.chatEnabled} />
         </menu>
       )}
 
@@ -86,14 +92,7 @@ export default async function showFileHandler(ctx: AppContext) {
         <a href={fileUrl} target="_blank">Open file &#x2197;</a>
       </p>
 
-      {fileNode.chatEnabled && (
-        <Chat
-          chatId={fileNode.id}
-          parentDirId={parentDir.id}
-          chatTitle={fileNode.name}
-          isAdmin={isOwner}
-        />
-      )}
+      {chatSection}
     </Page>
   );
 }
