@@ -22,7 +22,6 @@ export default function ChatFooter(_props: unknown, ctx: AppContext) {
       )}
       <button
         id="scrollto-unseen-msg-btn"
-        type="button"
         title="See new message"
         aria-live="polite"
         hidden

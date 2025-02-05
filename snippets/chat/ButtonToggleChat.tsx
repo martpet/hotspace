@@ -12,7 +12,6 @@ export default function ButtonToggleChat(props: Props) {
       <script type="module" src={asset("chat/toggle_chat.js")} />
       <button
         id="toggle-chat"
-        type="button"
         disabled
         class="wait-disabled"
       >

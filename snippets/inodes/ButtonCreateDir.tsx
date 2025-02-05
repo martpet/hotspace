@@ -16,7 +16,6 @@ export default function ButtonCreateDir(props: Props) {
       <button
         {...btnProps}
         id="show-create-dir"
-        type="button"
         class="wait-disabled"
         disabled
         data-is-root-dir={isRoot}
