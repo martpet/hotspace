@@ -2,7 +2,7 @@ import { STATUS_CODE } from "@std/http";
 import { getDir, getInode, setDir, setInode } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import type { AppContext, DirNode } from "../../util/types.ts";
-import { parsePath } from "../../util/url.ts";
+import { parsePathname } from "../../util/url.ts";
 
 interface ReqData {
   pathname: string;
@@ -21,7 +21,7 @@ export default async function toggleChatHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  const path = parsePath(reqData.pathname);
+  const path = parsePathname(reqData.pathname);
 
   let inodeEntry;
   let parentDirEntry;

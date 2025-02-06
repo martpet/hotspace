@@ -29,7 +29,7 @@ btnShowDialog.disabled = false;
 
 btnShowDialog.onclick = () => {
   if (!dialog) {
-    renderDialog();
+    insertDialog();
     initDialogEvents();
   }
   statusSignal.value = "idle";
@@ -146,7 +146,7 @@ function startUpload() {
 // Rendering
 // =====================
 
-function renderDialog() {
+function insertDialog() {
   btnShowDialog.insertAdjacentHTML(
     "afterend",
     `

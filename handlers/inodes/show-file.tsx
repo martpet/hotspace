@@ -1,8 +1,10 @@
 import { signCloudFrontUrl } from "$aws";
+import { asset } from "$server";
 import { STATUS_CODE } from "@std/http";
 import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
 import Chat from "../../snippets/chat/ChatSection.tsx";
 import FilePreview from "../../snippets/FilePreview.tsx";
+import ButtonDelete from "../../snippets/inodes/ButtonDelete.tsx";
 import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";
 import Page from "../../snippets/pages/Page.tsx";
 import {
@@ -12,13 +14,13 @@ import {
 } from "../../util/consts.ts";
 import { getDir, getInode } from "../../util/kv/inodes.ts";
 import { type AppContext, FileNode } from "../../util/types.ts";
-import { parsePath } from "../../util/url.ts";
+import { parsePathname } from "../../util/url.ts";
 
 const IS_PUBLIC_ACCESS_ENABLED = true;
 
 export default async function showFileHandler(ctx: AppContext) {
   const { user } = ctx.state;
-  const path = parsePath(ctx.url.pathname);
+  const path = parsePathname(ctx.url.pathname);
 
   if (path.isRootSegment) {
     return ctx.redirect(ctx.req.url + "/", STATUS_CODE.PermanentRedirect);
@@ -69,17 +71,25 @@ export default async function showFileHandler(ctx: AppContext) {
     });
   }
 
+  const head = (
+    <>
+      <script type="module" src={asset("inodes/owner_common.js")} />
+      <meta name="robots" content="noindex, nofollow" />
+    </>
+  );
+
   return (
     <Page
       title={fileName}
+      head={head}
       header={{ breadcrumb: true }}
-      head={<meta name="robots" content="noindex, nofollow" />}
     >
       <h1>{fileName}</h1>
 
       {isOwner && (
         <menu class="inodes-menu">
           <ButtonToggleChat chatEnabled={fileNode.chatEnabled} />
+          <ButtonDelete />
         </menu>
       )}
 

@@ -1,3 +1,4 @@
+import { asset } from "$server";
 import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
 import ChatSection from "../../snippets/chat/ChatSection.tsx";
 import ButtonCreateDir from "../../snippets/inodes/ButtonCreateDir.tsx";
@@ -7,11 +8,11 @@ import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";
 import Page from "../../snippets/pages/Page.tsx";
 import { getDir, listInodesByDir } from "../../util/kv/inodes.ts";
 import type { AppContext } from "../../util/types.ts";
-import { parsePath } from "../../util/url.ts";
+import { parsePathname } from "../../util/url.ts";
 
 export default async function showInodeHandler(ctx: AppContext) {
   const { user } = ctx.state;
-  const path = parsePath(ctx.url.pathname);
+  const path = parsePathname(ctx.url.pathname);
   const dirNode = (await getDir(path.segments, "eventual")).value;
   if (!dirNode) return <NotFoundPage />;
 
@@ -40,12 +41,19 @@ export default async function showInodeHandler(ctx: AppContext) {
     return ctx.jsxFragment(chatSection);
   }
 
+  const head = (
+    <>
+      <script type="module" src={asset("inodes/owner_common.js")} />
+      <meta name="robots" content="noindex, nofollow" />
+    </>
+  );
+
   return (
     <Page
       id="inodes-page"
       title={dirNode.name}
+      head={head}
       header={{ breadcrumb: true }}
-      head={<meta name="robots" content="noindex, nofollow" />}
     >
       <h1>{dirNode.name}</h1>
       {isOwner && (

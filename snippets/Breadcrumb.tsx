@@ -1,9 +1,9 @@
 import { AppContext } from "../util/types.ts";
-import { parsePath } from "../util/url.ts";
+import { parsePathname } from "../util/url.ts";
 
 export default function Breadcrumb(_: unknown, ctx: AppContext) {
   const { user } = ctx.state;
-  const path = parsePath(ctx.url.pathname);
+  const path = parsePathname(ctx.url.pathname);
   const segments = path.parentSegments;
 
   return (

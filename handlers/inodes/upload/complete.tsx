@@ -7,13 +7,16 @@ import {
   AWS_REGION,
   INODES_BUCKET,
 } from "../../../util/consts.ts";
+import { enqueue } from "../../../util/kv/enqueue.ts";
 import {
   getDir,
   keys as inodesKeys,
   setInode,
 } from "../../../util/kv/inodes.ts";
 import { kv } from "../../../util/kv/kv.ts";
-import { enqueueDeleteS3Objects } from "../../../util/kv/queue_handlers/delete_s3_objects.ts";
+import {
+  QueueMsgDeleteS3Objects,
+} from "../../../util/kv/queue_handlers/delete_s3_objects.ts";
 import { setUploadSize } from "../../../util/kv/upload_size.ts";
 import type {
   AppContext,
@@ -21,7 +24,7 @@ import type {
   FileNode,
   User,
 } from "../../../util/types.ts";
-import { parsePath } from "../../../util/url.ts";
+import { parsePathname } from "../../../util/url.ts";
 
 type ReqData = {
   uploads: CompletedUpload[];
@@ -42,7 +45,7 @@ export default async function completeUploadHandler(ctx: AppContext) {
   }
 
   const { uploads, pathname } = reqData;
-  const path = parsePath(pathname);
+  const path = parsePathname(pathname);
 
   let parentDirEntry = await getDir(path.segments);
 
@@ -82,8 +85,11 @@ export default async function completeUploadHandler(ctx: AppContext) {
       }
 
       if (!checkDirOwner(parentDirEntry, user)) {
-        const s3Keys = uploads.map((u) => u.s3Key);
-        await enqueueDeleteS3Objects(s3Keys, INODES_BUCKET).commit();
+        await enqueue<QueueMsgDeleteS3Objects>({
+          type: "delete-s3-objects",
+          s3Keys: uploads.map((u) => u.s3Key),
+          bucket: INODES_BUCKET,
+        }).commit();
         return ctx.respond(null, STATUS_CODE.Forbidden);
       }
 

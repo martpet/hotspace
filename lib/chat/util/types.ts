@@ -31,7 +31,7 @@ export interface ChatSub {
   hasCurrentNotification?: boolean;
 }
 
-export interface PushChatNotificationQueueMsg {
+export interface QueueMsgPushChatNotification {
   type: "push-chat-notification";
   chatId: string;
   chatMsgId: string;

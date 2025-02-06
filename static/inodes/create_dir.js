@@ -17,13 +17,13 @@ btnShowDialog.disabled = false;
 // Events
 // =====================
 
-btnShowDialog.addEventListener("click", () => {
+btnShowDialog.onclick = () => {
   if (!dialog) {
     renderDialog();
     initDialogEvents();
   }
   statusSignal.value = "idle";
-});
+};
 
 function initDialogEvents() {
   btnClose.onclick = () => {

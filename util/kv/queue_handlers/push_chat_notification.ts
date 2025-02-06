@@ -2,7 +2,7 @@ import {
   ChatSub,
   deleteChatSub,
   listChatSubs,
-  type PushChatNotificationQueueMsg,
+  type QueueMsgPushChatNotification,
   setChatSub,
 } from "$chat";
 import { newQueue } from "@henrygd/queue";
@@ -19,10 +19,15 @@ import { keys as subscribersKeys } from "../push_subscribers.ts";
 
 export function isPushChatNotification(
   msg: unknown,
-): msg is PushChatNotificationQueueMsg {
-  const { type, chatId, chatMsgId, chatTitle, chatPageUrl } = msg as Partial<
-    PushChatNotificationQueueMsg
-  >;
+): msg is QueueMsgPushChatNotification {
+  const {
+    type,
+    chatId,
+    chatMsgId,
+    chatTitle,
+    chatPageUrl,
+  } = msg as Partial<QueueMsgPushChatNotification>;
+
   return typeof msg === "object" &&
     type === "push-chat-notification" &&
     typeof chatId === "string" &&
@@ -38,7 +43,7 @@ export async function handlePushChatNotification(
     chatTitle,
     chatPageUrl,
     nonce,
-  }: PushChatNotificationQueueMsg,
+  }: QueueMsgPushChatNotification,
 ) {
   const nonceEntry = await getQueueNonce(nonce);
   if (!nonceEntry.value) return;

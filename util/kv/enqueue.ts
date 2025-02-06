@@ -1,18 +1,19 @@
-import { ulid } from "@std/ulid";
 import { kv } from "./kv.ts";
 
-export function enqueue(
-  msg: { type: string; nonce?: string },
+export function enqueue<T extends { type: string; nonce?: string }>(
+  msg: T,
   atomic: Deno.AtomicOperation = kv.atomic(),
 ) {
-  msg.nonce = ulid();
-  setQueueNonce(msg.nonce, atomic);
-  return atomic.enqueue(msg, {
-    keysIfUndelivered: [
+  let keysIfUndelivered;
+
+  if (msg.nonce) {
+    setQueueNonce(msg.nonce, atomic);
+    keysIfUndelivered = [
       ["failed_queue_msgs", msg.nonce],
       ["failed_queue_msgs_by_type", msg.type, msg.nonce],
-    ],
-  });
+    ];
+  }
+  return atomic.enqueue(msg, { keysIfUndelivered });
 }
 
 export function setQueueNonce(nonce: string, atomic: Deno.AtomicOperation) {

@@ -1,4 +1,4 @@
-import { handleCleanupChat, isCleanupChat } from "./cleanup_chat.ts";
+import { handleDeleteChat, isDeleteChat } from "./delete_chat.ts";
 import {
   handleDeleteS3Objects,
   isDeleteS3Objects,
@@ -9,12 +9,12 @@ import {
 } from "./push_chat_notification.ts";
 
 export function queueHandler(msg: unknown) {
-  if (isCleanupChat(msg)) {
-    handleCleanupChat(msg);
+  if (isDeleteChat(msg)) {
+    return handleDeleteChat(msg);
   } else if (isPushChatNotification(msg)) {
-    handlePushChatNotification(msg);
+    return handlePushChatNotification(msg);
   } else if (isDeleteS3Objects(msg)) {
-    handleDeleteS3Objects(msg);
+    return handleDeleteS3Objects(msg);
   } else {
     console.error("Unknown KV Queue msg received", msg);
   }

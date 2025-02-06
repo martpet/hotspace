@@ -1,6 +1,6 @@
 import { DIRNODE_NAME_CONSTRAINTS } from "./constraints.ts";
 
-export function parsePath(pathname: string) {
+export function parsePathname(pathname: string) {
   const segments = pathToSegments(pathname);
   if (!segments.length) {
     throw new Error("Pathname has no segments");

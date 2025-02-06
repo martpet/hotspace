@@ -1018,8 +1018,8 @@ function insertMsgMenuMaybe(msgEl) {
     "beforeend",
     `
       <span class="chat-msg-menu">
-        <button type="button" class="show-msg-dialog-btn edit-btn">Edit</button>
-        <button type="button" class="show-msg-dialog-btn del-btn">
+        <button class="show-msg-dialog-btn edit-btn">Edit</button>
+        <button class="show-msg-dialog-btn del-btn">
           Delete
         </button>
       </span>

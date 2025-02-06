@@ -27,6 +27,18 @@ export function setInode({
   return atomic.set(keys.inodesByDir(parentDirId, inode.name), inode);
 }
 
+export function deleteInode({
+  inode,
+  parentDirId,
+  atomic = kv.atomic(),
+}: {
+  inode: Inode;
+  parentDirId: string;
+  atomic?: Deno.AtomicOperation;
+}) {
+  return atomic.delete(keys.inodesByDir(parentDirId, inode.name));
+}
+
 export function getInode<T = Inode>({
   inodeName,
   parentDirId,
