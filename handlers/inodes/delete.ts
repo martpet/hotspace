@@ -1,4 +1,4 @@
-import { STATUS_CODE } from "@std/http/status";
+import { STATUS_CODE } from "@std/http";
 import { GENERAL_ERR_MSG, INODES_BUCKET } from "../../util/consts.ts";
 import { enqueue } from "../../util/kv/enqueue.ts";
 import { deleteInode, getDir, getInode } from "../../util/kv/inodes.ts";
@@ -13,6 +13,12 @@ interface FormEntries {
 }
 
 export default async function deleteInodeHandler(ctx: AppContext) {
+  const { user } = ctx.state;
+
+  if (!user) {
+    return ctx.respond(null, STATUS_CODE.Forbidden);
+  }
+
   const formData = await ctx.req.formData();
   const formEntries = Object.fromEntries(formData.entries());
 
@@ -37,6 +43,11 @@ export default async function deleteInodeHandler(ctx: AppContext) {
   if (!fileNode) {
     ctx.setFlash({ type: "error", msg: `Not Found` });
     return ctx.redirect(parentDirPath);
+  }
+
+  if (fileNode.ownerId !== user.id) {
+    ctx.setFlash({ type: "error", msg: "Not Allowed" });
+    return ctx.redirectBack();
   }
 
   const atomic = kv.atomic();
