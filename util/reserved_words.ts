@@ -31,6 +31,7 @@ export const reservedWords = [
   "profile",
   "profiles",
   "register",
+  "settings",
   "signin",
   "signup",
   "space",
