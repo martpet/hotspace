@@ -1,13 +1,13 @@
+import { asset } from "$server";
 import type { AppContext } from "../../util/types.ts";
 import { parsePathname } from "../../util/url.ts";
-
-// Uses /static/inodes/owner_common.js
 
 export default function ButtonDelete(_: unknown, ctx: AppContext) {
   const { isDir, lastSegment } = parsePathname(ctx.url.pathname);
 
   return (
     <>
+      <script type="module" src={asset("inodes/delete.js")} />
       <button
         id="delete-inode"
         disabled

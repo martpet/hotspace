@@ -1,5 +1,4 @@
 import { signCloudFrontUrl } from "$aws";
-import { asset } from "$server";
 import { STATUS_CODE } from "@std/http";
 import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
 import Chat from "../../snippets/chat/ChatSection.tsx";
@@ -71,17 +70,10 @@ export default async function showFileHandler(ctx: AppContext) {
     });
   }
 
-  const head = (
-    <>
-      <script type="module" src={asset("inodes/owner_common.js")} />
-      <meta name="robots" content="noindex, nofollow" />
-    </>
-  );
-
   return (
     <Page
       title={fileName}
-      head={head}
+      head={<meta name="robots" content="noindex, nofollow" />}
       header={{ breadcrumb: true }}
     >
       <h1>{fileName}</h1>

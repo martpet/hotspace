@@ -1,4 +1,3 @@
-import { asset } from "$server";
 import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
 import ChatSection from "../../snippets/chat/ChatSection.tsx";
 import ButtonCreateDir from "../../snippets/inodes/ButtonCreateDir.tsx";
@@ -41,18 +40,11 @@ export default async function showInodeHandler(ctx: AppContext) {
     return ctx.jsxFragment(chatSection);
   }
 
-  const head = (
-    <>
-      <script type="module" src={asset("inodes/owner_common.js")} />
-      <meta name="robots" content="noindex, nofollow" />
-    </>
-  );
-
   return (
     <Page
       id="inodes-page"
       title={dirNode.name}
-      head={head}
+      head={<meta name="robots" content="noindex, nofollow" />}
       header={{ breadcrumb: true }}
     >
       <h1>{dirNode.name}</h1>
