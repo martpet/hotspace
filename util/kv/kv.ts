@@ -8,3 +8,9 @@ export function watch<T extends unknown[]>(
 ) {
   return watchKv(kv, ...args);
 }
+
+export function getKvSumBigInt(n: number) {
+  if (n >= 0) return BigInt(n);
+  const abs = BigInt(Math.abs(n));
+  return (2n ** 64n) - abs;
+}

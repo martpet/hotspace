@@ -5,6 +5,7 @@ import { deleteInode, getDir, getInode } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { type QueueMsgDeleteChat } from "../../util/kv/queue_handlers/delete_chat.ts";
 import { type QueueMsgDeleteS3Objects } from "../../util/kv/queue_handlers/delete_s3_objects.ts";
+import { setUploadSize } from "../../util/kv/upload_size.ts";
 import type { AppContext, FileNode } from "../../util/types.ts";
 import { parsePathname } from "../../util/url.ts";
 
@@ -55,6 +56,12 @@ export default async function deleteInodeHandler(ctx: AppContext) {
   deleteInode({
     inode: fileNode,
     parentDirId: parentDir.id,
+    atomic,
+  });
+
+  setUploadSize({
+    user,
+    size: -fileNode.fileSize,
     atomic,
   });
 
