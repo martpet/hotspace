@@ -1,10 +1,12 @@
 :root {
   --text-grey: darkGrey;
   --border-grey: lightGray;
+  --border-grey-light: #ebebeb;
 
   @media (prefers-color-scheme: dark) {
     --text-grey: rgba(255, 255, 255, 0.35);
     --border-grey: rgba(255, 255, 255, 0.2);
+    --border-grey-light: rgba(255, 255, 255, 0.07);
   }
 }
 
@@ -299,21 +301,52 @@ button.wait-disabled[disabled] {
   margin-bottom: 1.5rem;
 }
 
-.inodes-list {
-  margin-block: 1.3em;
-  padding-inline: 0;
-  list-style: none;
-  li {
-    padding: 0.2em 0;
-    display: flex;
-    align-items: center;
-    gap: 0.5em;
-    &.dir::before {
-      content: "📁";
-      font-size: 1.2em;
+.inodes-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  &#inodes:not(:has(tbody tr)) {
+    display: none;
+  }
+  th,
+  td {
+    padding-inline: 1em;
+    &:first-child {
+      padding-left: 0;
     }
-    &.file::before {
-      content: "📄";
+  }
+  th {
+    padding-bottom: 0.3em;
+    font-weight: 600;
+    text-align: initial;
+    border-bottom: 2px solid var(--border-grey-light);
+
+    &.chbox {
+      width: 30px;
+    }
+    &.name,
+    &.size {
+      resize: horizontal;
+      overflow: auto;
+    }
+  }
+  td {
+    padding-block: 0.5em;
+    border-bottom: 1px solid var(--border-grey-light);
+    &.name {
+      &::before {
+        margin-right: 0.7em;
+        font-size: 19px;
+      }
+      &.dir::before {
+        content: "📁";
+      }
+      &.file::before {
+        content: "📄";
+      }
+    }
+    &:first-child {
+      border-right: 1px solid var(--border-grey-light);
     }
   }
 }

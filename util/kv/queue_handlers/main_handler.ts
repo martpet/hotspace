@@ -8,13 +8,13 @@ import {
   isPushChatNotification,
 } from "./push_chat_notification.ts";
 
-export function queueHandler(msg: unknown) {
+export async function queueHandler(msg: unknown) {
   if (isDeleteChat(msg)) {
-    return handleDeleteChat(msg);
+    await handleDeleteChat(msg);
   } else if (isPushChatNotification(msg)) {
-    return handlePushChatNotification(msg);
+    await handlePushChatNotification(msg);
   } else if (isDeleteS3Objects(msg)) {
-    return handleDeleteS3Objects(msg);
+    await handleDeleteS3Objects(msg);
   } else {
     console.error("Unknown KV Queue msg received", msg);
   }

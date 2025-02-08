@@ -91,7 +91,7 @@ export default async function showFileHandler(ctx: AppContext) {
       />
 
       <p>
-        <a href={fileUrl} target="_blank">Open file &#x2197;</a>
+        <a href={fileUrl} target="_blank">Open File &#x2197;</a>
       </p>
 
       {chatSection}

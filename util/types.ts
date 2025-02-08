@@ -59,18 +59,20 @@ export interface PushSubscriber {
   pushSubUpdatedAt: Date;
 }
 
-export interface Inode extends ChatResource {
-  type: "dir" | "file";
+interface InodeBase extends ChatResource {
+  type: string;
   name: string;
   ownerId: string;
   description?: string;
 }
 
-export interface DirNode extends Inode {
+export type Inode = DirNode | FileNode;
+
+export interface DirNode extends InodeBase {
   type: "dir";
 }
 
-export interface FileNode extends Inode {
+export interface FileNode extends InodeBase {
   type: "file";
   fileType: string;
   fileSize: number;

@@ -2,7 +2,7 @@ import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
 import ChatSection from "../../snippets/chat/ChatSection.tsx";
 import ButtonCreateDir from "../../snippets/inodes/ButtonCreateDir.tsx";
 import ButtonUpload from "../../snippets/inodes/ButtonUpload.tsx";
-import InodesList from "../../snippets/inodes/InodesList.tsx";
+import InodesTable from "../../snippets/inodes/InodesTable.tsx";
 import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";
 import Page from "../../snippets/pages/Page.tsx";
 import { getDir, listInodesByDir } from "../../util/kv/inodes.ts";
@@ -21,10 +21,16 @@ export default async function showInodeHandler(ctx: AppContext) {
     consistency: fragmentId ? "strong" : "eventual",
   });
 
-  const inodesList = <InodesList id="inodes" inodes={inodes} />;
+  const inodesTable = (
+    <InodesTable
+      id="inodes"
+      inodes={inodes}
+      isOwner={isOwner}
+    />
+  );
 
   if (fragmentId === "inodes") {
-    return ctx.jsxFragment(inodesList);
+    return ctx.jsxFragment(inodesTable);
   }
 
   const chatSection = (
@@ -55,7 +61,7 @@ export default async function showInodeHandler(ctx: AppContext) {
           <ButtonToggleChat chatEnabled={dirNode.chatEnabled} />
         </menu>
       )}
-      {inodesList}
+      {inodesTable}
       {chatSection}
     </Page>
   );
