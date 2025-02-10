@@ -12,7 +12,7 @@ export default function FilePreview({ inode, url }: Props) {
   return (
     <>
       {mainType === "image" && (
-        <a href={url} target="_blank">
+        <a href={url}>
           <img src={url} height={200} />
         </a>
       )}
