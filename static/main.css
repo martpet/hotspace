@@ -2,13 +2,15 @@
   --text-grey: darkGrey;
   --border-grey: lightGray;
   --border-grey-light: #ebebeb;
-  --bg-light: #f2f2f2;
+  --bg-light: oklch(from Canvas calc(l - 0.04) c h);
+  --bg-highlight-light: oklch(from Highlight calc(l + 0.16) calc(c - 0.1) h);
 
   @media (prefers-color-scheme: dark) {
     --text-grey: rgba(255, 255, 255, 0.35);
-    --border-grey: rgba(255, 255, 255, 0.2);
-    --border-grey-light: rgba(255, 255, 255, 0.07);
-    --bg-light: rgba(0, 0, 0, 0.5);
+    --border-grey: oklab(from Canvas calc(l + 0.15) a b);
+    --border-grey-light: oklab(from Canvas calc(l + 0.06) a b);
+    --bg-light: oklch(from Canvas calc(l + 0.03) c h);
+    --bg-highlight-light: var(--bg-light);
   }
 }
 
@@ -40,6 +42,9 @@ html {
 body {
   margin: 0 1em;
   font: 14px/1.3 system-ui;
+  @media (max-width: 640px) {
+    margin-inline: 0.5em;
+  }
 }
 
 section {
@@ -310,15 +315,17 @@ button.wait-disabled[disabled] {
     width: 100%;
     border-spacing: 0;
   }
-  tr {
-    &:has(.chbox:hover) {
-      td {
-        background-color: var(--bg-light);
+  tbody {
+    tr {
+      &:has(.chbox:hover) {
+        background-color: var(--bg-highlight-light);
+        border-color: transparent;
       }
-    }
-    &:has(.chbox :checked) {
-      td {
+      &:has(.chbox :checked) {
         background-color: Highlight;
+        td {
+          border-color: transparent;
+        }
       }
     }
   }
@@ -330,7 +337,7 @@ button.wait-disabled[disabled] {
     }
   }
   th {
-    padding-bottom: 0.3em;
+    padding-block: 0.3em;
     font-weight: 600;
     text-align: initial;
     border-bottom: 2px solid var(--border-grey-light);
@@ -340,9 +347,14 @@ button.wait-disabled[disabled] {
   }
   td {
     padding-block: 0.5em;
-    border-bottom: 1px solid var(--border-grey-light);
+    border-style: solid;
+    border-width: 0 0 1px 0;
+    border-color: var(--border-grey-light);
     &:not(:last-child) {
-      border-right: 1px solid var(--border-grey-light);
+      border-right-width: 1px;
+    }
+    @media (prefers-color-scheme: dark) {
+      border-style: dotted;
     }
     &.name a {
       &::before {
@@ -368,7 +380,7 @@ button.wait-disabled[disabled] {
       padding: 0.5em 0;
       gap: 1em;
       align-items: center;
-      border-bottom: 1px solid var(--border-grey-light);
+      border-bottom: 1px dotted var(--border-grey-light);
     }
     td {
       padding: 0;
@@ -393,6 +405,14 @@ button.wait-disabled[disabled] {
 #inodes-page {
   #chat {
     margin-top: 3rem;
+  }
+  #inodes {
+    margin-top: 3em;
+    thead {
+      background: Canvas;
+      position: sticky;
+      top: 0;
+    }
   }
 }
 

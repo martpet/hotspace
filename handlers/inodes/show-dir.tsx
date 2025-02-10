@@ -16,7 +16,7 @@ export default async function showInodeHandler(ctx: AppContext) {
   if (!dirNode) return <NotFoundPage />;
 
   const fragmentId = ctx.url.searchParams.get("fragment");
-  const isOwner = dirNode.ownerId === user?.id;
+  const isDirOwner = dirNode.ownerId === user?.id;
   const inodes = await listInodesByDir(dirNode.id, {
     consistency: fragmentId ? "strong" : "eventual",
   });
@@ -25,7 +25,7 @@ export default async function showInodeHandler(ctx: AppContext) {
     <InodesTable
       id="inodes"
       inodes={inodes}
-      isOwner={isOwner}
+      isDirOwner={isDirOwner}
     />
   );
 
@@ -38,7 +38,7 @@ export default async function showInodeHandler(ctx: AppContext) {
       enabled={dirNode.chatEnabled}
       chatId={dirNode.id}
       chatTitle={dirNode.name}
-      isAdmin={isOwner}
+      isAdmin={isDirOwner}
     />
   );
 
@@ -54,7 +54,7 @@ export default async function showInodeHandler(ctx: AppContext) {
       header={{ breadcrumb: true }}
     >
       <h1>{dirNode.name}</h1>
-      {isOwner && (
+      {isDirOwner && (
         <menu class="inodes-menu">
           <ButtonUpload />
           <ButtonCreateDir />

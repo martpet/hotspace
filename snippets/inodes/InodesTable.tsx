@@ -6,11 +6,11 @@ import type { AppContext, Inode } from "../../util/types.ts";
 
 interface Props extends JSX.HTMLAttributes<HTMLDivElement> {
   inodes: Inode[];
-  isOwner: boolean;
+  isDirOwner: boolean;
 }
 
 export default function InodesTable(props: Props, ctx: AppContext) {
-  const { inodes, isOwner, ...divProps } = props;
+  const { inodes, isDirOwner, ...divProps } = props;
   let classes = `inodes-table`;
   if (divProps.class) classes += ` ${divProps.class}`;
 
@@ -23,7 +23,7 @@ export default function InodesTable(props: Props, ctx: AppContext) {
               <th class="name">Name</th>
               <th class="size">Size</th>
               <th class="created">Creation date</th>
-              {isOwner && (
+              {isDirOwner && (
                 <th class="chbox">
                   <input type="checkbox" />
                 </th>
@@ -42,7 +42,7 @@ export default function InodesTable(props: Props, ctx: AppContext) {
                 <td class="created">
                   {getRelativeTime(new Date(decodeTime(inode.id)), ctx.locale)}
                 </td>
-                {isOwner && (
+                {isDirOwner && (
                   <td class="chbox">
                     <input type="checkbox" />
                   </td>
