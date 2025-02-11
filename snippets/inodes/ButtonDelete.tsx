@@ -9,9 +9,9 @@ export default function ButtonDelete(_: unknown, ctx: AppContext) {
     <>
       <script type="module" src={asset("inodes/delete.js")} />
       <button
-        id="delete-inode"
-        disabled
+        id="delete-button"
         class="wait-disabled"
+        disabled
         data-inode-name={decodeURIComponent(lastSegment)}
       >
         Delete {isDir ? "Folder" : "File"}

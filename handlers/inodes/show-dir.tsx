@@ -1,5 +1,7 @@
+import { asset } from "$server";
 import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
 import ChatSection from "../../snippets/chat/ChatSection.tsx";
+import BatchOperationsButtons from "../../snippets/inodes/BatchOperationsButtons.tsx";
 import ButtonCreateDir from "../../snippets/inodes/ButtonCreateDir.tsx";
 import ButtonUpload from "../../snippets/inodes/ButtonUpload.tsx";
 import InodesTable from "../../snippets/inodes/InodesTable.tsx";
@@ -46,22 +48,35 @@ export default async function showInodeHandler(ctx: AppContext) {
     return ctx.jsxFragment(chatSection);
   }
 
+  const head = (
+    <>
+      <meta name="robots" content="noindex, nofollow" />
+      <script type="module" src={asset("inodes/batch_operations.js")} />
+      <link rel="stylesheet" href={asset("inodes/inodes.css")} />
+    </>
+  );
+
   return (
     <Page
-      id="inodes-page"
+      id="dir-page"
       title={dirNode.name}
-      head={<meta name="robots" content="noindex, nofollow" />}
+      head={head}
       header={{ breadcrumb: true }}
     >
-      <h1>{dirNode.name}</h1>
-      {isDirOwner && (
-        <menu class="inodes-menu">
-          <ButtonUpload />
-          <ButtonCreateDir />
-          <ButtonToggleChat chatEnabled={dirNode.chatEnabled} />
-        </menu>
-      )}
-      {inodesTable}
+      <header>
+        <h1>{dirNode.name}</h1>
+        {isDirOwner && (
+          <menu class="inodes-menu">
+            <ButtonUpload />
+            <ButtonCreateDir />
+            <ButtonToggleChat chatEnabled={dirNode.chatEnabled} />
+            <BatchOperationsButtons />
+          </menu>
+        )}
+      </header>
+      <div id="inodes-container">
+        {inodesTable}
+      </div>
       {chatSection}
     </Page>
   );

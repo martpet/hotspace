@@ -15,7 +15,7 @@ export default function ButtonUpload(props: Props) {
         class="wait-disabled"
         data-worker-src={asset(`/inodes/upload/worker.js`, { rawPath: true })}
       >
-        Upload…
+        Add Files…
       </button>
     </>
   );

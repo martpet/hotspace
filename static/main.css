@@ -2,15 +2,15 @@
   --text-grey: darkGrey;
   --border-grey: lightGray;
   --border-grey-light: #ebebeb;
-  --bg-light: oklch(from Canvas calc(l - 0.04) c h);
-  --bg-highlight-light: oklch(from Highlight calc(l + 0.16) calc(c - 0.1) h);
+  --bg-highlight: oklch(from Highlight calc(l + 0.1) calc(c - 0.07) h);
+  --bg-highlight-hover: oklch(from Highlight calc(l + 0.15) calc(c - 0.2) h);
 
   @media (prefers-color-scheme: dark) {
     --text-grey: rgba(255, 255, 255, 0.35);
     --border-grey: oklab(from Canvas calc(l + 0.15) a b);
-    --border-grey-light: oklab(from Canvas calc(l + 0.06) a b);
-    --bg-light: oklch(from Canvas calc(l + 0.03) c h);
-    --bg-highlight-light: var(--bg-light);
+    --border-grey-light: oklab(from Canvas calc(l + 0.07) a b);
+    --bg-highlight: oklch(from Highlight l c h / 0.4);
+    --bg-highlight-hover: oklch(from Canvas calc(l + 0.05) c h);
   }
 }
 
@@ -40,7 +40,7 @@ html {
 }
 
 body {
-  margin: 0 1em;
+  margin: 0 1em 5em;
   font: 14px/1.3 system-ui;
   @media (max-width: 640px) {
     margin-inline: 0.5em;
@@ -93,6 +93,10 @@ dialog {
   width: fit-content;
 }
 
+.wait-disabled[disabled] {
+  cursor: wait;
+}
+
 .basic-form {
   > label {
     display: flex;
@@ -136,10 +140,6 @@ dialog {
     background: red;
     color: white;
   }
-}
-
-button.wait-disabled[disabled] {
-  cursor: wait;
 }
 
 .spinner,
@@ -307,113 +307,6 @@ button.wait-disabled[disabled] {
 
 .spaces-list {
   margin-bottom: 1.5rem;
-}
-
-.inodes-table {
-  container-type: inline-size;
-  table {
-    width: 100%;
-    border-spacing: 0;
-  }
-  tbody {
-    tr {
-      &:has(.chbox:hover) {
-        background-color: var(--bg-highlight-light);
-        border-color: transparent;
-      }
-      &:has(.chbox :checked) {
-        background-color: Highlight;
-        td {
-          border-color: transparent;
-        }
-      }
-    }
-  }
-  th,
-  td {
-    padding-inline: 1em;
-    &:first-child {
-      padding-left: 0;
-    }
-  }
-  th {
-    padding-block: 0.3em;
-    font-weight: 600;
-    text-align: initial;
-    border-bottom: 2px solid var(--border-grey-light);
-    &.chbox {
-      width: 30px;
-    }
-  }
-  td {
-    padding-block: 0.5em;
-    border-style: solid;
-    border-width: 0 0 1px 0;
-    border-color: var(--border-grey-light);
-    &:not(:last-child) {
-      border-right-width: 1px;
-    }
-    @media (prefers-color-scheme: dark) {
-      border-style: dotted;
-    }
-    &.name a {
-      &::before {
-        display: inline-block;
-        margin-right: 0.6em;
-        font-size: 1.5em;
-        vertical-align: middle;
-      }
-      .dir &::before {
-        content: "📁";
-      }
-      .file &::before {
-        content: "📄";
-      }
-    }
-  }
-  @container (width < 640px) {
-    thead {
-      display: none;
-    }
-    tr {
-      display: flex;
-      padding: 0.5em 0;
-      gap: 1em;
-      align-items: center;
-      border-bottom: 1px dotted var(--border-grey-light);
-    }
-    td {
-      padding: 0;
-      border: none !important;
-      &:empty,
-      &.size {
-        display: none;
-      }
-      &.name {
-        margin-right: auto;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-      &.name a::before {
-        font-size: 1em;
-        margin-right: 0.5em;
-      }
-    }
-  }
-}
-
-#inodes-page {
-  #chat {
-    margin-top: 3rem;
-  }
-  #inodes {
-    margin-top: 3em;
-    thead {
-      background: Canvas;
-      position: sticky;
-      top: 0;
-    }
-  }
 }
 
 #upload-progress {

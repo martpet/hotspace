@@ -14,12 +14,7 @@ export default async function homeHandler(ctx: AppContext) {
     consistency: fragmentId ? "strong" : "eventual",
   });
 
-  const spacesList = (
-    <SpacesList
-      id="spaces"
-      dirs={rootDirs}
-    />
-  );
+  const spacesList = <SpacesList id="spaces" dirs={rootDirs} />;
 
   if (fragmentId === "spaces") {
     return ctx.jsxFragment(spacesList);

@@ -1,5 +1,10 @@
-import type { DirNode, Inode } from "../types.ts";
+import { INODES_BUCKET } from "../consts.ts";
+import type { DirNode, FileNode, Inode, User } from "../types.ts";
+import { enqueue } from "./enqueue.ts";
 import { kv } from "./kv.ts";
+import { type QueueMsgDeleteChat } from "./queue_handlers/delete_chat.ts";
+import { type QueueMsgDeleteS3Objects } from "./queue_handlers/delete_s3_objects.ts";
+import { setUploadSize } from "./upload_size.ts";
 
 export const keys = {
   inodesByDir: (
@@ -37,6 +42,46 @@ export function deleteInode({
   atomic?: Deno.AtomicOperation;
 }) {
   return atomic.delete(keys.inodesByDir(parentDirId, inode.name));
+}
+
+export function deleteFileNode({
+  fileNodeEntry,
+  parentDirId,
+  user,
+  atomic = kv.atomic(),
+}: {
+  fileNodeEntry: Deno.KvEntry<FileNode>;
+  parentDirId: string;
+  user: User;
+  atomic?: Deno.AtomicOperation;
+}) {
+  const fileNode = fileNodeEntry.value;
+  atomic.check(fileNodeEntry);
+
+  deleteInode({
+    inode: fileNode,
+    parentDirId,
+    atomic,
+  });
+
+  setUploadSize({
+    user,
+    size: -fileNode.fileSize,
+    atomic,
+  });
+
+  enqueue<QueueMsgDeleteChat>({
+    type: "delete-chat",
+    chatId: fileNode.id,
+  }, atomic);
+
+  enqueue<QueueMsgDeleteS3Objects>({
+    type: "delete-s3-objects",
+    s3Keys: [fileNode.s3Key],
+    bucket: INODES_BUCKET,
+  }, atomic);
+
+  return atomic;
 }
 
 export function getInode<T = Inode>({

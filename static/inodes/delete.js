@@ -1,4 +1,4 @@
-const button = document.getElementById("delete-inode");
+const button = document.getElementById("delete-button");
 let dialog;
 let form;
 let closeButton;
@@ -6,16 +6,12 @@ let closeButton;
 button.disabled = false;
 
 button.onclick = () => {
-  showDeleteDialog();
-};
-
-function showDeleteDialog() {
   if (!dialog) {
     insertDialog();
     initDialogEvents();
   }
   dialog.showModal();
-}
+};
 
 function initDialogEvents() {
   closeButton.onclick = () => {
@@ -33,7 +29,7 @@ function insertDialog() {
   button.insertAdjacentHTML(
     "afterend",
     `
-        <dialog id="delete-inode-dialog" autofocus>
+        <dialog id="delete-inode-dialog" >
           <h1>${title}</h1>
           <form action="/inodes/delete" method="post" class="basic-form">
             <input type="hidden" name="pathname" value="${location.pathname}" />
@@ -43,7 +39,7 @@ function insertDialog() {
             </p>
             <label>
               <span>To confirm, type <em>${kewordConfirm}</em></span>
-              <input type="text" required pattern="${kewordConfirm}" />
+              <input type="text" autofocus required pattern="${kewordConfirm}" />
             </label>
             <footer>
               <button type="button" id="close-dialog">Cancel</button>

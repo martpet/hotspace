@@ -7,7 +7,7 @@
 }
 
 #chat {
-  --msg-hover-color: var(--bg-light);
+  --msg-hover-color: var(--bg-highlight-hover);
   --red-color: crimson;
   @media (prefers-color-scheme: dark) {
     --red-color: darkred;
@@ -31,8 +31,8 @@
   flex-direction: column;
   overflow: auto;
   resize: both;
-  width: 23rem;
-  height: 19rem;
+  width: 30em;
+  height: 25em;
   min-height: 5rem;
   min-width: 10rem;
   max-width: 100%;

@@ -4,20 +4,20 @@ import { type JSX } from "preact";
 import { getRelativeTime } from "../../lib/util/time.ts";
 import type { AppContext, Inode } from "../../util/types.ts";
 
-interface Props extends JSX.HTMLAttributes<HTMLDivElement> {
+interface Props extends JSX.HTMLAttributes<HTMLTableElement> {
   inodes: Inode[];
   isDirOwner: boolean;
 }
 
 export default function InodesTable(props: Props, ctx: AppContext) {
-  const { inodes, isDirOwner, ...divProps } = props;
+  const { inodes, isDirOwner, ...tableProps } = props;
   let classes = `inodes-table`;
-  if (divProps.class) classes += ` ${divProps.class}`;
+  if (tableProps.class) classes += ` ${tableProps.class}`;
 
   return (
-    <div {...divProps} class={classes}>
+    <table {...tableProps} class={classes}>
       {inodes.length > 0 && (
-        <table>
+        <>
           <thead>
             <tr>
               <th class="name">Name</th>
@@ -25,7 +25,7 @@ export default function InodesTable(props: Props, ctx: AppContext) {
               <th class="created">Creation date</th>
               {isDirOwner && (
                 <th class="chbox">
-                  <input type="checkbox" />
+                  <input type="checkbox" autocomplete="off" />
                 </th>
               )}
             </tr>
@@ -40,19 +40,22 @@ export default function InodesTable(props: Props, ctx: AppContext) {
                   {inode.type === "file" ? formatBytes(inode.fileSize) : ""}
                 </td>
                 <td class="created">
-                  {getRelativeTime(new Date(decodeTime(inode.id)), ctx.locale)}
+                  {getRelativeTime(
+                    new Date(decodeTime(inode.id)),
+                    ctx.locale,
+                  )}
                 </td>
                 {isDirOwner && (
                   <td class="chbox">
-                    <input type="checkbox" />
+                    <input type="checkbox" autocomplete="off" />
                   </td>
                 )}
               </tr>
             ))}
           </tbody>
-        </table>
+        </>
       )}
-    </div>
+    </table>
   );
 }
 
