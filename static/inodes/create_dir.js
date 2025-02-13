@@ -19,7 +19,7 @@ btnShowDialog.disabled = false;
 
 btnShowDialog.onclick = () => {
   if (!dialog) {
-    renderDialog();
+    insertDialog();
     initDialogEvents();
   }
   statusSignal.value = "idle";
@@ -97,7 +97,7 @@ async function submitData() {
 // Rendering
 // =====================
 
-function renderDialog() {
+function insertDialog() {
   const title = btnShowDialog.textContent.replace("…", "");
   btnShowDialog.insertAdjacentHTML(
     "afterend",

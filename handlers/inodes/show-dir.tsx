@@ -15,7 +15,10 @@ export default async function showInodeHandler(ctx: AppContext) {
   const { user } = ctx.state;
   const path = parsePathname(ctx.url.pathname);
   const dirNode = (await getDir(path.segments, "eventual")).value;
-  if (!dirNode) return <NotFoundPage />;
+
+  if (!dirNode) {
+    return <NotFoundPage header={{ breadcrumb: true }} />;
+  }
 
   const fragmentId = ctx.url.searchParams.get("fragment");
   const isDirOwner = dirNode.ownerId === user?.id;
@@ -51,7 +54,6 @@ export default async function showInodeHandler(ctx: AppContext) {
   const head = (
     <>
       <meta name="robots" content="noindex, nofollow" />
-      <script type="module" src={asset("inodes/batch_operations.js")} />
       <link rel="stylesheet" href={asset("inodes/inodes.css")} />
     </>
   );

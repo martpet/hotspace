@@ -11,14 +11,14 @@ const importmap = {
   },
 };
 
-interface Props extends JSX.HTMLAttributes<HTMLBodyElement> {
+export interface PageProps extends JSX.HTMLAttributes<HTMLBodyElement> {
   children?: ComponentChildren;
   head?: JSX.Element;
   title?: string;
   header?: PageHeaderProps;
 }
 
-export default function Page(props: Props, ctx: AppContext) {
+export default function Page(props: PageProps, ctx: AppContext) {
   const { flash, userAgent } = ctx;
   const {
     children,

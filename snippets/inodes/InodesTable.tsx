@@ -25,7 +25,7 @@ export default function InodesTable(props: Props, ctx: AppContext) {
               <th class="created">Creation date</th>
               {isDirOwner && (
                 <th class="chbox">
-                  <input type="checkbox" autocomplete="off" />
+                  <Checkbox />
                 </th>
               )}
             </tr>
@@ -33,7 +33,7 @@ export default function InodesTable(props: Props, ctx: AppContext) {
           <tbody>
             {inodes.sort(sortInodes).map((inode) => (
               <tr>
-                <td class={`name ${inode.type}`}>
+                <td class="name">
                   <InodeAnchor inode={inode} />
                 </td>
                 <td class="size">
@@ -47,7 +47,9 @@ export default function InodesTable(props: Props, ctx: AppContext) {
                 </td>
                 {isDirOwner && (
                   <td class="chbox">
-                    <input type="checkbox" autocomplete="off" />
+                    <label>
+                      <Checkbox />
+                    </label>
                   </td>
                 )}
               </tr>
@@ -59,17 +61,27 @@ export default function InodesTable(props: Props, ctx: AppContext) {
   );
 }
 
+function Checkbox() {
+  return (
+    <input
+      type="checkbox"
+      autocomplete="off"
+      disabled
+      class="wait-disabled"
+    />
+  );
+}
+
 function InodeAnchor(props: { inode: Inode }) {
   const { inode } = props;
   let href = `./${inode.name}`;
   let name = inode.name;
-
   if (inode.type === "file") {
     name = decodeURIComponent(name);
   } else {
     href = href + "/";
   }
-  return <a href={href}>{name}</a>;
+  return <a href={href} class={`inode ${inode.type}`}>{name}</a>;
 }
 
 function sortInodes(a: Inode, b: Inode) {

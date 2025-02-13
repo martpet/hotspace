@@ -1,7 +1,11 @@
+import { asset } from "$server";
+
 export default function BatchOperationsButtons() {
   return (
     <div id="batch-operations-buttons" hidden>
-      <button id="delete-button">
+      <script type="module" src={asset("inodes/delete.js")} />
+
+      <button id="batch-delete-button">
         Delete Selected
       </button>
     </div>

@@ -2,15 +2,15 @@
   --text-grey: darkGrey;
   --border-grey: lightGray;
   --border-grey-light: #ebebeb;
-  --bg-highlight: oklch(from Highlight calc(l + 0.1) calc(c - 0.07) h);
-  --bg-highlight-hover: oklch(from Highlight calc(l + 0.15) calc(c - 0.2) h);
+  --bg-highlight: oklch(from Highlight calc(l + 0.1) calc(c - 0.06) h);
+  --bg-light: #eee;
 
   @media (prefers-color-scheme: dark) {
     --text-grey: rgba(255, 255, 255, 0.35);
     --border-grey: oklab(from Canvas calc(l + 0.15) a b);
     --border-grey-light: oklab(from Canvas calc(l + 0.07) a b);
     --bg-highlight: oklch(from Highlight l c h / 0.4);
-    --bg-highlight-hover: oklch(from Canvas calc(l + 0.05) c h);
+    --bg-light: oklch(from Canvas calc(l + 0.05) c h);
   }
 }
 

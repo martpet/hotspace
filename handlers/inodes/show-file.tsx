@@ -1,5 +1,6 @@
 import { signCloudFrontUrl } from "$aws";
 import { STATUS_CODE } from "@std/http";
+import { asset } from "../../lib/server/util/asset_path.ts";
 import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
 import Chat from "../../snippets/chat/ChatSection.tsx";
 import FilePreview from "../../snippets/FilePreview.tsx";
@@ -28,7 +29,7 @@ export default async function showFileHandler(ctx: AppContext) {
   const parentDir = (await getDir(path.parentSegments, "eventual")).value;
 
   if (!parentDir) {
-    return <NotFoundPage />;
+    return <NotFoundPage header={{ breadcrumb: true }} />;
   }
 
   const fragmentId = ctx.url.searchParams.get("fragment");
@@ -70,10 +71,18 @@ export default async function showFileHandler(ctx: AppContext) {
     });
   }
 
+  const head = (
+    <>
+      <meta name="robots" content="noindex, nofollow" />
+      <link rel="stylesheet" href={asset("inodes/inodes.css")} />
+    </>
+  );
+
   return (
     <Page
+      id="file-page"
       title={fileName}
-      head={<meta name="robots" content="noindex, nofollow" />}
+      head={head}
       header={{ breadcrumb: true }}
     >
       <h1>{fileName}</h1>
@@ -84,16 +93,13 @@ export default async function showFileHandler(ctx: AppContext) {
           <ButtonDelete />
         </menu>
       )}
-
       <FilePreview
         inode={fileNode}
         url={fileUrl}
       />
-
       <p>
-        <a href={fileUrl} target="_blank">Open File &#x2197;</a>
+        <a href={fileUrl} target="_blank">Open File ↗</a>
       </p>
-
       {chatSection}
     </Page>
   );

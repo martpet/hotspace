@@ -23,8 +23,8 @@ export default async function deleteInodeHandler(ctx: AppContext) {
   }
 
   const { parentSegments, lastSegment } = parsePathname(formEntries.pathname);
-  const parentDirPath = `/${parentSegments.join("/")}/`;
   const parentDir = (await getDir(parentSegments)).value;
+  const parentDirPath = `/${parentSegments.join("/")}/`;
 
   if (!parentDir) {
     ctx.setFlash({ type: "error", msg: `Not Found` });

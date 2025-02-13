@@ -2,18 +2,61 @@
   #chat {
     margin-top: 3rem;
   }
-  #inodes {
-    margin-top: 2em;
-    /* thead {
-      background: Canvas;
-      position: sticky;
-      top: 0;
-    } */
+}
+
+#batch-delete-dialog {
+  width: 35em;
+  max-width: 100%;
+}
+
+#batch-delete-list {
+  padding: 1em;
+  border: 1px dotted var(--border-grey);
+  list-style: none;
+  li + li {
+    margin-top: 0.7em;
+  }
+  li::after {
+    content: "↗";
+    margin-left: 0.8em;
+    font-size: 0.8em;
+  }
+  .inode::before {
+    font-size: 1.2em;
+    margin-right: 0.3em;
   }
 }
 
 #batch-operations-buttons {
   margin-left: auto;
+}
+
+#delete-inode-dialog {
+  max-width: 30em;
+}
+
+#inodes {
+  margin-top: 1em;
+  thead {
+    background: Canvas;
+    position: sticky;
+    top: 0;
+  }
+}
+
+a.inode {
+  &::before {
+    display: inline-block;
+    margin-right: 0.6em;
+    font-size: 1.5em;
+    vertical-align: middle;
+  }
+  &.dir::before {
+    content: "📁";
+  }
+  &.file::before {
+    content: "📄";
+  }
 }
 
 #inodes-container {
@@ -26,7 +69,7 @@
   tbody {
     tr {
       &:has(.chbox:hover) {
-        background-color: var(--bg-highlight-hover);
+        background-color: var(--bg-light);
       }
       &:has(.chbox :checked) {
         background-color: var(--bg-highlight);
@@ -50,7 +93,7 @@
     text-align: initial;
     border-bottom: 2px solid var(--border-grey-light);
     &.chbox {
-      width: 30px;
+      width: 1px;
     }
   }
   td {
@@ -61,18 +104,14 @@
     &:not(:last-child) {
       border-right-width: 1px;
     }
-    &.name a {
-      &::before {
-        display: inline-block;
-        margin-right: 0.6em;
-        font-size: 1.5em;
-        vertical-align: middle;
-      }
-      .dir &::before {
-        content: "📁";
-      }
-      .file &::before {
-        content: "📄";
+    &.chbox {
+      position: relative;
+      label {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
     }
   }
