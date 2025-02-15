@@ -4,7 +4,7 @@ import { asset } from "../../lib/server/util/asset_path.ts";
 import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
 import Chat from "../../snippets/chat/ChatSection.tsx";
 import FilePreview from "../../snippets/FilePreview.tsx";
-import ButtonDelete from "../../snippets/inodes/ButtonDelete.tsx";
+import ButtonDeleteFile from "../../snippets/inodes/ButtonDeleteFile.tsx";
 import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";
 import Page from "../../snippets/pages/Page.tsx";
 import {
@@ -12,7 +12,7 @@ import {
   CLOUDFRONT_SIGNER_PRIVATE_KEY,
   INODES_CLOUDFRONT_URL,
 } from "../../util/consts.ts";
-import { getDir, getInode } from "../../util/kv/inodes.ts";
+import { getDirNode, getInodeByDir } from "../../util/kv/inodes.ts";
 import { type AppContext, FileNode } from "../../util/types.ts";
 import { parsePathname } from "../../util/url.ts";
 
@@ -22,11 +22,12 @@ export default async function showFileHandler(ctx: AppContext) {
   const { user } = ctx.state;
   const path = parsePathname(ctx.url.pathname);
 
-  if (path.isRootSegment) {
+  if (path.isRootPathSegment) {
     return ctx.redirect(ctx.req.url + "/", STATUS_CODE.PermanentRedirect);
   }
 
-  const parentDir = (await getDir(path.parentSegments, "eventual")).value;
+  const parentDir =
+    (await getDirNode(path.parentPathSegments, "eventual")).value;
 
   if (!parentDir) {
     return <NotFoundPage header={{ breadcrumb: true }} />;
@@ -34,8 +35,8 @@ export default async function showFileHandler(ctx: AppContext) {
 
   const fragmentId = ctx.url.searchParams.get("fragment");
 
-  const fileNode = (await getInode<FileNode>({
-    inodeName: path.lastSegment,
+  const fileNode = (await getInodeByDir<FileNode>({
+    inodeName: path.lastPathSegment,
     parentDirId: parentDir.id,
     consistency: fragmentId ? "strong" : "eventual",
   })).value;
@@ -90,7 +91,7 @@ export default async function showFileHandler(ctx: AppContext) {
       {isOwner && (
         <menu class="inodes-menu">
           <ButtonToggleChat chatEnabled={fileNode.chatEnabled} />
-          <ButtonDelete />
+          <ButtonDeleteFile />
         </menu>
       )}
       <FilePreview

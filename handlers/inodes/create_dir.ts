@@ -1,6 +1,6 @@
 import { STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
-import { getDir, setDir } from "../../util/kv/inodes.ts";
+import { getDirNode, setDirNode } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { reservedWords } from "../../util/reserved_words.ts";
 import type { AppContext, DirNode } from "../../util/types.ts";
@@ -23,9 +23,15 @@ export default async function createDirNodeHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  const path = parsePathname(reqData.pathname);
-  const dirName = path.lastSegment;
-  const isRootDir = path.isRootSegment;
+  const {
+    parentPathSegments,
+    lastPathSegment,
+    isRootPathSegment,
+    pathSegments,
+  } = parsePathname(reqData.pathname);
+
+  const dirName = lastPathSegment;
+  const isRootDir = isRootPathSegment;
 
   if (!dirName) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
@@ -39,13 +45,13 @@ export default async function createDirNodeHandler(ctx: AppContext) {
   let parentDirEntry;
 
   if (!isRootDir) {
-    parentDirEntry = await getDir(path.parentSegments);
+    parentDirEntry = await getDirNode(parentPathSegments);
     if (!parentDirEntry.value || parentDirEntry.value.ownerId !== user.id) {
       return ctx.respond(null, STATUS_CODE.Forbidden);
     }
   }
 
-  const currentDirEntry = await getDir(path.segments);
+  const currentDirEntry = await getDirNode(pathSegments);
   const currentDir = currentDirEntry.value;
 
   if (currentDir) {
@@ -59,7 +65,7 @@ export default async function createDirNodeHandler(ctx: AppContext) {
     return ctx.respond(errMsg, STATUS_CODE.Conflict);
   }
 
-  const dir: DirNode = {
+  const dirNode: DirNode = {
     type: "dir",
     id: ulid(),
     name: dirName,
@@ -70,10 +76,10 @@ export default async function createDirNodeHandler(ctx: AppContext) {
   atomic.check(currentDirEntry);
   if (parentDirEntry) atomic.check(parentDirEntry);
 
-  setDir({
-    dir,
+  setDirNode({
+    dirNode,
     parentDirId: parentDirEntry?.value.id,
-    pathSegments: path.segments,
+    pathSegments,
     atomic,
   });
 

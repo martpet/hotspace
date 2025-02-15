@@ -7,14 +7,14 @@ import ButtonUpload from "../../snippets/inodes/ButtonUpload.tsx";
 import InodesTable from "../../snippets/inodes/InodesTable.tsx";
 import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";
 import Page from "../../snippets/pages/Page.tsx";
-import { getDir, listInodesByDir } from "../../util/kv/inodes.ts";
+import { getDirNode, listInodesByDir } from "../../util/kv/inodes.ts";
 import type { AppContext } from "../../util/types.ts";
 import { parsePathname } from "../../util/url.ts";
 
 export default async function showInodeHandler(ctx: AppContext) {
   const { user } = ctx.state;
-  const path = parsePathname(ctx.url.pathname);
-  const dirNode = (await getDir(path.segments, "eventual")).value;
+  const { pathSegments } = parsePathname(ctx.url.pathname);
+  const dirNode = (await getDirNode(pathSegments, "eventual")).value;
 
   if (!dirNode) {
     return <NotFoundPage header={{ breadcrumb: true }} />;

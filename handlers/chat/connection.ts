@@ -26,14 +26,18 @@ export default function chatConnectionHandler(ctx: AppContext) {
     return !!user && user.id === (inode as Inode).ownerId;
   };
 
-  const path = parsePathname(new URL(chatPageUrl).pathname);
+  const {
+    pathSegments,
+    isDir,
+    lastPathSegment,
+  } = parsePathname(new URL(chatPageUrl).pathname);
 
-  let chatKvKey = inodesKeys.dirsByPath(path.segments);
+  let chatKvKey = inodesKeys.dirsByPath(pathSegments);
 
-  if (!path.isDir) {
+  if (!isDir) {
     const parentDirId = ctx.url.searchParams.get("parentDirId");
     if (!parentDirId) return ctx.respond(null, STATUS_CODE.NotFound);
-    chatKvKey = inodesKeys.inodesByDir(parentDirId, path.lastSegment);
+    chatKvKey = inodesKeys.byDir(parentDirId, lastPathSegment);
   }
 
   const conn = new ChatConnection({

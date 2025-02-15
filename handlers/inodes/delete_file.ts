@@ -1,6 +1,7 @@
 import { STATUS_CODE } from "@std/http";
 import { GENERAL_ERR_MSG } from "../../util/consts.ts";
-import { deleteFileNode, getDir, getInode } from "../../util/kv/inodes.ts";
+import { deleteFile } from "../../util/inodes_helpers.ts";
+import { getDirNode, getInodeByDir } from "../../util/kv/inodes.ts";
 import type { AppContext, FileNode } from "../../util/types.ts";
 import { parsePathname } from "../../util/url.ts";
 
@@ -8,7 +9,7 @@ interface FormEntries {
   pathname: string;
 }
 
-export default async function deleteInodeHandler(ctx: AppContext) {
+export default async function deleteFileHandler(ctx: AppContext) {
   const { user } = ctx.state;
 
   if (!user) {
@@ -22,17 +23,26 @@ export default async function deleteInodeHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  const { parentSegments, lastSegment } = parsePathname(formEntries.pathname);
-  const parentDir = (await getDir(parentSegments)).value;
-  const parentDirPath = `/${parentSegments.join("/")}/`;
+  const {
+    isDir,
+    parentPathSegments,
+    lastPathSegment,
+  } = parsePathname(formEntries.pathname);
+
+  if (isDir) {
+    ctx.respond(null, STATUS_CODE.BadRequest);
+  }
+
+  const parentDirPath = `/${parentPathSegments.join("/")}/`;
+  const parentDir = (await getDirNode(parentPathSegments)).value;
 
   if (!parentDir) {
     ctx.setFlash({ type: "error", msg: `Not Found` });
     return ctx.redirect("/");
   }
 
-  const fileNodeEntry = await getInode<FileNode>({
-    inodeName: lastSegment,
+  const fileNodeEntry = await getInodeByDir<FileNode>({
+    inodeName: lastPathSegment,
     parentDirId: parentDir.id,
   });
 
@@ -48,7 +58,7 @@ export default async function deleteInodeHandler(ctx: AppContext) {
     return ctx.redirectBack();
   }
 
-  const commit = await deleteFileNode({
+  const commit = await deleteFile({
     fileNodeEntry,
     parentDirId: parentDir.id,
     user,
@@ -59,7 +69,7 @@ export default async function deleteInodeHandler(ctx: AppContext) {
     return ctx.redirectBack();
   }
 
-  ctx.setFlash(`Successfully deleted '${lastSegment}'`);
+  ctx.setFlash(`Successfully deleted '${lastPathSegment}'`);
   return ctx.redirect(parentDirPath);
 }
 

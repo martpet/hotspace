@@ -1,13 +1,8 @@
-import { INODES_BUCKET } from "../consts.ts";
-import type { DirNode, FileNode, Inode, User } from "../types.ts";
-import { enqueue } from "./enqueue.ts";
+import type { DirNode, Inode } from "../types.ts";
 import { kv } from "./kv.ts";
-import { type QueueMsgDeleteChat } from "./queue_handlers/delete_chat.ts";
-import { type QueueMsgDeleteS3Objects } from "./queue_handlers/delete_s3_objects.ts";
-import { setUploadSize } from "./upload_size.ts";
 
 export const keys = {
-  inodesByDir: (
+  byDir: (
     dirId: string,
     inodeName: string,
   ) => ["inodes_by_dir", dirId, inodeName],
@@ -20,7 +15,7 @@ export const keys = {
   ) => ["root_dirs_by_owner", ownerId, dirId],
 };
 
-export function setInode({
+export function setInodeByDir({
   inode,
   parentDirId,
   atomic = kv.atomic(),
@@ -29,62 +24,10 @@ export function setInode({
   parentDirId: string;
   atomic?: Deno.AtomicOperation;
 }) {
-  return atomic.set(keys.inodesByDir(parentDirId, inode.name), inode);
+  return atomic.set(keys.byDir(parentDirId, inode.name), inode);
 }
 
-export function deleteInode({
-  inode,
-  parentDirId,
-  atomic = kv.atomic(),
-}: {
-  inode: Inode;
-  parentDirId: string;
-  atomic?: Deno.AtomicOperation;
-}) {
-  return atomic.delete(keys.inodesByDir(parentDirId, inode.name));
-}
-
-export function deleteFileNode({
-  fileNodeEntry,
-  parentDirId,
-  user,
-  atomic = kv.atomic(),
-}: {
-  fileNodeEntry: Deno.KvEntry<FileNode>;
-  parentDirId: string;
-  user: User;
-  atomic?: Deno.AtomicOperation;
-}) {
-  const fileNode = fileNodeEntry.value;
-  atomic.check(fileNodeEntry);
-
-  deleteInode({
-    inode: fileNode,
-    parentDirId,
-    atomic,
-  });
-
-  setUploadSize({
-    user,
-    size: -fileNode.fileSize,
-    atomic,
-  });
-
-  enqueue<QueueMsgDeleteChat>({
-    type: "delete-chat",
-    chatId: fileNode.id,
-  }, atomic);
-
-  enqueue<QueueMsgDeleteS3Objects>({
-    type: "delete-s3-objects",
-    s3Keys: [fileNode.s3Key],
-    bucket: INODES_BUCKET,
-  }, atomic);
-
-  return atomic;
-}
-
-export function getInode<T = Inode>({
+export function getInodeByDir<T = Inode>({
   inodeName,
   parentDirId,
   consistency,
@@ -93,43 +36,87 @@ export function getInode<T = Inode>({
   parentDirId: string;
   consistency?: Deno.KvConsistencyLevel;
 }) {
-  return kv.get<T>(keys.inodesByDir(parentDirId, inodeName), { consistency });
+  return kv.get<T>(keys.byDir(parentDirId, inodeName), { consistency });
+}
+
+export function deleteInodeByDir({
+  inodeName,
+  parentDirId,
+  atomic = kv.atomic(),
+}: {
+  inodeName: string;
+  parentDirId: string;
+  atomic?: Deno.AtomicOperation;
+}) {
+  return atomic.delete(keys.byDir(parentDirId, inodeName));
+}
+
+export async function listInodesEntriesByDir(
+  dirId: string,
+  options?: Deno.KvListOptions,
+) {
+  const prefix = keys.byDir(dirId, "").slice(0, -1);
+  const iter = kv.list<Inode>({ prefix }, options);
+  return await Array.fromAsync(iter);
 }
 
 export async function listInodesByDir(
   dirId: string,
   options?: Deno.KvListOptions,
 ) {
-  const prefix = keys.inodesByDir(dirId, "").slice(0, -1);
-  const iter = kv.list<Inode>({ prefix }, options);
-  return (await Array.fromAsync(iter)).map((x) => x.value);
+  const entries = await listInodesEntriesByDir(dirId, options);
+  return entries.map((x) => x.value);
 }
 
-export function setDir({
-  dir,
+export function setDirNode({
+  dirNode,
   parentDirId,
   pathSegments,
   atomic = kv.atomic(),
 }: {
-  dir: DirNode;
+  dirNode: DirNode;
   parentDirId: string | undefined;
   pathSegments: string[];
   atomic?: Deno.AtomicOperation;
 }) {
-  atomic.set(keys.dirsByPath(pathSegments), dir);
+  atomic.set(keys.dirsByPath(pathSegments), dirNode);
   if (parentDirId) {
-    setInode({ inode: dir, parentDirId: parentDirId, atomic });
+    setInodeByDir({ inode: dirNode, parentDirId: parentDirId, atomic });
   } else {
-    atomic.set(keys.rootDirsByOwner(dir.ownerId, dir.id), dir);
+    atomic.set(keys.rootDirsByOwner(dirNode.ownerId, dirNode.id), dirNode);
   }
   return atomic;
 }
 
-export function getDir(
+export function getDirNode(
   pathSegments: string[],
   consistency?: Deno.KvConsistencyLevel,
 ) {
   return kv.get<DirNode>(keys.dirsByPath(pathSegments), { consistency });
+}
+
+export function deleteDirNode({
+  dirNode,
+  parentDirId,
+  pathSegments,
+  atomic = kv.atomic(),
+}: {
+  dirNode: DirNode;
+  parentDirId: string | undefined;
+  pathSegments: string[];
+  atomic?: Deno.AtomicOperation;
+}) {
+  if (parentDirId) {
+    deleteInodeByDir({
+      inodeName: dirNode.name,
+      parentDirId: parentDirId,
+      atomic,
+    });
+  } else {
+    atomic.delete(keys.rootDirsByOwner(dirNode.ownerId, dirNode.id));
+  }
+  atomic.delete(keys.dirsByPath(pathSegments));
+  return atomic;
 }
 
 export async function listRootDirsByOwner(

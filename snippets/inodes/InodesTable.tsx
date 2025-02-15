@@ -25,7 +25,9 @@ export default function InodesTable(props: Props, ctx: AppContext) {
               <th class="created">Creation date</th>
               {isDirOwner && (
                 <th class="chbox">
-                  <Checkbox />
+                  <label>
+                    <Checkbox />
+                  </label>
                 </th>
               )}
             </tr>

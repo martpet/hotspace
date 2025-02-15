@@ -62,6 +62,10 @@ export class Server {
     this.on("POST", patternInput, handler);
   }
 
+  delete(patternInput: URLPatternInput, handler: Handler) {
+    this.on("DELETE", patternInput, handler);
+  }
+
   all(patternInput: URLPatternInput, handler: Handler) {
     this.on("*", patternInput, handler);
   }

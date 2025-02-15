@@ -9,9 +9,9 @@ import {
 } from "../../../util/consts.ts";
 import { enqueue } from "../../../util/kv/enqueue.ts";
 import {
-  getDir,
+  getDirNode,
   keys as inodesKeys,
-  setInode,
+  setInodeByDir,
 } from "../../../util/kv/inodes.ts";
 import { kv } from "../../../util/kv/kv.ts";
 import {
@@ -45,9 +45,9 @@ export default async function completeUploadHandler(ctx: AppContext) {
   }
 
   const { uploads, pathname } = reqData;
-  const path = parsePathname(pathname);
+  const { pathSegments } = parsePathname(pathname);
 
-  let parentDirEntry = await getDir(path.segments);
+  let parentDirEntry = await getDirNode(pathSegments);
 
   if (!checkDirOwner(parentDirEntry, user)) {
     return ctx.respond(null, STATUS_CODE.Forbidden);
@@ -81,7 +81,7 @@ export default async function completeUploadHandler(ctx: AppContext) {
 
       if (i > 0) {
         inode.name += `-${i + 1}`;
-        parentDirEntry = await getDir(path.segments);
+        parentDirEntry = await getDirNode(pathSegments);
       }
 
       if (!checkDirOwner(parentDirEntry, user)) {
@@ -96,11 +96,11 @@ export default async function completeUploadHandler(ctx: AppContext) {
       const parentDirId = parentDirEntry.value.id;
 
       const atomic = kv.atomic();
-      setInode({ parentDirId, inode, atomic });
-      setUploadSize({ user, size: upload.fileSize, atomic });
+      setInodeByDir({ parentDirId, inode, atomic });
+      setUploadSize({ userId: user.id, size: upload.fileSize, atomic });
       atomic.check(parentDirEntry);
       atomic.check({
-        key: inodesKeys.inodesByDir(parentDirId, inode.name),
+        key: inodesKeys.byDir(parentDirId, inode.name),
         versionstamp: null,
       });
       res = await atomic.commit();

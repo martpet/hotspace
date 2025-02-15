@@ -18,20 +18,18 @@ export function isDeleteS3Objects(
 }
 
 export function handleDeleteS3Objects(msg: QueueMsgDeleteS3Objects) {
-  const { s3Keys, bucket } = msg;
-
   const queue = newQueue(10);
 
-  s3Keys.forEach((s3Key) =>
+  for (const s3Key of msg.s3Keys) {
     queue.add(() =>
       s3DeleteObject({
         s3Key,
-        bucket,
+        bucket: msg.bucket,
         credentials: AWS_CREDENTIALS,
         region: AWS_REGION,
       })
-    )
-  );
+    );
+  }
 
   return queue.done();
 }

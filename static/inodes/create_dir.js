@@ -1,8 +1,5 @@
 import { createSignal, GENERAL_ERR_MSG, replaceFragment } from "$main";
 
-const btnShowDialog = document.getElementById("show-create-dir");
-const { isRootDir } = btnShowDialog.dataset;
-
 let dialog;
 let form;
 let nameInput;
@@ -10,6 +7,9 @@ let previewEl;
 let btnSubmit;
 let btnClose;
 let errorEl;
+
+const btnShowDialog = document.getElementById("show-create-dir");
+const { isRootDir } = btnShowDialog.dataset;
 
 btnShowDialog.disabled = false;
 
@@ -83,14 +83,14 @@ async function submitData() {
     method: "post",
     body: JSON.stringify({ pathname }),
   });
-  if (!resp.ok) {
+  if (resp.ok) {
+    await replaceFragment(isRootDir ? "spaces" : "inodes");
+    statusSignal.value = "closed";
+  } else {
     errorSignal.value = await resp.text() || GENERAL_ERR_MSG;
     statusSignal.value = "idle";
     nameInput.focus();
-    return;
   }
-  await replaceFragment(isRootDir ? "spaces" : "inodes");
-  statusSignal.value = "closed";
 }
 
 // =====================
@@ -104,7 +104,7 @@ function insertDialog() {
     `
       <dialog id="create-dir-dialog">
         <h1>${title}</h1>
-        <p role="alert" class="error" hidden></p>
+        <p id="create-dir-error" class="alert error" hidden></p>
         <form class="basic-form">
           <label>
             Name:
@@ -114,8 +114,8 @@ function insertDialog() {
             </small>
           </label>
           <footer>
-            <button class="close" type="button">Cancel</button>
-            <button class="submit">${title}</button>
+            <button id="create-dir-close" type="button">Cancel</button>
+            <button id="create-dir-submit">${title}</button>
           </footer>
         </form>
       </dialog>
@@ -125,9 +125,9 @@ function insertDialog() {
   form = dialog.querySelector("form");
   nameInput = form.elements.dirName;
   previewEl = form.elements.namePreview;
-  btnSubmit = form.querySelector("button.submit");
-  btnClose = form.querySelector("button.close");
-  errorEl = dialog.querySelector("p.error");
+  btnSubmit = document.getElementById("create-dir-submit");
+  btnClose = document.getElementById("create-dir-close");
+  errorEl = document.getElementById("create-dir-error");
 
   const nameConstraints = JSON.parse(btnShowDialog.dataset.constraints);
   for (const entry of Object.entries(nameConstraints)) {

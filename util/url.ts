@@ -1,15 +1,15 @@
 import { DIRNODE_NAME_CONSTRAINTS } from "./constraints.ts";
 
 export function parsePathname(pathname: string) {
-  const segments = pathToSegments(pathname);
-  if (!segments.length) {
+  const pathSegments = pathToSegments(pathname);
+  if (!pathSegments.length) {
     throw new Error("Pathname has no segments");
   }
   return {
-    segments,
-    parentSegments: segments.slice(0, -1),
-    lastSegment: segments.at(-1)!,
-    isRootSegment: segments.length === 1,
+    pathSegments,
+    parentPathSegments: pathSegments.slice(0, -1),
+    lastPathSegment: pathSegments.at(-1)!,
+    isRootPathSegment: pathSegments.length === 1,
     isDir: pathname.endsWith("/"),
   };
 }

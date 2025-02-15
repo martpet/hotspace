@@ -1,5 +1,5 @@
 import type { User } from "../types.ts";
-import { getKvSumBigInt, kv } from "./kv.ts";
+import { kv, toKvSumBigInt } from "./kv.ts";
 
 export const keys = {
   byUser: (userId: string) => ["uploaded_size_by_user", userId],
@@ -7,15 +7,15 @@ export const keys = {
 };
 
 export function setUploadSize(options: {
-  user: User;
+  userId: string;
   size: number;
   atomic?: Deno.AtomicOperation;
 }) {
-  const { user, size, atomic = kv.atomic() } = options;
-  const bigint = getKvSumBigInt(size);
+  const { userId, size, atomic = kv.atomic() } = options;
+  const bigint = toKvSumBigInt(size);
 
   return atomic
-    .sum(keys.byUser(user.id), bigint)
+    .sum(keys.byUser(userId), bigint)
     .sum(keys.totalSize(), bigint);
 }
 
