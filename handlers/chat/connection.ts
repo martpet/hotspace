@@ -5,7 +5,7 @@ import { keys as inodesKeys } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { keys as userKvKeys } from "../../util/kv/users.ts";
 import type { AppContext, Inode } from "../../util/types.ts";
-import { parsePathname } from "../../util/url.ts";
+import { parsePath } from "../../util/url.ts";
 
 export default function chatConnectionHandler(ctx: AppContext) {
   const { user } = ctx.state;
@@ -26,18 +26,14 @@ export default function chatConnectionHandler(ctx: AppContext) {
     return !!user && user.id === (inode as Inode).ownerId;
   };
 
-  const {
-    pathSegments,
-    isDir,
-    lastPathSegment,
-  } = parsePathname(new URL(chatPageUrl).pathname);
+  const path = parsePath(new URL(chatPageUrl).pathname);
 
-  let chatKvKey = inodesKeys.dirsByPath(pathSegments);
+  let chatKvKey = inodesKeys.dirsByPath(path.segments);
 
-  if (!isDir) {
+  if (!path.isDir) {
     const parentDirId = ctx.url.searchParams.get("parentDirId");
     if (!parentDirId) return ctx.respond(null, STATUS_CODE.NotFound);
-    chatKvKey = inodesKeys.byDir(parentDirId, lastPathSegment);
+    chatKvKey = inodesKeys.byDir(parentDirId, path.lastSegment);
   }
 
   const conn = new ChatConnection({

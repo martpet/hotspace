@@ -7,11 +7,7 @@ export const flashMiddleware: Middleware = (ctx, next) => {
 
   if (encodedFlash) {
     ctx.flash = JSON.parse(decodeURIComponent(encodedFlash));
-
-    deleteCookie(ctx.resp.headers, FLASH_COOKIE, {
-      domain: ctx.rootDomainUrl?.hostname,
-      path: "/",
-    });
+    deleteCookie(ctx.resp.headers, FLASH_COOKIE, { path: "/" });
   }
 
   return next();

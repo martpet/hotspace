@@ -306,7 +306,16 @@ dialog {
 }
 
 .spaces-list {
-  margin-bottom: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0;
+  gap: 1em;
+  list-style: none;
+  li {
+    margin: 0;
+    padding: 1em;
+    background: var(--bg-light);
+  }
 }
 
 #upload-progress {

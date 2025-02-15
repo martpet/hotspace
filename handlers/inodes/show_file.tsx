@@ -14,20 +14,19 @@ import {
 } from "../../util/consts.ts";
 import { getDirNode, getInodeByDir } from "../../util/kv/inodes.ts";
 import { type AppContext, FileNode } from "../../util/types.ts";
-import { parsePathname } from "../../util/url.ts";
+import { parsePath } from "../../util/url.ts";
 
 const IS_PUBLIC_ACCESS_ENABLED = true;
 
 export default async function showFileHandler(ctx: AppContext) {
   const { user } = ctx.state;
-  const path = parsePathname(ctx.url.pathname);
+  const path = parsePath(ctx.url.pathname);
 
-  if (path.isRootPathSegment) {
+  if (path.isRootSegment) {
     return ctx.redirect(ctx.req.url + "/", STATUS_CODE.PermanentRedirect);
   }
 
-  const parentDir =
-    (await getDirNode(path.parentPathSegments, "eventual")).value;
+  const parentDir = (await getDirNode(path.parentSegments, "eventual")).value;
 
   if (!parentDir) {
     return <NotFoundPage header={{ breadcrumb: true }} />;
@@ -36,7 +35,7 @@ export default async function showFileHandler(ctx: AppContext) {
   const fragmentId = ctx.url.searchParams.get("fragment");
 
   const fileNode = (await getInodeByDir<FileNode>({
-    inodeName: path.lastPathSegment,
+    inodeName: path.lastSegment,
     parentDirId: parentDir.id,
     consistency: fragmentId ? "strong" : "eventual",
   })).value;
@@ -91,7 +90,7 @@ export default async function showFileHandler(ctx: AppContext) {
       {isOwner && (
         <menu class="inodes-menu">
           <ButtonToggleChat chatEnabled={fileNode.chatEnabled} />
-          <ButtonDeleteFile />
+          <ButtonDeleteFile fileName={fileName} />
         </menu>
       )}
       <FilePreview

@@ -14,9 +14,9 @@ let errorEl;
 const container = document.getElementById("inodes-container");
 const btnDelete = document.getElementById("batch-delete-button");
 const batchMenu = document.getElementById("batch-operations-buttons");
-const observer = new MutationObserver(onMutationObserve);
+const mutationObserver = new MutationObserver(onMutationObserve);
 
-observer.observe(container, {
+mutationObserver.observe(container, {
   subtree: true,
   childList: true,
 });
@@ -101,6 +101,7 @@ async function submitData() {
   if (resp.ok) {
     await replaceFragment("inodes");
     statusSignal.value = "closed";
+    batchMenu.hidden = true;
   } else if (resp.status === 404) {
     location.reload();
   } else {
@@ -131,7 +132,6 @@ function getContainerElements() {
   checkboxes = container.querySelectorAll("tbody .chbox input");
   if (toggler) toggler.disabled = false;
   checkboxes.forEach((chbox) => chbox.disabled = false);
-  if (!checkboxes.length) batchMenu.hidden = true;
 }
 
 function getChboxData(chbox) {

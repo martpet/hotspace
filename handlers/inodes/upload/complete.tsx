@@ -24,7 +24,7 @@ import type {
   FileNode,
   User,
 } from "../../../util/types.ts";
-import { parsePathname } from "../../../util/url.ts";
+import { parsePath } from "../../../util/url.ts";
 
 type ReqData = {
   uploads: CompletedUpload[];
@@ -45,9 +45,9 @@ export default async function completeUploadHandler(ctx: AppContext) {
   }
 
   const { uploads, pathname } = reqData;
-  const { pathSegments } = parsePathname(pathname);
+  const path = parsePath(pathname);
 
-  let parentDirEntry = await getDirNode(pathSegments);
+  let parentDirEntry = await getDirNode(path.segments);
 
   if (!checkDirOwner(parentDirEntry, user)) {
     return ctx.respond(null, STATUS_CODE.Forbidden);
@@ -81,7 +81,7 @@ export default async function completeUploadHandler(ctx: AppContext) {
 
       if (i > 0) {
         inode.name += `-${i + 1}`;
-        parentDirEntry = await getDirNode(pathSegments);
+        parentDirEntry = await getDirNode(path.segments);
       }
 
       if (!checkDirOwner(parentDirEntry, user)) {

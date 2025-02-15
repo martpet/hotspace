@@ -2,11 +2,11 @@ import {
   deleteChatFeedItem,
   deleteChatMessage,
   deleteChatSub,
-  deleteLastFeedItemIdByChat,
   listChatMessages,
   listChatSubs,
   listFeedItemsByChat,
 } from "$chat";
+import { newQueue } from "@henrygd/queue";
 import { kv } from "../kv.ts";
 
 export interface QueueMsgDeleteChat {
@@ -21,32 +21,24 @@ export function isDeleteChat(msg: unknown): msg is QueueMsgDeleteChat {
     typeof chatId === "string";
 }
 
-export function handleDeleteChat({ chatId }: QueueMsgDeleteChat) {
-  return Promise.all([
-    deleteChatMessages(chatId),
-    deleteChatFeedItems(chatId),
-    deleteChatSubs(chatId),
-    deleteLastFeedItemIdByChat(chatId, kv),
-  ]);
-}
-
-async function deleteChatMessages(chatId: string) {
+export async function handleDeleteChat({ chatId }: QueueMsgDeleteChat) {
   const { messages } = await listChatMessages({ kv, chatId });
-  for (const msg of messages) {
-    await deleteChatMessage(msg, kv.atomic()).commit();
-  }
-}
-
-async function deleteChatFeedItems(chatId: string) {
-  const items = await listFeedItemsByChat({ kv, chatId });
-  for (const item of items) {
-    await deleteChatFeedItem(item, kv);
-  }
-}
-
-async function deleteChatSubs(chatId: string) {
+  const feeds = await listFeedItemsByChat({ kv, chatId });
   const subs = await listChatSubs({ kv, chatId });
-  for (const sub of subs) {
-    await deleteChatSub(sub, kv.atomic()).commit();
+
+  const queue = newQueue(5);
+
+  for (const msg of messages) {
+    queue.add(() => deleteChatMessage(msg, kv.atomic()).commit());
   }
+
+  for (const item of feeds) {
+    queue.add(() => deleteChatFeedItem(item, kv));
+  }
+
+  for (const sub of subs) {
+    queue.add(() => deleteChatSub(sub, kv.atomic()).commit());
+  }
+
+  return queue.done();
 }

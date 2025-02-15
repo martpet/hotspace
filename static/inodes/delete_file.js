@@ -33,7 +33,7 @@ function initDialogEvents() {
 // =====================
 
 function insertDialog() {
-  const { inodeName } = button.dataset;
+  const { fileName } = button.dataset;
   const PATTERN_CONFIRM = "permanently delete";
   button.insertAdjacentHTML(
     "afterend",
@@ -43,7 +43,7 @@ function insertDialog() {
           <form action="/inodes/delete_file" method="post" class="basic-form">
             <input type="hidden" name="pathname" value="${location.pathname}" />
             <p class="alert warning">
-              '<strong>${inodeName}</strong>' and all chat messages will be deleted.<br />
+              <strong>${fileName}</strong> and its chat messages will be deleted.<br />
               This action cannot be undone.
             </p>
             <label>

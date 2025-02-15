@@ -3,7 +3,7 @@ import { GENERAL_ERR_MSG } from "../../util/consts.ts";
 import { deleteFile } from "../../util/inodes_helpers.ts";
 import { getDirNode, getInodeByDir } from "../../util/kv/inodes.ts";
 import type { AppContext, FileNode } from "../../util/types.ts";
-import { parsePathname } from "../../util/url.ts";
+import { parsePath } from "../../util/url.ts";
 
 interface FormEntries {
   pathname: string;
@@ -23,18 +23,14 @@ export default async function deleteFileHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  const {
-    isDir,
-    parentPathSegments,
-    lastPathSegment,
-  } = parsePathname(formEntries.pathname);
+  const path = parsePath(formEntries.pathname);
 
-  if (isDir) {
+  if (path.isDir) {
     ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  const parentDirPath = `/${parentPathSegments.join("/")}/`;
-  const parentDir = (await getDirNode(parentPathSegments)).value;
+  const parentDirPath = `/${path.parentSegments.join("/")}/`;
+  const parentDir = (await getDirNode(path.parentSegments)).value;
 
   if (!parentDir) {
     ctx.setFlash({ type: "error", msg: `Not Found` });
@@ -42,7 +38,7 @@ export default async function deleteFileHandler(ctx: AppContext) {
   }
 
   const fileNodeEntry = await getInodeByDir<FileNode>({
-    inodeName: lastPathSegment,
+    inodeName: path.lastSegment,
     parentDirId: parentDir.id,
   });
 
@@ -61,7 +57,7 @@ export default async function deleteFileHandler(ctx: AppContext) {
   const commit = await deleteFile({
     fileNodeEntry,
     parentDirId: parentDir.id,
-    user,
+    userId: user.id,
   }).commit();
 
   if (!commit.ok) {
@@ -69,7 +65,7 @@ export default async function deleteFileHandler(ctx: AppContext) {
     return ctx.redirectBack();
   }
 
-  ctx.setFlash(`Successfully deleted '${lastPathSegment}'`);
+  ctx.setFlash(`Successfully deleted '${path.lastSegment}'`);
   return ctx.redirect(parentDirPath);
 }
 

@@ -7,7 +7,7 @@ import {
 } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import type { AppContext, DirNode } from "../../util/types.ts";
-import { parsePathname } from "../../util/url.ts";
+import { parsePath } from "../../util/url.ts";
 
 interface ReqData {
   pathname: string;
@@ -26,29 +26,23 @@ export default async function toggleChatHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  const {
-    parentPathSegments,
-    isRootPathSegment,
-    isDir,
-    pathSegments,
-    lastPathSegment,
-  } = parsePathname(reqData.pathname);
+  const path = parsePath(reqData.pathname);
 
   let inodeEntry;
   let parentDirEntry;
 
-  if (!isRootPathSegment) {
-    parentDirEntry = await getDirNode(parentPathSegments);
+  if (!path.isRootSegment) {
+    parentDirEntry = await getDirNode(path.parentSegments);
     if (!parentDirEntry.value) {
       return ctx.respond(null, STATUS_CODE.NotFound);
     }
   }
 
-  if (isDir) {
-    inodeEntry = await getDirNode(pathSegments);
+  if (path.isDir) {
+    inodeEntry = await getDirNode(path.segments);
   } else {
     inodeEntry = await getInodeByDir({
-      inodeName: lastPathSegment,
+      inodeName: path.lastSegment,
       parentDirId: parentDirEntry!.value.id,
     });
   }
@@ -69,11 +63,11 @@ export default async function toggleChatHandler(ctx: AppContext) {
   atomic.check(inodeEntry);
   if (parentDirEntry) atomic.check(parentDirEntry);
 
-  if (isDir) {
+  if (path.isDir) {
     setDirNode({
       dirNode: inode as DirNode,
       parentDirId: parentDirEntry?.value.id,
-      pathSegments,
+      pathSegments: path.segments,
       atomic,
     });
   } else {

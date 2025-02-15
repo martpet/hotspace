@@ -1,10 +1,9 @@
 import { deleteDirChildren } from "../../inodes_helpers.ts";
-import { listInodesEntriesByDir } from "../inodes.ts";
 
 export interface QueueMsgDeleteDirChildren {
   type: "delete-dir-children";
-  dirId: string;
   pathSegments: string[];
+  dirId: string;
   userId: string;
 }
 
@@ -21,14 +20,6 @@ export function isDeleteDirChildren(
     typeof userId === "string";
 }
 
-export async function handleDeleteDirChildren(msg: QueueMsgDeleteDirChildren) {
-  const { dirId, pathSegments, userId } = msg;
-  const entries = await listInodesEntriesByDir(dirId);
-
-  return deleteDirChildren({
-    entries,
-    dirId,
-    pathSegments,
-    userId,
-  });
+export function handleDeleteDirChildren(msg: QueueMsgDeleteDirChildren) {
+  return deleteDirChildren(msg);
 }

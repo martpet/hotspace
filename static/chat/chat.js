@@ -1058,7 +1058,7 @@ function insertMessageDialogs() {
         <form method="dialog" class="basic-form">
           <footer>
             <button>Cancel</button>
-            <button autofocus class="submit">Delete Message</button>
+            <button autofocus class="submit">Yes, Delete</button>
           </footer>
         </form>
       </dialog>

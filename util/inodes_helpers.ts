@@ -1,7 +1,11 @@
 import { newQueue } from "@henrygd/queue";
 import { INODES_BUCKET } from "./consts.ts";
 import { enqueue } from "./kv/enqueue.ts";
-import { deleteDirNode, deleteInodeByDir } from "./kv/inodes.ts";
+import {
+  deleteDirNode,
+  deleteInodeByDir,
+  listInodesEntriesByDir,
+} from "./kv/inodes.ts";
 import { kv } from "./kv/kv.ts";
 import { type QueueMsgDeleteChat } from "./kv/queue_handlers/delete_chat.ts";
 import { type QueueMsgDeleteDirChildren } from "./kv/queue_handlers/delete_dir_children.ts";
@@ -9,22 +13,24 @@ import { type QueueMsgDeleteS3Objects } from "./kv/queue_handlers/delete_s3_obje
 import { setUploadSize } from "./kv/upload_size.ts";
 import type { DirNode, FileNode, Inode } from "./types.ts";
 
-export function deleteDirChildren({
-  entries,
-  dirId,
+export async function deleteDirChildren({
   pathSegments,
+  dirId,
   userId,
+  entries,
 }: {
-  entries: Deno.KvEntryMaybe<Inode>[];
-  dirId: string;
   pathSegments: string[];
+  dirId: string;
   userId: string;
+  entries?: Deno.KvEntryMaybe<Inode>[];
 }) {
-  const queue = newQueue(10);
+  const queue = newQueue(5);
+  entries = entries || await listInodesEntriesByDir(dirId);
 
   for (const entry of entries) {
-    if (!entry.value) continue;
-    if (entry.value.ownerId !== userId) continue;
+    if (!entry.value || entry.value.ownerId !== userId) {
+      continue;
+    }
     if (entry.value.type === "file") {
       queue.add(() =>
         deleteFile({

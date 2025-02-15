@@ -3,7 +3,7 @@ import { deleteDirChildren } from "../../util/inodes_helpers.ts";
 import { getDirNode, keys as getInodeKey } from "../../util/kv/inodes.ts";
 import { getManyEntries } from "../../util/kv/kv.ts";
 import type { AppContext, Inode } from "../../util/types.ts";
-import { parsePathname } from "../../util/url.ts";
+import { parsePath } from "../../util/url.ts";
 
 interface ReqData {
   pathnames: string[];
@@ -23,29 +23,29 @@ export default async function batchDeleteHandler(ctx: AppContext) {
   }
 
   const { pathnames } = reqData;
-  const { isRootPathSegment, parentPathSegments } = parsePathname(pathnames[0]);
+  const firstInodePath = parsePath(pathnames[0]);
 
-  if (isRootPathSegment) {
+  if (firstInodePath.isRootSegment) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  const parentDir = (await getDirNode(parentPathSegments)).value;
+  const parentDir = (await getDirNode(firstInodePath.parentSegments)).value;
 
   if (!parentDir) {
     return ctx.respond(null, STATUS_CODE.NotFound);
   }
 
-  const inodesKeys = pathnames.map((pathname) =>
+  const inodesKeys = pathnames.map((inodePathname) =>
     getInodeKey.byDir(
       parentDir.id,
-      parsePathname(pathname).lastPathSegment,
+      parsePath(inodePathname).lastSegment,
     )
   );
 
   await deleteDirChildren({
     entries: await getManyEntries<Inode>(inodesKeys),
     dirId: parentDir.id,
-    pathSegments: parentPathSegments,
+    pathSegments: firstInodePath.parentSegments,
     userId: user.id,
   });
 

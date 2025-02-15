@@ -17,5 +17,6 @@ export function queueHandler(msg: unknown) {
   if (isDeleteS3Objects(msg)) return handleDeleteS3Objects(msg);
   if (isDeleteDirChildren(msg)) return handleDeleteDirChildren(msg);
   if (isDeleteChat(msg)) return handleDeleteChat(msg);
+
   console.error("Unknown KV Queue msg received", msg);
 }

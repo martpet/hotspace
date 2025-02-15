@@ -17,8 +17,8 @@ import home from "./handlers/home.tsx";
 import batchDelete from "./handlers/inodes/batch_delete.ts";
 import createDir from "./handlers/inodes/create_dir.ts";
 import deleteFileHandler from "./handlers/inodes/delete_file.ts";
-import showDir from "./handlers/inodes/show-dir.tsx";
-import showFile from "./handlers/inodes/show-file.tsx";
+import showDir from "./handlers/inodes/show_dir.tsx";
+import showFile from "./handlers/inodes/show_file.tsx";
 import completeUpload from "./handlers/inodes/upload/complete.tsx";
 import initiateUpload from "./handlers/inodes/upload/initiate.tsx";
 import subscribers from "./handlers/push_sub/subscribers.ts";
@@ -29,6 +29,8 @@ import { sessionMiddleware } from "./middleware/session.ts";
 import { stateMiddleware } from "./middleware/state.ts";
 import { kv } from "./util/kv/kv.ts";
 import { queueHandler } from "./util/kv/queue_handlers/main_handler.ts";
+
+kv.listenQueue(queueHandler);
 
 const app = new Server({ trailingSlash: "mixed" });
 
@@ -74,5 +76,3 @@ if (IS_LOCAL_DEV) {
 }
 
 app.serve(serveOptions);
-
-kv.listenQueue(queueHandler);
