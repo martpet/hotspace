@@ -3,13 +3,6 @@ import type { AppContext } from "../../util/types.ts";
 import DayHeading from "./DayHeading.tsx";
 import Message from "./Message.tsx";
 
-export function chatIntlFmt(locale: string | undefined) {
-  return {
-    dateFmt: new Intl.DateTimeFormat(locale, { dateStyle: "long" }),
-    timeFmt: new Intl.DateTimeFormat(locale, { timeStyle: "short" }),
-  };
-}
-
 interface Props {
   messages: ChatMessage[];
   olderMsgsCursor: string | null;
@@ -18,8 +11,7 @@ interface Props {
 
 export default function ChatMessages(props: Props, ctx: AppContext) {
   const { messages, olderMsgsCursor, isAdmin } = props;
-  const { locale } = ctx;
-  const { dateFmt, timeFmt } = chatIntlFmt(locale);
+  const { dateFmt, timeFmt, dateTimeFmt } = chatIntlFmt(ctx.locale);
 
   const msgsByDay = Object.groupBy(
     messages,
@@ -52,8 +44,8 @@ export default function ChatMessages(props: Props, ctx: AppContext) {
                 msg={msg}
                 prevMsg={msgs[i - 1]}
                 isAdmin={isAdmin}
-                dateFmt={dateFmt}
                 timeFmt={timeFmt}
+                dateTimeFmt={dateTimeFmt}
               />
             ))}
           </>
@@ -61,4 +53,19 @@ export default function ChatMessages(props: Props, ctx: AppContext) {
       </div>
     </>
   );
+}
+
+export function chatIntlFmt(locale: string | undefined) {
+  return {
+    dateTimeFmt: new Intl.DateTimeFormat(locale, {
+      dateStyle: "long",
+      timeStyle: "short",
+    }),
+    dateFmt: new Intl.DateTimeFormat(locale, {
+      dateStyle: "long",
+    }),
+    timeFmt: new Intl.DateTimeFormat(locale, {
+      timeStyle: "short",
+    }),
+  };
 }

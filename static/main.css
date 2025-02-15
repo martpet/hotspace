@@ -305,19 +305,6 @@ dialog {
   }
 }
 
-.spaces-list {
-  display: flex;
-  flex-wrap: wrap;
-  padding: 0;
-  gap: 1em;
-  list-style: none;
-  li {
-    margin: 0;
-    padding: 1em;
-    background: var(--bg-light);
-  }
-}
-
 #upload-progress {
   display: flex;
   flex-direction: row;
@@ -329,5 +316,13 @@ dialog {
   .info {
     display: flex;
     font-variant-numeric: tabular-nums;
+  }
+}
+
+.spaces-list {
+  font-weight: 500;
+  margin-bottom: 2em;
+  li {
+    margin-block: 1em;
   }
 }

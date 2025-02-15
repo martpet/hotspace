@@ -7,12 +7,12 @@ interface Props extends JSX.HTMLAttributes<HTMLParagraphElement> {
   msg: ChatMessage;
   prevMsg?: ChatMessage;
   timeFmt: Intl.DateTimeFormat;
-  dateFmt: Intl.DateTimeFormat;
+  dateTimeFmt: Intl.DateTimeFormat;
   isAdmin: boolean;
 }
 
 export default function Message(props: Props, ctx: AppContext) {
-  const { msg, timeFmt, dateFmt, prevMsg, isAdmin, ...elProps } = props;
+  const { msg, timeFmt, dateTimeFmt, prevMsg, isAdmin, ...elProps } = props;
   const { user } = ctx.state;
 
   const dateIso = msg.createdAt.toISOString();
@@ -39,8 +39,7 @@ export default function Message(props: Props, ctx: AppContext) {
         {msg.editedAt && (
           <MessageEditedTag
             editedAt={msg.editedAt}
-            timeFmt={timeFmt}
-            dateFmt={dateFmt}
+            dateTimeFmt={dateTimeFmt}
           />
         )}
       </span>

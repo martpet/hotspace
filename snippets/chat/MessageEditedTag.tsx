@@ -1,15 +1,13 @@
 interface Props {
   editedAt: Date;
-  timeFmt: Intl.DateTimeFormat;
-  dateFmt: Intl.DateTimeFormat;
+  dateTimeFmt: Intl.DateTimeFormat;
 }
 
 export default function MessageEditedTag(props: Props) {
-  const { editedAt, timeFmt, dateFmt } = props;
-  const titleAttr = `${dateFmt.format(editedAt)} ${timeFmt.format(editedAt)}`;
+  const { editedAt, dateTimeFmt } = props;
 
   return (
-    <small class="tag-edited" title={titleAttr}>
+    <small class="tag-edited" title={dateTimeFmt.format(editedAt)}>
       (edited)
     </small>
   );

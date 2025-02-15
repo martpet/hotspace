@@ -33,19 +33,16 @@ function ListItem(
   const { createdAt, lastUsedAt } = passkey;
 
   const dateFmt = new Intl.DateTimeFormat(ctx.locale, {
-    hour: "numeric",
-    minute: "numeric",
-    day: "numeric",
-    month: "short",
-    year: "numeric",
+    "dateStyle": "medium",
+    "timeStyle": "short",
   });
 
   return (
     <li>
       <ButtonRename passkey={passkey} /> —{" "}
       {count > 1 && <ButtonDelete passkey={passkey} />}
-      Created {dateFmt.format(createdAt)}.{"  "}
-      {lastUsedAt ? `Last used ${dateFmt.format(lastUsedAt)}` : "Never used"}
+      Created on {dateFmt.format(createdAt)}.{"  "}
+      {lastUsedAt ? `Last used on ${dateFmt.format(lastUsedAt)}` : "Never used"}
     </li>
   );
 }

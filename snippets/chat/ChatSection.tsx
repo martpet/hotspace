@@ -45,7 +45,7 @@ export default function ChatSection(props: Props, ctx: AppContext) {
 
   const { user } = ctx.state;
   const { locale } = ctx;
-  const { dateFmt, timeFmt } = chatIntlFmt(locale);
+  const { dateTimeFmt, timeFmt } = chatIntlFmt(locale);
 
   return (
     <section
@@ -97,12 +97,11 @@ export default function ChatSection(props: Props, ctx: AppContext) {
           msg={{ createdAt: new Date(), username: "" } as ChatMessage}
           isAdmin={false}
           timeFmt={timeFmt}
-          dateFmt={dateFmt}
+          dateTimeFmt={dateTimeFmt}
         />
         <MessageEditedTag
           editedAt={new Date()}
-          timeFmt={timeFmt}
-          dateFmt={dateFmt}
+          dateTimeFmt={dateTimeFmt}
         />
       </template>
     </section>

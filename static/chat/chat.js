@@ -57,9 +57,13 @@ const btnAllowChatSub = document.getElementById("chat-sub-allow");
 
 const msgsBoxReady = Promise.withResolvers();
 const typingUsers = new Map();
-const timeFmt = new Intl.DateTimeFormat(locale, { timeStyle: "short" });
-const dateFmt = new Intl.DateTimeFormat(locale, { dateStyle: "long" });
 const listFmt = new Intl.ListFormat("en");
+const dateFmt = new Intl.DateTimeFormat(locale, { dateStyle: "long" });
+const timeFmt = new Intl.DateTimeFormat(locale, { timeStyle: "short" });
+const dateTimeFmt = new Intl.DateTimeFormat(locale, {
+  dateStyle: "long",
+  timeStyle: "short",
+});
 
 const chatSubLockSignal = createSignal(false);
 const networkOnlineSignal = createSignal(navigator.onLine);
@@ -888,7 +892,7 @@ function buildMsgEl(data) {
       tagEdited = chatTmpl.content.querySelector(".tag-edited").cloneNode(true);
       textEl.after(tagEdited);
     }
-    tagEdited.title = `${dateFmt.format(editedAt)} ${timeFmt.format(editedAt)}`;
+    tagEdited.title = dateTimeFmt.format(editedAt);
   }
   return el;
 }
