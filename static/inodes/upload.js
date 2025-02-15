@@ -126,7 +126,7 @@ onlineSignal.subscribe((isOnline) => {
 });
 
 // =====================
-// Util
+// Utils
 // =====================
 
 function startUpload() {

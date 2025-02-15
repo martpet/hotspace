@@ -7,8 +7,8 @@ let toggler;
 let checkboxes;
 let selection;
 let form;
-let btnSubmit;
-let btnClose;
+let submitButton;
+let closeButton;
 let errorEl;
 
 const container = document.getElementById("inodes-container");
@@ -37,12 +37,12 @@ btnDelete.onclick = () => {
 
 container.onchange = ({ target }) => {
   if (target.matches("[type=checkbox]")) {
-    handleSelection(target);
+    handleSelectionChange(target);
   }
 };
 
 function initDialogEvents() {
-  btnClose.onclick = () => {
+  closeButton.onclick = () => {
     statusSignal.value = "closed";
   };
 
@@ -89,13 +89,13 @@ errorSignal.subscribe((msg) => {
 });
 
 // =====================
-// Util
+// Utils
 // =====================
 
 async function submitData() {
   const pathnames = selection.map((it) => it.pathname);
-  const resp = await fetch("/inodes/batch", {
-    method: "delete",
+  const resp = await fetch("/inodes/delete", {
+    method: "post",
     body: JSON.stringify({ pathnames }),
   });
   if (resp.ok) {
@@ -110,7 +110,7 @@ async function submitData() {
   }
 }
 
-function handleSelection(target) {
+function handleSelectionChange(target) {
   let hasChecked;
   let hasUnchecked;
   selection = [];
@@ -155,7 +155,7 @@ function insertDialog() {
     `
         <dialog id="batch-delete-dialog">
           <h1>Delete Items</h1>
-          <form action="/inodes/delete" class="basic-form">
+          <form class="basic-form">
             <p class="alert warning">
               <span id="batch-delete-intro"></span> will be deleted.<br />
               This action cannot be undone.
@@ -179,8 +179,8 @@ function insertDialog() {
   dialogIntro = document.getElementById("batch-delete-intro");
   dialogList = document.getElementById("batch-delete-list");
   form = dialog.querySelector("form");
-  btnSubmit = document.getElementById("batch-delete-submit");
-  btnClose = document.getElementById("batch-delete-close");
+  submitButton = document.getElementById("batch-delete-submit");
+  closeButton = document.getElementById("batch-delete-close");
   errorEl = document.getElementById("batch-delete-error");
 }
 
@@ -220,7 +220,7 @@ function updateDialogIntro({ dirsCount, filesCount }) {
 function renderStatusChange() {
   const submitted = statusSignal.value === "submitted";
   disableControls(submitted);
-  btnSubmit.classList.toggle("spinner", submitted);
+  submitButton.classList.toggle("spinner", submitted);
 }
 
 function renderError(msg) {
@@ -229,6 +229,6 @@ function renderError(msg) {
 }
 
 function disableControls(disabled) {
-  btnSubmit.disabled = disabled;
-  btnClose.disabled = disabled;
+  submitButton.disabled = disabled;
+  closeButton.disabled = disabled;
 }

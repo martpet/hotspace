@@ -74,7 +74,7 @@ errorSignal.subscribe((msg) => {
 });
 
 // =====================
-// Util
+// Utils
 // =====================
 
 async function submitData() {

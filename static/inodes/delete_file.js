@@ -2,7 +2,7 @@ const button = document.getElementById("delete-button");
 
 let dialog;
 let form;
-let closeButton;
+let buttonClose;
 
 button.disabled = false;
 
@@ -19,7 +19,7 @@ button.onclick = () => {
 };
 
 function initDialogEvents() {
-  closeButton.onclick = () => {
+  buttonClose.onclick = () => {
     dialog.close();
   };
 
@@ -40,7 +40,7 @@ function insertDialog() {
     `
         <dialog id="delete-inode-dialog">
           <h1>Delete File</h1>
-          <form action="/inodes/delete_file" method="post" class="basic-form">
+          <form action="/inodes/delete" method="post" class="basic-form">
             <input type="hidden" name="pathname" value="${location.pathname}" />
             <p class="alert warning">
               <strong>${fileName}</strong> and its chat messages will be deleted.<br />
@@ -59,6 +59,6 @@ function insertDialog() {
       `,
   );
   dialog = document.getElementById("delete-inode-dialog");
-  closeButton = document.getElementById("delete-inode-close");
+  buttonClose = document.getElementById("delete-inode-close");
   form = dialog.querySelector("form");
 }

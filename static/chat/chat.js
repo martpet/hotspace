@@ -561,7 +561,7 @@ function mainBoxIntersectionObserved(entries) {
 }
 
 // =====================
-// Helpers
+// Utils
 // =====================
 
 function userActive() {

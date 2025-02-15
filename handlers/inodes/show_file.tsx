@@ -41,7 +41,7 @@ export default async function showFileHandler(ctx: AppContext) {
   })).value;
 
   if (!fileNode) {
-    return <NotFoundPage />;
+    return <NotFoundPage header={{ breadcrumb: true }} />;
   }
 
   const isOwner = fileNode.ownerId === user?.id;
