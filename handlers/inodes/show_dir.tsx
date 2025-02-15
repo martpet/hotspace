@@ -14,14 +14,30 @@ import { parsePath } from "../../util/url.ts";
 export default async function showInodeHandler(ctx: AppContext) {
   const { user } = ctx.state;
   const path = parsePath(ctx.url.pathname);
-  const dirNode = (await getDirNode(path.segments, "eventual")).value;
+  const fragmentId = ctx.url.searchParams.get("fragment");
+
+  const dirNode =
+    (await getDirNode(path.segments, fragmentId ? "strong" : "eventual")).value;
 
   if (!dirNode) {
     return <NotFoundPage header={{ breadcrumb: true }} />;
   }
 
-  const fragmentId = ctx.url.searchParams.get("fragment");
   const isDirOwner = dirNode.ownerId === user?.id;
+
+  const chatSection = (
+    <ChatSection
+      enabled={dirNode.chatEnabled}
+      chatId={dirNode.id}
+      chatTitle={dirNode.name}
+      isAdmin={isDirOwner}
+    />
+  );
+
+  if (fragmentId === "chat") {
+    return ctx.jsxFragment(chatSection);
+  }
+
   const inodes = await listInodesByDir(dirNode.id, {
     consistency: fragmentId ? "strong" : "eventual",
   });
@@ -36,19 +52,6 @@ export default async function showInodeHandler(ctx: AppContext) {
 
   if (fragmentId === "inodes") {
     return ctx.jsxFragment(inodesTable);
-  }
-
-  const chatSection = (
-    <ChatSection
-      enabled={dirNode.chatEnabled}
-      chatId={dirNode.id}
-      chatTitle={dirNode.name}
-      isAdmin={isDirOwner}
-    />
-  );
-
-  if (fragmentId === "chat") {
-    return ctx.jsxFragment(chatSection);
   }
 
   const head = (

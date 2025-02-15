@@ -28,9 +28,11 @@ export default function chatConnectionHandler(ctx: AppContext) {
 
   const path = parsePath(new URL(chatPageUrl).pathname);
 
-  let chatKvKey = inodesKeys.dirsByPath(path.segments);
+  let chatKvKey;
 
-  if (!path.isDir) {
+  if (path.isDir) {
+    chatKvKey = inodesKeys.dirsByPath(path.segments);
+  } else {
     const parentDirId = ctx.url.searchParams.get("parentDirId");
     if (!parentDirId) return ctx.respond(null, STATUS_CODE.NotFound);
     chatKvKey = inodesKeys.byDir(parentDirId, path.lastSegment);
