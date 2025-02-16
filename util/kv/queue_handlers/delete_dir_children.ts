@@ -2,8 +2,8 @@ import { deleteDirChildren } from "../../inodes_helpers.ts";
 
 export interface QueueMsgDeleteDirChildren {
   type: "delete-dir-children";
-  pathSegments: string[];
   dirId: string;
+  pathSegments: string[];
   userId: string;
 }
 

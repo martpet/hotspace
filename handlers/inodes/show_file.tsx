@@ -12,7 +12,7 @@ import {
   CLOUDFRONT_SIGNER_PRIVATE_KEY,
   INODES_CLOUDFRONT_URL,
 } from "../../util/consts.ts";
-import { getDirNode, getInodeByDir } from "../../util/kv/inodes.ts";
+import { getDirNode, getInode } from "../../util/kv/inodes.ts";
 import { type AppContext, FileNode } from "../../util/types.ts";
 import { parsePath } from "../../util/url.ts";
 
@@ -34,7 +34,7 @@ export default async function showFileHandler(ctx: AppContext) {
 
   const fragmentId = ctx.url.searchParams.get("fragment");
 
-  const fileNode = (await getInodeByDir<FileNode>({
+  const fileNode = (await getInode<FileNode>({
     inodeName: path.lastSegment,
     parentDirId: parentDir.id,
     consistency: fragmentId ? "strong" : "eventual",

@@ -3,7 +3,7 @@ import { INODES_BUCKET } from "./consts.ts";
 import { enqueue } from "./kv/enqueue.ts";
 import {
   deleteDirNode,
-  deleteInodeByDir,
+  deleteInode,
   listInodesEntriesByDir,
 } from "./kv/inodes.ts";
 import { kv } from "./kv/kv.ts";
@@ -14,18 +14,18 @@ import { setUploadSize } from "./kv/upload_size.ts";
 import type { DirNode, FileNode, Inode } from "./types.ts";
 
 export async function deleteDirChildren({
-  pathSegments,
   dirId,
+  pathSegments,
   userId,
   entries,
 }: {
-  pathSegments: string[];
   dirId: string;
+  pathSegments: string[];
   userId: string;
   entries?: Deno.KvEntryMaybe<Inode>[];
 }) {
   const queue = newQueue(5);
-  entries = entries || await listInodesEntriesByDir(dirId);
+  entries ??= await listInodesEntriesByDir(dirId);
 
   for (const entry of entries) {
     if (!entry.value || entry.value.ownerId !== userId) {
@@ -67,7 +67,7 @@ export function deleteFile({
   const fileNode = fileNodeEntry.value;
   atomic.check(fileNodeEntry);
 
-  deleteInodeByDir({
+  deleteInode({
     inodeName: fileNode.name,
     parentDirId,
     atomic,

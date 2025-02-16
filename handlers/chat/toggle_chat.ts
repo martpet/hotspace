@@ -1,9 +1,9 @@
 import { STATUS_CODE } from "@std/http";
 import {
   getDirNode,
-  getInodeByDir,
+  getInode,
   setDirNode,
-  setInodeByDir,
+  setInode,
 } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import type { AppContext, DirNode } from "../../util/types.ts";
@@ -41,7 +41,7 @@ export default async function toggleChatHandler(ctx: AppContext) {
   if (path.isDir) {
     inodeEntry = await getDirNode(path.segments);
   } else {
-    inodeEntry = await getInodeByDir({
+    inodeEntry = await getInode({
       inodeName: path.lastSegment,
       parentDirId: parentDirEntry!.value.id,
     });
@@ -71,7 +71,7 @@ export default async function toggleChatHandler(ctx: AppContext) {
       atomic,
     });
   } else {
-    setInodeByDir({
+    setInode({
       inode,
       parentDirId: parentDirEntry!.value.id,
       atomic,

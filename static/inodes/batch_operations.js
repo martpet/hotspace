@@ -93,10 +93,13 @@ errorSignal.subscribe((msg) => {
 // =====================
 
 async function submitData() {
-  const pathnames = selection.map((it) => it.pathname);
+  const inodesNames = selection.map((it) => it.name);
   const resp = await fetch("/inodes/delete", {
     method: "post",
-    body: JSON.stringify({ pathnames }),
+    body: JSON.stringify({
+      pathname: location.pathname,
+      inodesNames,
+    }),
   });
   if (resp.ok) {
     await replaceFragment("inodes");
@@ -137,8 +140,10 @@ function getContainerElements() {
 function getChboxData(chbox) {
   if (!chbox.dataset.name) {
     const anchor = chbox.closest("tr").querySelector(".name a");
-    chbox.dataset.name = anchor.textContent;
-    chbox.dataset.pathname = new URL(anchor.href).pathname;
+    const { pathname } = new URL(anchor.href);
+    chbox.dataset.pathname = pathname;
+    chbox.dataset.name = pathname.split("/").filter(Boolean).at(-1);
+    chbox.dataset.decodedName = anchor.textContent;
     chbox.dataset.isDir = anchor.classList.contains("dir") ? "1" : "";
   }
   return { ...chbox.dataset };
@@ -193,11 +198,11 @@ function updateDialogList() {
   let html = "";
   let dirsCount = 0;
   let filesCount = 0;
-  for (const { isDir, name, pathname } of selection) {
+  for (const { isDir, decodedName, pathname } of selection) {
     isDir ? dirsCount++ : filesCount++;
     const css = `inode ${isDir ? "dir" : "file"}`;
     html +=
-      `<li><a href="${pathname}" target="_blank" class="${css}">${name}</a></li>`;
+      `<li><a href="${pathname}" target="_blank" class="${css}">${decodedName}</a></li>`;
   }
   dialogList.innerHTML = html;
   return { dirsCount, filesCount };

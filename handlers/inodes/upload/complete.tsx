@@ -11,7 +11,7 @@ import { enqueue } from "../../../util/kv/enqueue.ts";
 import {
   getDirNode,
   keys as inodesKeys,
-  setInodeByDir,
+  setInode,
 } from "../../../util/kv/inodes.ts";
 import { kv } from "../../../util/kv/kv.ts";
 import {
@@ -96,7 +96,7 @@ export default async function completeUploadHandler(ctx: AppContext) {
       const parentDirId = parentDirEntry.value.id;
 
       const atomic = kv.atomic();
-      setInodeByDir({ parentDirId, inode, atomic });
+      setInode({ parentDirId, inode, atomic });
       setUploadSize({ userId: user.id, size: upload.fileSize, atomic });
       atomic.check(parentDirEntry);
       atomic.check({

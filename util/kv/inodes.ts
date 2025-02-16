@@ -15,7 +15,7 @@ export const keys = {
   ) => ["root_dirs_by_owner", ownerId, dirId],
 };
 
-export function setInodeByDir({
+export function setInode({
   inode,
   parentDirId,
   atomic = kv.atomic(),
@@ -27,7 +27,7 @@ export function setInodeByDir({
   return atomic.set(keys.byDir(parentDirId, inode.name), inode);
 }
 
-export function getInodeByDir<T = Inode>({
+export function getInode<T = Inode>({
   inodeName,
   parentDirId,
   consistency,
@@ -39,7 +39,7 @@ export function getInodeByDir<T = Inode>({
   return kv.get<T>(keys.byDir(parentDirId, inodeName), { consistency });
 }
 
-export function deleteInodeByDir({
+export function deleteInode({
   inodeName,
   parentDirId,
   atomic = kv.atomic(),
@@ -81,7 +81,7 @@ export function setDirNode({
 }) {
   atomic.set(keys.dirsByPath(pathSegments), dirNode);
   if (parentDirId) {
-    setInodeByDir({ inode: dirNode, parentDirId: parentDirId, atomic });
+    setInode({ inode: dirNode, parentDirId: parentDirId, atomic });
   } else {
     atomic.set(keys.rootDirsByOwner(dirNode.ownerId, dirNode.id), dirNode);
   }
@@ -107,7 +107,7 @@ export function deleteDirNode({
   atomic?: Deno.AtomicOperation;
 }) {
   if (parentDirId) {
-    deleteInodeByDir({
+    deleteInode({
       inodeName: dirNode.name,
       parentDirId: parentDirId,
       atomic,

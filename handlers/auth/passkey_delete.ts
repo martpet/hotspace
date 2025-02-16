@@ -15,8 +15,8 @@ export default async function passkeyDeleteHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.Unauthorized);
   }
 
-  const formData = await ctx.req.formData();
-  const credId = formData.get("credId") as string;
+  const form = await ctx.req.formData();
+  const credId = form.get("credId") as string;
   const passkeyEntry = await getPasskeyById(credId);
   const passkey = passkeyEntry.value;
 

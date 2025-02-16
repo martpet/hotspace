@@ -5,12 +5,8 @@
 }
 
 #batch-delete-list {
-  li {
-    max-width: 32em;
-  }
-}
-
-#batch-delete-list {
+  min-width: 30em;
+  max-width: 50em;
   padding: 1em;
   border: 1px dotted var(--border-grey);
   list-style: none;
@@ -33,8 +29,8 @@
   margin-left: auto;
 }
 
-#delete-inode-dialog {
-  max-width: 30em;
+#delete-file-dialog {
+  max-width: 32em;
 }
 
 #inodes {
