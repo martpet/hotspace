@@ -1,4 +1,5 @@
 import { asset } from "$server";
+import { parsePath } from "$util";
 import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
 import ChatSection from "../../snippets/chat/ChatSection.tsx";
 import BatchOperationsButtons from "../../snippets/inodes/BatchOperationsButtons.tsx";
@@ -9,7 +10,6 @@ import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";
 import Page from "../../snippets/pages/Page.tsx";
 import { getDirNode, listInodesByDir } from "../../util/kv/inodes.ts";
 import type { AppContext } from "../../util/types.ts";
-import { parsePath } from "../../util/url.ts";
 
 export default async function showInodeHandler(ctx: AppContext) {
   const { user } = ctx.state;

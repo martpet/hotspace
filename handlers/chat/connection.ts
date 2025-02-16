@@ -1,11 +1,11 @@
 import { ChatConnection, type CheckAdminFn } from "$chat";
+import { parsePath } from "$util";
 import { STATUS_CODE } from "@std/http";
 import { enqueue } from "../../util/kv/enqueue.ts";
 import { keys as inodesKeys } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { keys as userKvKeys } from "../../util/kv/users.ts";
 import type { AppContext, Inode } from "../../util/types.ts";
-import { parsePath } from "../../util/url.ts";
 
 export default function chatConnectionHandler(ctx: AppContext) {
   const { user } = ctx.state;

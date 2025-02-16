@@ -1,9 +1,9 @@
+import { parsePath } from "$util";
 import { STATUS_CODE } from "@std/http";
 import { deleteDirChildren } from "../../util/inodes_helpers.ts";
 import { getDirNode, keys as getInodeKey } from "../../util/kv/inodes.ts";
 import { getManyEntries } from "../../util/kv/kv.ts";
 import type { AppContext, Inode } from "../../util/types.ts";
-import { parsePath } from "../../util/url.ts";
 
 interface ReqData {
   pathname: string;

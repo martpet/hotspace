@@ -108,7 +108,7 @@ function insertDialog() {
         <form class="basic-form">
           <label>
             Name:
-            <input type="text" name="dirName" required />
+            <input type="text" name="dirName" required autocomplete="off" />
             <small ${!isRootDir && "hidden"}>
               ${location.href}<output name="namePreview"></output>
             </small>

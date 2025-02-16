@@ -1,3 +1,11 @@
+export interface Path {
+  segments: string[];
+  parentSegments: string[];
+  lastSegment: string;
+  isRootSegment: boolean;
+  isDir: boolean;
+}
+
 export interface FormFieldConstraints {
   minLength?: number;
   maxLength?: number;

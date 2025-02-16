@@ -1,4 +1,5 @@
 import { signCloudFrontUrl } from "$aws";
+import { parsePath } from "$util";
 import { STATUS_CODE } from "@std/http";
 import { asset } from "../../lib/server/util/asset_path.ts";
 import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
@@ -14,7 +15,6 @@ import {
 } from "../../util/consts.ts";
 import { getDirNode, getInode } from "../../util/kv/inodes.ts";
 import { type AppContext, FileNode } from "../../util/types.ts";
-import { parsePath } from "../../util/url.ts";
 
 const IS_PUBLIC_ACCESS_ENABLED = true;
 

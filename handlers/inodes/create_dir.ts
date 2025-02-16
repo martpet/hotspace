@@ -1,10 +1,11 @@
+import { parsePath } from "$util";
 import { STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
 import { getDirNode, setDirNode } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { reservedWords } from "../../util/reserved_words.ts";
 import type { AppContext, DirNode } from "../../util/types.ts";
-import { isValidDirPath, parsePath } from "../../util/url.ts";
+import { isValidDirPath } from "../../util/url.ts";
 
 interface ReqData {
   pathname: string;

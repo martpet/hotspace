@@ -1,3 +1,4 @@
+import { parsePath } from "$util";
 import { STATUS_CODE } from "@std/http";
 import {
   getDirNode,
@@ -7,7 +8,6 @@ import {
 } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import type { AppContext, DirNode } from "../../util/types.ts";
-import { parsePath } from "../../util/url.ts";
 
 interface ReqData {
   pathname: string;

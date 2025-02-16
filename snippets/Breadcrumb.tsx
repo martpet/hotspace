@@ -1,5 +1,5 @@
+import { parsePath, type Path } from "$util";
 import { AppContext } from "../util/types.ts";
-import { parsePath, type Path } from "../util/url.ts";
 
 export default function Breadcrumb(_: unknown, ctx: AppContext) {
   const { user } = ctx.state;

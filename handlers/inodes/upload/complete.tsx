@@ -1,5 +1,6 @@
 import { type CompletedUpload } from "$aws";
 import { completeUploads } from "$upload";
+import { parsePath } from "$util";
 import { STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
 import {
@@ -24,7 +25,6 @@ import type {
   FileNode,
   User,
 } from "../../../util/types.ts";
-import { parsePath } from "../../../util/url.ts";
 
 type ReqData = {
   uploads: CompletedUpload[];

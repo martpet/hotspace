@@ -1,24 +1,5 @@
+import { pathToSegments } from "$util";
 import { DIRNODE_NAME_CONSTRAINTS } from "./constraints.ts";
-
-export interface Path {
-  segments: string[];
-  parentSegments: string[];
-  lastSegment: string;
-  isRootSegment: boolean;
-  isDir: boolean;
-}
-
-export function parsePath(pathname: string): Path {
-  const segments = pathToSegments(pathname);
-  if (!segments.length) throw new Error("Pathname has no segments");
-  return {
-    segments,
-    parentSegments: segments.slice(0, -1),
-    lastSegment: segments.at(-1)!,
-    isRootSegment: segments.length === 1,
-    isDir: pathname.endsWith("/"),
-  };
-}
 
 export function isValidDirPath(path: unknown): path is string {
   const pathPartPattern = new RegExp(DIRNODE_NAME_CONSTRAINTS.pattern);
@@ -29,8 +10,4 @@ export function isValidDirPath(path: unknown): path is string {
       part.length <= DIRNODE_NAME_CONSTRAINTS.maxLength &&
       pathPartPattern.test(part)
     );
-}
-
-function pathToSegments(path: string) {
-  return path.split("/").filter((part) => part !== "");
 }
