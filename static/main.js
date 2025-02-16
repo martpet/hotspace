@@ -290,8 +290,12 @@ export function throttle(func, limit) {
 
 export function setFlash(flash) {
   if (typeof flash === "string") flash = { msg: flash, type: "success" };
-  const encodedFlash = encodeURIComponent(JSON.stringify(flash));
-  document.cookie = `flash=${encodedFlash};path=/`;
+  const encoded = encodeURIComponent(JSON.stringify(flash));
+  document.cookie = `flash=${encoded};path=/`;
+}
+
+export function setKvStrongCookie() {
+  document.cookie = `kvStrong=true;path=/`;
 }
 
 export function createSignal(initialValue) {

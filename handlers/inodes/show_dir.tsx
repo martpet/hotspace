@@ -15,9 +15,7 @@ export default async function showInodeHandler(ctx: AppContext) {
   const { user } = ctx.state;
   const path = parsePath(ctx.url.pathname);
   const fragmentId = ctx.url.searchParams.get("fragment");
-  const consistency = fragmentId || ctx.url.searchParams.has("s")
-    ? "strong"
-    : "eventual";
+  const consistency = fragmentId || ctx.state.kvStrong ? "strong" : "eventual";
 
   const dirNode = (await getDirNode(path.segments, consistency)).value;
 

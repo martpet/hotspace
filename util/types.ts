@@ -4,6 +4,7 @@ import type { PushSubscription } from "@negrel/webpush";
 
 export type AppContext = Context<
   State & {
+    kvStrong?: boolean;
     canUseServiceWorker?: boolean;
   }
 >;

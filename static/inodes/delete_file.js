@@ -1,4 +1,9 @@
-import { createSignal, GENERAL_ERR_MSG, setFlash } from "$main";
+import {
+  createSignal,
+  GENERAL_ERR_MSG,
+  setFlash,
+  setKvStrongCookie,
+} from "$main";
 
 const button = document.getElementById("delete-button");
 
@@ -73,7 +78,8 @@ async function submitData() {
   });
   if (resp.ok) {
     setFlash(`Successfully deleted '${decodeURIComponent(fileName)}'`);
-    location = "./?s";
+    setKvStrongCookie();
+    location = "./";
   } else if (resp.status === 404) {
     setFlash({ msg: "Not Found", type: "error" });
     location = "./";
