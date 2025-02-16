@@ -1,4 +1,4 @@
-import { createSignal, GENERAL_ERR_MSG } from "$main";
+import { createSignal, GENERAL_ERR_MSG, setFlash } from "$main";
 
 const button = document.getElementById("delete-button");
 
@@ -71,7 +71,11 @@ async function submitData() {
     method: "post",
     body: JSON.stringify({ pathname, inodesNames: [fileName] }),
   });
-  if (resp.ok || resp.status === 404) {
+  if (resp.ok) {
+    setFlash(`Successfully deleted '${decodeURIComponent(fileName)}'`);
+    location = "./?s";
+  } else if (resp.status === 404) {
+    setFlash({ msg: "Not Found", type: "error" });
     location = "./";
   } else {
     errorSignal.value = await resp.text() || GENERAL_ERR_MSG;

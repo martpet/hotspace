@@ -15,9 +15,11 @@ export default async function showInodeHandler(ctx: AppContext) {
   const { user } = ctx.state;
   const path = parsePath(ctx.url.pathname);
   const fragmentId = ctx.url.searchParams.get("fragment");
+  const consistency = fragmentId || ctx.url.searchParams.has("s")
+    ? "strong"
+    : "eventual";
 
-  const dirNode =
-    (await getDirNode(path.segments, fragmentId ? "strong" : "eventual")).value;
+  const dirNode = (await getDirNode(path.segments, consistency)).value;
 
   if (!dirNode) {
     return <NotFoundPage header={{ breadcrumb: true }} />;
@@ -38,9 +40,7 @@ export default async function showInodeHandler(ctx: AppContext) {
     return ctx.jsxFragment(chatSection);
   }
 
-  const inodes = await listInodesByDir(dirNode.id, {
-    consistency: fragmentId ? "strong" : "eventual",
-  });
+  const inodes = await listInodesByDir(dirNode.id, { consistency });
 
   const inodesTable = (
     <InodesTable

@@ -288,6 +288,12 @@ export function throttle(func, limit) {
   };
 }
 
+export function setFlash(flash) {
+  if (typeof flash === "string") flash = { msg: flash, type: "success" };
+  const encodedFlash = encodeURIComponent(JSON.stringify(flash));
+  document.cookie = `flash=${encodedFlash};path=/`;
+}
+
 export function createSignal(initialValue) {
   let value = initialValue;
   let prevValue = undefined;
