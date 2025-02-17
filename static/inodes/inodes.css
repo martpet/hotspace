@@ -70,7 +70,7 @@ a.inode {
         background-color: var(--bg-light);
       }
       &:has(.chbox :checked) {
-        background-color: var(--bg-highlight);
+        background-color: Highlight;
         td {
           border-block-color: Canvas;
           border-style: dotted;
