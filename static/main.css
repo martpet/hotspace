@@ -1,11 +1,13 @@
 :root {
   --text-grey: darkGrey;
+  --text-dim: oklch(from CanvasText calc(l + 0.5) c h);
   --border-grey: lightGray;
   --border-grey-light: #ebebeb;
   --bg-light: #eee;
 
   @media (prefers-color-scheme: dark) {
     --text-grey: GrayText;
+    --text-dim: oklch(from CanvasText calc(l - 0.2) c h);
     --border-grey: oklch(from Canvas calc(l + 0.15) c h);
     --border-grey-light: oklch(from Canvas calc(l + 0.08) c h);
     --bg-light: oklch(from Canvas calc(l + 0.05) c h);
@@ -318,29 +320,17 @@ dialog {
 }
 
 #spaces {
-  display: grid;
-  grid: auto-flow / repeat(auto-fit, minmax(20em, min(100%, 30em)));
-  gap: 1rem;
-  margin-bottom: 2em;
-}
-
-.card {
+  article {
+    margin: 2em 0;
+  }
   h1 {
     margin: 0;
-    font-size: 1.2em;
-    font-weight: 600;
+    font-size: 1.15em;
+    font-weight: 500;
     word-break: break-all;
   }
-  a {
-    display: flow-root;
-    height: 100%;
-    padding: 1em;
-    color: inherit;
-    text-decoration: none;
-    border-radius: 0.5rem;
-    border: 1px solid var(--border-grey);
-    &:hover {
-      outline: 1px solid Highlight;
-    }
+  p {
+    margin: 0.4em 0 0;
+    color: var(--text-dim);
   }
 }

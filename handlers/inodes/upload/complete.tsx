@@ -124,8 +124,14 @@ function isValidReqData(data: unknown): data is ReqData {
   return typeof data === "object" &&
     typeof pathname === "string" &&
     Array.isArray(uploads) && uploads.every((upload) => {
-      const { uploadId, s3Key, fileName, fileType, checksum, finishedParts } =
-        upload as Partial<CompletedUpload>;
+      const {
+        uploadId,
+        s3Key,
+        fileName,
+        fileType,
+        checksum,
+        finishedParts,
+      } = upload as Partial<CompletedUpload>;
       return typeof s3Key === "string" &&
         typeof uploadId === "string" &&
         typeof fileName === "string" &&

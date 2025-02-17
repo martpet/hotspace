@@ -72,8 +72,11 @@ a.inode {
       &:has(.chbox :checked) {
         background-color: Highlight;
         td {
-          border-block-color: Canvas;
+          border-inline-color: transparent;
           border-style: dotted;
+        }
+        .name a {
+          color: HighlightText;
         }
       }
     }
