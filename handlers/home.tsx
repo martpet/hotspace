@@ -1,3 +1,4 @@
+import ButtonCreateDir from "../snippets/inodes/ButtonCreateDir.tsx";
 import Spaces from "../snippets/inodes/Spaces.tsx";
 import Page from "../snippets/pages/Page.tsx";
 import { listRootDirsByOwner } from "../util/kv/inodes.ts";
@@ -26,6 +27,7 @@ export default async function homeHandler(ctx: AppContext) {
     <Page>
       <h1>Your spaces</h1>
       {spacesList}
+      <ButtonCreateDir isRoot />
     </Page>
   );
 }
