@@ -25,8 +25,11 @@ export default function Page(props: PageProps, ctx: AppContext) {
     head,
     title,
     header: headerProps = {},
-    ...bodyElProps
+    ...bodyProps
   } = props;
+
+  let classes = `${userAgent.browser.name?.toLocaleLowerCase()}`;
+  if (bodyProps.class) classes += ` ${bodyProps.class}`;
 
   return (
     <html
@@ -52,7 +55,7 @@ export default function Page(props: PageProps, ctx: AppContext) {
         <link rel="stylesheet" href={asset("main.css")} />
         {head}
       </head>
-      <body {...bodyElProps}>
+      <body {...bodyProps} class={classes}>
         <PageHeader {...headerProps} />
         {flash && <Flash type={flash.type}>{flash.msg}</Flash>}
         {children}

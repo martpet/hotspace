@@ -320,8 +320,21 @@ dialog {
 }
 
 #spaces {
+  container-type: inline-size;
+  max-width: 90em;
+  column-width: 20em;
+  column-rule: 1px solid var(--border-grey-light);
+  gap: 10em;
+  &:not(:empty) {
+    margin-top: 2em;
+    body:not(.safari) & {
+      margin-bottom: 2em;
+    }
+  }
   article {
-    margin: 2em 0;
+    break-inside: avoid;
+    margin-bottom: 2cqw;
+    padding-bottom: 1em;
   }
   h1 {
     margin: 0;
