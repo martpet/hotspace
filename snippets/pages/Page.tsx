@@ -28,9 +28,6 @@ export default function Page(props: PageProps, ctx: AppContext) {
     ...bodyProps
   } = props;
 
-  let classes = `${userAgent.browser.name?.toLocaleLowerCase()}`;
-  if (bodyProps.class) classes += ` ${bodyProps.class}`;
-
   return (
     <html
       data-device-type={userAgent.device.type}
@@ -55,7 +52,7 @@ export default function Page(props: PageProps, ctx: AppContext) {
         <link rel="stylesheet" href={asset("main.css")} />
         {head}
       </head>
-      <body {...bodyProps} class={classes}>
+      <body {...bodyProps}>
         <PageHeader {...headerProps} />
         {flash && <Flash type={flash.type}>{flash.msg}</Flash>}
         {children}

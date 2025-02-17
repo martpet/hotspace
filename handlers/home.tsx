@@ -13,11 +13,12 @@ export default async function homeHandler(ctx: AppContext) {
 
   const fragmentId = ctx.url.searchParams.get("fragment");
 
-  const dirNodes = await listRootDirsByOwner(user.id, {
+  const spaces = await listRootDirsByOwner(user.id, {
     consistency: fragmentId ? "strong" : "eventual",
+    reverse: true,
   });
 
-  const spacesList = <Spaces id="spaces" spaces={dirNodes} />;
+  const spacesList = <Spaces spaces={spaces} />;
 
   if (fragmentId === "spaces") {
     return ctx.jsxFragment(spacesList);

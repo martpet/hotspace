@@ -325,22 +325,21 @@ dialog {
   column-width: 20em;
   column-rule: 1px solid var(--border-grey-light);
   gap: 10em;
-  &:not(:empty) {
-    margin-top: 2em;
-    body:not(.safari) & {
-      margin-bottom: 2em;
-    }
-  }
+  margin-top: 2em;
   article {
+    display: inline-block;
+    width: 100%;
     break-inside: avoid;
     margin-bottom: 2cqw;
     padding-bottom: 1em;
   }
   h1 {
     margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-size: 1.15em;
     font-weight: 500;
-    word-break: break-all;
   }
   p {
     margin: 0.4em 0 0;

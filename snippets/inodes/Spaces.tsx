@@ -1,17 +1,15 @@
 import { decodeTime } from "@std/ulid";
-import { type JSX } from "preact";
 import type { AppContext, DirNode } from "../../util/types.ts";
 
-interface Props extends JSX.HTMLAttributes<HTMLDivElement> {
+interface Props {
   spaces: DirNode[];
 }
 
-export default function Spaces(props: Props, ctx: AppContext) {
-  const { spaces, ...divProps } = props;
+export default function Spaces({ spaces }: Props, ctx: AppContext) {
   const dateFmt = new Intl.DateTimeFormat(ctx.locale, { dateStyle: "medium" });
 
   return (
-    <div {...divProps}>
+    <div id="spaces">
       {spaces.map((dir) => (
         <article>
           <h1>
