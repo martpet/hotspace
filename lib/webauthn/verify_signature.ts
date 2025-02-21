@@ -27,7 +27,7 @@ export async function verifySignature(opt: VerifySignatureOptions) {
     { name: "ECDSA", hash: { name: "SHA-256" } },
     key,
     parseSignature(signature),
-    signedData.buffer,
+    signedData,
   );
 }
 
