@@ -1,4 +1,5 @@
 import { newQueue } from "@henrygd/queue";
+import { deleteUserSpaces } from "../../inodes_helpers.ts";
 import { deletePasskey, listPasskeysByUser } from "../passkeys.ts";
 import { deleteSession, listSessionsByUser } from "../sessions.ts";
 import { deleteUploadSizeByUser } from "../upload_size.ts";
@@ -21,6 +22,10 @@ export async function handleCleanUpUser({ userId }: QueueMsgCleanUpUser) {
 
   const queue = newQueue(5);
 
+  queue.add(() => deleteUserSpaces(userId));
+
+  queue.add(() => deleteUploadSizeByUser(userId));
+
   for (const passkey of passkeys) {
     queue.add(() => deletePasskey(passkey).commit());
   }
@@ -28,8 +33,6 @@ export async function handleCleanUpUser({ userId }: QueueMsgCleanUpUser) {
   for (const session of sessions) {
     queue.add(() => deleteSession(session).commit());
   }
-
-  queue.add(() => deleteUploadSizeByUser(userId));
 
   return queue.done();
 }

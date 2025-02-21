@@ -1,11 +1,11 @@
 import { newQueue } from "@henrygd/queue";
-import { ulid } from "@std/ulid";
 import { INODES_BUCKET } from "./consts.ts";
 import { enqueue } from "./kv/enqueue.ts";
 import {
   deleteDirByPath,
   deleteInodeByDir,
   deleteRootDirByOwner,
+  listRootDirsEntriesByOwner,
   setDirByPath,
   setInodeByDir,
   setRootDirByOwner,
@@ -17,10 +17,12 @@ import { type QueueMsgDeleteS3Objects } from "./kv/queue_handlers/delete_s3_obje
 import { setUploadSize } from "./kv/upload_size.ts";
 import type { Inode } from "./types.ts";
 
+const ROOT_DIR_ID = "0";
+
 export function createRootDir() {
   return setDirByPath({
     dirNode: {
-      id: ulid(),
+      id: ROOT_DIR_ID,
       type: "dir",
       name: "root",
       ownerId: "",
@@ -160,4 +162,13 @@ export function deleteDirChildren({
     );
   }
   return queue.done();
+}
+
+export async function deleteUserSpaces(userId: string) {
+  return deleteDirChildren({
+    entries: await listRootDirsEntriesByOwner(userId),
+    dirId: ROOT_DIR_ID,
+    pathSegments: [],
+    userId,
+  });
 }

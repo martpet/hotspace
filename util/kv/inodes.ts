@@ -110,14 +110,21 @@ export function deleteDirByPath(pathSegments: string[], atomic = kv.atomic()) {
 export function setRootDirByOwner(dirNode: DirNode, atomic = kv.atomic()) {
   return atomic.set(keys.rootDirsByOwner(dirNode.ownerId, dirNode.id), dirNode);
 }
-
-export async function listRootDirsByOwner(
+export async function listRootDirsEntriesByOwner(
   ownerId: string,
   options?: Deno.KvListOptions,
 ) {
   const prefix = keys.rootDirsByOwner(ownerId, "").slice(0, -1);
   const iter = kv.list<DirNode>({ prefix }, options);
-  return (await Array.fromAsync(iter)).map((x) => x.value);
+  return await Array.fromAsync(iter);
+}
+
+export async function listRootDirsByOwner(
+  ownerId: string,
+  options?: Deno.KvListOptions,
+) {
+  const entries = await listRootDirsEntriesByOwner(ownerId, options);
+  return entries.map((x) => x.value);
 }
 
 export function deleteRootDirByOwner(dirNode: DirNode, atomic = kv.atomic()) {
