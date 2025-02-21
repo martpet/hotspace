@@ -12,6 +12,12 @@ export function setUser(user: User, atomic = kv.atomic()) {
     .set(keys.byUsername(user.username), user);
 }
 
+export function deleteUser(user: User, atomic = kv.atomic()) {
+  return atomic
+    .delete(keys.byId(user.id))
+    .delete(keys.byUsername(user.username));
+}
+
 export function getUserById(id: string) {
   return kv.get<User>(keys.byId(id));
 }

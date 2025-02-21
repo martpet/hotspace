@@ -33,7 +33,7 @@ export default async function credentialRequestVerifyHandler(ctx: AppContext) {
   const passkey = passkeyEntry.value;
 
   if (!passkey) {
-    return ctx.respond(null, STATUS_CODE.Forbidden);
+    return ctx.respond(null, STATUS_CODE.NotFound);
   }
 
   const authData = await verifyAssertion({

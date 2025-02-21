@@ -100,11 +100,11 @@ if (!isServiceWorkerScope) {
       return;
     }
     try {
-      const verified = await verify(credential);
-      if (verified) {
+      const result = await verify(credential);
+      if (result.verified) {
         location.reload();
       } else {
-        showError("Sign in failed!");
+        showError(result.error || "Sign in failed!");
       }
     } catch (err) {
       showError(GENERAL_ERR_MSG);
@@ -134,13 +134,18 @@ if (!isServiceWorkerScope) {
       method: "post",
       body: JSON.stringify(assertion),
     });
-    if (!resp.ok) {
+    if (resp.status === 404) {
+      return {
+        error:
+          "Your account has been deleted. Please, remove your passkey from your keychain.",
+      };
+    } else if (!resp.ok) {
       let errMsg = `Credential assertion verification error`;
       const respText = await resp.text();
       if (respText) errMsg = `${errMsg}: ${respText}`;
       throw new Error(errMsg);
     }
-    return (await resp.json()).verified;
+    return resp.json();
   }
 }
 

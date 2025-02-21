@@ -30,6 +30,12 @@ export function getSessionById(id: string) {
   return kv.get<Session>(keys.byId(id));
 }
 
+export async function listSessionsByUser(userId: string) {
+  const prefix = keys.byUser(userId, "").slice(0, -1);
+  const iter = kv.list<Session>({ prefix });
+  return (await Array.fromAsync(iter)).map((x) => x.value);
+}
+
 export async function listSessionsByPasskey(credId: string) {
   const prefix = keys.byPasskey(credId, "").slice(0, -1);
   const iter = kv.list<Session>({ prefix });

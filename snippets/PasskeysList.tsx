@@ -1,4 +1,4 @@
-import type { AppContext, Passkey } from "../util/types.ts";
+import type { Passkey } from "../util/types.ts";
 import { asset } from "../util/url.ts";
 import RegForm from "./auth/RegForm.tsx";
 import RelativeTime from "./RelativeTime.tsx";
@@ -15,21 +15,16 @@ export default function PasskeysList({ passkeys }: Props) {
 
       <ul class="passkeys-list">
         {passkeys.map((passkey) => (
-          <ListItem
-            passkey={passkey}
-            count={passkeys.length}
-          />
+          <ListItem passkey={passkey} count={passkeys.length} />
         ))}
       </ul>
+
       <RegForm />
     </>
   );
 }
 
-function ListItem(
-  props: { passkey: Passkey; count: number },
-  ctx: AppContext,
-) {
+function ListItem(props: { passkey: Passkey; count: number }) {
   const { passkey, count } = props;
   const { createdAt, lastUsedAt } = passkey;
 
@@ -38,7 +33,7 @@ function ListItem(
       <ButtonRename passkey={passkey} /> —{" "}
       {count > 1 && <ButtonDelete passkey={passkey} />}
       created {<RelativeTime date={createdAt} />}, {lastUsedAt
-        ? <>last used {<RelativeTime date={lastUsedAt} />}</>
+        ? <>last used {<RelativeTime date={lastUsedAt} />}.</>
         : "Never used."}
     </li>
   );

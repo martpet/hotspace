@@ -69,6 +69,13 @@ img {
   max-width: 100%;
 }
 
+hr {
+  margin: 1rem 0;
+  height: 1px;
+  border: none;
+  background: var(--border-grey-light);
+}
+
 input[type="checkbox"] {
   margin-inline: 2px;
 }

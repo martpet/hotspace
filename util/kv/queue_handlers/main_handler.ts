@@ -1,3 +1,4 @@
+import { handleCleanUpUser, isCleanUpUser } from "./clean_up_user.ts";
 import { handleDeleteChat, isDeleteChat } from "./delete_chat.ts";
 import {
   handleDeleteDirChildren,
@@ -17,6 +18,7 @@ export function queueHandler(msg: unknown) {
   if (isDeleteS3Objects(msg)) return handleDeleteS3Objects(msg);
   if (isDeleteDirChildren(msg)) return handleDeleteDirChildren(msg);
   if (isDeleteChat(msg)) return handleDeleteChat(msg);
+  if (isCleanUpUser(msg)) return handleCleanUpUser(msg);
 
   console.error("Unknown KV Queue msg received", msg);
 }

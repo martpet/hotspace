@@ -1,4 +1,5 @@
 import { format } from "@std/fmt/bytes";
+import ButtonDeleteAccount from "../../snippets/ButtonDeleteAccount.tsx";
 import LoginPage from "../../snippets/pages/LoginPage.tsx";
 import Page from "../../snippets/pages/Page.tsx";
 import PasskeysList from "../../snippets/PasskeysList.tsx";
@@ -21,21 +22,31 @@ export default async function passkeysHandler(ctx: AppContext) {
     </>
   );
 
-  const [passkeys, { value: uploadedSize }] = await Promise.all([
+  const [passkeys, uploadedSizeEntry] = await Promise.all([
     listPasskeysByUser(user.id),
     getUploadSizeByUser(user, { consistency: "eventual" }),
   ]);
+
+  const uploadSize = Number(uploadedSizeEntry.value);
 
   return (
     <Page title={title} head={head} header={{ siteNameIsLink: true }}>
       <h1>{title}</h1>
       <section>
         <h2>Storage size</h2>
-        <p>You have uploaded {format(Number(uploadedSize))}.</p>
+        {!!uploadSize && <p>You have uplaoded {format(uploadSize)}.</p>}
+        {!uploadSize && <p>You haven't uploaded anything yet.</p>}
       </section>
       <section>
-        <h2>Login passkeys</h2>
+        <h2>Passkeys</h2>
         <PasskeysList passkeys={passkeys} />
+      </section>
+      <section>
+        <h2>Delete account</h2>
+        <p>
+          Permanently delete your account, files and chat messages.
+        </p>
+        <ButtonDeleteAccount />
       </section>
     </Page>
   );

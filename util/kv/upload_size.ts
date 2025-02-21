@@ -19,6 +19,10 @@ export function setUploadSize(options: {
     .sum(keys.byUser(userId), bigint);
 }
 
+export function deleteUploadSizeByUser(userId: string) {
+  return kv.delete(keys.byUser(userId));
+}
+
 export function getUploadSizeByUser(
   user: User,
   options: { consistency?: Deno.KvConsistencyLevel } = {},
