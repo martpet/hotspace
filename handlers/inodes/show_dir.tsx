@@ -3,6 +3,7 @@ import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
 import ChatSection from "../../snippets/chat/ChatSection.tsx";
 import BatchOperationsButtons from "../../snippets/inodes/BatchOperationsButtons.tsx";
 import ButtonCreateDir from "../../snippets/inodes/ButtonCreateDir.tsx";
+import ButtonDeleteInode from "../../snippets/inodes/ButtonDeleteInode.tsx";
 import ButtonUpload from "../../snippets/inodes/ButtonUpload.tsx";
 import InodesTable from "../../snippets/inodes/InodesTable.tsx";
 import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";
@@ -12,7 +13,7 @@ import type { AppContext } from "../../util/types.ts";
 import { asset } from "../../util/url.ts";
 
 type FragmentId = "inodes" | "chat";
-type From = "delete_file";
+type From = "delete";
 
 export default async function showInodeHandler(ctx: AppContext) {
   const { user } = ctx.state;
@@ -46,7 +47,7 @@ export default async function showInodeHandler(ctx: AppContext) {
   }
 
   const inodes = await listInodesByDir(dirNode.id, {
-    consistency: fragmentId === "inodes" || from === "delete_file"
+    consistency: fragmentId === "inodes" || from === "delete"
       ? "strong"
       : "eventual",
   });
@@ -83,6 +84,9 @@ export default async function showInodeHandler(ctx: AppContext) {
             <ButtonUpload />
             <ButtonCreateDir />
             <ButtonToggleChat chatEnabled={dirNode.chatEnabled} />
+            {path.isRootSegment && (
+              <ButtonDeleteInode>Delete Space</ButtonDeleteInode>
+            )}
             <BatchOperationsButtons />
           </menu>
         )}

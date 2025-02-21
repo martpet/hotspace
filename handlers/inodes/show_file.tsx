@@ -3,7 +3,7 @@ import { STATUS_CODE } from "@std/http";
 import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
 import Chat from "../../snippets/chat/ChatSection.tsx";
 import FilePreview from "../../snippets/FilePreview.tsx";
-import ButtonDeleteFile from "../../snippets/inodes/ButtonDeleteFile.tsx";
+import ButtonDeleteInode from "../../snippets/inodes/ButtonDeleteInode.tsx";
 import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";
 import Page from "../../snippets/pages/Page.tsx";
 import { INODES_CLOUDFRONT_URL } from "../../util/consts.ts";
@@ -84,7 +84,7 @@ export default async function showFileHandler(ctx: AppContext) {
       {isOwner && (
         <menu class="inodes-menu">
           <ButtonToggleChat chatEnabled={fileNode.chatEnabled} />
-          <ButtonDeleteFile fileName={fileName} />
+          <ButtonDeleteInode>Delete File</ButtonDeleteInode>
         </menu>
       )}
       <FilePreview

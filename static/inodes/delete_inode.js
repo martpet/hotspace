@@ -1,14 +1,18 @@
 import { createSignal, GENERAL_ERR_MSG, setFlash, setFromCookie } from "$main";
 
-const button = document.getElementById("delete-button");
+const button = document.getElementById("delete-inode-button");
+
+button.disabled = false;
 
 let dialog;
 let form;
+let inodeName;
+let inodeNameDecoded;
+let inodeType;
+let parentPathname;
 let closeButton;
 let submitButton;
 let errorEl;
-
-button.disabled = false;
 
 // =====================
 // Events
@@ -59,28 +63,31 @@ statusSignal.subscribe((status) => {
   }
 });
 
+errorSignal.subscribe((msg) => {
+  renderError(msg);
+});
+
 // =====================
 // Utils
 // =====================
 
 async function submitData() {
-  const pathParts = location.pathname.split("/");
-  const fileName = pathParts.pop();
-  const pathname = pathParts.join("/") + "/";
   const resp = await fetch("/inodes/delete", {
     method: "post",
     body: JSON.stringify({
-      pathname,
-      inodesNames: [fileName],
+      pathname: parentPathname,
+      inodesNames: [inodeName],
     }),
   });
   if (resp.ok) {
-    setFlash(`Successfully deleted '${decodeURIComponent(fileName)}'`);
-    setFromCookie("delete_file");
-    location = "./";
+    setFlash(
+      `Successfully deleted ${inodeType.toLowerCase()} '${inodeNameDecoded}'`,
+    );
+    setFromCookie("delete");
+    location = parentPathname;
   } else if (resp.status === 404) {
     setFlash({ msg: "Not Found", type: "error" });
-    location = "./";
+    location = parentPathname;
   } else {
     errorSignal.value = await resp.text() || GENERAL_ERR_MSG;
     statusSignal.value = "idle";
@@ -92,36 +99,49 @@ async function submitData() {
 // =====================
 
 function insertDialog() {
-  const { fileName } = button.dataset;
+  const pathnameParts = location.pathname.split("/").filter(Boolean);
+  inodeName = pathnameParts.at(-1);
+  inodeNameDecoded = decodeURIComponent(inodeName);
+  parentPathname = `/${pathnameParts.slice(0, -1).join("/")}/`;
+  if (pathnameParts.length === 1) parentPathname = "/";
+
+  const isDir = location.pathname.endsWith("/");
+  inodeType = !isDir ? "File" : parentPathname === "/" ? "Space" : "Folder";
+
+  const introText = isDir
+    ? `<strong>${inodeType} '${inodeName}'</strong> and everything inside it`
+    : `<strong>${inodeNameDecoded}</strong>  and its chat messages`;
+
   const PATTERN_CONFIRM = "permanently delete";
+
   button.insertAdjacentHTML(
     "afterend",
     `
-        <dialog id="delete-file-dialog">
-          <h1>Delete File</h1>
-          <form id="delete-file-form" class="basic-form">
+        <dialog id="delete-inode-dialog">
+          <h1>Delete ${inodeType}</h1>
+          <form id="delete-inode-form" class="basic-form">
             <p class="alert warning">
-              <strong>${fileName}</strong> and its chat messages will be deleted.<br />
-              This action cannot be undone.
+              ${introText}
+              will be deleted.<br /> This action cannot be undone.
             </p>
-            <p id="delete-error" class="alert error" hidden></p>
+            <p id="delete-inode-error" class="alert error" hidden></p>
             <label>
               <span>To confirm, type <em>${PATTERN_CONFIRM}</em> in the box:</span>
               <input type="text" autofocus required pattern="${PATTERN_CONFIRM}" />
             </label>
             <footer>
-              <button type="button" id="delete-file-close">Cancel</button>
-              <button id="delete-file-submit">Delete Forever</button>
+              <button type="button" id="delete-inode-close">Cancel</button>
+              <button id="delete-inode-submit">Delete Forever</button>
             </footer>
           </form>
         </dialog>
       `,
   );
-  dialog = document.getElementById("delete-file-dialog");
-  form = document.getElementById("delete-file-form");
-  closeButton = document.getElementById("delete-file-close");
-  submitButton = document.getElementById("delete-file-submit");
-  errorEl = document.getElementById("delete-file-error");
+  dialog = document.getElementById("delete-inode-dialog");
+  form = document.getElementById("delete-inode-form");
+  closeButton = document.getElementById("delete-inode-close");
+  submitButton = document.getElementById("delete-inode-submit");
+  errorEl = document.getElementById("delete-inode-error");
   statusSignal.value = "closed";
 }
 

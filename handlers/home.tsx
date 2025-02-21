@@ -5,6 +5,7 @@ import { listRootDirsByOwner } from "../util/kv/inodes.ts";
 import type { AppContext } from "../util/types.ts";
 
 type FragmentId = "spaces";
+type From = "delete";
 
 export default async function homeHandler(ctx: AppContext) {
   const user = ctx.state.user;
@@ -14,9 +15,12 @@ export default async function homeHandler(ctx: AppContext) {
   }
 
   const fragmentId = ctx.url.searchParams.get("fragment") as FragmentId | null;
+  const from = ctx.state.from as From | undefined;
 
   const spaces = await listRootDirsByOwner(user.id, {
-    consistency: fragmentId === "spaces" ? "strong" : "eventual",
+    consistency: fragmentId === "spaces" || from === "delete"
+      ? "strong"
+      : "eventual",
   });
 
   const spacesList = <Spaces spaces={spaces} />;
