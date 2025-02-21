@@ -1,0 +1,146 @@
+#dir-page {
+  #chat {
+    margin-top: 3rem;
+  }
+}
+
+#batch-delete-list {
+  min-width: 30em;
+  max-width: 50em;
+  padding: 1em;
+  border: 1px dotted var(--border-grey);
+  list-style: none;
+  li + li {
+    margin-top: 0.7em;
+  }
+  .inode::before {
+    font-size: 1.2em;
+    margin-right: 0.3em;
+  }
+  .inode::after {
+    content: "↗";
+    margin-left: 0.5em;
+    font-size: 0.8em;
+    display: inline-block;
+  }
+}
+
+#batch-operations-buttons {
+  margin-left: auto;
+}
+
+#delete-file-dialog {
+  max-width: 32em;
+}
+
+#inodes {
+  margin-top: 1em;
+  thead {
+    background: Canvas;
+    position: sticky;
+    top: 0;
+  }
+}
+
+a.inode {
+  &::before {
+    display: inline-block;
+    margin-right: 0.6em;
+    font-size: 1.5em;
+    vertical-align: middle;
+  }
+  &.dir::before {
+    content: "📁";
+  }
+  &.file::before {
+    content: "📄";
+  }
+}
+
+#inodes-container {
+  container-type: inline-size;
+}
+
+#inodes {
+  width: 100%;
+  border-spacing: 0;
+  tbody {
+    tr {
+      &:has(.chbox:hover) {
+        background-color: var(--bg-light);
+      }
+      &:has(.chbox :checked) {
+        background-color: Highlight;
+        td {
+          border-inline-color: transparent;
+          border-style: dotted;
+        }
+      }
+    }
+  }
+  th,
+  td {
+    padding-inline: 1em;
+    &:first-child {
+      padding-left: 0.5em;
+    }
+  }
+  th {
+    padding-block: 0.3em;
+    font-weight: 600;
+    text-align: initial;
+    border-bottom: 2px solid var(--border-grey-light);
+    &.chbox {
+      width: 1px;
+    }
+  }
+  td {
+    padding-block: 0.5em;
+    border-style: solid dotted;
+    border-width: 0 0 1px 0;
+    border-color: var(--border-grey-light);
+    &:not(:last-child) {
+      border-right-width: 1px;
+    }
+    &.chbox {
+      position: relative;
+      label {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    }
+  }
+  @container (width < 640px) {
+    thead {
+      display: none;
+    }
+    tr {
+      display: flex;
+      padding: 0.5em 0;
+      gap: 1em;
+      align-items: center;
+      border-bottom: 1px solid var(--border-grey-light);
+    }
+    td {
+      padding-block: 0;
+      border: none !important;
+      &:empty,
+      &.type,
+      &.size {
+        display: none;
+      }
+      &.name {
+        margin-right: auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      &.name a::before {
+        font-size: 1em;
+        margin-right: 0.5em;
+      }
+    }
+  }
+}
