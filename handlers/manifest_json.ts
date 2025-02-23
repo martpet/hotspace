@@ -1,4 +1,5 @@
 import type { AppContext } from "../util/types.ts";
+import { asset } from "../util/url.ts";
 
 export default function manifestJsonHandler(ctx: AppContext) {
   return ctx.json({
@@ -8,12 +9,12 @@ export default function manifestJsonHandler(ctx: AppContext) {
     "display": "standalone",
     "icons": [
       {
-        "src": "/static/img/logo.png",
+        "src": asset("img/logo.png"),
         "sizes": "512x512",
         "type": "image/png",
       },
       {
-        "src": "/static/img/logo.png",
+        "src": asset("img/logo.png"),
         "sizes": "192x192",
         "type": "image/png",
       },
