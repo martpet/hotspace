@@ -1,7 +1,7 @@
 import {
   type AwsCredentials,
+  createMultipartUpload,
   type FinishedUploadPart,
-  s3CreateMultipartUpload,
 } from "$aws";
 import { newQueue } from "@henrygd/queue";
 import { DAY } from "@std/datetime";
@@ -67,7 +67,7 @@ export async function initUploads(options: Options) {
           }
         } else {
           s3Key = crypto.randomUUID();
-          uploadId = await s3CreateMultipartUpload({
+          uploadId = await createMultipartUpload({
             s3Key,
             bucket,
             signer,

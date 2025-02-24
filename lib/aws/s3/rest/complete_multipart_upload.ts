@@ -6,7 +6,7 @@ import type { CompletedUpload, S3Options } from "../types.ts";
 interface Options extends S3Options, CompletedUpload {
 }
 
-export async function s3CompleteMultipartUpload(options: Options) {
+export async function completeMultipartUpload(options: Options) {
   const {
     s3Key,
     uploadId,

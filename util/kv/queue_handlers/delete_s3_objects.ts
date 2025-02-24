@@ -1,4 +1,4 @@
-import { s3DeleteObject } from "$aws";
+import { deleteObject } from "$aws";
 import { newQueue } from "@henrygd/queue";
 import { getSigner } from "../../aws.ts";
 
@@ -22,7 +22,7 @@ export function handleDeleteS3Objects(msg: QueueMsgDeleteS3Objects) {
 
   for (const s3Key of msg.s3Keys) {
     queue.add(() =>
-      s3DeleteObject({
+      deleteObject({
         s3Key,
         bucket: msg.bucket,
         signer: getSigner(),

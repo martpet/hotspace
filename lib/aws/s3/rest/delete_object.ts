@@ -9,7 +9,7 @@ interface Options extends S3Options {
   signer: AWSSignerV4;
 }
 
-export async function s3DeleteObject(options: Options) {
+export async function deleteObject(options: Options) {
   const { s3Key, bucket, signer, retryOptions = {} } = options;
   const url = `https://${bucket}.s3.amazonaws.com/${s3Key}`;
 

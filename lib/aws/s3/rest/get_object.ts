@@ -8,7 +8,7 @@ export interface GetObjectOptions extends S3Options {
   head?: boolean;
 }
 
-export default async function s3GetObject(options: GetObjectOptions) {
+export default async function getObject(options: GetObjectOptions) {
   const { s3Key, head, bucket, signer, retryOptions = {} } = options;
   const url = `https://${bucket}.s3.amazonaws.com/${s3Key}`;
 

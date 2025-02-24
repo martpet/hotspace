@@ -8,7 +8,7 @@ interface Options extends S3Options {
   headers?: Headers;
 }
 
-export async function s3CreateMultipartUpload(options: Options) {
+export async function createMultipartUpload(options: Options) {
   const {
     bucket,
     s3Key,
