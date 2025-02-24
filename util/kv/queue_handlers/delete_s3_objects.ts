@@ -1,6 +1,6 @@
 import { s3DeleteObject } from "$aws";
 import { newQueue } from "@henrygd/queue";
-import { AWS_CREDENTIALS, AWS_REGION } from "../../consts.ts";
+import { getSigner } from "../../aws.ts";
 
 export interface QueueMsgDeleteS3Objects {
   type: "delete-s3-objects";
@@ -25,8 +25,7 @@ export function handleDeleteS3Objects(msg: QueueMsgDeleteS3Objects) {
       s3DeleteObject({
         s3Key,
         bucket: msg.bucket,
-        credentials: AWS_CREDENTIALS,
-        region: AWS_REGION,
+        signer: getSigner(),
       })
     );
   }

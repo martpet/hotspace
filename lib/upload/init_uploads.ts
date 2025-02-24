@@ -1,18 +1,23 @@
 import {
+  type AwsCredentials,
   type FinishedUploadPart,
   s3CreateMultipartUpload,
-  type S3Options,
 } from "$aws";
 import { newQueue } from "@henrygd/queue";
 import { DAY } from "@std/datetime";
 import { getSignatureKey, getSignedUrl } from "aws_s3_presign";
+import { AWSSignerV4 } from "deno_aws_sign_v4";
 import type { SavedUpload, UploadInitData } from "./utils/types.ts";
 
 const QUEUE_CONCURRENCY = 10;
 const DEFAULT_SIGNED_URL_EXPIRES_IN = DAY / 1000;
 
-interface Options extends S3Options {
+interface Options {
   uploads: UploadInitData[];
+  region: string;
+  bucket: string;
+  credentials: AwsCredentials;
+  signer: AWSSignerV4;
   savedUploadExpiresIn: number;
   signedUrlExpiresIn?: number;
   s3Endpoint?: string;
@@ -25,6 +30,7 @@ export async function initUploads(options: Options) {
     region,
     bucket,
     credentials,
+    signer,
     savedUploadExpiresIn,
     signedUrlExpiresIn = DEFAULT_SIGNED_URL_EXPIRES_IN,
     s3Endpoint,
@@ -34,8 +40,8 @@ export async function initUploads(options: Options) {
   const signedUrls: string[] = [];
   let uploadedSize = 0;
 
-  const { accessKeyId, secretAccessKey } = credentials;
   const queue = newQueue(QUEUE_CONCURRENCY);
+  const { accessKeyId, secretAccessKey } = credentials;
 
   const signatureKey = getSignatureKey({
     date: new Date(),
@@ -63,9 +69,8 @@ export async function initUploads(options: Options) {
           s3Key = crypto.randomUUID();
           uploadId = await s3CreateMultipartUpload({
             s3Key,
-            region,
             bucket,
-            credentials,
+            signer,
             headers: headersFn?.(uplaod),
           });
           finishedParts = [];

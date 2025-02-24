@@ -1,9 +1,10 @@
-import type { AwsCredentials } from "../types.ts";
+import type { RetryOptions } from "@std/async";
+import type { AWSSignerV4 } from "deno_aws_sign_v4";
 
 export interface S3Options {
   bucket: string;
-  region: string;
-  credentials: AwsCredentials;
+  signer: AWSSignerV4;
+  retryOptions?: RetryOptions;
 }
 
 export interface FinishedUploadPart {

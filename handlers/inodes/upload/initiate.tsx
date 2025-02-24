@@ -2,6 +2,7 @@ import { initUploads, type UploadInitData } from "$upload";
 import { DAY } from "@std/datetime";
 import { HEADER } from "@std/http";
 import { STATUS_CODE } from "@std/http/status";
+import { getSigner } from "../../../util/aws.ts";
 import {
   AWS_CREDENTIALS,
   AWS_REGION,
@@ -36,6 +37,7 @@ export default async function initiateUploadHandler(ctx: AppContext) {
     region: AWS_REGION,
     bucket: INODES_BUCKET,
     credentials: AWS_CREDENTIALS,
+    signer: getSigner(),
     savedUploadExpiresIn: SAVED_UPLOAD_EXPIRES,
     s3Endpoint: S3_ACCELERATE_HOST,
     headersFn,

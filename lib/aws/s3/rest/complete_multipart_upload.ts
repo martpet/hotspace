@@ -1,11 +1,9 @@
 import { DOMParser, initParser } from "@b-fuze/deno-dom/wasm-noinit";
-import { retry, type RetryOptions } from "@std/async";
-import { AWSSignerV4 } from "deno_aws_sign_v4";
+import { retry } from "@std/async";
 import { textToSha256Hex } from "../../util.ts";
 import type { CompletedUpload, S3Options } from "../types.ts";
 
 interface Options extends S3Options, CompletedUpload {
-  retryOptions?: RetryOptions;
 }
 
 export async function s3CompleteMultipartUpload(options: Options) {
@@ -15,8 +13,7 @@ export async function s3CompleteMultipartUpload(options: Options) {
     checksum,
     finishedParts,
     bucket,
-    region,
-    credentials,
+    signer,
     retryOptions = {},
   } = options;
   const url = new URL(`https://${bucket}.s3.amazonaws.com/${s3Key}`);
@@ -45,11 +42,6 @@ export async function s3CompleteMultipartUpload(options: Options) {
       "x-amz-content-sha256": await textToSha256Hex(body),
       "x-amz-checksum-sha256": checksum,
     },
-  });
-
-  const signer = new AWSSignerV4(region, {
-    awsAccessKeyId: credentials.accessKeyId,
-    awsSecretKey: credentials.secretAccessKey,
   });
 
   const signedReq = await signer.sign("s3", req);

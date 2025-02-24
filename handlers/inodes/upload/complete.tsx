@@ -3,11 +3,8 @@ import { completeUploads } from "$upload";
 import { parsePathname } from "$util";
 import { STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
-import {
-  AWS_CREDENTIALS,
-  AWS_REGION,
-  INODES_BUCKET,
-} from "../../../util/consts.ts";
+import { getSigner } from "../../../util/aws.ts";
+import { INODES_BUCKET } from "../../../util/consts.ts";
 import { enqueue } from "../../../util/kv/enqueue.ts";
 import {
   getDirByPath,
@@ -60,8 +57,7 @@ export default async function completeUploadHandler(ctx: AppContext) {
   const { completedUploads } = await completeUploads({
     uploads,
     bucket: INODES_BUCKET,
-    region: AWS_REGION,
-    credentials: AWS_CREDENTIALS,
+    signer: getSigner(),
   });
 
   const completedIds = [];
