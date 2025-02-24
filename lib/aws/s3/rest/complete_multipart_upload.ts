@@ -1,9 +1,9 @@
 import { DOMParser, initParser } from "@b-fuze/deno-dom/wasm-noinit";
 import { retry } from "@std/async";
 import { textToSha256Hex } from "../../util.ts";
-import type { CompletedUpload, S3Options } from "../types.ts";
+import type { CompletedUpload, S3ReqOptions } from "../types.ts";
 
-interface Options extends S3Options, CompletedUpload {
+interface Options extends S3ReqOptions, CompletedUpload {
 }
 
 export async function completeMultipartUpload(options: Options) {

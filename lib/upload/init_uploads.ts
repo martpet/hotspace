@@ -1,8 +1,4 @@
-import {
-  type AwsCredentials,
-  createMultipartUpload,
-  type FinishedUploadPart,
-} from "$aws";
+import { type AwsCredentials, s3 } from "$aws";
 import { newQueue } from "@henrygd/queue";
 import { DAY } from "@std/datetime";
 import { getSignatureKey, getSignedUrl } from "aws_s3_presign";
@@ -57,7 +53,7 @@ export async function initUploads(options: Options) {
         let uploadId;
         let s3Key;
         let createdOn;
-        let finishedParts: FinishedUploadPart[];
+        let finishedParts: s3.FinishedUploadPart[];
 
         if (isValidSavedUpload(savedUpload, savedUploadExpiresIn)) {
           ({ uploadId, s3Key, createdOn, finishedParts } = savedUpload);
@@ -67,7 +63,7 @@ export async function initUploads(options: Options) {
           }
         } else {
           s3Key = crypto.randomUUID();
-          uploadId = await createMultipartUpload({
+          uploadId = await s3.createMultipartUpload({
             s3Key,
             bucket,
             signer,

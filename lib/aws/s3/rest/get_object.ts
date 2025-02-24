@@ -1,9 +1,9 @@
 import { initParser } from "@b-fuze/deno-dom/wasm-noinit";
 import { retry } from "@std/async";
 import { textToSha256Hex } from "../../util.ts";
-import type { S3Options } from "../types.ts";
+import type { S3ReqOptions } from "../types.ts";
 
-export interface GetObjectOptions extends S3Options {
+export interface GetObjectOptions extends S3ReqOptions {
   s3Key: string;
   head?: boolean;
 }

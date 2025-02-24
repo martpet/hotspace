@@ -1,4 +1,4 @@
-import type { FinishedUploadPart } from "$aws";
+import type { s3 } from "$aws";
 
 export interface UploadInitData {
   fileType: string;
@@ -12,5 +12,5 @@ export interface SavedUpload {
   s3Key: string;
   checksum: string;
   createdOn: number;
-  finishedParts: FinishedUploadPart[];
+  finishedParts: s3.FinishedUploadPart[];
 }

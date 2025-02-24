@@ -1,4 +1,4 @@
-import { type CompletedUpload } from "$aws";
+import { s3 } from "$aws";
 import { completeUploads } from "$upload";
 import { parsePathname } from "$util";
 import { STATUS_CODE } from "@std/http";
@@ -24,7 +24,7 @@ import type {
 } from "../../../util/types.ts";
 
 type ReqData = {
-  uploads: CompletedUpload[];
+  uploads: s3.CompletedUpload[];
   pathname: string;
 };
 
@@ -78,25 +78,20 @@ export default async function completeUploadHandler(ctx: AppContext) {
 
     while (!commit.ok) {
       inode.name = encodeURIComponent(upload.fileName);
-
       if (i > 0) {
         inode.name += `-${i + 1}`;
         parentDirEntry = await getDirByPath(path.segments);
       }
-
       if (!checkParentDir(parentDirEntry, user)) {
         const s3Keys = uploads.map((u) => u.s3Key);
         await deleteS3Objects(s3Keys);
         return ctx.respond(null, STATUS_CODE.Forbidden);
       }
-
       const parentDirId = parentDirEntry.value.id;
-
       const nullInodeCheck = {
         key: inodesKeys.byDir(parentDirId, inode.name),
         versionstamp: null,
       };
-
       const atomic = kv.atomic();
       setInodeByDir({ parentDirId, inode, atomic });
       setUploadSize({ userId: user.id, size: upload.fileSize, atomic });
@@ -137,7 +132,7 @@ function isValidReqData(data: unknown): data is ReqData {
         fileType,
         checksum,
         finishedParts,
-      } = upload as Partial<CompletedUpload>;
+      } = upload as Partial<s3.CompletedUpload>;
       return typeof s3Key === "string" &&
         typeof uploadId === "string" &&
         typeof fileName === "string" &&

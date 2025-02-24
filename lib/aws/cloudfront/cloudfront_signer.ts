@@ -9,7 +9,7 @@ interface Options {
   customPolicy?: Record<string, unknown>;
 }
 
-export async function signCloudFrontUrl(options: Options) {
+export async function signUrl(options: Options) {
   const {
     url,
     keyPairId,

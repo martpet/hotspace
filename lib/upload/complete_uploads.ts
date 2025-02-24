@@ -1,14 +1,8 @@
-import {
-  type CompletedUpload,
-  completeMultipartUpload,
-  deleteObject,
-  headObject,
-  type S3Options,
-} from "$aws";
+import { s3 } from "$aws";
 import { newQueue } from "@henrygd/queue";
 
-interface Options extends S3Options {
-  uploads: CompletedUpload[];
+interface Options extends s3.S3ReqOptions {
+  uploads: s3.CompletedUpload[];
 }
 
 export async function completeUploads(
@@ -16,17 +10,17 @@ export async function completeUploads(
 ) {
   const queue = newQueue(10);
   const { uploads, ...s3Opt } = options;
-  const completedUploads: ({ fileSize: number } & CompletedUpload)[] = [];
-  const failedUploads: CompletedUpload[] = [];
+  const completedUploads: ({ fileSize: number } & s3.CompletedUpload)[] = [];
+  const failedUploads: s3.CompletedUpload[] = [];
 
   for (const upload of uploads) {
     const { s3Key } = upload;
     queue.add(async () => {
       try {
-        await completeMultipartUpload({ ...upload, ...s3Opt });
-        const objHeaders = await headObject({ s3Key, ...s3Opt }).catch(
+        await s3.completeMultipartUpload({ ...upload, ...s3Opt });
+        const objHeaders = await s3.headObject({ s3Key, ...s3Opt }).catch(
           async (err) => {
-            await deleteObject({ s3Key, ...s3Opt });
+            await s3.deleteObject({ s3Key, ...s3Opt });
             throw err;
           },
         );

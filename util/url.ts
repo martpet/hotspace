@@ -1,4 +1,4 @@
-import { signCloudFrontUrl } from "$aws";
+import { cloudfront } from "$aws";
 import { ASSET_CACHE_PARAM } from "$server";
 import {
   ASSETS_CLOUDFRONT_URL,
@@ -8,7 +8,7 @@ import {
 import { DEPLOYMENT_HEX } from "./deployment_hex.ts";
 
 export function signUploadUrl(url: string) {
-  return signCloudFrontUrl({
+  return cloudfront.signUrl({
     url,
     keyPairId: CLOUDFRONT_KEYPAIR_ID,
     privateKey: CLOUDFRONT_SIGNER_PRIVATE_KEY,
