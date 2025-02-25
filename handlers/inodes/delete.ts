@@ -1,6 +1,6 @@
 import { parsePathname } from "$util";
 import { STATUS_CODE } from "@std/http";
-import { deleteDirChildren } from "../../util/inodes_helpers.ts";
+import { deleteInodesComplete } from "../../util/inodes_helpers.ts";
 import {
   getDirByPath,
   keys as getInodeByDirKey,
@@ -49,12 +49,7 @@ export default async function deleteHandler(ctx: AppContext) {
       user.id === dir.ownerId
     );
 
-  await deleteDirChildren({
-    entries,
-    dirId: dir.id,
-    pathSegments: path.segments,
-    userId: user.id,
-  });
+  await deleteInodesComplete(entries);
 
   return ctx.respond();
 }

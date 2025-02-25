@@ -2,6 +2,8 @@ import type { DirNode, Inode } from "../types.ts";
 import { kv } from "./kv.ts";
 
 export const keys = {
+  byId: (id: string) => ["inodes", id],
+
   byDir: (
     dirId: string,
     inodeName: string,
@@ -18,19 +20,27 @@ export const keys = {
 };
 
 // =====================
-// Inodes by Dir
+// Inodes
 // =====================
 
-export function setInodeByDir({
-  inode,
-  parentDirId,
-  atomic = kv.atomic(),
-}: {
-  inode: Inode;
-  parentDirId: string;
-  atomic?: Deno.AtomicOperation;
-}) {
-  return atomic.set(keys.byDir(parentDirId, inode.name), inode);
+export function setInode(inode: Inode, atomic = kv.atomic()) {
+  return atomic
+    .set(keys.byId(inode.id), inode)
+    .set(keys.byDir(inode.parentDirId, inode.name), inode);
+}
+
+export function deleteInode(inode: Inode, atomic = kv.atomic()) {
+  return atomic
+    .delete(keys.byId(inode.id))
+    .delete(keys.byDir(inode.parentDirId, inode.name));
+}
+
+export function getInodeById<T = Inode>(
+  id: string,
+  options: { consistency?: Deno.KvConsistencyLevel } = {},
+) {
+  const { consistency } = options;
+  return kv.get<T>(keys.byId(id), { consistency });
 }
 
 export function getInodeByDir<T = Inode>({
@@ -43,18 +53,6 @@ export function getInodeByDir<T = Inode>({
   consistency?: Deno.KvConsistencyLevel;
 }) {
   return kv.get<T>(keys.byDir(parentDirId, inodeName), { consistency });
-}
-
-export function deleteInodeByDir({
-  inodeName,
-  parentDirId,
-  atomic = kv.atomic(),
-}: {
-  inodeName: string;
-  parentDirId: string;
-  atomic?: Deno.AtomicOperation;
-}) {
-  return atomic.delete(keys.byDir(parentDirId, inodeName));
 }
 
 export async function listInodesByDir(
@@ -75,19 +73,16 @@ export async function listInodesEntriesByDir(
 }
 
 // =====================
-// Dirs by Path
+// Dirs
 // =====================
 
-export function setDirByPath({
-  dirNode,
-  pathSegments,
-  atomic = kv.atomic(),
-}: {
-  dirNode: DirNode;
-  pathSegments: string[];
-  atomic?: Deno.AtomicOperation;
-}) {
-  return atomic.set(keys.dirsByPath(pathSegments), dirNode);
+export function setDirByPath(dirNode: DirNode, atomic = kv.atomic()) {
+  return atomic.set(keys.dirsByPath(dirNode.pathSegments), dirNode);
+}
+
+export function deleteDirByPath(dirNode: DirNode, atomic = kv.atomic()) {
+  atomic.delete(keys.dirsByPath(dirNode.pathSegments));
+  return atomic;
 }
 
 export function getDirByPath(
@@ -98,11 +93,6 @@ export function getDirByPath(
   return kv.get<DirNode>(keys.dirsByPath(pathSegments), { consistency });
 }
 
-export function deleteDirByPath(pathSegments: string[], atomic = kv.atomic()) {
-  atomic.delete(keys.dirsByPath(pathSegments));
-  return atomic;
-}
-
 // =====================
 // Root Dirs by Owner
 // =====================
@@ -110,6 +100,11 @@ export function deleteDirByPath(pathSegments: string[], atomic = kv.atomic()) {
 export function setRootDirByOwner(dirNode: DirNode, atomic = kv.atomic()) {
   return atomic.set(keys.rootDirsByOwner(dirNode.ownerId, dirNode.id), dirNode);
 }
+
+export function deleteRootDirByOwner(dirNode: DirNode, atomic = kv.atomic()) {
+  return atomic.delete(keys.rootDirsByOwner(dirNode.ownerId, dirNode.id));
+}
+
 export async function listRootDirsEntriesByOwner(
   ownerId: string,
   options?: Deno.KvListOptions,
@@ -125,8 +120,4 @@ export async function listRootDirsByOwner(
 ) {
   const entries = await listRootDirsEntriesByOwner(ownerId, options);
   return entries.map((x) => x.value);
-}
-
-export function deleteRootDirByOwner(dirNode: DirNode, atomic = kv.atomic()) {
-  return atomic.delete(keys.rootDirsByOwner(dirNode.ownerId, dirNode.id));
 }

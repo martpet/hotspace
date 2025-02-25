@@ -1,5 +1,6 @@
 import { newQueue } from "@henrygd/queue";
-import { deleteUserSpaces } from "../../inodes_helpers.ts";
+import { deleteInodesComplete } from "../../inodes_helpers.ts";
+import { listRootDirsEntriesByOwner } from "../inodes.ts";
 import { deletePasskey, listPasskeysByUser } from "../passkeys.ts";
 import { deleteSession, listSessionsByUser } from "../sessions.ts";
 import { deleteUploadSizeByUser } from "../upload_size.ts";
@@ -17,12 +18,13 @@ export function isCleanUpUser(msg: unknown): msg is QueueMsgCleanUpUser {
 }
 
 export async function handleCleanUpUser({ userId }: QueueMsgCleanUpUser) {
+  const rootDirsEntries = await listRootDirsEntriesByOwner(userId);
   const passkeys = await listPasskeysByUser(userId);
   const sessions = await listSessionsByUser(userId);
 
   const queue = newQueue(5);
 
-  queue.add(() => deleteUserSpaces(userId));
+  queue.add(() => deleteInodesComplete(rootDirsEntries));
 
   queue.add(() => deleteUploadSizeByUser(userId));
 

@@ -48,7 +48,6 @@ export default async function showFileHandler(ctx: AppContext) {
     <Chat
       enabled={fileNode.chatEnabled}
       chatId={fileNode.id}
-      parentDirId={parentDir.id}
       chatTitle={fileNode.name}
       isAdmin={isOwner}
     />
@@ -83,7 +82,10 @@ export default async function showFileHandler(ctx: AppContext) {
 
       {isOwner && (
         <menu class="inodes-menu">
-          <ButtonToggleChat chatEnabled={fileNode.chatEnabled} />
+          <ButtonToggleChat
+            inodeId={fileNode.id}
+            chatEnabled={fileNode.chatEnabled}
+          />
           <ButtonDeleteInode>Delete File</ButtonDeleteInode>
         </menu>
       )}

@@ -2,7 +2,7 @@ import { parsePathname, pathnameToSegments } from "$util";
 import { STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
 import { DIR_NAME_CONSTRAINTS } from "../../util/constraints.ts";
-import { createRootDir, setInode } from "../../util/inodes_helpers.ts";
+import { createRootDir, setAnyInode } from "../../util/inodes_helpers.ts";
 import { getDirByPath } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { reservedWords } from "../../util/reserved_words.ts";
@@ -74,6 +74,8 @@ export default async function createDirNodeHandler(ctx: AppContext) {
     type: "dir",
     id: ulid(),
     name: dirName,
+    parentDirId: parentDir.id,
+    pathSegments: path.segments,
     ownerId: user.id,
   } as const;
 
@@ -81,12 +83,7 @@ export default async function createDirNodeHandler(ctx: AppContext) {
 
   atomic.check(currentDirEntry, parentDirEntry);
 
-  setInode({
-    inode: dirNode,
-    pathSegments: path.segments,
-    parentDirId: parentDir.id,
-    atomic,
-  });
+  setAnyInode(dirNode, atomic);
 
   const commit = await atomic.commit();
 

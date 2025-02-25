@@ -1,11 +1,12 @@
 import { asset } from "../../util/url.ts";
 
 interface Props {
+  inodeId: string;
   chatEnabled: boolean | undefined;
 }
 
 export default function ButtonToggleChat(props: Props) {
-  const { chatEnabled } = props;
+  const { inodeId, chatEnabled } = props;
 
   return (
     <>
@@ -14,6 +15,7 @@ export default function ButtonToggleChat(props: Props) {
         id="toggle-chat"
         disabled
         class="wait-disabled"
+        data-inode-id={inodeId}
       >
         {chatEnabled ? "Disable" : "Enable"} Chat
       </button>

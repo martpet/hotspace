@@ -83,7 +83,10 @@ export default async function showInodeHandler(ctx: AppContext) {
           <menu class="inodes-menu">
             <ButtonUpload />
             <ButtonCreateDir />
-            <ButtonToggleChat chatEnabled={dirNode.chatEnabled} />
+            <ButtonToggleChat
+              inodeId={dirNode.id}
+              chatEnabled={dirNode.chatEnabled}
+            />
             {path.isRootSegment && (
               <ButtonDeleteInode>Delete Space</ButtonDeleteInode>
             )}

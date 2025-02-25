@@ -3,11 +3,10 @@ import { INODES_BUCKET } from "./consts.ts";
 import { enqueue } from "./kv/enqueue.ts";
 import {
   deleteDirByPath,
-  deleteInodeByDir,
+  deleteInode,
   deleteRootDirByOwner,
-  listRootDirsEntriesByOwner,
   setDirByPath,
-  setInodeByDir,
+  setInode,
   setRootDirByOwner,
 } from "./kv/inodes.ts";
 import { kv } from "./kv/kv.ts";
@@ -21,93 +20,46 @@ const ROOT_DIR_ID = "0";
 
 export function createRootDir() {
   return setDirByPath({
-    dirNode: {
-      id: ROOT_DIR_ID,
-      type: "dir",
-      name: "root",
-      ownerId: "",
-    },
+    id: ROOT_DIR_ID,
+    type: "dir",
+    name: "root",
+    parentDirId: "",
     pathSegments: [],
+    isRootNode: true,
+    ownerId: "",
   }).commit();
 }
 
-export function setInode({
-  inode,
-  pathSegments,
-  parentDirId,
-  atomic,
-}: {
-  inode: Inode;
-  pathSegments: string[];
-  parentDirId: string;
-  atomic?: Deno.AtomicOperation;
-}) {
-  setInodeByDir({
-    inode,
-    parentDirId,
-    atomic,
-  });
+export function setAnyInode(inode: Inode, atomic = kv.atomic()) {
+  setInode(inode, atomic);
   if (inode.type === "dir") {
-    setDirByPath({
-      dirNode: inode,
-      pathSegments,
-      atomic,
-    });
-    if (pathSegments.length === 1) {
+    setDirByPath(inode, atomic);
+    if (inode.pathSegments.length === 1) {
       setRootDirByOwner(inode, atomic);
     }
   }
   return atomic;
 }
 
-function deleteInode({
-  inode,
-  pathSegments,
-  parentDirId,
-  atomic = kv.atomic(),
-}: {
-  inode: Inode;
-  pathSegments: string[];
-  parentDirId: string;
-  atomic?: Deno.AtomicOperation;
-}) {
-  deleteInodeByDir({
-    inodeName: inode.name,
-    parentDirId: parentDirId,
-    atomic,
-  });
-  if (inode.type === "dir") {
-    deleteDirByPath(pathSegments, atomic);
-    if (pathSegments.length === 1) {
-      deleteRootDirByOwner(inode, atomic);
+export function deleteInodesComplete(entries: Deno.KvEntryMaybe<Inode>[]) {
+  const queue = newQueue(5);
+  for (const entry of entries) {
+    if (entry.value) {
+      queue.add(() => deleteInodeComplete(entry).commit());
     }
   }
-  return atomic;
+  return queue.done();
 }
 
-function deleteInodeComplete({
-  entry,
-  pathSegments,
-  parentDirId,
-  userId,
+function deleteInodeComplete(
+  inodeEntry: Deno.KvEntry<Inode>,
   atomic = kv.atomic(),
-}: {
-  entry: Deno.KvEntry<Inode>;
-  pathSegments: string[];
-  parentDirId: string;
-  userId: string;
-  atomic?: Deno.AtomicOperation;
-}) {
-  const inode = entry.value;
+) {
+  const inode = inodeEntry.value;
 
-  atomic.check(entry);
+  atomic.check(inodeEntry);
 
-  deleteInode({
-    inode,
-    pathSegments,
-    parentDirId,
-    atomic,
-  });
+  deleteAnyInode(inode, atomic);
 
   enqueue<QueueMsgDeleteChat>({
     type: "delete-chat",
@@ -118,12 +70,10 @@ function deleteInodeComplete({
     enqueue<QueueMsgDeleteDirChildren>({
       type: "delete-dir-children",
       dirId: inode.id,
-      pathSegments,
-      userId,
     }, atomic);
   } else {
     setUploadSize({
-      userId,
+      userId: inode.ownerId,
       size: -inode.fileSize,
       atomic,
     });
@@ -137,38 +87,13 @@ function deleteInodeComplete({
   return atomic;
 }
 
-export function deleteDirChildren({
-  entries,
-  dirId,
-  pathSegments,
-  userId,
-}: {
-  entries: Deno.KvEntryMaybe<Inode>[];
-  dirId: string;
-  pathSegments: string[];
-  userId: string;
-}) {
-  const queue = newQueue(5);
-
-  for (const entry of entries) {
-    if (!entry.value) continue;
-    queue.add(() =>
-      deleteInodeComplete({
-        entry,
-        pathSegments: [...pathSegments, entry.value.name],
-        parentDirId: dirId,
-        userId,
-      }).commit()
-    );
+function deleteAnyInode(inode: Inode, atomic = kv.atomic()) {
+  deleteInode(inode, atomic);
+  if (inode.type === "dir") {
+    deleteDirByPath(inode, atomic);
+    if (inode.pathSegments.length === 1) {
+      deleteRootDirByOwner(inode, atomic);
+    }
   }
-  return queue.done();
-}
-
-export async function deleteUserSpaces(userId: string) {
-  return deleteDirChildren({
-    entries: await listRootDirsEntriesByOwner(userId),
-    dirId: ROOT_DIR_ID,
-    pathSegments: [],
-    userId,
-  });
+  return atomic;
 }

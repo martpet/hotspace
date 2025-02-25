@@ -33,22 +33,12 @@ export default function chatConnectionHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  let chatKvKey;
-
-  if (path.isDir) {
-    chatKvKey = inodesKeys.dirsByPath(path.segments);
-  } else {
-    const parentDirId = ctx.url.searchParams.get("parentDirId");
-    if (!parentDirId) return ctx.respond(null, STATUS_CODE.NotFound);
-    chatKvKey = inodesKeys.byDir(parentDirId, path.lastSegment);
-  }
-
   const conn = new ChatConnection({
     request: ctx.req,
     chatId,
     chatPageUrl,
     chatTitle,
-    chatKvKey,
+    chatKvKey: inodesKeys.byId(chatId),
     userId: user?.id,
     userKvKey: userKvKeys.byId(user?.id!),
     lastSeenFeedItemId,

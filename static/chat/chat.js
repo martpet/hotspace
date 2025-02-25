@@ -25,7 +25,6 @@ const textareaNewMsg = formNewMsg?.querySelector("textarea");
 const {
   locale,
   chatId,
-  parentDirId,
   chatTitle,
   msgFollowupDuration,
   currentUserUsername,
@@ -79,7 +78,6 @@ socketUrl.pathname = `/chat/connection/${chatId}`;
 socketUrl.protocol = location.protocol === "https:" ? "wss:" : "ws:";
 socketUrl.searchParams.set("title", chatTitle);
 socketUrl.searchParams.set("location", location.href);
-if (parentDirId) socketUrl.searchParams.set("parentDirId", parentDirId);
 
 let msgsBox;
 let olderMsgsCursor;

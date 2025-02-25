@@ -1,12 +1,11 @@
-import { parsePathname } from "$util";
 import { STATUS_CODE } from "@std/http";
-import { setInode } from "../../util/inodes_helpers.ts";
-import { getDirByPath, getInodeByDir } from "../../util/kv/inodes.ts";
+import { setAnyInode } from "../../util/inodes_helpers.ts";
+import { getInodeById } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import type { AppContext } from "../../util/types.ts";
 
 interface ReqData {
-  pathname: string;
+  inodeId: string;
 }
 
 export default async function toggleChatHandler(ctx: AppContext) {
@@ -22,29 +21,17 @@ export default async function toggleChatHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  const path = parsePathname(reqData.pathname);
-
-  if (path.isRoot) {
-    return ctx.respond(null, STATUS_CODE.BadRequest);
-  }
-
-  const parentDirEntry = await getDirByPath(path.parentSegments);
-  const parentDir = parentDirEntry.value;
-
-  if (!parentDir) {
-    return ctx.respond(null, STATUS_CODE.NotFound);
-  }
-
-  const inodeEntry = await getInodeByDir({
-    inodeName: path.lastSegment,
-    parentDirId: parentDir.id,
-  });
+  const inodeEntry = await getInodeById(reqData.inodeId);
 
   if (!inodeEntry?.value) {
     return ctx.respond(null, STATUS_CODE.NotFound);
   }
 
   const inode = inodeEntry.value;
+
+  if (inode.isRootNode) {
+    return ctx.respond(null, STATUS_CODE.BadRequest);
+  }
 
   if (inode.ownerId !== user.id) {
     return ctx.respond(null, STATUS_CODE.NotFound);
@@ -53,15 +40,9 @@ export default async function toggleChatHandler(ctx: AppContext) {
   inode.chatEnabled = !inode.chatEnabled;
 
   const atomic = kv.atomic();
-  atomic.check(inodeEntry);
-  if (parentDirEntry) atomic.check(parentDirEntry);
 
-  setInode({
-    inode,
-    pathSegments: path.segments,
-    parentDirId: parentDir.id,
-    atomic,
-  });
+  atomic.check(inodeEntry);
+  setAnyInode(inode, atomic);
 
   const commit = await atomic.commit();
 
@@ -73,6 +54,6 @@ export default async function toggleChatHandler(ctx: AppContext) {
 }
 
 function isValidReqData(data: unknown): data is ReqData {
-  const { pathname } = data as Partial<ReqData>;
-  return typeof data === "object" && typeof pathname === "string";
+  const { inodeId } = data as Partial<ReqData>;
+  return typeof data === "object" && typeof inodeId === "string";
 }

@@ -13,7 +13,6 @@ import Subscription from "./Subscription.tsx";
 type Props = (PropsWithLazyLoad | PropsWithoutLazyLoad) & {
   enabled: boolean | undefined;
   chatId: string;
-  parentDirId?: string;
   chatTitle: string;
   isAdmin: boolean;
 };
@@ -32,7 +31,6 @@ export default function ChatSection(props: Props, ctx: AppContext) {
   const {
     chatId,
     enabled,
-    parentDirId,
     chatTitle,
     isAdmin,
     messages,
@@ -51,7 +49,6 @@ export default function ChatSection(props: Props, ctx: AppContext) {
     <section
       id="chat"
       data-chat-id={chatId}
-      data-parent-dir-id={parentDirId}
       data-chat-title={chatTitle}
       data-is-admin={isAdmin ? "1" : null}
       data-current-user-username={user?.username}

@@ -26,10 +26,11 @@ function setInProgress(inProgress) {
 }
 
 function callDb() {
-  const { pathname } = location;
   return fetch("/chat/toggle", {
     method: "post",
-    body: JSON.stringify({ pathname }),
+    body: JSON.stringify({
+      inodeId: button.dataset.inodeId,
+    }),
   });
 }
 

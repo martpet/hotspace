@@ -9,7 +9,7 @@ import { enqueue } from "../../../util/kv/enqueue.ts";
 import {
   getDirByPath,
   keys as inodesKeys,
-  setInodeByDir,
+  setInode,
 } from "../../../util/kv/inodes.ts";
 import { kv } from "../../../util/kv/kv.ts";
 import {
@@ -70,6 +70,7 @@ export default async function completeUploadHandler(ctx: AppContext) {
       fileSize: upload.fileSize,
       s3Key: upload.s3Key,
       name: "",
+      parentDirId: parentDirEntry.value.id,
       ownerId: user.id,
     };
 
@@ -93,7 +94,7 @@ export default async function completeUploadHandler(ctx: AppContext) {
         versionstamp: null,
       };
       const atomic = kv.atomic();
-      setInodeByDir({ parentDirId, inode, atomic });
+      setInode(inode, atomic);
       setUploadSize({ userId: user.id, size: upload.fileSize, atomic });
       atomic.check(parentDirEntry, nullInodeCheck);
       commit = await atomic.commit();

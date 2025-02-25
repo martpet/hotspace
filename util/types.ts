@@ -63,14 +63,17 @@ export interface PushSubscriber {
 interface InodeBase extends ChatResource {
   type: string;
   name: string;
+  parentDirId: string;
   ownerId: string;
   description?: string;
+  isRootNode?: boolean;
 }
 
 export type Inode = DirNode | FileNode;
 
 export interface DirNode extends InodeBase {
   type: "dir";
+  pathSegments: string[];
 }
 
 export interface FileNode extends InodeBase {
