@@ -1,1 +1,1 @@
-export * from "./cloudfront_signer.ts";
+export * from "./signer.ts";
