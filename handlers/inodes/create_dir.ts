@@ -1,15 +1,19 @@
-import { parsePathname, pathnameToSegments } from "$util";
 import { STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
 import { DIR_NAME_CONSTRAINTS } from "../../util/constraints.ts";
-import { createRootDir, setAnyInode } from "../../util/inodes_helpers.ts";
-import { getDirByPath } from "../../util/kv/inodes.ts";
+import {
+  createRootDir,
+  ROOT_DIR_ID,
+  setAnyInode,
+} from "../../util/inodes_helpers.ts";
+import { getDirByPath, getInodeById } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { reservedWords } from "../../util/reserved_words.ts";
 import type { AppContext } from "../../util/types.ts";
 
 interface ReqData {
-  pathname: string;
+  parentDirId: string;
+  dirName: string;
 }
 
 export default async function createDirNodeHandler(ctx: AppContext) {
@@ -25,25 +29,20 @@ export default async function createDirNodeHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  const path = parsePathname(reqData.pathname);
+  const { parentDirId, dirName } = reqData;
+  const isParentRoot = parentDirId === ROOT_DIR_ID;
 
-  if (path.isRoot) {
-    return ctx.respond(null, STATUS_CODE.BadRequest);
-  }
-
-  const dirName = path.lastSegment;
-
-  if (path.isRootSegment && reservedWords.includes(dirName)) {
+  if (isParentRoot && reservedWords.includes(dirName)) {
     const errMsg = `Space name '${dirName}' is not available`;
     return ctx.respond(errMsg, STATUS_CODE.Conflict);
   }
 
-  let parentDirEntry = await getDirByPath(path.parentSegments);
+  let parentDirEntry = await getInodeById(parentDirId);
 
-  if (!parentDirEntry.value && path.isRootSegment) {
+  if (!parentDirEntry.value && isParentRoot) {
     const commit = await createRootDir();
     if (!commit.ok) return ctx.respond(null, STATUS_CODE.InternalServerError);
-    parentDirEntry = await getDirByPath(path.parentSegments);
+    parentDirEntry = await getInodeById(parentDirId);
   }
 
   const parentDir = parentDirEntry.value;
@@ -52,16 +51,21 @@ export default async function createDirNodeHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.NotFound);
   }
 
-  if (!path.isRootSegment && parentDir.ownerId !== user.id) {
+  if (parentDir.type !== "dir") {
+    return ctx.respond(null, STATUS_CODE.BadRequest);
+  }
+
+  if (!isParentRoot && parentDir.ownerId !== user.id) {
     return ctx.respond(null, STATUS_CODE.Forbidden);
   }
 
-  const currentDirEntry = await getDirByPath(path.segments);
+  const pathSegments = [...parentDir.pathSegments, dirName];
+  const currentDirEntry = await getDirByPath(pathSegments);
   const currentDir = currentDirEntry.value;
 
   if (currentDir) {
     let errMsg;
-    if (path.isRootSegment) {
+    if (isParentRoot) {
       const who = currentDir.ownerId === user.id ? "you" : "another user";
       errMsg = `Space '${dirName}' is already created by ${who}`;
     } else {
@@ -74,8 +78,8 @@ export default async function createDirNodeHandler(ctx: AppContext) {
     type: "dir",
     id: ulid(),
     name: dirName,
-    parentDirId: parentDir.id,
-    pathSegments: path.segments,
+    parentDirId,
+    pathSegments,
     ownerId: user.id,
   } as const;
 
@@ -95,16 +99,13 @@ export default async function createDirNodeHandler(ctx: AppContext) {
 }
 
 function isValidReqData(data: unknown): data is ReqData {
-  const { pathname } = data as Partial<ReqData>;
-  const { pattern, minLength, maxLength } = DIR_NAME_CONSTRAINTS;
+  const { parentDirId, dirName } = data as Partial<ReqData>;
+  const { minLength, maxLength, pattern } = DIR_NAME_CONSTRAINTS;
 
   return typeof data === "object" &&
-    typeof pathname === "string" &&
-    pathname.startsWith("/") &&
-    pathname.endsWith("/") &&
-    pathnameToSegments(pathname).every((segment) =>
-      segment.length >= minLength &&
-      segment.length <= maxLength &&
-      new RegExp(pattern).test(segment)
-    );
+    typeof parentDirId === "string" &&
+    typeof dirName === "string" &&
+    dirName.length >= minLength &&
+    dirName.length <= maxLength &&
+    new RegExp(pattern).test(dirName);
 }

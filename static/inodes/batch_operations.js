@@ -11,10 +11,11 @@ let submitButton;
 let closeButton;
 let errorEl;
 
-const container = document.getElementById("inodes-container");
 const btnDelete = document.getElementById("batch-delete-button");
+const container = document.getElementById("inodes-container");
 const batchMenu = document.getElementById("batch-operations-buttons");
 const mutationObserver = new MutationObserver(onMutationObserve);
+const { dirId } = btnDelete.dataset;
 
 mutationObserver.observe(container, {
   subtree: true,
@@ -97,7 +98,7 @@ async function submitData() {
   const resp = await fetch("/inodes/delete", {
     method: "post",
     body: JSON.stringify({
-      pathname: location.pathname,
+      dirId,
       inodesNames,
     }),
   });

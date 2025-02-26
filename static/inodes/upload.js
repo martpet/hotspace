@@ -6,7 +6,7 @@ import {
 } from "$main";
 
 const btnShowDialog = document.getElementById("show-upload");
-const { workerSrc } = btnShowDialog.dataset;
+const { workerSrc, dirId } = btnShowDialog.dataset;
 const EXIT_MSG = "Do you really want to stop the upload?";
 
 const endpoints = {
@@ -137,7 +137,7 @@ function startUpload() {
     data: {
       endpoints,
       files: fileInput.files,
-      pathname: location.pathname,
+      dirId,
     },
   });
 }

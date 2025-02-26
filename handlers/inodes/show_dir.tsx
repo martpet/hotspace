@@ -81,16 +81,18 @@ export default async function showInodeHandler(ctx: AppContext) {
         <h1>{dirNode.name}</h1>
         {isDirOwner && (
           <menu class="inodes-menu">
-            <ButtonUpload />
-            <ButtonCreateDir />
+            <ButtonUpload dirNode={dirNode} />
+            <ButtonCreateDir parentDirId={dirNode.id} />
+            {path.isRootSegment && (
+              <ButtonDeleteInode inode={dirNode}>
+                Delete Space
+              </ButtonDeleteInode>
+            )}
             <ButtonToggleChat
               inodeId={dirNode.id}
               chatEnabled={dirNode.chatEnabled}
             />
-            {path.isRootSegment && (
-              <ButtonDeleteInode>Delete Space</ButtonDeleteInode>
-            )}
-            <BatchOperationsButtons />
+            <BatchOperationsButtons inode={dirNode} />
           </menu>
         )}
       </header>

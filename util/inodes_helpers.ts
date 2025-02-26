@@ -16,16 +16,15 @@ import { type QueueMsgDeleteS3Objects } from "./kv/queue_handlers/delete_s3_obje
 import { setUploadSize } from "./kv/upload_size.ts";
 import type { Inode } from "./types.ts";
 
-const ROOT_DIR_ID = "0";
+export const ROOT_DIR_ID = "0";
 
 export function createRootDir() {
-  return setDirByPath({
+  return setAnyInode({
     id: ROOT_DIR_ID,
     type: "dir",
     name: "root",
     parentDirId: "",
     pathSegments: [],
-    isRootNode: true,
     ownerId: "",
   }).commit();
 }

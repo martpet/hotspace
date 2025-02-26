@@ -9,7 +9,8 @@ let btnClose;
 let errorEl;
 
 const btnShowDialog = document.getElementById("show-create-dir");
-const { isRootDir } = btnShowDialog.dataset;
+const { parentDirId, isParentRoot } = btnShowDialog.dataset;
+const showPreview = isParentRoot;
 
 btnShowDialog.disabled = false;
 
@@ -40,7 +41,7 @@ function initDialogEvents() {
     statusSignal.value = "submitted";
   };
 
-  if (isRootDir) {
+  if (showPreview) {
     nameInput.oninput = () => {
       renderNamePreview();
     };
@@ -78,13 +79,15 @@ errorSignal.subscribe((msg) => {
 // =====================
 
 async function submitData() {
-  const pathname = location.pathname + nameInput.value + "/";
   const resp = await fetch("/inodes/dirs", {
     method: "post",
-    body: JSON.stringify({ pathname }),
+    body: JSON.stringify({
+      parentDirId,
+      dirName: nameInput.value,
+    }),
   });
   if (resp.ok) {
-    await replaceFragment(isRootDir ? "spaces" : "inodes");
+    await replaceFragment(isParentRoot ? "spaces" : "inodes");
     statusSignal.value = "closed";
   } else {
     errorSignal.value = await resp.text() || GENERAL_ERR_MSG;
@@ -108,7 +111,7 @@ function insertDialog() {
           <label>
             Name:
             <input type="text" name="dirName" required autocomplete="off" />
-            <small ${!isRootDir && "hidden"}>
+            <small ${!showPreview && "hidden"}>
               ${location.href}<output name="namePreview"></output>
             </small>
           </label>

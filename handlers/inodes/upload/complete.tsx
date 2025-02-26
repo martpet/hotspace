@@ -1,13 +1,13 @@
 import { s3 } from "$aws";
 import { completeUploads } from "$upload";
-import { parsePathname } from "$util";
 import { STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
 import { getSigner } from "../../../util/aws.ts";
 import { INODES_BUCKET } from "../../../util/consts.ts";
+import { ROOT_DIR_ID } from "../../../util/inodes_helpers.ts";
 import { enqueue } from "../../../util/kv/enqueue.ts";
 import {
-  getDirByPath,
+  getInodeById,
   keys as inodesKeys,
   setInode,
 } from "../../../util/kv/inodes.ts";
@@ -20,12 +20,13 @@ import type {
   AppContext,
   DirNode,
   FileNode,
+  Inode,
   User,
 } from "../../../util/types.ts";
 
 type ReqData = {
   uploads: s3.CompletedUpload[];
-  pathname: string;
+  dirId: string;
 };
 
 export default async function completeUploadHandler(ctx: AppContext) {
@@ -41,17 +42,16 @@ export default async function completeUploadHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  const { uploads, pathname } = reqData;
-  const path = parsePathname(pathname);
+  const { uploads, dirId } = reqData;
 
-  if (path.isRoot) {
-    return ctx.respond(null, STATUS_CODE.BadRequest);
+  let dirEntry = await getInodeById(dirId);
+
+  if (!checkDir(dirEntry, user)) {
+    return ctx.respond(null, STATUS_CODE.Forbidden);
   }
 
-  let parentDirEntry = await getDirByPath(path.segments);
-
-  if (!checkParentDir(parentDirEntry, user)) {
-    return ctx.respond(null, STATUS_CODE.Forbidden);
+  if (dirEntry.value.id === ROOT_DIR_ID) {
+    return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
   const { completedUploads } = await completeUploads({
@@ -70,7 +70,7 @@ export default async function completeUploadHandler(ctx: AppContext) {
       fileSize: upload.fileSize,
       s3Key: upload.s3Key,
       name: "",
-      parentDirId: parentDirEntry.value.id,
+      parentDirId: dirEntry.value.id,
       ownerId: user.id,
     };
 
@@ -81,14 +81,14 @@ export default async function completeUploadHandler(ctx: AppContext) {
       inode.name = encodeURIComponent(upload.fileName);
       if (i > 0) {
         inode.name += `-${i + 1}`;
-        parentDirEntry = await getDirByPath(path.segments);
+        dirEntry = await getInodeById(dirId);
       }
-      if (!checkParentDir(parentDirEntry, user)) {
+      if (!checkDir(dirEntry, user)) {
         const s3Keys = uploads.map((u) => u.s3Key);
         await deleteS3Objects(s3Keys);
         return ctx.respond(null, STATUS_CODE.Forbidden);
       }
-      const parentDirId = parentDirEntry.value.id;
+      const parentDirId = dirEntry.value.id;
       const nullInodeCheck = {
         key: inodesKeys.byDir(parentDirId, inode.name),
         versionstamp: null,
@@ -96,7 +96,7 @@ export default async function completeUploadHandler(ctx: AppContext) {
       const atomic = kv.atomic();
       setInode(inode, atomic);
       setUploadSize({ userId: user.id, size: upload.fileSize, atomic });
-      atomic.check(parentDirEntry, nullInodeCheck);
+      atomic.check(dirEntry, nullInodeCheck);
       commit = await atomic.commit();
       i++;
     }
@@ -106,11 +106,13 @@ export default async function completeUploadHandler(ctx: AppContext) {
   return ctx.json(completedIds);
 }
 
-function checkParentDir(
-  entry: Deno.KvEntryMaybe<DirNode>,
+function checkDir(
+  entry: Deno.KvEntryMaybe<Inode>,
   user: User,
 ): entry is Deno.KvEntry<DirNode> {
-  return entry.value?.ownerId === user.id;
+  return !!entry.value &&
+    entry.value.type === "dir" &&
+    entry.value?.ownerId === user.id;
 }
 
 function deleteS3Objects(s3Keys: string[]) {
@@ -122,9 +124,9 @@ function deleteS3Objects(s3Keys: string[]) {
 }
 
 function isValidReqData(data: unknown): data is ReqData {
-  const { uploads, pathname } = data as Partial<ReqData>;
+  const { uploads, dirId } = data as Partial<ReqData>;
   return typeof data === "object" &&
-    typeof pathname === "string" &&
+    typeof dirId === "string" &&
     Array.isArray(uploads) && uploads.every((upload) => {
       const {
         uploadId,

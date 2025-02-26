@@ -1,15 +1,14 @@
-import { parsePathname } from "$util";
 import { STATUS_CODE } from "@std/http";
 import { deleteInodesComplete } from "../../util/inodes_helpers.ts";
 import {
-  getDirByPath,
+  getInodeById,
   keys as getInodeByDirKey,
 } from "../../util/kv/inodes.ts";
 import { getManyEntries } from "../../util/kv/kv.ts";
 import type { AppContext, Inode } from "../../util/types.ts";
 
 interface ReqData {
-  pathname: string;
+  dirId: string;
   inodesNames: string[];
 }
 
@@ -26,17 +25,15 @@ export default async function deleteHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  const { pathname, inodesNames } = reqData;
-  const path = parsePathname(pathname);
-
-  if (!path.isDir) {
-    return ctx.respond(null, STATUS_CODE.BadRequest);
-  }
-
-  const dir = (await getDirByPath(path.segments)).value;
+  const { dirId, inodesNames } = reqData;
+  const dir = (await getInodeById(dirId)).value;
 
   if (!dir) {
     return ctx.respond(null, STATUS_CODE.NotFound);
+  }
+
+  if (dir.type !== "dir") {
+    return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
   const inodesKeys = inodesNames.map((inodeName) =>
@@ -55,9 +52,9 @@ export default async function deleteHandler(ctx: AppContext) {
 }
 
 function isValidReqData(data: unknown): data is ReqData {
-  const { pathname, inodesNames } = data as Partial<ReqData>;
+  const { dirId, inodesNames } = data as Partial<ReqData>;
   return typeof data === "object" &&
-    typeof pathname === "string" &&
+    typeof dirId === "string" &&
     Array.isArray(inodesNames) &&
     inodesNames.length > 0 &&
     inodesNames.every((it) => typeof it === "string");

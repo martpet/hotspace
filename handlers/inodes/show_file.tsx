@@ -82,11 +82,13 @@ export default async function showFileHandler(ctx: AppContext) {
 
       {isOwner && (
         <menu class="inodes-menu">
+          <ButtonDeleteInode inode={fileNode}>
+            Delete File
+          </ButtonDeleteInode>
           <ButtonToggleChat
             inodeId={fileNode.id}
             chatEnabled={fileNode.chatEnabled}
           />
-          <ButtonDeleteInode>Delete File</ButtonDeleteInode>
         </menu>
       )}
       <FilePreview

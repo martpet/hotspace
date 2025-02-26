@@ -1,15 +1,14 @@
 import { createSignal, GENERAL_ERR_MSG, setFlash, setFromCookie } from "$main";
 
 const button = document.getElementById("delete-inode-button");
+const { inodeName, isDir, parentDirId, isParentRoot } = button.dataset;
+const inodeNameDecoded = decodeURIComponent(inodeName);
+const inodeType = isParentRoot ? "Space" : isDir ? "Folder" : "File";
 
 button.disabled = false;
 
 let dialog;
 let form;
-let inodeName;
-let inodeNameDecoded;
-let inodeType;
-let parentPathname;
 let closeButton;
 let submitButton;
 let errorEl;
@@ -75,19 +74,20 @@ async function submitData() {
   const resp = await fetch("/inodes/delete", {
     method: "post",
     body: JSON.stringify({
-      pathname: parentPathname,
+      dirId: parentDirId,
       inodesNames: [inodeName],
     }),
   });
+  const parentPath = isDir ? "../" : "./";
   if (resp.ok) {
     setFlash(
       `Successfully deleted ${inodeType.toLowerCase()} '${inodeNameDecoded}'`,
     );
     setFromCookie("delete");
-    location = parentPathname;
+    location = parentPath;
   } else if (resp.status === 404) {
     setFlash({ msg: "Not Found", type: "error" });
-    location = parentPathname;
+    location = parentPath;
   } else {
     errorSignal.value = await resp.text() || GENERAL_ERR_MSG;
     statusSignal.value = "idle";
@@ -99,15 +99,6 @@ async function submitData() {
 // =====================
 
 function insertDialog() {
-  const pathnameParts = location.pathname.split("/").filter(Boolean);
-  inodeName = pathnameParts.at(-1);
-  inodeNameDecoded = decodeURIComponent(inodeName);
-  parentPathname = `/${pathnameParts.slice(0, -1).join("/")}/`;
-  if (pathnameParts.length === 1) parentPathname = "/";
-
-  const isDir = location.pathname.endsWith("/");
-  inodeType = !isDir ? "File" : parentPathname === "/" ? "Space" : "Folder";
-
   const introText = isDir
     ? `<strong>${inodeType} '${inodeName}'</strong> and everything inside it`
     : `<strong>${inodeNameDecoded}</strong>  and its chat messages`;
