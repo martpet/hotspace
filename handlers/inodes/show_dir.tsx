@@ -67,6 +67,7 @@ export default async function showInodeHandler(ctx: AppContext) {
     <>
       <meta name="robots" content="noindex, nofollow" />
       <link rel="stylesheet" href={asset("inodes/inodes.css")} />
+      <link rel="stylesheet" href={asset("chat/chat.css")} />
     </>
   );
 

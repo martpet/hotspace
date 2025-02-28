@@ -14,7 +14,12 @@ async function toggle() {
   if (isHtmlInserted) {
     rootEl.hidden = isHidden;
   } else {
-    await insertChatHtml();
+    await replaceFragment("chat");
+    runChatScript();
+  }
+  if (!isHidden) {
+    const chatEl = document.getElementById("chat");
+    chatEl.scrollIntoView({ behavior: "smooth" });
   }
   setInProgress(false);
   button.textContent = `${isHidden ? "Enable" : "Disable"} Chat`;
@@ -34,8 +39,7 @@ function callDb() {
   });
 }
 
-async function insertChatHtml() {
-  await replaceFragment("chat");
+async function runChatScript() {
   const script = document.getElementById("chat-script");
   const newScript = document.createElement("script");
   newScript.src = script.src;
