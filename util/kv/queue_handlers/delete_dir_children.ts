@@ -1,5 +1,5 @@
-import { deleteInodesComplete } from "../../inodes_helpers.ts";
-import { listInodesEntriesByDir } from "../inodes.ts";
+import { deleteInodesFull } from "../../inodes/kv_wrappers.ts";
+import { listInodesByDir } from "../inodes.ts";
 
 export interface QueueMsgDeleteDirChildren {
   type: "delete-dir-children";
@@ -18,6 +18,7 @@ export function isDeleteDirChildren(
 }
 
 export async function handleDeleteDirChildren(msg: QueueMsgDeleteDirChildren) {
-  const entries = await listInodesEntriesByDir(msg.dirId);
-  return deleteInodesComplete(entries);
+  const { dirId } = msg;
+  const inodes = await listInodesByDir(dirId);
+  return deleteInodesFull(inodes);
 }

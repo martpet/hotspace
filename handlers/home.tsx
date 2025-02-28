@@ -1,7 +1,7 @@
 import ButtonCreateDir from "../snippets/inodes/ButtonCreateDir.tsx";
 import Spaces from "../snippets/inodes/Spaces.tsx";
 import Page from "../snippets/pages/Page.tsx";
-import { ROOT_DIR_ID } from "../util/inodes_helpers.ts";
+import { ROOT_DIR_ID } from "../util/inodes/consts.ts";
 import { listRootDirsByOwner } from "../util/kv/inodes.ts";
 import type { AppContext } from "../util/types.ts";
 

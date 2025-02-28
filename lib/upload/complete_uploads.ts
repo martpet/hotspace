@@ -2,7 +2,7 @@ import { s3 } from "$aws";
 import { newQueue } from "@henrygd/queue";
 
 interface Options extends s3.S3ReqOptions {
-  uploads: s3.CompletedUpload[];
+  uploads: s3.CompletedMultipartUpload[];
 }
 
 export async function completeUploads(
@@ -10,8 +10,9 @@ export async function completeUploads(
 ) {
   const queue = newQueue(10);
   const { uploads, ...s3Opt } = options;
-  const completedUploads: ({ fileSize: number } & s3.CompletedUpload)[] = [];
-  const failedUploads: s3.CompletedUpload[] = [];
+  const completedUploads:
+    ({ fileSize: number } & s3.CompletedMultipartUpload)[] = [];
+  const failedUploads: s3.CompletedMultipartUpload[] = [];
 
   for (const upload of uploads) {
     const { s3Key } = upload;

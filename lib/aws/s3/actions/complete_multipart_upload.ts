@@ -1,9 +1,9 @@
+import { toSha256Hex } from "$util";
 import { DOMParser, initParser } from "@b-fuze/deno-dom/wasm-noinit";
 import { retry } from "@std/async";
-import { textToSha256Hex } from "../../util.ts";
-import type { CompletedUpload, S3ReqOptions } from "../types.ts";
+import type { CompletedMultipartUpload, S3ReqOptions } from "../types.ts";
 
-interface Options extends S3ReqOptions, CompletedUpload {
+interface Options extends S3ReqOptions, CompletedMultipartUpload {
 }
 
 export async function completeMultipartUpload(options: Options) {
@@ -14,7 +14,7 @@ export async function completeMultipartUpload(options: Options) {
     finishedParts,
     bucket,
     signer,
-    retryOptions = {},
+    retryOpt = {},
   } = options;
   const url = new URL(`https://${bucket}.s3.amazonaws.com/${s3Key}`);
 
@@ -39,28 +39,25 @@ export async function completeMultipartUpload(options: Options) {
     method: "post",
     body,
     headers: {
-      "x-amz-content-sha256": await textToSha256Hex(body),
+      "x-amz-content-sha256": await toSha256Hex(body),
       "x-amz-checksum-sha256": checksum,
     },
   });
 
   const signedReq = await signer.sign("s3", req);
-
-  const [resp] = await Promise.all([
-    retry(() => fetch(signedReq), retryOptions),
-    initParser(),
-  ]);
-
+  const resp = await retry(() => fetch(signedReq), retryOpt);
   const respText = await resp.text();
 
   if (!resp.ok) {
     throw new Error(respText);
   }
 
-  const doc = new DOMParser().parseFromString(respText, "text/html");
-  const completeTag = doc.querySelector("CompleteMultipartUploadResult");
+  await initParser();
 
-  if (!completeTag) {
+  const doc = new DOMParser().parseFromString(respText, "text/html");
+  const completeResultEl = doc.querySelector("CompleteMultipartUploadResult");
+
+  if (!completeResultEl) {
     throw new Error(respText);
   }
 }

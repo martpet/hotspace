@@ -1,6 +1,6 @@
 import type { JSX } from "preact/jsx-runtime";
 import { DIR_NAME_CONSTRAINTS } from "../../util/constraints.ts";
-import { ROOT_DIR_ID } from "../../util/inodes_helpers.ts";
+import { ROOT_DIR_ID } from "../../util/inodes/consts.ts";
 import { asset } from "../../util/url.ts";
 
 interface Props extends JSX.HTMLAttributes<HTMLButtonElement> {

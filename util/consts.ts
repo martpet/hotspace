@@ -40,6 +40,7 @@ if (isProd) {
   assert(env.CLOUDFRONT_KEYPAIR_ID_PROD);
   assert(env.INODES_CLOUDFRONT_URL_PROD);
   assert(env.ASSETS_CLOUDFRONT_URL_PROD);
+  assert(env.MEDIACONVERT_ROLE_PROD);
 } else {
   assert(env.AWS_ACCESS_KEY_ID_DEV);
   assert(env.AWS_SECRET_ACCESS_KEY_DEV);
@@ -47,6 +48,7 @@ if (isProd) {
   assert(env.CLOUDFRONT_SIGNER_PRIVATE_KEY_DEV);
   assert(env.CLOUDFRONT_KEYPAIR_ID_DEV);
   assert(env.INODES_CLOUDFRONT_URL_DEV);
+  assert(env.MEDIACONVERT_ROLE_DEV);
 }
 
 export const AWS_CREDENTIALS = {
@@ -80,3 +82,7 @@ export const INODES_CLOUDFRONT_URL = isProd
 export const ASSETS_CLOUDFRONT_URL = isProd
   ? env.ASSETS_CLOUDFRONT_URL_PROD
   : "";
+
+export const MEDIACONVERT_ROLE = isProd
+  ? env.MEDIACONVERT_ROLE_PROD
+  : env.MEDIACONVERT_ROLE_DEV;

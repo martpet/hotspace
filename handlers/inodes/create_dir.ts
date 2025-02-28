@@ -1,11 +1,8 @@
 import { STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
 import { DIR_NAME_CONSTRAINTS } from "../../util/constraints.ts";
-import {
-  createRootDir,
-  ROOT_DIR_ID,
-  setAnyInode,
-} from "../../util/inodes_helpers.ts";
+import { ROOT_DIR, ROOT_DIR_ID } from "../../util/inodes/consts.ts";
+import { setAnyInode } from "../../util/inodes/kv_wrappers.ts";
 import { getDirByPath, getInodeById } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { reservedWords } from "../../util/reserved_words.ts";
@@ -40,7 +37,7 @@ export default async function createDirNodeHandler(ctx: AppContext) {
   let parentDirEntry = await getInodeById(parentDirId);
 
   if (!parentDirEntry.value && isParentRoot) {
-    const commit = await createRootDir();
+    const commit = await setAnyInode(ROOT_DIR).commit();
     if (!commit.ok) return ctx.respond(null, STATUS_CODE.InternalServerError);
     parentDirEntry = await getInodeById(parentDirId);
   }

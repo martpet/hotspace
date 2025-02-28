@@ -1,4 +1,5 @@
 export * from "./async_queue.ts";
+export * from "./encode.ts";
 export * from "./limited_map.ts";
 export * from "./text.ts";
 export * from "./time.ts";

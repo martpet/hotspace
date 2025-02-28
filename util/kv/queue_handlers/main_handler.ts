@@ -9,6 +9,10 @@ import {
   isDeleteS3Objects,
 } from "./delete_s3_objects.ts";
 import {
+  handlePostProcessUploads,
+  isPostProcessUploads,
+} from "./post_process_uploads.ts";
+import {
   handlePushChatNotification,
   isPushChatNotification,
 } from "./push_chat_notification.ts";
@@ -19,6 +23,7 @@ export function queueHandler(msg: unknown) {
   if (isDeleteDirChildren(msg)) return handleDeleteDirChildren(msg);
   if (isDeleteChat(msg)) return handleDeleteChat(msg);
   if (isCleanUpUser(msg)) return handleCleanUpUser(msg);
+  if (isPostProcessUploads(msg)) return handlePostProcessUploads(msg);
 
   console.error("Unknown KV Queue msg received", msg);
 }

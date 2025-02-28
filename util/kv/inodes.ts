@@ -59,17 +59,10 @@ export async function listInodesByDir(
   dirId: string,
   options?: Deno.KvListOptions,
 ) {
-  const entries = await listInodesEntriesByDir(dirId, options);
-  return entries.map((x) => x.value);
-}
-
-export async function listInodesEntriesByDir(
-  dirId: string,
-  options?: Deno.KvListOptions,
-) {
   const prefix = keys.byDir(dirId, "").slice(0, -1);
   const iter = kv.list<Inode>({ prefix }, options);
-  return await Array.fromAsync(iter);
+  const entries = await Array.fromAsync(iter);
+  return entries.map((x) => x.value);
 }
 
 // =====================
@@ -105,19 +98,12 @@ export function deleteRootDirByOwner(dirNode: DirNode, atomic = kv.atomic()) {
   return atomic.delete(keys.rootDirsByOwner(dirNode.ownerId, dirNode.id));
 }
 
-export async function listRootDirsEntriesByOwner(
+export async function listRootDirsByOwner(
   ownerId: string,
   options?: Deno.KvListOptions,
 ) {
   const prefix = keys.rootDirsByOwner(ownerId, "").slice(0, -1);
   const iter = kv.list<DirNode>({ prefix }, options);
-  return await Array.fromAsync(iter);
-}
-
-export async function listRootDirsByOwner(
-  ownerId: string,
-  options?: Deno.KvListOptions,
-) {
-  const entries = await listRootDirsEntriesByOwner(ownerId, options);
+  const entries = await Array.fromAsync(iter);
   return entries.map((x) => x.value);
 }

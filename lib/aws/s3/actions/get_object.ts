@@ -1,6 +1,5 @@
-import { initParser } from "@b-fuze/deno-dom/wasm-noinit";
+import { toSha256Hex } from "$util";
 import { retry } from "@std/async";
-import { textToSha256Hex } from "../../util.ts";
 import type { S3ReqOptions } from "../types.ts";
 
 export interface GetObjectOptions extends S3ReqOptions {
@@ -9,22 +8,18 @@ export interface GetObjectOptions extends S3ReqOptions {
 }
 
 export default async function getObject(options: GetObjectOptions) {
-  const { s3Key, head, bucket, signer, retryOptions = {} } = options;
+  const { s3Key, head, bucket, signer, retryOpt = {} } = options;
   const url = `https://${bucket}.s3.amazonaws.com/${s3Key}`;
 
   const req = new Request(url, {
     method: head ? "head" : "get",
     headers: {
-      "x-amz-content-sha256": await textToSha256Hex(""),
+      "x-amz-content-sha256": await toSha256Hex(""),
     },
   });
 
   const signedReq = await signer.sign("s3", req);
-
-  const [resp] = await Promise.all([
-    retry(() => fetch(signedReq), retryOptions),
-    initParser(),
-  ]);
+  const resp = await retry(() => fetch(signedReq), retryOpt);
 
   if (!resp.ok) {
     throw new Error(await resp.json());

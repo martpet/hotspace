@@ -23,10 +23,23 @@ export async function getManyEntries<T>(keys: Deno.KvKey[], options: {
 } = {}) {
   const { consistency, queueSize = 5 } = options;
   const queue = newQueue(queueSize);
+  const chunks = chunk(keys, 10);
   const chunkedEntries = await Promise.all(
-    chunk(keys, 10).map((chunked) =>
+    chunks.map((chunked) =>
       queue.add(() => kv.getMany<T[]>(chunked, { consistency }))
     ),
   );
   return chunkedEntries.flat();
+}
+
+export async function getMany<T>(keys: Deno.KvKey[], options: {
+  queueSize?: number;
+  consistency?: Deno.KvConsistencyLevel;
+} = {}) {
+  const entries = await getManyEntries<T>(keys, options);
+  const values: T[] = [];
+  for (const entry of entries) {
+    if (entry.value) values.push(entry.value);
+  }
+  return values;
 }

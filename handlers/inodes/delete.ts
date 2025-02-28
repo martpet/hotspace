@@ -1,10 +1,7 @@
 import { STATUS_CODE } from "@std/http";
-import { deleteInodesComplete } from "../../util/inodes_helpers.ts";
-import {
-  getInodeById,
-  keys as getInodeByDirKey,
-} from "../../util/kv/inodes.ts";
-import { getManyEntries } from "../../util/kv/kv.ts";
+import { deleteInodesFull } from "../../util/inodes/kv_wrappers.ts";
+import { getInodeById, keys as getInodeKey } from "../../util/kv/inodes.ts";
+import { getMany } from "../../util/kv/kv.ts";
 import type { AppContext, Inode } from "../../util/types.ts";
 
 interface ReqData {
@@ -37,16 +34,13 @@ export default async function deleteHandler(ctx: AppContext) {
   }
 
   const inodesKeys = inodesNames.map((inodeName) =>
-    getInodeByDirKey.byDir(dir.id, inodeName)
+    getInodeKey.byDir(dir.id, inodeName)
   );
 
-  const entries = (await getManyEntries<Inode>(inodesKeys))
-    .filter((entry) =>
-      user.id === entry.value?.ownerId ||
-      user.id === dir.ownerId
-    );
+  const inodes = (await getMany<Inode>(inodesKeys))
+    .filter((inode) => [inode.ownerId, dir.ownerId].includes(user.id));
 
-  await deleteInodesComplete(entries);
+  await deleteInodesFull(inodes);
 
   return ctx.respond();
 }

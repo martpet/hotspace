@@ -60,20 +60,20 @@ export interface PushSubscriber {
   pushSubUpdatedAt: Date;
 }
 
+export type Inode = DirNode | FileNode | VideoNode;
+
 interface InodeBase extends ChatResource {
   type: string;
   name: string;
   parentDirId: string;
   ownerId: string;
   description?: string;
-  isRootNode?: boolean;
 }
-
-export type Inode = DirNode | FileNode;
 
 export interface DirNode extends InodeBase {
   type: "dir";
   pathSegments: string[];
+  isRootDir?: boolean;
 }
 
 export interface FileNode extends InodeBase {
@@ -81,4 +81,13 @@ export interface FileNode extends InodeBase {
   fileType: string;
   fileSize: number;
   s3Key: string;
+}
+
+export interface VideoNode extends FileNode {
+  fileType: `video/${string}`;
+  streamType: "hsl";
+  mediaconvert: {
+    status: "pending" | "complete" | "error";
+    jobId?: string;
+  };
 }

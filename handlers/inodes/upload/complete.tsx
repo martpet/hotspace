@@ -4,17 +4,16 @@ import { STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
 import { getSigner } from "../../../util/aws.ts";
 import { INODES_BUCKET } from "../../../util/consts.ts";
-import { ROOT_DIR_ID } from "../../../util/inodes_helpers.ts";
+import { isPostProcessableUpload } from "../../../util/inodes/util.ts";
 import { enqueue } from "../../../util/kv/enqueue.ts";
 import {
   getInodeById,
-  keys as inodesKeys,
+  keys as getInodeKey,
   setInode,
 } from "../../../util/kv/inodes.ts";
 import { kv } from "../../../util/kv/kv.ts";
-import {
-  QueueMsgDeleteS3Objects,
-} from "../../../util/kv/queue_handlers/delete_s3_objects.ts";
+import { QueueMsgDeleteS3Objects } from "../../../util/kv/queue_handlers/delete_s3_objects.ts";
+import { type QueueMsgPostProcessUploads } from "../../../util/kv/queue_handlers/post_process_uploads.ts";
 import { setUploadSize } from "../../../util/kv/upload_size.ts";
 import type {
   AppContext,
@@ -25,7 +24,7 @@ import type {
 } from "../../../util/types.ts";
 
 type ReqData = {
-  uploads: s3.CompletedUpload[];
+  uploads: s3.CompletedMultipartUpload[];
   dirId: string;
 };
 
@@ -43,15 +42,10 @@ export default async function completeUploadHandler(ctx: AppContext) {
   }
 
   const { uploads, dirId } = reqData;
+  const dirEntry = await getInodeById(dirId);
 
-  let dirEntry = await getInodeById(dirId);
-
-  if (!checkDir(dirEntry, user)) {
+  if (!isValidUploadDirEntry(dirEntry, user)) {
     return ctx.respond(null, STATUS_CODE.Forbidden);
-  }
-
-  if (dirEntry.value.id === ROOT_DIR_ID) {
-    return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
   const { completedUploads } = await completeUploads({
@@ -60,67 +54,49 @@ export default async function completeUploadHandler(ctx: AppContext) {
     signer: getSigner(),
   });
 
-  const completedIds = [];
+  const completedUploadsIds = [];
+  const inodeIdsToPostProcess = [];
 
-  for (const upload of completedUploads) {
-    const inode: FileNode = {
+  saveInodes: for (const upload of completedUploads) {
+    const fileNode: FileNode = {
       id: ulid(),
       type: "file",
       fileType: upload.fileType,
       fileSize: upload.fileSize,
       s3Key: upload.s3Key,
       name: "",
-      parentDirId: dirEntry.value.id,
+      parentDirId: dirId,
       ownerId: user.id,
     };
 
-    let commit = { ok: false };
-    let i = 0;
+    const isSaved = await saveFileNode({
+      upload,
+      fileNode,
+      dirEntry,
+      dirId,
+      user,
+    });
 
-    while (!commit.ok) {
-      inode.name = encodeURIComponent(upload.fileName);
-      if (i > 0) {
-        inode.name += `-${i + 1}`;
-        dirEntry = await getInodeById(dirId);
-      }
-      if (!checkDir(dirEntry, user)) {
-        const s3Keys = uploads.map((u) => u.s3Key);
-        await deleteS3Objects(s3Keys);
-        return ctx.respond(null, STATUS_CODE.Forbidden);
-      }
-      const parentDirId = dirEntry.value.id;
-      const nullInodeCheck = {
-        key: inodesKeys.byDir(parentDirId, inode.name),
-        versionstamp: null,
-      };
-      const atomic = kv.atomic();
-      setInode(inode, atomic);
-      setUploadSize({ userId: user.id, size: upload.fileSize, atomic });
-      atomic.check(dirEntry, nullInodeCheck);
-      commit = await atomic.commit();
-      i++;
+    if (!isSaved) {
+      await cleanupUnsavedFileNodes(uploads, completedUploadsIds);
+      break saveInodes;
     }
-    completedIds.push(upload.uploadId);
+
+    completedUploadsIds.push(upload.uploadId);
+
+    if (isPostProcessableUpload(upload)) {
+      inodeIdsToPostProcess.push(fileNode.id);
+    }
   }
 
-  return ctx.json(completedIds);
-}
+  if (inodeIdsToPostProcess.length) {
+    await enqueue<QueueMsgPostProcessUploads>({
+      type: "post-process-uploads",
+      ids: inodeIdsToPostProcess,
+    }).commit();
+  }
 
-function checkDir(
-  entry: Deno.KvEntryMaybe<Inode>,
-  user: User,
-): entry is Deno.KvEntry<DirNode> {
-  return !!entry.value &&
-    entry.value.type === "dir" &&
-    entry.value?.ownerId === user.id;
-}
-
-function deleteS3Objects(s3Keys: string[]) {
-  return enqueue<QueueMsgDeleteS3Objects>({
-    type: "delete-s3-objects",
-    s3Keys,
-    bucket: INODES_BUCKET,
-  }).commit();
+  return ctx.json(completedUploadsIds);
 }
 
 function isValidReqData(data: unknown): data is ReqData {
@@ -135,7 +111,7 @@ function isValidReqData(data: unknown): data is ReqData {
         fileType,
         checksum,
         finishedParts,
-      } = upload as Partial<s3.CompletedUpload>;
+      } = upload as Partial<s3.CompletedMultipartUpload>;
       return typeof s3Key === "string" &&
         typeof uploadId === "string" &&
         typeof fileName === "string" &&
@@ -145,4 +121,75 @@ function isValidReqData(data: unknown): data is ReqData {
         typeof finishedParts[0].partNumber === "number" &&
         typeof finishedParts[0].etag === "string";
     });
+}
+
+export function isValidUploadDirEntry(
+  entry: Deno.KvEntryMaybe<Inode>,
+  user: User,
+): entry is Deno.KvEntry<DirNode> {
+  return entry.value !== null &&
+    entry.value.type === "dir" &&
+    !entry.value.isRootDir &&
+    entry.value?.ownerId === user.id;
+}
+
+function cleanupUnsavedFileNodes(
+  uploads: s3.CompletedMultipartUpload[],
+  completedIds: string[],
+) {
+  const s3Keys = [];
+  for (const upload of uploads) {
+    if (!completedIds.includes(upload.uploadId)) {
+      s3Keys.push({ name: upload.s3Key });
+    }
+  }
+  if (s3Keys.length) {
+    return enqueue<QueueMsgDeleteS3Objects>({
+      type: "delete-s3-objects",
+      s3Keys,
+      bucket: INODES_BUCKET,
+    }).commit();
+  }
+}
+
+export async function saveFileNode({
+  upload,
+  fileNode,
+  dirEntry,
+  dirId,
+  user,
+}: {
+  upload: s3.CompletedMultipartUpload & { fileSize: number };
+  fileNode: FileNode;
+  dirEntry: Deno.KvEntryMaybe<DirNode>;
+  dirId: string;
+  user: User;
+}) {
+  let commit = { ok: false };
+  let i = 0;
+  while (!commit.ok) {
+    fileNode.name = encodeURIComponent(upload.fileName);
+    if (i > 0) {
+      fileNode.name += `-${i + 1}`;
+      dirEntry = await getInodeById(dirId);
+    }
+    if (!isValidUploadDirEntry(dirEntry, user)) {
+      return false;
+    }
+    const atomic = kv.atomic();
+    const fileNodeNullCheck = {
+      key: getInodeKey.byDir(dirEntry.value.id, fileNode.name),
+      versionstamp: null,
+    };
+    atomic.check(dirEntry, fileNodeNullCheck);
+    setInode(fileNode, atomic);
+    setUploadSize({
+      userId: fileNode.ownerId,
+      size: upload.fileSize,
+      atomic,
+    });
+    commit = await atomic.commit();
+    i++;
+  }
+  return true;
 }

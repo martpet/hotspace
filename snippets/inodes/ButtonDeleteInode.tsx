@@ -1,5 +1,5 @@
 import { JSX } from "preact/jsx-runtime";
-import { ROOT_DIR_ID } from "../../util/inodes_helpers.ts";
+import { ROOT_DIR_ID } from "../../util/inodes/consts.ts";
 import type { Inode } from "../../util/types.ts";
 import { asset } from "../../util/url.ts";
 

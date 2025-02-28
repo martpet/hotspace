@@ -100,7 +100,7 @@ async function submitData() {
 
 function insertDialog() {
   const introText = isDir
-    ? `<strong>${inodeType} '${inodeName}'</strong> and everything inside it`
+    ? `<strong>${inodeType} '${inodeName}'</strong> and its content`
     : `<strong>${inodeNameDecoded}</strong>  and its chat messages`;
 
   const PATTERN_CONFIRM = "permanently delete";

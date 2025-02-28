@@ -1,3 +1,15 @@
+#upload-progress {
+  gap: 0.2em;
+  progress {
+    display: block;
+    width: 100%;
+  }
+  .info {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+}
+
 #dir-page {
   #chat {
     margin-top: 3rem;

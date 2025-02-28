@@ -312,20 +312,6 @@ dialog {
   }
 }
 
-#upload-progress {
-  display: flex;
-  flex-direction: row;
-  gap: 0.6rem;
-  align-items: center;
-  progress {
-    flex-grow: 1;
-  }
-  .info {
-    display: flex;
-    font-variant-numeric: tabular-nums;
-  }
-}
-
 #spaces {
   margin-bottom: 1.5em;
   padding: 0;

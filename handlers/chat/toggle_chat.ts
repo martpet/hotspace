@@ -1,8 +1,8 @@
 import { STATUS_CODE } from "@std/http";
-import { setAnyInode } from "../../util/inodes_helpers.ts";
+import { setAnyInode } from "../../util/inodes/kv_wrappers.ts";
 import { getInodeById } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
-import type { AppContext } from "../../util/types.ts";
+import type { AppContext, DirNode } from "../../util/types.ts";
 
 interface ReqData {
   inodeId: string;
@@ -29,7 +29,7 @@ export default async function toggleChatHandler(ctx: AppContext) {
 
   const inode = inodeEntry.value;
 
-  if (inode.isRootNode) {
+  if ((inode as DirNode).isRootDir) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
