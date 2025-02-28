@@ -156,6 +156,7 @@ function getChboxData(chbox) {
 
 function insertDialog() {
   const PATTERN_CONFIRM = "permanently delete";
+
   btnDelete.insertAdjacentHTML(
     "afterend",
     `
@@ -170,7 +171,7 @@ function insertDialog() {
             </ul>
             <p id="batch-delete-error" class="alert error" hidden></p>
             <label>
-              <span>To confirm, type <em>${PATTERN_CONFIRM}</em> in the box:</span>
+              <span>To confirm, type <em><strong>${PATTERN_CONFIRM}</strong></em> in the field:</span>
               <input type="text" autofocus required pattern="${PATTERN_CONFIRM}" />
             </label>
             <footer>

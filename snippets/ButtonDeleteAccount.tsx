@@ -4,7 +4,7 @@ export default function ButtonDeleteAccount(_: unknown, ctx: AppContext) {
   const js = "btnDelAccount.onclick = () => dialogDelAccount.showModal()";
   const css = "#dialogDelAccount footer button[formmethod] { order: -1 }";
 
-  const PATTERN_CONFIRM = "permanently delete";
+  const PATTERN_CONFIRM = "delete account";
 
   return (
     <>
@@ -18,9 +18,17 @@ export default function ButtonDeleteAccount(_: unknown, ctx: AppContext) {
           </p>
           <label>
             <span>
-              To confirm, type <em>{PATTERN_CONFIRM}</em> in the box:
+              To confirm, type{" "}
+              <em>
+                <strong>{PATTERN_CONFIRM}</strong>
+              </em>{" "}
+              in the field:
             </span>
-            <input type="text" required pattern={PATTERN_CONFIRM} />
+            <input
+              type="text"
+              required
+              pattern={PATTERN_CONFIRM}
+            />
           </label>
           <footer>
             <button>Delete Forever</button>

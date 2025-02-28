@@ -3,7 +3,8 @@ import { createSignal, GENERAL_ERR_MSG, setFlash, setFromCookie } from "$main";
 const button = document.getElementById("delete-inode-button");
 const { inodeName, isDir, parentDirId, isParentRoot } = button.dataset;
 const inodeNameDecoded = decodeURIComponent(inodeName);
-const inodeType = isParentRoot ? "Space" : isDir ? "Folder" : "File";
+const isSpace = isParentRoot;
+const inodeType = isSpace ? "Space" : isDir ? "Folder" : "File";
 
 button.disabled = false;
 
@@ -99,11 +100,15 @@ async function submitData() {
 // =====================
 
 function insertDialog() {
+  const PATTERN_CONFIRM = isSpace ? inodeName : "permanently delete";
+
   const introText = isDir
-    ? `<strong>${inodeType} '${inodeName}'</strong> and its content`
+    ? `${inodeType} <strong>'${inodeName}'</strong> and its content`
     : `<strong>${inodeNameDecoded}</strong>  and its chat messages`;
 
-  const PATTERN_CONFIRM = "permanently delete";
+  const confirmText = isSpace
+    ? "the name of the space"
+    : `<em><strong>${PATTERN_CONFIRM}</strong></em>`;
 
   button.insertAdjacentHTML(
     "afterend",
@@ -117,7 +122,7 @@ function insertDialog() {
             </p>
             <p id="delete-inode-error" class="alert error" hidden></p>
             <label>
-              <span>To confirm, type <em>${PATTERN_CONFIRM}</em> in the box:</span>
+              <span>To confirm, type ${confirmText} in the field:</span>
               <input type="text" autofocus required pattern="${PATTERN_CONFIRM}" />
             </label>
             <footer>
