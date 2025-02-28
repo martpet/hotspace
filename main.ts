@@ -36,11 +36,6 @@ kv.listenQueue(queueHandler);
 
 const app = new Server({ trailingSlash: "mixed" });
 
-app.use((ctx, next) => {
-  console.log(`${ctx.req.method} ${ctx.req.url}`);
-  return next();
-});
-
 app.use(errorMiddleware);
 app.use(headersMiddleware);
 app.use(sessionMiddleware);
