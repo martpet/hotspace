@@ -35,19 +35,15 @@ export const { AWS_REGION } = env;
 if (isProd) {
   assert(env.AWS_ACCESS_KEY_ID_PROD);
   assert(env.AWS_SECRET_ACCESS_KEY_PROD);
-  assert(env.INODES_BUCKET_PROD);
   assert(env.CLOUDFRONT_SIGNER_PRIVATE_KEY_PROD);
   assert(env.CLOUDFRONT_KEYPAIR_ID_PROD);
-  assert(env.INODES_CLOUDFRONT_URL_PROD);
   assert(env.ASSETS_CLOUDFRONT_URL_PROD);
   assert(env.MEDIACONVERT_ROLE_PROD);
 } else {
   assert(env.AWS_ACCESS_KEY_ID_DEV);
   assert(env.AWS_SECRET_ACCESS_KEY_DEV);
-  assert(env.INODES_BUCKET_DEV);
   assert(env.CLOUDFRONT_SIGNER_PRIVATE_KEY_DEV);
   assert(env.CLOUDFRONT_KEYPAIR_ID_DEV);
-  assert(env.INODES_CLOUDFRONT_URL_DEV);
   assert(env.MEDIACONVERT_ROLE_DEV);
 }
 
@@ -59,8 +55,8 @@ export const AWS_CREDENTIALS = {
 };
 
 export const INODES_BUCKET = isProd
-  ? env.INODES_BUCKET_PROD
-  : env.INODES_BUCKET_DEV;
+  ? "uploads-hotspace-lol"
+  : "uploads-dev-hotspace-lol";
 
 export const S3_ACCELERATE_HOST = "s3-accelerate.amazonaws.com";
 
@@ -76,11 +72,11 @@ export const CLOUDFRONT_KEYPAIR_ID = isProd
   : env.CLOUDFRONT_KEYPAIR_ID_DEV;
 
 export const INODES_CLOUDFRONT_URL = isProd
-  ? env.INODES_CLOUDFRONT_URL_PROD
-  : env.INODES_CLOUDFRONT_URL_DEV;
+  ? "https://uploads.hotspace.lol"
+  : "https://uploads.dev.hotspace.lol";
 
 export const ASSETS_CLOUDFRONT_URL = isProd
-  ? env.ASSETS_CLOUDFRONT_URL_PROD
+  ? "https://assets.hotspace.lol"
   : "";
 
 export const MEDIACONVERT_ROLE = isProd
