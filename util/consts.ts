@@ -29,15 +29,11 @@ export const { VAPID_KEYS, ADMIN_EMAIL } = env;
 // AWS
 // =====================
 
-assert(env.AWS_REGION);
-export const { AWS_REGION } = env;
-
 if (isProd) {
   assert(env.AWS_ACCESS_KEY_ID_PROD);
   assert(env.AWS_SECRET_ACCESS_KEY_PROD);
   assert(env.CLOUDFRONT_SIGNER_PRIVATE_KEY_PROD);
   assert(env.CLOUDFRONT_KEYPAIR_ID_PROD);
-  assert(env.ASSETS_CLOUDFRONT_URL_PROD);
   assert(env.MEDIACONVERT_ROLE_PROD);
 } else {
   assert(env.AWS_ACCESS_KEY_ID_DEV);
@@ -46,6 +42,8 @@ if (isProd) {
   assert(env.CLOUDFRONT_KEYPAIR_ID_DEV);
   assert(env.MEDIACONVERT_ROLE_DEV);
 }
+
+export const AWS_REGION = "us-east-1";
 
 export const AWS_CREDENTIALS = {
   accessKeyId: isProd ? env.AWS_ACCESS_KEY_ID_PROD : env.AWS_ACCESS_KEY_ID_DEV,
