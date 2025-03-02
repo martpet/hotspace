@@ -10,9 +10,9 @@ export function isFileNodeWithManyS3Objects(fileNode: FileNode) {
   return fileNode.fileType.startsWith("video");
 }
 
-export async function patchInode<T extends Inode>(
+export async function updateInodeWithRetry<T extends Inode>(
   entry: Deno.KvEntryMaybe<Inode>,
-  patch: Partial<T>,
+  data: T,
 ) {
   if (!entry.value) return;
   let commit = { ok: false };
@@ -20,7 +20,7 @@ export async function patchInode<T extends Inode>(
   while (!commit.ok) {
     if (i > 0) entry = await getInodeById(entry.value.id);
     if (!entry.value) return;
-    const atomic = setInode({ ...entry.value, ...patch });
+    const atomic = setInode(data);
     atomic.check(entry);
     commit = await atomic.commit();
     i++;

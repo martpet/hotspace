@@ -93,6 +93,7 @@ export default async function completeUploadHandler(ctx: AppContext) {
     await enqueue<QueueMsgPostProcessUploads>({
       type: "post-process-uploads",
       ids: inodeIdsToPostProcess,
+      origin: ctx.url.origin,
     }).commit();
   }
 

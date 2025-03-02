@@ -24,6 +24,7 @@ import initiateUpload from "./handlers/inodes/upload/initiate.tsx";
 import manifestJson from "./handlers/manifest_json.ts";
 import subscribers from "./handlers/push_sub/subscribers.ts";
 import vapid from "./handlers/push_sub/vapid.ts";
+import awsMediaConvertWebHook from "./handlers/webhooks/aws_media_convert.ts.ts";
 import { headersMiddleware } from "./middleware/headers.ts";
 import { errorMiddleware } from "./middleware/server_error.tsx";
 import { sessionMiddleware } from "./middleware/session.ts";
@@ -31,8 +32,6 @@ import { stateMiddleware } from "./middleware/state.ts";
 import { IS_LOCAL_DEV } from "./util/consts.ts";
 import { kv } from "./util/kv/kv.ts";
 import { queueHandler } from "./util/kv/queue_handlers/main_handler.ts";
-
-kv.listenQueue(queueHandler);
 
 const app = new Server({ trailingSlash: "mixed" });
 
@@ -66,6 +65,7 @@ app.post("/chat/toggle", toggleChat);
 app.all("/chat/subs", chatSubs);
 app.post("/push-subs/subscribers", subscribers);
 app.get("/push-subs/vapid", vapid);
+app.post("/webhooks/aws-media-convert", awsMediaConvertWebHook);
 app.get("*/", showDir);
 app.get("*", showFile);
 
@@ -80,3 +80,5 @@ if (IS_LOCAL_DEV) {
 }
 
 app.serve(serveOptions);
+
+kv.listenQueue(queueHandler);
