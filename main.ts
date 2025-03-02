@@ -24,14 +24,14 @@ import initiateUpload from "./handlers/inodes/upload/initiate.tsx";
 import manifestJson from "./handlers/manifest_json.ts";
 import subscribers from "./handlers/push_sub/subscribers.ts";
 import vapid from "./handlers/push_sub/vapid.ts";
-import awsMediaConvertWebHook from "./handlers/webhooks/aws_media_convert.ts.ts";
+import { queueHandler } from "./handlers/queue/main_handler.ts";
+import awsMediaConvertWebHook from "./handlers/webhooks/aws_media_convert_event.ts.ts";
 import { headersMiddleware } from "./middleware/headers.ts";
 import { errorMiddleware } from "./middleware/server_error.tsx";
 import { sessionMiddleware } from "./middleware/session.ts";
 import { stateMiddleware } from "./middleware/state.ts";
 import { IS_LOCAL_DEV } from "./util/consts.ts";
 import { kv } from "./util/kv/kv.ts";
-import { queueHandler } from "./util/kv/queue_handlers/main_handler.ts";
 
 const app = new Server({ trailingSlash: "mixed" });
 

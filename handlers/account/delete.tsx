@@ -3,9 +3,9 @@ import { SESSION_COOKIE } from "../../lib/webauthn/consts.ts";
 import { GENERAL_ERR_MSG } from "../../util/consts.ts";
 import { enqueue } from "../../util/kv/enqueue.ts";
 import { kv } from "../../util/kv/kv.ts";
-import { type QueueMsgCleanUpUser } from "../../util/kv/queue_handlers/clean_up_user.ts";
 import { deleteUser } from "../../util/kv/users.ts";
 import type { AppContext } from "../../util/types.ts";
+import { type QueueMsgCleanUpUser } from "../queue/clean_up_user.ts";
 
 export default async function deleteAccountHandler(ctx: AppContext) {
   const { user } = ctx.state;

@@ -12,8 +12,6 @@ import {
   setInode,
 } from "../../../util/kv/inodes.ts";
 import { kv } from "../../../util/kv/kv.ts";
-import { QueueMsgDeleteS3Objects } from "../../../util/kv/queue_handlers/delete_s3_objects.ts";
-import { type QueueMsgPostProcessUploads } from "../../../util/kv/queue_handlers/post_process_uploads.ts";
 import { setUploadSize } from "../../../util/kv/upload_size.ts";
 import type {
   AppContext,
@@ -22,6 +20,8 @@ import type {
   Inode,
   User,
 } from "../../../util/types.ts";
+import { QueueMsgDeleteS3Objects } from "../../queue/delete_s3_objects.ts";
+import { QueueMsgPostProcessUpload } from "../../queue/post_process_upload.ts";
 
 type ReqData = {
   uploads: s3.CompletedMultipartUpload[];
@@ -55,9 +55,8 @@ export default async function completeUploadHandler(ctx: AppContext) {
   });
 
   const completedUploadsIds = [];
-  const inodeIdsToPostProcess = [];
 
-  saveInodes: for (const upload of completedUploads) {
+  saving: for (const upload of completedUploads) {
     const fileNode: FileNode = {
       id: ulid(),
       type: "file",
@@ -75,26 +74,15 @@ export default async function completeUploadHandler(ctx: AppContext) {
       dirEntry,
       dirId,
       user,
+      origin: ctx.url.origin,
     });
 
     if (!isSaved) {
       await cleanupUnsavedFileNodes(uploads, completedUploadsIds);
-      break saveInodes;
+      break saving;
     }
 
     completedUploadsIds.push(upload.uploadId);
-
-    if (isPostProcessableUpload(upload)) {
-      inodeIdsToPostProcess.push(fileNode.id);
-    }
-  }
-
-  if (inodeIdsToPostProcess.length) {
-    await enqueue<QueueMsgPostProcessUploads>({
-      type: "post-process-uploads",
-      ids: inodeIdsToPostProcess,
-      origin: ctx.url.origin,
-    }).commit();
   }
 
   return ctx.json(completedUploadsIds);
@@ -153,25 +141,32 @@ function cleanupUnsavedFileNodes(
   }
 }
 
-export async function saveFileNode({
-  upload,
-  fileNode,
-  dirEntry,
-  dirId,
-  user,
-}: {
+interface SaveFileNodeOptions {
   upload: s3.CompletedMultipartUpload & { fileSize: number };
   fileNode: FileNode;
   dirEntry: Deno.KvEntryMaybe<DirNode>;
   dirId: string;
   user: User;
-}) {
+  origin: string;
+}
+
+export async function saveFileNode(options: SaveFileNodeOptions) {
+  const {
+    upload,
+    fileNode,
+    dirId,
+    user,
+    origin,
+  } = options;
+
+  let dirEntry = options.dirEntry;
   let commit = { ok: false };
-  let i = 0;
+  let retry = 0;
+
   while (!commit.ok) {
     fileNode.name = encodeURIComponent(upload.fileName);
-    if (i > 0) {
-      fileNode.name += `-${i + 1}`;
+    if (retry) {
+      fileNode.name += `-${retry + 1}`;
       dirEntry = await getInodeById(dirId);
     }
     if (!isValidUploadDirEntry(dirEntry, user)) {
@@ -189,8 +184,15 @@ export async function saveFileNode({
       size: upload.fileSize,
       atomic,
     });
+    if (isPostProcessableUpload(fileNode)) {
+      enqueue<QueueMsgPostProcessUpload>({
+        type: "post-process-upload",
+        inodeId: fileNode.id,
+        origin,
+      }, atomic);
+    }
     commit = await atomic.commit();
-    i++;
+    retry++;
   }
   return true;
 }

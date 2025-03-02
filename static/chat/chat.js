@@ -41,7 +41,7 @@ syncPushSub().then(() => checkExpiredChatSub());
 const mainBox = document.getElementById("chat-main");
 const chatTmpl = document.getElementById("chat-template");
 const dialogEditMsg = document.getElementById("edit-chat-msg-dialog");
-const dialogDelMsg = document.getElementById("delete-chat-msg-dialog");
+const dialogDelMsg = document.getElementById("clean-up-inode-msg-dialog");
 const textareaEditMsg = dialogEditMsg?.querySelector("textarea");
 const formEditMsg = dialogEditMsg?.querySelector("form");
 const btnEditMsgSubmit = dialogEditMsg?.querySelector("button.submit");
@@ -1053,7 +1053,7 @@ function insertMessageDialogs() {
         </form>
       </dialog>
       
-      <dialog id="delete-chat-msg-dialog" class="chat-msg-dialog">
+      <dialog id="clean-up-inode-msg-dialog" class="chat-msg-dialog">
         <h1>Delete Message</h1>
         <p class="alert warning">Are you sure you want to delete this message?</p>
         ${msgPreview()}

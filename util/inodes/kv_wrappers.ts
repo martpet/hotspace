@@ -1,4 +1,9 @@
 import { newQueue } from "@henrygd/queue";
+import { type QueueMsgCleanUpInode } from "../../handlers/queue/clean_up_inode.ts";
+import { type QueueMsgDeleteDirChildren } from "../../handlers/queue/delete_dir_children.ts";
+import {
+  type QueueMsgDeleteS3Objects,
+} from "../../handlers/queue/delete_s3_objects.ts";
 import { INODES_BUCKET } from "../consts.ts";
 import { enqueue } from "../kv/enqueue.ts";
 import {
@@ -10,13 +15,8 @@ import {
   setRootDirByOwner,
 } from "../kv/inodes.ts";
 import { kv } from "../kv/kv.ts";
-import { type QueueMsgDeleteChat } from "../kv/queue_handlers/delete_chat.ts";
-import { type QueueMsgDeleteDirChildren } from "../kv/queue_handlers/delete_dir_children.ts";
-import {
-  type QueueMsgDeleteS3Objects,
-} from "../kv/queue_handlers/delete_s3_objects.ts";
 import { setUploadSize } from "../kv/upload_size.ts";
-import type { Inode } from "../types.ts";
+import type { Inode, VideoNode } from "../types.ts";
 import { isFileNodeWithManyS3Objects } from "./util.ts";
 
 export function setAnyInode(inode: Inode, atomic = kv.atomic()) {
@@ -35,35 +35,37 @@ export async function deleteInodesFull(inodes: Inode[]) {
   const s3KeysToDelete: QueueMsgDeleteS3Objects["s3Keys"] = [];
 
   for (const inode of inodes) {
-    queue.add(async () => {
-      const atomic = kv.atomic();
+    const atomic = kv.atomic();
 
-      deleteAnyInode(inode, atomic);
+    deleteAnyInode(inode, atomic);
 
-      enqueue<QueueMsgDeleteChat>({
-        type: "delete-chat",
-        chatId: inode.id,
+    enqueue<QueueMsgCleanUpInode>({
+      type: "clean-up-inode",
+      inodeId: inode.id,
+      pendingMediaConvertJobId: (inode as VideoNode).mediaConvert?.jobId,
+    }, atomic);
+
+    if (inode.type === "dir") {
+      enqueue<QueueMsgDeleteDirChildren>({
+        type: "delete-dir-children",
+        dirId: inode.id,
       }, atomic);
+    }
 
-      if (inode.type === "dir") {
-        enqueue<QueueMsgDeleteDirChildren>({
-          type: "delete-dir-children",
-          dirId: inode.id,
-        }, atomic);
-      } else if (inode.type === "file") {
-        setUploadSize({
-          userId: inode.ownerId,
-          size: -inode.fileSize,
-          atomic,
-        });
-        // cancel mediaconvert job if not completed
-        s3KeysToDelete.push({
-          name: inode.s3Key,
-          isPrefix: isFileNodeWithManyS3Objects(inode),
-        });
-      }
-      await atomic.commit();
-    });
+    if (inode.type === "file") {
+      setUploadSize({
+        userId: inode.ownerId,
+        size: -inode.fileSize,
+        atomic,
+      });
+
+      s3KeysToDelete.push({
+        name: inode.s3Key,
+        isPrefix: isFileNodeWithManyS3Objects(inode),
+      });
+    }
+
+    queue.add(() => atomic.commit());
   }
 
   if (s3KeysToDelete.length) {

@@ -2,18 +2,18 @@ import { type AWSSignerV4 } from "deno_aws_sign_v4";
 import { fetchWithRetry } from "../../util.ts";
 
 interface Options {
-  job: Record<string, unknown>;
+  jobId: string;
   signer: AWSSignerV4;
   region: string;
 }
 
-export async function createJob(options: Options) {
-  const { region, job, signer } = options;
-  const url = `https://mediaconvert.${region}.amazonaws.com/2017-08-29/jobs`;
+export async function cancelJob(options: Options) {
+  const { jobId, region, signer } = options;
+  const url =
+    `https://mediaconvert.${region}.amazonaws.com/2017-08-29/jobs/${jobId}`;
 
   const req = new Request(url, {
-    method: "post",
-    body: JSON.stringify(job),
+    method: "delete",
   });
 
   const signedReq = await signer.sign("mediaconvert", req);
@@ -21,10 +21,7 @@ export async function createJob(options: Options) {
   const data = await resp.json();
 
   if (!resp.ok) {
-    console.error(data.message as string);
+    const error = data.message as string;
+    console.error(error);
   }
-
-  return {
-    jobId: data.job.id as string,
-  };
 }

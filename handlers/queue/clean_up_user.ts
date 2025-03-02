@@ -1,9 +1,9 @@
 import { newQueue } from "@henrygd/queue";
-import { deleteInodesFull } from "../../inodes/kv_wrappers.ts";
-import { listRootDirsByOwner } from "../inodes.ts";
-import { deletePasskey, listPasskeysByUser } from "../passkeys.ts";
-import { deleteSession, listSessionsByUser } from "../sessions.ts";
-import { deleteUploadSizeByUser } from "../upload_size.ts";
+import { deleteInodesFull } from "../../util/inodes/kv_wrappers.ts";
+import { listRootDirsByOwner } from "../../util/kv/inodes.ts";
+import { deletePasskey, listPasskeysByUser } from "../../util/kv/passkeys.ts";
+import { deleteSession, listSessionsByUser } from "../../util/kv/sessions.ts";
+import { deleteUploadSizeByUser } from "../../util/kv/upload_size.ts";
 
 export interface QueueMsgCleanUpUser {
   type: "clean-up-user";

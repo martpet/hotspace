@@ -1,5 +1,9 @@
+import {
+  handleAwsMediaConvertEvent,
+  isAwsMediaConvertEvent,
+} from "./aws_media_convert_event.ts";
+import { handleCleanUpInode, isCleanUpInode } from "./clean_up_inode.ts";
 import { handleCleanUpUser, isCleanUpUser } from "./clean_up_user.ts";
-import { handleDeleteChat, isDeleteChat } from "./delete_chat.ts";
 import {
   handleDeleteDirChildren,
   isDeleteDirChildren,
@@ -9,9 +13,9 @@ import {
   isDeleteS3Objects,
 } from "./delete_s3_objects.ts";
 import {
-  handlePostProcessUploads,
-  isPostProcessUploads,
-} from "./post_process_uploads.ts";
+  handlePostProcessUpload,
+  isPostProcessUpload,
+} from "./post_process_upload.ts";
 import {
   handlePushChatNotification,
   isPushChatNotification,
@@ -21,9 +25,10 @@ export function queueHandler(msg: unknown) {
   if (isPushChatNotification(msg)) return handlePushChatNotification(msg);
   if (isDeleteS3Objects(msg)) return handleDeleteS3Objects(msg);
   if (isDeleteDirChildren(msg)) return handleDeleteDirChildren(msg);
-  if (isDeleteChat(msg)) return handleDeleteChat(msg);
+  if (isCleanUpInode(msg)) return handleCleanUpInode(msg);
   if (isCleanUpUser(msg)) return handleCleanUpUser(msg);
-  if (isPostProcessUploads(msg)) return handlePostProcessUploads(msg);
+  if (isPostProcessUpload(msg)) return handlePostProcessUpload(msg);
+  if (isAwsMediaConvertEvent(msg)) return handleAwsMediaConvertEvent(msg);
 
-  console.error("Unknown KV Queue msg received", msg);
+  console.error("Unhandled KV Queue message", msg);
 }

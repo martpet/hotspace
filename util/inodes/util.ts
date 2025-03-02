@@ -1,13 +1,16 @@
-import { s3 } from "$aws";
 import { getInodeById, setInode } from "../kv/inodes.ts";
-import type { FileNode, Inode } from "../types.ts";
+import type { FileNode, Inode, VideoNode } from "../types.ts";
 
-export function isPostProcessableUpload(upload: s3.CompletedMultipartUpload) {
-  return upload.fileType.startsWith("video");
+export function isPostProcessableUpload(inode: Inode) {
+  return isVideoNode(inode);
 }
 
-export function isFileNodeWithManyS3Objects(fileNode: FileNode) {
-  return fileNode.fileType.startsWith("video");
+export function isFileNodeWithManyS3Objects(inode: Inode) {
+  return isVideoNode(inode);
+}
+
+export function isVideoNode(inode: Inode): inode is VideoNode {
+  return (inode as FileNode).fileType.startsWith("video");
 }
 
 export async function updateInodeWithRetry<T extends Inode>(

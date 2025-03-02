@@ -1,5 +1,5 @@
-import { deleteInodesFull } from "../../inodes/kv_wrappers.ts";
-import { listInodesByDir } from "../inodes.ts";
+import { deleteInodesFull } from "../../util/inodes/kv_wrappers.ts";
+import { listInodesByDir } from "../../util/kv/inodes.ts";
 
 export interface QueueMsgDeleteDirChildren {
   type: "delete-dir-children";

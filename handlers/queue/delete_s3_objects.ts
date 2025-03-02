@@ -1,10 +1,13 @@
 import { s3 } from "$aws";
-import { getSigner } from "../../aws.ts";
+import { getSigner } from "../../util/aws.ts";
 
 export interface QueueMsgDeleteS3Objects {
   type: "delete-s3-objects";
   bucket: string;
-  s3Keys: { name: string; isPrefix?: boolean }[];
+  s3Keys: {
+    name: string;
+    isPrefix?: boolean;
+  }[];
 }
 
 export function isDeleteS3Objects(
