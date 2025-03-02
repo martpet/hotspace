@@ -1,6 +1,6 @@
 import { toSha256Hex } from "$util";
 import { DOMParser, initParser } from "@b-fuze/deno-dom/wasm-noinit";
-import { retry } from "@std/async";
+import { fetchWithRetry } from "../../util.ts";
 import type { S3ReqOptions } from "../types.ts";
 
 interface Options extends S3ReqOptions {
@@ -34,7 +34,6 @@ async function run(options: RunOptions) {
     startAfter,
     continuationToken,
     signer,
-    retryOpt,
   } = options;
 
   const url = new URL(`https://${bucket}.s3.amazonaws.com?list-type=2`);
@@ -63,7 +62,7 @@ async function run(options: RunOptions) {
   });
 
   const signedReq = await signer.sign("s3", req);
-  const resp = await retry(() => fetch(signedReq), retryOpt);
+  const resp = await fetchWithRetry(signedReq);
   const respText = await resp.text();
 
   if (!resp.ok) {
