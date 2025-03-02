@@ -1,14 +1,10 @@
-import {
-  CREDENTIAL_REQUEST_SESSION_COOKIE,
-  SESSION_COOKIE,
-  verifyAssertion,
-} from "$webauthn";
-import { deleteCookie, getCookies, setCookie, STATUS_CODE } from "@std/http";
+import { CREDENTIAL_REQUEST_SESSION_COOKIE, verifyAssertion } from "$webauthn";
+import { deleteCookie, getCookies, STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
-import { SESSION_TIMEOUT } from "../../util/consts.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { getPasskeyById, setPasskey } from "../../util/kv/passkeys.ts";
 import { setSession } from "../../util/kv/sessions.ts";
+import { setSessionCookie } from "../../util/session.ts";
 import type { AppContext, Session } from "../../util/types.ts";
 
 export default async function credentialRequestVerifyHandler(ctx: AppContext) {
@@ -69,13 +65,9 @@ export default async function credentialRequestVerifyHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.Conflict);
   }
 
-  setCookie(ctx.resp.headers, {
-    name: SESSION_COOKIE,
-    value: session.id,
-    maxAge: SESSION_TIMEOUT / 1000,
-    path: "/",
-    secure: true,
-    httpOnly: true,
+  setSessionCookie({
+    headers: ctx.resp.headers,
+    sessionId: session.id,
   });
 
   return ctx.json({ verified: true });

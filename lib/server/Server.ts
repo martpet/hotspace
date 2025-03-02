@@ -191,6 +191,7 @@ export class Server {
       path: "/",
       secure: true,
       httpOnly: true,
+      sameSite: "Strict",
     });
   }
 

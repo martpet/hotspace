@@ -1,17 +1,16 @@
 import {
   CREDENTIAL_CREATION_SESSION_COOKIE,
-  SESSION_COOKIE,
   verifyAttestation,
 } from "$webauthn";
 import { decodeBase64 } from "@std/encoding";
-import { deleteCookie, getCookies, setCookie, STATUS_CODE } from "@std/http";
+import { deleteCookie, getCookies, STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
-import { SESSION_TIMEOUT } from "../../util/consts.ts";
 import { getCredentialCreationSession } from "../../util/kv/cred_creation_sessions.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { setPasskey } from "../../util/kv/passkeys.ts";
 import { setSession } from "../../util/kv/sessions.ts";
 import { setUser } from "../../util/kv/users.ts";
+import { setSessionCookie } from "../../util/session.ts";
 import type { AppContext, Passkey, Session, User } from "../../util/types.ts";
 
 export default async function credentialCreationVerifyHandler(ctx: AppContext) {
@@ -66,13 +65,9 @@ export default async function credentialCreationVerifyHandler(ctx: AppContext) {
     setUser(newUser, atomic);
     setSession(session, atomic);
 
-    setCookie(ctx.resp.headers, {
-      name: SESSION_COOKIE,
-      value: session.id,
-      maxAge: SESSION_TIMEOUT / 1000,
-      path: "/",
-      secure: true,
-      httpOnly: true,
+    setSessionCookie({
+      headers: ctx.resp.headers,
+      sessionId: session.id,
     });
   }
 

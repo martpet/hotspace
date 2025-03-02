@@ -18,6 +18,7 @@ export default function credentialRequestOptionsHandler(ctx: AppContext) {
     path: "/",
     secure: true,
     httpOnly: true,
+    sameSite: "Strict",
   });
 
   return ctx.json(credRequestOptions);

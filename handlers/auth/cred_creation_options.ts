@@ -74,6 +74,7 @@ export default async function credentialCreationOptionsHandler(
     secure: true,
     path: "/",
     httpOnly: true,
+    sameSite: "Strict",
   });
 
   return ctx.json(credCreationOptions);
