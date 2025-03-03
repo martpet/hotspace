@@ -95,7 +95,7 @@ errorSignal.subscribe((msg) => {
 
 async function submitData() {
   const inodesNames = selection.map((it) => it.name);
-  const resp = await fetch("/inodes/delete", {
+  const resp = await fetch("/app/inodes/delete", {
     method: "post",
     body: JSON.stringify({
       dirId,

@@ -74,7 +74,7 @@ const USER_TYPING_SEND_INTERVAL = 5000;
 const GENERAL_CHAT_ERR_MSG = "The chat experienced an error";
 
 const socketUrl = new URL(location.origin);
-socketUrl.pathname = `/chat/connection/${chatId}`;
+socketUrl.pathname = `/app/chat/connection/${chatId}`;
 socketUrl.protocol = location.protocol === "https:" ? "wss:" : "ws:";
 socketUrl.searchParams.set("title", chatTitle);
 socketUrl.searchParams.set("location", location.href);
@@ -655,7 +655,7 @@ async function toggleChatSub(isSubscribe) {
   const db = await import("$db");
   const subscriber = await db.getSubscriber();
   try {
-    const resp = await fetch("/chat/subs", {
+    const resp = await fetch("/app/chat/subs", {
       method: isSubscribe ? "post" : "delete",
       body: JSON.stringify({
         chatId,
@@ -716,7 +716,7 @@ async function lazyLoadMsgs() {
   if (!lazyRootEl) {
     msgsBoxReady.resolve();
   } else {
-    const url = new URL(`/chat/lazy-load/${chatId}`, location.origin);
+    const url = new URL(`/app/chat/lazy-load/${chatId}`, location.origin);
     if (isAdmin) url.searchParams.set("isAdmin", true);
     const resp = await fetch(url.href);
     if (!resp.ok) {

@@ -13,7 +13,7 @@ export const USERNAME_CONSTRAINTS = {
 } satisfies FormFieldConstraints;
 
 export const DIR_NAME_CONSTRAINTS = {
-  minLength: 1,
+  minLength: 2,
   maxLength: 100,
   ...URL_DIR_SEGMENT_CONSTRAINTS,
 } satisfies FormFieldConstraints;

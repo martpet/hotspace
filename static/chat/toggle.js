@@ -31,7 +31,7 @@ function setInProgress(inProgress) {
 }
 
 function callDb() {
-  return fetch("/chat/toggle", {
+  return fetch("/app/chat/toggle", {
     method: "post",
     body: JSON.stringify({
       inodeId: button.dataset.inodeId,

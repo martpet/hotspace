@@ -14,7 +14,8 @@ export default function ButtonDeleteAccount(_: unknown, ctx: AppContext) {
         <h1>Delete Your Account</h1>
         <form action="/account/delete" method="post" class="basic-form">
           <p class="alert warning">
-            You will lose your files and chat messages.
+            You will lose your files and chat messages.<br />
+            This action cannot be undone.
           </p>
           <label>
             <span>

@@ -43,9 +43,7 @@ export async function handlePostProcessUpload(
   };
 
   if (!isProd) {
-    const APP_URL = IS_LOCAL_DEV ? LOCAL_DEV_PUBLIC_URL : origin;
-    jobOptions.metaData.notificationEndpoint =
-      `${APP_URL}/webhooks/aws-media-convert`;
+    jobOptions.metaData.appUrl = IS_LOCAL_DEV ? LOCAL_DEV_PUBLIC_URL : origin;
   }
 
   const { jobId } = await mediaconvert.createJob({

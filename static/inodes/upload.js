@@ -10,8 +10,8 @@ const { workerSrc, dirId } = btnShowDialog.dataset;
 const EXIT_MSG = "Do you really want to stop the upload?";
 
 const endpoints = {
-  initiate: "/inodes/upload/initiate",
-  complete: "/inodes/upload/complete",
+  initiate: "/app/inodes/upload/initiate",
+  complete: "/app/inodes/upload/complete",
 };
 
 let dialog;
