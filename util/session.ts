@@ -16,6 +16,6 @@ export function setSessionCookie(options: SetSessionCookieOptions) {
     maxAge: SESSION_TIMEOUT / 1000,
     secure: true,
     httpOnly: true,
-    sameSite: "Strict",
+    sameSite: "Lax",
   });
 }
