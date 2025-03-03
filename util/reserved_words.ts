@@ -9,6 +9,7 @@ export const reservedWords = [
   "profile",
   "register",
   "signin",
+  "signout",
   "signup",
   "static",
   "terms",

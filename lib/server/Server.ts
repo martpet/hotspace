@@ -80,6 +80,7 @@ export class Server {
       post: modify(this.post.bind(this)),
       delete: modify(this.delete.bind(this)),
       all: modify(this.all.bind(this)),
+      route: this.route,
     };
   }
 
