@@ -83,10 +83,6 @@ a.inode {
       }
       &:has(.chbox :checked) {
         background-color: Highlight;
-        td {
-          border-inline-color: transparent;
-          border-style: dotted;
-        }
       }
     }
   }
@@ -111,9 +107,6 @@ a.inode {
     border-style: solid dotted;
     border-width: 0 0 1px 0;
     border-color: var(--border-grey-light);
-    &:not(:last-child) {
-      border-right-width: 1px;
-    }
     &.chbox {
       position: relative;
       label {
