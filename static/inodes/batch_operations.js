@@ -161,7 +161,7 @@ function insertDialog() {
     "afterend",
     `
         <dialog id="batch-delete-dialog">
-          <h1>Delete Items</h1>
+          <h1>Delete Selected Items</h1>
           <form class="basic-form">
             <p class="alert warning">
               <span id="batch-delete-intro"></span> will be deleted.<br />
