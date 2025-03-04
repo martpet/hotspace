@@ -48,7 +48,7 @@ export function getVideoJob({ s3Key, metaData }: JobOptions) {
               "OutputSettings": {
                 "HlsSettings": {},
               },
-              "NameModifier": "/",
+              "NameModifier": "/hls/",
             },
           ],
           "OutputGroupSettings": {
