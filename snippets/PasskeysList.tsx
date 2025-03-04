@@ -55,7 +55,7 @@ function ButtonDelete(props: { passkey: Passkey }) {
   return (
     <form
       method="post"
-      action="/account/passkeys/delete"
+      action="/app/auth/passkey-delete"
       class="delete-passkey"
     >
       <input

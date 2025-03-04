@@ -41,7 +41,7 @@ document.querySelectorAll("button.rename-passkey").forEach((button) => {
 
     abortController = new AbortController();
 
-    const { ok } = await fetch("/account/passkeys/rename", {
+    const { ok } = await fetch("/app/auth/passkey-rename", {
       method: "post",
       body: JSON.stringify({ newName, credId: button.dataset.credId }),
       signal: abortController.signal,
