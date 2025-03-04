@@ -48,8 +48,10 @@ export default function Page(props: PageProps, ctx: AppContext) {
         <script type="module" src={asset("main.js")} />
         <link rel="icon" href={asset("favicon.ico")} />
         <link rel="apple-touch-icon" href={asset("img/logo.png")} />
-        <link rel="manifest" href={asset("manifest.json")} />
         <link rel="stylesheet" href={asset("main.css")} />
+        {ctx.userAgent.os.name === "iOS" && (
+          <link rel="manifest" href={asset("manifest.json")} />
+        )}
         {head}
       </head>
       <body {...bodyProps}>
