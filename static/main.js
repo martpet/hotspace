@@ -113,7 +113,7 @@ if (!isServiceWorkerScope) {
   }
 
   async function createPubkeyOptions() {
-    const resp = await fetch("/app/auth/cred-request-options", {
+    const resp = await fetch("/auth/cred-request-options", {
       method: "post",
     });
     if (!resp.ok) {
@@ -132,7 +132,7 @@ if (!isServiceWorkerScope) {
       authData: encodeBase64(credential.response.authenticatorData),
       clientDataJson: encodeBase64(credential.response.clientDataJSON),
     };
-    const resp = await fetch("/app/auth/cred-request-verify", {
+    const resp = await fetch("/auth/cred-request-verify", {
       method: "post",
       body: JSON.stringify(assertion),
     });
@@ -184,7 +184,7 @@ export async function createPushSub({ db, forceNew } = {}) {
       ? self.registration
       : await navigator.serviceWorker.ready;
 
-    const vapidKey = await fetch("/app/push-subs/vapid").then((resp) =>
+    const vapidKey = await fetch("/push-subs/vapid").then((resp) =>
       resp.json()
     );
 
@@ -232,7 +232,7 @@ export async function syncPushSub({ db } = {}) {
 }
 
 async function postSubscriber({ db, subscriber, pushSub = null }) {
-  const resp = await fetch("/app/push-subs/subscribers", {
+  const resp = await fetch("/push-subs/subscribers", {
     method: "post",
     body: JSON.stringify({
       subscriberId: subscriber?.id,

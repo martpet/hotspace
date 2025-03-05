@@ -79,7 +79,7 @@ errorSignal.subscribe((msg) => {
 // =====================
 
 async function submitData() {
-  const resp = await fetch("/app/inodes/dirs", {
+  const resp = await fetch("/inodes/dirs", {
     method: "post",
     body: JSON.stringify({
       parentDirId,

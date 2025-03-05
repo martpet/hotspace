@@ -70,20 +70,6 @@ export class Server {
     this.on("*", patternInput, handler);
   }
 
-  route(prefix: string) {
-    const modify =
-      <F extends (a: string, b: Handler) => void>(f: F) =>
-      (...a: Parameters<F>) => f(`${prefix}${a[0]}`, a[1]);
-
-    return {
-      get: modify(this.get.bind(this)),
-      post: modify(this.post.bind(this)),
-      delete: modify(this.delete.bind(this)),
-      all: modify(this.all.bind(this)),
-      route: this.route,
-    };
-  }
-
   use(middleware: Middleware) {
     this.#middlewares.push(middleware);
   }

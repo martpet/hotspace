@@ -49,29 +49,31 @@ app.post("/logout", logout);
 app.get("/account", account);
 app.post("/account/delete", deleteAccount);
 
-const st = app.route("/static");
-st.get("/manifest.json", manifestJson);
-st.get("/upload_worker.js", uploadWorkerHandler);
-st.get("/*", staticFilesHandler);
+app.get("/static/manifest.json", manifestJson);
+app.get("/static/upload_worker.js", uploadWorkerHandler);
+app.get("/static/*", staticFilesHandler);
 
-const $ = app.route("/app");
-$.post("/auth/cred-creation-options", credCreatOpt);
-$.post("/auth/cred-creation-verify", credCreatVer);
-$.post("/auth/cred-request-options", credReqOpt);
-$.post("/auth/cred-request-verify", credReqVer);
-$.post("/auth/passkey-delete", passkeyDelete);
-$.post("/auth/passkey-rename", passkeyRename);
-$.post("/inodes/dirs", setDirByPath);
-$.post("/inodes/delete", deleteInodes);
-$.post("/inodes/upload/initiate", initiateUpload);
-$.post("/inodes/upload/complete", completeUpload);
-$.get("/chat/lazy-load/:chatId", chatLazyLoad);
-$.get("/chat/connection/:chatId", chatConnection);
-$.post("/chat/toggle", toggleChat);
-$.all("/chat/subs", chatSubs);
-$.post("/push-subs/subscribers", subscribers);
-$.get("/push-subs/vapid", vapid);
-$.post("/webhooks/aws-media-convert", awsMediaConvertWebHook);
+app.post("/auth/cred-creation-options", credCreatOpt);
+app.post("/auth/cred-creation-verify", credCreatVer);
+app.post("/auth/cred-request-options", credReqOpt);
+app.post("/auth/cred-request-verify", credReqVer);
+app.post("/auth/passkey-delete", passkeyDelete);
+app.post("/auth/passkey-rename", passkeyRename);
+
+app.post("/inodes/dirs", setDirByPath);
+app.post("/inodes/delete", deleteInodes);
+app.post("/inodes/upload/initiate", initiateUpload);
+app.post("/inodes/upload/complete", completeUpload);
+
+app.get("/chat/lazy-load/:chatId", chatLazyLoad);
+app.get("/chat/connection/:chatId", chatConnection);
+app.post("/chat/toggle", toggleChat);
+app.all("/chat/subs", chatSubs);
+
+app.post("/push-subs/subscribers", subscribers);
+app.get("/push-subs/vapid", vapid);
+
+app.post("/webhooks/aws-media-convert", awsMediaConvertWebHook);
 
 app.get("*/", showDir);
 app.get("*", showFile);
