@@ -1,13 +1,12 @@
 const isServiceWorkerScope = typeof ServiceWorkerGlobalScope !== "undefined";
 
-const dataAttr = isServiceWorkerScope ? {} : document.documentElement.dataset;
-
 export const {
   deviceType,
   osName,
   browserName,
   canUserServiceWorker,
-} = dataAttr;
+  serviceWorkerPath,
+} = isServiceWorkerScope ? {} : document.documentElement.dataset;
 
 export const GENERAL_ERR_MSG = "Oops, something went wrong, try again!";
 export const SESSION_EXPIRED_ERR_MSG = "Your session has expired!";
@@ -19,7 +18,7 @@ export const SESSION_EXPIRED_ERR_MSG = "Your session has expired!";
 if (!isServiceWorkerScope && canUserServiceWorker) {
   navigator.serviceWorker.getRegistration().then((reg) => {
     if (!reg) {
-      navigator.serviceWorker.register("/static/service_worker.js", {
+      navigator.serviceWorker.register(serviceWorkerPath, {
         type: "module",
         scope: "/",
       });
@@ -305,18 +304,36 @@ export function setFromCookie(str) {
   document.cookie = `from=${str};path=/`;
 }
 
-export function createSignal(initialValue) {
+export function createSignal(initialValue, options = {}) {
   let value = initialValue;
   let prevValue = undefined;
   const listeners = new Set();
-  const notify = () =>
-    setTimeout(() => listeners.forEach((fn) => fn(value, prevValue)));
+  const { equalityFn = (a, b) => a !== b, asyncNotify = false } = options;
+
+  const notify = () => {
+    const notifyListeners = () => {
+      listeners.forEach((fn) => {
+        try {
+          fn(value, prevValue);
+        } catch (error) {
+          console.error("Signal listener error:", error);
+        }
+      });
+    };
+
+    if (asyncNotify) {
+      setTimeout(notifyListeners); // Defer notifications
+    } else {
+      notifyListeners(); // Notify immediately
+    }
+  };
+
   return {
     get value() {
       return value;
     },
     set value(newValue) {
-      if (value !== newValue) {
+      if (equalityFn(value, newValue)) {
         prevValue = value;
         value = newValue;
         notify();
@@ -325,6 +342,13 @@ export function createSignal(initialValue) {
     subscribe: (fn) => {
       listeners.add(fn);
       return () => listeners.delete(fn);
+    },
+    batch: (updater) => {
+      const oldValue = value;
+      updater();
+      if (equalityFn(value, oldValue)) {
+        notify();
+      }
     },
   };
 }

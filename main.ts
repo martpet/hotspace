@@ -21,6 +21,7 @@ import showDir from "./handlers/inodes/show_dir.tsx";
 import showFile from "./handlers/inodes/show_file.tsx";
 import completeUpload from "./handlers/inodes/upload/complete.tsx";
 import initiateUpload from "./handlers/inodes/upload/initiate.tsx";
+import videoReadyHandler from "./handlers/inodes/video_ready.ts";
 import manifestJson from "./handlers/manifest_json.ts";
 import subscribers from "./handlers/push_sub/subscribers.ts";
 import vapid from "./handlers/push_sub/vapid.ts";
@@ -64,6 +65,7 @@ app.post("/inodes/dirs", setDirByPath);
 app.post("/inodes/delete", deleteInodes);
 app.post("/inodes/upload/initiate", initiateUpload);
 app.post("/inodes/upload/complete", completeUpload);
+app.get("/inodes/video_ready", videoReadyHandler);
 
 app.get("/chat/lazy-load/:chatId", chatLazyLoad);
 app.get("/chat/connection/:chatId", chatConnection);
