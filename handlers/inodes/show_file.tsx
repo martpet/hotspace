@@ -2,8 +2,8 @@ import { type NonRootPath, parsePathname } from "$util";
 import { STATUS_CODE } from "@std/http";
 import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
 import Chat from "../../snippets/chat/ChatSection.tsx";
-import FilePreview from "../../snippets/FilePreview.tsx";
 import ButtonDeleteInode from "../../snippets/inodes/ButtonDeleteInode.tsx";
+import FilePreview from "../../snippets/inodes/file_preview/FilePreview.tsx";
 import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";
 import Page from "../../snippets/pages/Page.tsx";
 import { INODES_CLOUDFRONT_URL } from "../../util/consts.ts";
@@ -11,14 +11,13 @@ import { getDirByPath, getInodeByDir } from "../../util/kv/inodes.ts";
 import { type AppContext, FileNode } from "../../util/types.ts";
 import { asset, signUploadUrl } from "../../util/url.ts";
 
-const IS_PUBLIC_ACCESS_ENABLED = true;
-
 type FragmentId = "chat";
 
 export default async function showFileHandler(ctx: AppContext) {
   const { user } = ctx.state;
   const path = parsePathname(ctx.url.pathname) as NonRootPath;
   const fragmentId = ctx.url.searchParams.get("fragment") as FragmentId | null;
+  const IS_PUBLIC_ACCESS_ENABLED = true;
 
   if (path.isRootSegment) {
     return ctx.redirect(ctx.req.url + "/", STATUS_CODE.PermanentRedirect);
@@ -92,13 +91,7 @@ export default async function showFileHandler(ctx: AppContext) {
           />
         </menu>
       )}
-      <FilePreview
-        inode={fileNode}
-        url={fileUrl}
-      />
-      <p>
-        <a href={fileUrl} target="_blank">Open File ↗</a>
-      </p>
+      <FilePreview fileNode={fileNode} fileUrl={fileUrl} />
       {chatSection}
     </Page>
   );

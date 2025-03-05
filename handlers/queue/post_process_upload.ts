@@ -53,7 +53,7 @@ export async function handlePostProcessUpload(
   });
 
   inode.mediaConvert = {
-    streamType: "hsl",
+    streamType: "hls",
     status: "PENDING",
     jobId,
   };

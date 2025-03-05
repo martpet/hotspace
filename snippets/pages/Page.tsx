@@ -8,6 +8,7 @@ const importmap = {
   "imports": {
     "$main": asset("main.js"),
     "$db": asset("db.js"),
+    "$hls": asset("hls/hls.mjs"),
   },
 };
 
@@ -34,6 +35,7 @@ export default function Page(props: PageProps, ctx: AppContext) {
       data-os-name={userAgent.os.name}
       data-browser-name={userAgent.browser.name}
       data-can-user-service-worker={ctx.state.canUseServiceWorker ? "1" : ""}
+      data-service-worker-path={asset("service_worker.js", { cdn: false })}
     >
       <head>
         <meta charset="UTF-8" />

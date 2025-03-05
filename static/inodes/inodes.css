@@ -149,3 +149,17 @@ a.inode {
     }
   }
 }
+
+#video {
+  height: 200px;
+}
+
+#video-converting {
+  display: flex;
+  height: 200px;
+  align-items: center;
+  gap: 1em;
+  &::after {
+    order: -1;
+  }
+}

@@ -86,7 +86,7 @@ export interface FileNode extends InodeBase {
 export interface VideoNode extends FileNode {
   fileType: `video/${string}`;
   mediaConvert: {
-    streamType: "hsl";
+    streamType: "hls";
     status: "PENDING" | "COMPLETE" | "ERROR";
     jobId: string;
   };
