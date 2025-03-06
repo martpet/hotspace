@@ -1,18 +1,15 @@
-import { pick } from "@std/collections";
 import { decodeTime, ulid } from "@std/ulid";
 import {
   assertChatEntry,
   assertNewChatMsgEvent,
   assertUserEntry,
 } from "../util/assertions.ts";
-import { setChatFeedItem } from "../util/kv/chat_feed_items.ts";
-import { setChatMessage } from "../util/kv/chat_messages.ts";
+import { setNewChatMessage } from "../util/kv/chat_messages_wrappers.ts";
 import sanitizeChatMsgText from "../util/sanitize_msg.ts";
 import type {
   ChatEventHandler,
   ChatMessage,
   NewChatMsgEventResp,
-  NewChatMsgFeedItem,
   QueueMsgPushChatNotification,
 } from "../util/types.ts";
 
@@ -38,21 +35,6 @@ export const newChatMsgHandler: ChatEventHandler<NewChatMsgEventResp> = async (
     createdAt: new Date(decodeTime(id)),
   };
 
-  const feedItem: NewChatMsgFeedItem = {
-    type: "new-chat-msg",
-    id: feedItemId,
-    chatId: chat.id,
-    data: {
-      clientMsgId,
-      ...pick(msg, [
-        "id",
-        "username",
-        "text",
-        "createdAt",
-      ]),
-    },
-  };
-
   const kvQueueMsg: QueueMsgPushChatNotification = {
     type: "push-chat-notification",
     chatId: chat.id,
@@ -64,9 +46,7 @@ export const newChatMsgHandler: ChatEventHandler<NewChatMsgEventResp> = async (
 
   const atomic = kv.atomic();
   atomic.check(chat.kvEntry, chatUser.kvEntry);
-  setChatMessage(msg, atomic);
-  setChatFeedItem(feedItem, atomic);
-
+  setNewChatMessage({ msg, clientMsgId, atomic });
   const commit = await atomic.commit();
 
   if (!commit.ok) {

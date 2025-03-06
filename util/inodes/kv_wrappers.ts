@@ -30,7 +30,7 @@ export function setAnyInode(inode: Inode, atomic = kv.atomic()) {
   return atomic;
 }
 
-export async function deleteInodesFull(inodes: Inode[]) {
+export async function deleteInodesRecursive(inodes: Inode[]) {
   const queue = newQueue(5);
   const s3KeysToDelete: QueueMsgDeleteS3Objects["s3Keys"] = [];
 

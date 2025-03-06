@@ -1,5 +1,5 @@
 import { STATUS_CODE } from "@std/http";
-import { deleteInodesFull } from "../../util/inodes/kv_wrappers.ts";
+import { deleteInodesRecursive } from "../../util/inodes/kv_wrappers.ts";
 import { getInodeById, keys as getInodeKey } from "../../util/kv/inodes.ts";
 import { getMany } from "../../util/kv/kv.ts";
 import type { AppContext, Inode } from "../../util/types.ts";
@@ -40,7 +40,7 @@ export default async function deleteHandler(ctx: AppContext) {
   const inodes = (await getMany<Inode>(inodesKeys))
     .filter((inode) => [inode.ownerId, dir.ownerId].includes(user.id));
 
-  await deleteInodesFull(inodes);
+  await deleteInodesRecursive(inodes);
 
   return ctx.respond();
 }

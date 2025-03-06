@@ -5,13 +5,12 @@ import {
   assertEditChatMsgEvent,
   assertUserEntry,
 } from "../util/assertions.ts";
-import { setChatFeedItem } from "../util/kv/chat_feed_items.ts";
-import { getChatMessage, setChatMessage } from "../util/kv/chat_messages.ts";
+import { getChatMessage } from "../util/kv/chat_messages.ts";
+import { setEditedChatMessage } from "../util/kv/chat_messages_wrappers.ts";
 import sanitizeChatMsgText from "../util/sanitize_msg.ts";
 import type {
   ChatEventHandler,
   EditedChatMsgEventResp,
-  EditedChatMsgFeedItem,
 } from "../util/types.ts";
 
 export const editedChatMsgHandler: ChatEventHandler<EditedChatMsgEventResp> =
@@ -39,18 +38,9 @@ export const editedChatMsgHandler: ChatEventHandler<EditedChatMsgEventResp> =
       editedAt: new Date(),
     };
 
-    const feedItem: EditedChatMsgFeedItem = {
-      type: "edited-chat-msg",
-      id: feedItemId,
-      chatId: chat.id,
-      data: pick(editedMsg, ["id", "text", "editedAt"]),
-    };
-
     const atomic = kv.atomic();
     atomic.check(msgEntry, chat.kvEntry, chatUser.kvEntry);
-    setChatMessage(editedMsg, atomic);
-    setChatFeedItem(feedItem, atomic);
-
+    setEditedChatMessage({ editedMsg, atomic });
     const commit = await atomic.commit();
 
     if (!commit.ok) {

@@ -22,6 +22,8 @@ export default async function chatLazyLoadHandler(ctx: AppContext) {
     },
   });
 
+  console.log(messages);
+
   messages.reverse();
 
   return ctx.jsxFragment(

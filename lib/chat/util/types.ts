@@ -24,6 +24,10 @@ export interface ChatMessage extends RawChatMessage {
   createdAt: Date;
 }
 
+export type EditedChatMessage =
+  & Omit<ChatMessage, "editedAt">
+  & Required<Pick<ChatMessage, "editedAt">>;
+
 export interface ChatSub {
   chatId: string;
   subscriberId: string;

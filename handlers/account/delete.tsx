@@ -18,10 +18,11 @@ export default async function deleteAccountHandler(ctx: AppContext) {
 
   deleteUser(user, atomic);
 
-  enqueue<QueueMsgCleanUpUser>(
-    { type: "clean-up-user", userId: user.id },
-    atomic,
-  );
+  enqueue<QueueMsgCleanUpUser>({
+    type: "clean-up-user",
+    userId: user.id,
+    username: user.username,
+  }, atomic);
 
   const commit = await atomic.commit();
 

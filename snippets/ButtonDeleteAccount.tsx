@@ -28,6 +28,7 @@ export default function ButtonDeleteAccount(_: unknown, ctx: AppContext) {
             <input
               type="text"
               required
+              autofocus
               pattern={PATTERN_CONFIRM}
             />
           </label>
