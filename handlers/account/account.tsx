@@ -44,7 +44,7 @@ export default async function passkeysHandler(ctx: AppContext) {
       <section>
         <h2>Delete account</h2>
         <p>
-          Permanently delete your account, files and chat messages.
+          Permanently delete your files and chat messages.
         </p>
         <ButtonDeleteAccount />
       </section>

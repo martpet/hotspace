@@ -34,7 +34,7 @@ export default function ButtonDeleteAccount(_: unknown, ctx: AppContext) {
           </label>
           <footer>
             <button>Delete Forever</button>
-            <button formmethod="dialog" autofocus formnovalidate>Cancel</button>
+            <button formmethod="dialog" formnovalidate>Cancel</button>
           </footer>
         </form>
       </dialog>
