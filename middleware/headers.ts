@@ -17,11 +17,9 @@ export const headersMiddleware: AppMiddleware = async (ctx, next) => {
 
   if (ext === "html") {
     const csp = [
-      `default-src 'self' 'nonce-${ctx.scpNonce}' ${ASSETS_CLOUDFRONT_URL}`,
+      `default-src 'self' 'nonce-${ctx.scpNonce}' ${ASSETS_CLOUDFRONT_URL} ${INODES_CLOUDFRONT_URL}`,
       `worker-src 'self' blob:`,
-      `connect-src 'self' ${INODES_CLOUDFRONT_URL}`,
       `media-src 'self' blob: ${INODES_CLOUDFRONT_URL}`,
-      `frame-src 'self' ${INODES_CLOUDFRONT_URL}`,
     ];
     resp.headers.set("Content-Security-Policy", csp.join(";"));
   }
