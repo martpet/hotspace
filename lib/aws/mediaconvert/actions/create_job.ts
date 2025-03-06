@@ -21,10 +21,8 @@ export async function createJob(options: Options) {
   const data = await resp.json();
 
   if (!resp.ok) {
-    console.error(data.message as string);
+    throw new Error(data.message);
   }
 
-  return {
-    jobId: data.job.id as string,
-  };
+  return data.job.id as string;
 }

@@ -34,7 +34,7 @@ export function VideoPreview(props: Props, ctx: AppContext) {
         </p>
       )}
 
-      <p id="video-error" hidden={!isConvertingError} class="alert error">
+      <p id="converting-error" hidden={!isConvertingError} class="alert error">
         There was an error converting the video, try uploading it again.
       </p>
 

@@ -163,3 +163,7 @@ a.inode {
     margin-right: 0.7em;
   }
 }
+
+#converting-error {
+  display: inline-block;
+}

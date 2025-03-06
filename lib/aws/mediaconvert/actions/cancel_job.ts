@@ -21,7 +21,6 @@ export async function cancelJob(options: Options) {
   const data = await resp.json();
 
   if (!resp.ok) {
-    const error = data.message as string;
-    console.error(error);
+    throw new Error(data.message as string);
   }
 }

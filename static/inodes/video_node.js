@@ -50,7 +50,7 @@ function showVideo() {
 }
 
 function showError() {
-  const errorEl = document.getElementById("video-error");
+  const errorEl = document.getElementById("converting-error");
   errorEl.hidden = false;
   convertingEl.remove();
 }

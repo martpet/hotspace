@@ -38,11 +38,13 @@ export async function handleCleanUpInode(msg: QueueMsgCleanUpInode) {
   ];
 
   if (pendingMediaConvertJobId) {
-    promises.push(cancelJob({
-      jobId: pendingMediaConvertJobId,
-      signer: getSigner(),
-      region: AWS_REGION,
-    }));
+    promises.push(
+      cancelJob({
+        jobId: pendingMediaConvertJobId,
+        signer: getSigner(),
+        region: AWS_REGION,
+      }).catch((err) => console.error(err)),
+    );
   }
 
   await Promise.all(promises);

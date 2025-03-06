@@ -46,17 +46,21 @@ export async function handlePostProcessUpload(
     jobOptions.metaData.appUrl = IS_LOCAL_DEV ? LOCAL_DEV_PUBLIC_URL : origin;
   }
 
-  const { jobId } = await mediaconvert.createJob({
-    job: getVideoJob(jobOptions),
-    signer: getSigner(),
-    region: AWS_REGION,
-  });
-
   inode.mediaConvert = {
     streamType: "hls",
     status: "PENDING",
-    jobId,
   };
+
+  try {
+    inode.mediaConvert.jobId = await mediaconvert.createJob({
+      job: getVideoJob(jobOptions),
+      signer: getSigner(),
+      region: AWS_REGION,
+    });
+  } catch (err) {
+    inode.mediaConvert.status = "ERROR";
+    console.log(err);
+  }
 
   return updateInodeWithRetry(entry, inode);
 }

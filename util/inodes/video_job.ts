@@ -62,7 +62,8 @@ export function getVideoJob({ s3Key, metaData }: JobOptions) {
           },
           "AutomatedEncodingSettings": {
             "AbrSettings": {
-              "MaxRenditions": 4,
+              "MaxRenditions": 3,
+              "MaxAbrBitrate": 50_000_000,
             },
           },
         },
