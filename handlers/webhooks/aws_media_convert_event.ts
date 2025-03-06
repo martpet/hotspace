@@ -13,12 +13,14 @@ export default async function awsMediaConvertEventHandler(ctx: AppContext) {
 
   const data = await ctx.req.json();
   const status = data.detail.status;
+  const jobPercentComplete = data.detail.jobProgress?.jobPercentComplete;
   const inodeId = data.detail.userMetadata.inodeId;
 
   await enqueue<QueueMsgAwsMediaConvertEvent>({
     type: "aws-media-convert-event",
     inodeId,
     status,
+    jobPercentComplete,
   }).commit();
 
   return ctx.respond();

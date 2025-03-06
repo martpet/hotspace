@@ -85,7 +85,7 @@ export function getVideoJob({ s3Key, metaData }: JobOptions) {
     "AccelerationSettings": {
       "Mode": "PREFERRED",
     },
-    "StatusUpdateInterval": "SECONDS_60",
+    "StatusUpdateInterval": "SECONDS_10",
     "Priority": 0,
   };
 }

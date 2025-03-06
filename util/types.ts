@@ -87,7 +87,8 @@ export interface VideoNode extends FileNode {
   fileType: `video/${string}`;
   mediaConvert: {
     streamType: "hls";
-    status: "PENDING" | "COMPLETE" | "ERROR";
     jobId: string;
+    status: "PENDING" | "COMPLETE" | "ERROR";
+    jobPercentComplete?: number;
   };
 }

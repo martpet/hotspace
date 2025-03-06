@@ -10,31 +10,47 @@ export function VideoPreview(props: Props, ctx: AppContext) {
   const { videoNode, fileUrl } = props;
   const videoSrc = fileUrl + ".m3u8";
   const workerPath = asset("hls/hls.worker.js", { cdn: false });
-  const isConverted = videoNode.mediaConvert.status === "COMPLETE";
   const supportsHls = ctx.userAgent.browser.name === "Safari";
+  const isConverting = videoNode.mediaConvert.status === "PENDING";
+  const isConvertingError = videoNode.mediaConvert.status === "ERROR";
+  const convertingPerc = videoNode.mediaConvert.jobPercentComplete;
 
   return (
     <>
-      {!supportsHls && <link rel="modulepreload" href={asset("hls/hls.mjs")} />}
-      <script type="module" src={asset("inodes/video_node.js")} />
+      {!supportsHls && !isConvertingError && (
+        <link rel="modulepreload" href={asset("hls/hls.mjs")} />
+      )}
 
-      {!isConverted && (
+      {!isConvertingError && (
+        <script type="module" src={asset("inodes/video_node.js")} />
+      )}
+
+      {isConverting && (
         <p id="video-converting" class="spinner">
-          Video is converting, please wait.
+          Video is converting
+          <span hidden={!convertingPerc}>
+            : <span id="progress-perc">{convertingPerc}</span>%
+          </span>
         </p>
       )}
 
-      <video
-        id="video"
-        hidden={!isConverted}
-        controls
-        src={supportsHls && isConverted ? videoSrc : undefined}
-        data-video-src={!supportsHls || !isConverted ? videoSrc : null}
-        data-inode-id={videoNode.id}
-        data-is-converted={isConverted ? "1" : null}
-        data-supports-hls={supportsHls ? "1" : null}
-        data-worker-path={supportsHls ? null : workerPath}
-      />
+      <p id="video-error" hidden={!isConvertingError} class="alert error">
+        There was an error converting the video, try uploading it again.
+      </p>
+
+      {!isConvertingError && (
+        <video
+          id="video"
+          hidden={isConverting}
+          controls
+          src={!isConverting && supportsHls ? videoSrc : undefined}
+          data-video-src={isConverting || !supportsHls ? videoSrc : null}
+          data-inode-id={videoNode.id}
+          data-is-converting={isConverting ? "1" : null}
+          data-supports-hls={supportsHls ? "1" : null}
+          data-worker-path={supportsHls ? null : workerPath}
+        />
+      )}
     </>
   );
 }

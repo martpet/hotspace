@@ -1,9 +1,10 @@
 const videoEl = document.getElementById("video");
+const convertingEl = document.getElementById("video-converting");
 
-const { inodeId, workerPath, videoSrc, supportsHls, isConverted } =
+const { inodeId, workerPath, videoSrc, supportsHls, isConverting } =
   videoEl.dataset;
 
-if (!isConverted) {
+if (isConverting) {
   waitConverted();
 } else if (!supportsHls) {
   loadHlsFallback();
@@ -13,13 +14,7 @@ function waitConverted() {
   const path = `/inodes/check-video-converted/${inodeId}`;
   const evtSource = new EventSource(path);
   evtSource.onerror = () => waitConverted();
-  evtSource.onmessage = (event) => {
-    const data = JSON.parse(event.data);
-    if (data.ready) {
-      evtSource.close();
-      showVideo();
-    }
-  };
+  evtSource.onmessage = (evt) => handleConvertEvent(evt, evtSource);
 }
 
 async function loadHlsFallback() {
@@ -31,8 +26,20 @@ async function loadHlsFallback() {
   }
 }
 
+function handleConvertEvent(evt, evtSource) {
+  const data = JSON.parse(evt.data);
+  if (data.status === "COMPLETE") {
+    evtSource.close();
+    showVideo();
+  } else if (data.status === "ERROR") {
+    evtSource.close();
+    showError();
+  } else {
+    updateProgress(data.jobPercentComplete);
+  }
+}
+
 function showVideo() {
-  const convertingEl = document.getElementById("video-converting");
   convertingEl.remove();
   videoEl.hidden = false;
   if (supportsHls) {
@@ -40,4 +47,17 @@ function showVideo() {
   } else {
     loadHlsFallback();
   }
+}
+
+function showError() {
+  const errorEl = document.getElementById("video-error");
+  errorEl.hidden = false;
+  convertingEl.remove();
+}
+
+function updateProgress(perc) {
+  if (!perc) return;
+  const percEl = document.getElementById("progress-perc");
+  percEl.parentElement.hidden = false;
+  percEl.textContent = perc;
 }

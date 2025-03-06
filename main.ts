@@ -26,7 +26,7 @@ import manifestJson from "./handlers/manifest_json.ts";
 import subscribers from "./handlers/push_sub/subscribers.ts";
 import vapid from "./handlers/push_sub/vapid.ts";
 import { queueHandler } from "./handlers/queue/main_handler.ts";
-import awsMediaConvertWebHook from "./handlers/webhooks/aws_media_convert_event.ts.ts";
+import awsMediaConvertWebHook from "./handlers/webhooks/aws_media_convert_event.ts";
 import { csrfMiddleware } from "./middleware/csrf.tsx";
 import { headersMiddleware } from "./middleware/headers.ts";
 import { errorMiddleware } from "./middleware/server_error.tsx";

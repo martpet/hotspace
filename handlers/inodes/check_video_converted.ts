@@ -1,3 +1,4 @@
+import { pick } from "@std/collections";
 import { HEADER, STATUS_CODE } from "@std/http";
 import { keys as inodesKeys } from "../../util/kv/inodes.ts";
 import { watch } from "../../util/kv/kv.ts";
@@ -12,16 +13,17 @@ export default function checkVideoConvertedHandler(ctx: AppContext) {
 
   ctx.resp.headers.set(HEADER.ContentType, "text/event-stream");
 
+  const kvKey = inodesKeys.byId(inodeId);
   let kvReader: ReadableStreamDefaultReader<[Deno.KvEntryMaybe<VideoNode>]>;
 
   const resBody = new ReadableStream({
     start(controller) {
-      kvReader = watch<[VideoNode]>([inodesKeys.byId(inodeId)], ([entry]) => {
-        if (entry.value?.mediaConvert.status === "COMPLETE") {
-          const json = JSON.stringify({ ready: true });
-          const msg = `data: ${json}\r\n\r\n`;
-          controller.enqueue(new TextEncoder().encode(msg));
-        }
+      kvReader = watch<[VideoNode]>([kvKey], ([kvEntry]) => {
+        const inode = kvEntry.value;
+        if (!inode) return;
+        const data = pick(inode.mediaConvert, ["status", "jobPercentComplete"]);
+        const msg = `data: ${JSON.stringify(data)}\r\n\r\n`;
+        controller.enqueue(new TextEncoder().encode(msg));
       });
     },
     cancel() {
