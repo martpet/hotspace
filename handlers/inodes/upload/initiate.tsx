@@ -25,12 +25,14 @@ export default async function initiateUploadHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  const headersFn = (upload: UploadInitData) =>
-    new Headers({
+  const headersFn = (upload: UploadInitData) => {
+    const fileName = encodeURIComponent(upload.fileName);
+    return new Headers({
       [HEADER.ContentType]: upload.fileType,
-      [HEADER.ContentDisposition]: `inline; filename="${upload.fileName}"`,
+      [HEADER.ContentDisposition]: `inline; filename*=UTF-8''${fileName}`,
       [HEADER.CacheControl]: `public, max-age=${DAY * 359 / 1000}, immutable`,
     });
+  };
 
   const result = await initUploads({
     uploads,
