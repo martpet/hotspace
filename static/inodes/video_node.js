@@ -58,6 +58,5 @@ function showError() {
 function updateProgress(perc) {
   if (!perc) return;
   const percEl = document.getElementById("progress-perc");
-  percEl.parentElement.hidden = false;
-  percEl.textContent = perc;
+  percEl.textContent = perc + "%";
 }

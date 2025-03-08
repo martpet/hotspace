@@ -8,10 +8,6 @@
     background-color: Mark;
     color: MarkText;
   }
-  .spinner {
-    margin-left: 0.3rem;
-  }
-
   ~ footer {
     margin-top: 2rem;
   }

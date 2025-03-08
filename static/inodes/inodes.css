@@ -174,8 +174,15 @@ a.inode {
 }
 
 #docx-iframe {
-  width: 100%;
-  height: 500px;
-  overflow-y: scroll;
-  background: gray;
+  width: calc(595.3pt + 30px);
+  height: 100vh;
+  margin: 0 auto;
+  display: block;
+  border-style: none;
+  border-bottom-style: solid;
+
+  background-color: grey;
+  @media (prefers-color-scheme: dark) {
+    background: oklch(from Canvas calc(l + 0.4) c h);
+  }
 }

@@ -40,11 +40,12 @@ html {
 }
 
 body {
-  margin: 0 1em 5em;
-  font: 14px/1.3 system-ui;
+  --body-gutter: 1em;
   @media (max-width: 640px) {
-    margin-inline: 0.5em;
+    --body-gutter: 0.5em;
   }
+  font: 14px/1.3 system-ui;
+  margin: 0 var(--body-gutter) 5em;
 }
 
 section {
@@ -153,13 +154,16 @@ dialog {
 [class*="spinner-"] {
   &::after {
     display: inline-block;
-    width: 24px;
+    width: 18px;
     aspect-ratio: 1;
     content: "";
     border: 1px solid currentColor;
     border-bottom-color: transparent !important;
     border-radius: 50%;
     animation: spin 0.5s linear infinite;
+  }
+  &.spinner-lg::after {
+    width: 24px;
   }
   &.spinner-sm::after {
     width: 12px;

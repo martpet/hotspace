@@ -27,10 +27,7 @@ export function VideoPreview(props: Props, ctx: AppContext) {
 
       {isConverting && (
         <p id="video-converting" class="spinner">
-          Video is converting
-          <span hidden={!convertingPerc}>
-            : <span id="progress-perc">{convertingPerc}</span>%
-          </span>
+          Video is converting… <span id="progress-perc">{convertingPerc}</span>
         </p>
       )}
 

@@ -70,7 +70,7 @@ export default function ChatSection(props: Props, ctx: AppContext) {
                 isAdmin={isAdmin}
               />
             )
-            : <div id="chat-lazy-root" class="spinner" />}
+            : <div id="chat-lazy-root" class="spinner-lg" />}
         </div>
         <ChatFooter />
       </div>
