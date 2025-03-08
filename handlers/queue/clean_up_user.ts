@@ -2,11 +2,11 @@ import { listChatMessagesByUser } from "$chat";
 import { newQueue } from "@henrygd/queue";
 import { setDeletedChatMessage } from "../../lib/chat/util/kv/chat_messages_wrappers.ts";
 import { deleteInodesRecursive } from "../../util/inodes/kv_wrappers.ts";
+import { deleteUploadSizeByUser } from "../../util/kv/filenodes_stats.ts";
 import { listRootDirsByOwner } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { deletePasskey, listPasskeysByUser } from "../../util/kv/passkeys.ts";
 import { deleteSession, listSessionsByUser } from "../../util/kv/sessions.ts";
-import { deleteUploadSizeByUser } from "../../util/kv/upload_size.ts";
 
 export interface QueueMsgCleanUpUser {
   type: "clean-up-user";

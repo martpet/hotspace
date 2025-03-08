@@ -3,8 +3,8 @@ import ButtonDeleteAccount from "../../snippets/ButtonDeleteAccount.tsx";
 import LoginPage from "../../snippets/pages/LoginPage.tsx";
 import Page from "../../snippets/pages/Page.tsx";
 import PasskeysList from "../../snippets/PasskeysList.tsx";
+import { getUploadSizeByUser } from "../../util/kv/filenodes_stats.ts";
 import { listPasskeysByUser } from "../../util/kv/passkeys.ts";
-import { getUploadSizeByUser } from "../../util/kv/upload_size.ts";
 import type { AppContext } from "../../util/types.ts";
 import { asset } from "../../util/url.ts";
 

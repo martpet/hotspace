@@ -4,15 +4,10 @@ import { STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
 import { getSigner } from "../../../util/aws.ts";
 import { INODES_BUCKET } from "../../../util/consts.ts";
-import { isPostProcessableUpload } from "../../../util/inodes/util.ts";
+import { createFileNode } from "../../../util/inodes/kv_wrappers.ts";
 import { enqueue } from "../../../util/kv/enqueue.ts";
-import {
-  getInodeById,
-  keys as getInodeKey,
-  setInode,
-} from "../../../util/kv/inodes.ts";
+import { getInodeById, keys as getInodeKey } from "../../../util/kv/inodes.ts";
 import { kv } from "../../../util/kv/kv.ts";
-import { setUploadSize } from "../../../util/kv/upload_size.ts";
 import type {
   AppContext,
   DirNode,
@@ -21,7 +16,6 @@ import type {
   User,
 } from "../../../util/types.ts";
 import { QueueMsgDeleteS3Objects } from "../../queue/delete_s3_objects.ts";
-import { QueueMsgPostProcessUpload } from "../../queue/post_process_upload.ts";
 
 type ReqData = {
   uploads: s3.CompletedMultipartUpload[];
@@ -74,7 +68,6 @@ export default async function completeUploadHandler(ctx: AppContext) {
       dirEntry,
       dirId,
       user,
-      origin: ctx.url.origin,
     });
 
     if (!isSaved) {
@@ -147,18 +140,10 @@ interface SaveFileNodeOptions {
   dirEntry: Deno.KvEntryMaybe<DirNode>;
   dirId: string;
   user: User;
-  origin: string;
 }
 
 export async function saveFileNode(options: SaveFileNodeOptions) {
-  const {
-    upload,
-    fileNode,
-    dirId,
-    user,
-    origin,
-  } = options;
-
+  const { upload, fileNode, dirId, user } = options;
   let dirEntry = options.dirEntry;
   let commit = { ok: false };
   let retry = 0;
@@ -178,19 +163,7 @@ export async function saveFileNode(options: SaveFileNodeOptions) {
       versionstamp: null,
     };
     atomic.check(dirEntry, fileNodeNullCheck);
-    setInode(fileNode, atomic);
-    setUploadSize({
-      userId: fileNode.ownerId,
-      size: upload.fileSize,
-      atomic,
-    });
-    if (isPostProcessableUpload(fileNode)) {
-      enqueue<QueueMsgPostProcessUpload>({
-        type: "post-process-upload",
-        inodeId: fileNode.id,
-        origin,
-      }, atomic);
-    }
+    createFileNode(fileNode, atomic);
     commit = await atomic.commit();
     retry++;
   }

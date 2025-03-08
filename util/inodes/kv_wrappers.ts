@@ -4,8 +4,10 @@ import { type QueueMsgDeleteDirChildren } from "../../handlers/queue/delete_dir_
 import {
   type QueueMsgDeleteS3Objects,
 } from "../../handlers/queue/delete_s3_objects.ts";
+import { type QueueMsgPostProcessUpload } from "../../handlers/queue/post_process_upload.ts";
 import { INODES_BUCKET } from "../consts.ts";
 import { enqueue } from "../kv/enqueue.ts";
+import { setFileNodeStats } from "../kv/filenodes_stats.ts";
 import {
   deleteDirByPath,
   deleteInode,
@@ -15,9 +17,27 @@ import {
   setRootDirByOwner,
 } from "../kv/inodes.ts";
 import { kv } from "../kv/kv.ts";
-import { setUploadSize } from "../kv/upload_size.ts";
-import type { Inode, VideoNode } from "../types.ts";
-import { isFileNodeWithManyS3Objects } from "./util.ts";
+import type { FileNode, Inode, VideoNode } from "../types.ts";
+import {
+  isFileNodeWithManyS3Objects,
+  isPostProcessableUpload,
+} from "./util.ts";
+
+export function createFileNode(
+  fileNode: FileNode,
+  atomic?: Deno.AtomicOperation,
+) {
+  setInode(fileNode, atomic);
+  setFileNodeStats({ fileNode, isAdd: true, atomic });
+
+  if (isPostProcessableUpload(fileNode)) {
+    enqueue<QueueMsgPostProcessUpload>({
+      type: "post-process-upload",
+      inodeId: fileNode.id,
+      origin,
+    }, atomic);
+  }
+}
 
 export function setAnyInode(inode: Inode, atomic = kv.atomic()) {
   setInode(inode, atomic);
@@ -53,12 +73,6 @@ export async function deleteInodesRecursive(inodes: Inode[]) {
     }
 
     if (inode.type === "file") {
-      setUploadSize({
-        userId: inode.ownerId,
-        size: -inode.fileSize,
-        atomic,
-      });
-
       s3KeysToDelete.push({
         name: inode.s3Key,
         isPrefix: isFileNodeWithManyS3Objects(inode),
@@ -83,7 +97,13 @@ export async function deleteInodesRecursive(inodes: Inode[]) {
 
 function deleteAnyInode(inode: Inode, atomic = kv.atomic()) {
   deleteInode(inode, atomic);
-  if (inode.type === "dir") {
+  if (inode.type === "file") {
+    setFileNodeStats({
+      fileNode: inode,
+      isAdd: false,
+      atomic,
+    });
+  } else if (inode.type === "dir") {
     deleteDirByPath(inode, atomic);
     if (inode.pathSegments.length === 1) {
       deleteRootDirByOwner(inode, atomic);
