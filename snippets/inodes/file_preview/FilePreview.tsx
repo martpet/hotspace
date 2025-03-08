@@ -1,6 +1,6 @@
 import { isVideoNode } from "../../../util/inodes/util.ts";
 import type { FileNode } from "../../../util/types.ts";
-import { asset } from "../../../util/url.ts";
+import DocxPreview from "./DocxPreview.tsx";
 import { VideoPreview } from "./VideoPreview.tsx";
 
 export interface Props {
@@ -35,21 +35,13 @@ export default function FilePreview(props: Props) {
       )}
       {showInFirame && (
         <iframe
-          id="filenode-iframe"
+          id="inode-preview-iframe"
           src={fileNodeUrl}
           width="400"
           height="200"
         />
       )}
-      {isDocx && (
-        <iframe
-          id="docx-iframe"
-          src={asset("docx/iframe.html")}
-          data-file-node-url={fileNodeUrl}
-          data-jszip-path={asset("docx/jszip.min.js")}
-          data-docx-preview-path={asset("docx/docx-preview.min.js")}
-        />
-      )}
+      {isDocx && <DocxPreview fileNodeUrl={fileNodeUrl} />}
       <p>
         <a href={fileNodeUrl} target="_blank">Open File ↗</a>
       </p>

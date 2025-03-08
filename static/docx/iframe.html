@@ -8,10 +8,10 @@
 
 <script type="module">
   const {
-      fileNodeUrl,
       jszipPath,
       docxPreviewPath,
-    } = frameElement.dataset;
+      fileNodeUrl,
+    } = Object.fromEntries(new URLSearchParams(location.search));
 
     const scriptsReady = Promise.withResolvers();
     loadScriptsSync([jszipPath, docxPreviewPath]);
