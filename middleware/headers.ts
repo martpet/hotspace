@@ -13,15 +13,27 @@ export const headersMiddleware: AppMiddleware = async (ctx, next) => {
 
   const resp = await next();
 
-  const ext = extension(resp.headers.get(HEADER.ContentType) || "");
+  // =====================
+  // CSP
+  // =====================
 
-  if (ext === "html") {
-    const csp = [
-      `default-src 'self' 'nonce-${ctx.scpNonce}' ${ASSETS_CLOUDFRONT_URL} ${INODES_CLOUDFRONT_URL}`,
-      `worker-src 'self' blob:`,
-      `media-src 'self' blob: ${INODES_CLOUDFRONT_URL}`,
-    ];
-    resp.headers.set("Content-Security-Policy", csp.join(";"));
+  const docExt = extension(resp.headers.get(HEADER.ContentType) || "");
+
+  const defaultCsp = [
+    `default-src 'self' 'nonce-${ctx.scpNonce}' ${ASSETS_CLOUDFRONT_URL} ${INODES_CLOUDFRONT_URL}`,
+    `worker-src 'self' blob:`,
+    `media-src 'self' blob: ${INODES_CLOUDFRONT_URL}`,
+  ].join(";");
+
+  const docxIframeCsp =
+    `default-src 'self' 'unsafe-inline' blob: ${INODES_CLOUDFRONT_URL}`;
+
+  const usedCsp = ctx.url.pathname === "/static/docx/iframe.html"
+    ? docxIframeCsp
+    : defaultCsp;
+
+  if (docExt === "html") {
+    resp.headers.set("Content-Security-Policy", usedCsp);
   }
 
   return resp;

@@ -3,12 +3,12 @@ import { asset } from "../../../util/url.ts";
 
 interface Props {
   videoNode: VideoNode;
-  fileUrl: string;
+  fileNodeUrl: string;
 }
 
 export function VideoPreview(props: Props, ctx: AppContext) {
-  const { videoNode, fileUrl } = props;
-  const videoSrc = fileUrl + ".m3u8";
+  const { videoNode, fileNodeUrl } = props;
+  const videoSrc = fileNodeUrl + ".m3u8";
   const workerPath = asset("hls/hls.worker.js", { cdn: false });
   const supportsHls = ctx.userAgent.browser.name === "Safari";
   const isConverting = videoNode.mediaConvert.status === "PENDING";

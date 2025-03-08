@@ -57,10 +57,10 @@ export default async function showFileHandler(ctx: AppContext) {
   }
 
   const fileName = decodeURIComponent(fileNode.name);
-  let fileUrl = `${INODES_CLOUDFRONT_URL}/${fileNode.s3Key}`;
+  let fileNodeUrl = `${INODES_CLOUDFRONT_URL}/${fileNode.s3Key}`;
 
   if (!IS_PUBLIC_ACCESS_ENABLED) {
-    fileUrl = await signUploadUrl(fileUrl);
+    fileNodeUrl = await signUploadUrl(fileNodeUrl);
   }
 
   const head = (
@@ -91,7 +91,7 @@ export default async function showFileHandler(ctx: AppContext) {
           />
         </menu>
       )}
-      <FilePreview fileNode={fileNode} fileUrl={fileUrl} />
+      <FilePreview fileNode={fileNode} fileNodeUrl={fileNodeUrl} />
       {chatSection}
     </Page>
   );
