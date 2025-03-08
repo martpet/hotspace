@@ -23,7 +23,7 @@ export const headersMiddleware: AppMiddleware = async (ctx, next) => {
     `default-src 'self' 'nonce-${ctx.scpNonce}' ${ASSETS_CLOUDFRONT_URL} ${INODES_CLOUDFRONT_URL}`,
     `worker-src 'self' blob:`,
     `media-src 'self' blob: ${INODES_CLOUDFRONT_URL}`,
-    `frame-src 'self' ${INODES_CLOUDFRONT_URL}`,
+    `frame-src 'self' ${ASSETS_CLOUDFRONT_URL}`,
   ].join(";");
 
   const docxIframeCsp =
