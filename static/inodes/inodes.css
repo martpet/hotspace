@@ -180,9 +180,4 @@ a.inode {
   display: block;
   border-style: none;
   border-bottom-style: solid;
-
-  background-color: grey;
-  @media (prefers-color-scheme: dark) {
-    background: oklch(from Canvas calc(l + 0.4) c h);
-  }
 }
