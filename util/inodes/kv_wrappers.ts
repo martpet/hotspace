@@ -23,10 +23,12 @@ import {
   isPostProcessableUpload,
 } from "./util.ts";
 
-export function createFileNode(
-  fileNode: FileNode,
-  atomic?: Deno.AtomicOperation,
-) {
+export function createFileNode(options: {
+  fileNode: FileNode;
+  origin: string;
+  atomic?: Deno.AtomicOperation;
+}) {
+  const { fileNode, origin, atomic = kv.atomic() } = options;
   setInode(fileNode, atomic);
   setFileNodeStats({ fileNode, isAdd: true, atomic });
 

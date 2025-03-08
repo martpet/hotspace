@@ -24,6 +24,7 @@ type ReqData = {
 
 export default async function completeUploadHandler(ctx: AppContext) {
   const { user } = ctx.state;
+  const { origin } = ctx.url;
 
   if (!user) {
     return ctx.respond(null, STATUS_CODE.Unauthorized);
@@ -68,6 +69,7 @@ export default async function completeUploadHandler(ctx: AppContext) {
       dirEntry,
       dirId,
       user,
+      origin,
     });
 
     if (!isSaved) {
@@ -140,10 +142,11 @@ interface SaveFileNodeOptions {
   dirEntry: Deno.KvEntryMaybe<DirNode>;
   dirId: string;
   user: User;
+  origin: string;
 }
 
 export async function saveFileNode(options: SaveFileNodeOptions) {
-  const { upload, fileNode, dirId, user } = options;
+  const { upload, fileNode, dirId, user, origin } = options;
   let dirEntry = options.dirEntry;
   let commit = { ok: false };
   let retry = 0;
@@ -163,7 +166,7 @@ export async function saveFileNode(options: SaveFileNodeOptions) {
       versionstamp: null,
     };
     atomic.check(dirEntry, fileNodeNullCheck);
-    createFileNode(fileNode, atomic);
+    createFileNode({ fileNode, origin, atomic });
     commit = await atomic.commit();
     retry++;
   }
