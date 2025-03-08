@@ -174,10 +174,13 @@ a.inode {
 }
 
 #docx-iframe {
+  display: block;
   width: calc(595.3pt + 30px);
   height: 100vh;
   margin: 0 auto;
-  display: block;
-  border-style: none;
-  border-bottom-style: solid;
+  background-color: grey;
+  @media (prefers-color-scheme: dark) {
+    background: Canvas;
+    border: none;
+  }
 }
