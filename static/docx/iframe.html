@@ -1,20 +1,14 @@
 <!DOCTYPE html>
-<meta name="color-scheme" content="dark light" />
 
 <style>
   body {
     margin: 0;
-    background-color: grey;
-    @media (prefers-color-scheme: dark) {
-      background: oklch(from Canvas calc(l + 0.4) c h);
-    }
-  }
-  .docx-wrapper {
-    background: none !important;
-    padding-block: 15px !important;
   }
   .docx {
     margin-bottom: 0 !important;
+    @media (max-width: 767px) {
+      padding-inline: 5% !important;
+    }
   }
 </style>
 
@@ -29,7 +23,12 @@
     loadScriptsSync([jszipPath, docxPreviewPath]);
     const blob = await fetch(fileNodeUrl).then((resp) => resp.blob());
     await scriptsReady.promise;
-    docx.renderAsync(blob, document.body);
+    docx.renderAsync(blob, document.body, undefined, {
+      inWrapper: false,
+      ignoreWidth: true,
+      ignoreHeight: true,
+      breakPages: false,
+    });
 
     function loadScriptsSync(paths, i = 0) {
       const script = document.createElement("script");

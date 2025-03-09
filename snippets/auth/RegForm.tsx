@@ -14,7 +14,6 @@ export default function RegForm(_props: unknown, ctx: AppContext) {
               id="username"
               type="text"
               required
-              autofocus
               autocomplete="off"
               autocapitalize="off"
               spellCheck={false}

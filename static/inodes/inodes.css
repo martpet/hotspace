@@ -173,14 +173,15 @@ a.inode {
   height: 400px;
 }
 
+body {
+  container-type: inline-size;
+}
+
 #docx-iframe {
   display: block;
-  width: calc(595.3pt + 30px);
-  height: 100vh;
+  aspect-ratio: 8.5 / 11;
+  width: 794px;
+  max-width: 100%;
+  max-height: 100vh;
   margin: 0 auto;
-  background-color: grey;
-  @media (prefers-color-scheme: dark) {
-    background: Canvas;
-    border: none;
-  }
 }
