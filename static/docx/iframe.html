@@ -18,7 +18,7 @@
     width: 48px;
     aspect-ratio: 1;
     border-radius: 50%;
-    border: 1px solid darkgrey;
+    border: 1px solid grey;
     border-bottom-color: transparent;
     animation: spin 0.5s linear infinite;
   }
@@ -41,7 +41,7 @@
     const blob = await fetch(fileNodeUrl).then((resp) => resp.blob());
     await scriptsReady.promise;
 
-    await docx.renderAsync(blob, document.body, undefined, {
+    docx.renderAsync(blob, document.body, undefined, {
       inWrapper: false,
       ignoreWidth: true,
       ignoreHeight: true,
