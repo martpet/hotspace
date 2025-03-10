@@ -10,6 +10,15 @@
   }
 }
 
+#spaces {
+  margin-bottom: 1.5em;
+  padding: 0;
+  list-style: none;
+  li + li {
+    margin-top: 1em;
+  }
+}
+
 #dir-page {
   #chat {
     margin-top: 3rem;
@@ -171,10 +180,6 @@ a.inode {
 #filenode-iframe {
   width: 100%;
   height: 400px;
-}
-
-body {
-  container-type: inline-size;
 }
 
 #docx-iframe {

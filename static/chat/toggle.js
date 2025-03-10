@@ -1,29 +1,37 @@
 import { replaceFragment } from "$main";
 
 const button = document.getElementById("toggle-chat");
+const menuPopover = document.getElementById(button.dataset.hidePopoverId);
+
 button.disabled = false;
 button.classList.remove("wait-disabled");
-button.onclick = toggle;
 
-async function toggle() {
+button.onclick = async function () {
   setInProgress(true);
+
   if (!(await callDb()).ok) return;
+
   const rootEl = document.getElementById("chat");
-  const isHidden = !rootEl.hidden;
+  const showChat = rootEl.hidden;
   const isHtmlInserted = rootEl.hasChildNodes();
+
   if (isHtmlInserted) {
-    rootEl.hidden = isHidden;
+    rootEl.hidden = !showChat;
   } else {
     await replaceFragment("chat");
-    runChatScript();
+    rerunScript("chat-script");
   }
-  if (!isHidden) {
+
+  if (showChat) {
     const chatEl = document.getElementById("chat");
     chatEl.scrollIntoView({ behavior: "smooth" });
   }
+
+  button.textContent = `${!showChat ? "Enable" : "Disable"} Chat`;
   setInProgress(false);
-  button.textContent = `${isHidden ? "Enable" : "Disable"} Chat`;
-}
+
+  menuPopover.hidePopover();
+};
 
 function setInProgress(inProgress) {
   button.disabled = inProgress;
@@ -39,8 +47,8 @@ function callDb() {
   });
 }
 
-async function runChatScript() {
-  const script = document.getElementById("chat-script");
+async function rerunScript(scriptId) {
+  const script = document.getElementById(scriptId);
   const newScript = document.createElement("script");
   newScript.src = script.src;
   newScript.type = script.type;

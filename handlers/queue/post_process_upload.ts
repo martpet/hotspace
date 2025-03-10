@@ -59,7 +59,7 @@ export async function handlePostProcessUpload(
     });
   } catch (err) {
     inode.mediaConvert.status = "ERROR";
-    console.log(err);
+    console.error(err);
   }
 
   return updateInodeWithRetry(entry, inode);

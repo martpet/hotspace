@@ -1,4 +1,5 @@
 import { parsePathname } from "$util";
+import PopMenu from "../../snippets/PopMenu.tsx";
 import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
 import ChatSection from "../../snippets/chat/ChatSection.tsx";
 import BatchOperationsButtons from "../../snippets/inodes/BatchOperationsButtons.tsx";
@@ -71,6 +72,29 @@ export default async function showInodeHandler(ctx: AppContext) {
     </>
   );
 
+  const isSpace = path.isRootSegment;
+  const dirNodeLabel = isSpace ? "Space" : "Folder";
+
+  const menu = (
+    <menu class="menu-bar">
+      <ButtonUpload dirNode={dirNode} />
+      <ButtonCreateDir parentDirId={dirNode.id} />
+      <PopMenu id="manage-menu" btnLabel={`Manage ${dirNodeLabel}`}>
+        <ButtonToggleChat
+          inodeId={dirNode.id}
+          chatEnabled={dirNode.chatEnabled}
+          skipHidePopoverId="manage-menu"
+        />
+        {isSpace && (
+          <ButtonDeleteInode inode={dirNode}>
+            Delete {dirNodeLabel}
+          </ButtonDeleteInode>
+        )}
+      </PopMenu>
+      <BatchOperationsButtons inode={dirNode} />
+    </menu>
+  );
+
   return (
     <Page
       id="dir-page"
@@ -80,22 +104,7 @@ export default async function showInodeHandler(ctx: AppContext) {
     >
       <header>
         <h1>{dirNode.name}</h1>
-        {isDirOwner && (
-          <menu class="inodes-menu">
-            <ButtonUpload dirNode={dirNode} />
-            <ButtonCreateDir parentDirId={dirNode.id} />
-            {path.isRootSegment && (
-              <ButtonDeleteInode inode={dirNode}>
-                Delete Space
-              </ButtonDeleteInode>
-            )}
-            <ButtonToggleChat
-              inodeId={dirNode.id}
-              chatEnabled={dirNode.chatEnabled}
-            />
-            <BatchOperationsButtons inode={dirNode} />
-          </menu>
-        )}
+        {isDirOwner && menu}
       </header>
       <div id="inodes-container">
         {inodesTable}

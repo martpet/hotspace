@@ -8,7 +8,7 @@ interface Props extends JSX.HTMLAttributes<HTMLButtonElement> {
 }
 
 export default function ButtonDeleteInode(props: Props) {
-  const { inode, ...buttonProps } = props;
+  const { inode, ...btnProps } = props;
   const isParentRoot = inode.parentDirId === ROOT_DIR_ID;
 
   return (
@@ -22,7 +22,7 @@ export default function ButtonDeleteInode(props: Props) {
         data-parent-dir-id={inode.parentDirId}
         data-is-dir={inode.type === "dir" ? "1" : ""}
         data-is-parent-root={isParentRoot ? "1" : ""}
-        {...buttonProps}
+        {...btnProps}
       />
     </>
   );

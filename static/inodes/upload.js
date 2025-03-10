@@ -147,8 +147,8 @@ function startUpload() {
 // =====================
 
 function insertDialog() {
-  btnShowDialog.insertAdjacentHTML(
-    "afterend",
+  document.body.insertAdjacentHTML(
+    "beforeend",
     `
       <dialog id="upload-dialog">
         <h1>Add Files</h1>

@@ -56,16 +56,6 @@ footer {
   margin-block: 1rem;
 }
 
-menu {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.5rem;
-  margin-inline: 0;
-  padding-inline: 0;
-  list-style: none;
-}
-
 img {
   max-width: 100%;
 }
@@ -316,11 +306,38 @@ dialog {
   }
 }
 
-#spaces {
-  margin-bottom: 1.5em;
-  padding: 0;
+.menu-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-inline: 0;
+  padding-inline: 0;
   list-style: none;
-  li + li {
-    margin-top: 1em;
+}
+
+.pop-menu {
+  @supports not (position-anchor: auto) {
+    position: relative;
+  }
+  menu {
+    inset: unset;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 7px;
+    padding: 5px;
+    border-width: 1px;
+    border-radius: 5px;
+    @supports (position-anchor: auto) {
+      top: calc(anchor(bottom) + 5px);
+      left: anchor(left);
+    }
+    @supports not (position-anchor: auto) {
+      position: absolute;
+      margin-top: 5px;
+    }
+    &:popover-open {
+      display: flex;
+    }
   }
 }

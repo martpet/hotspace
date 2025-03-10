@@ -157,8 +157,8 @@ function getChboxData(chbox) {
 function insertDialog() {
   const PATTERN_CONFIRM = "permanently delete";
 
-  btnDelete.insertAdjacentHTML(
-    "afterend",
+  document.body.insertAdjacentHTML(
+    "beforeend",
     `
         <dialog id="batch-delete-dialog">
           <h1>Delete Selected Items</h1>

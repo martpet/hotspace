@@ -21,7 +21,7 @@ export default function ButtonUpload(props: Props) {
         data-dir-id={dirNode.id}
         data-worker-src={asset("upload_worker.js", { cdn: false })}
       >
-        Add Files…
+        Add Files
       </button>
     </>
   );

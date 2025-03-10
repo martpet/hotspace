@@ -18,7 +18,8 @@ let errorEl;
 // Events
 // =====================
 
-button.onclick = () => {
+button.onclick = (e) => {
+  e.preventDefault();
   if (!dialog) {
     insertDialog();
     initDialogEvents();
@@ -110,8 +111,8 @@ function insertDialog() {
     ? "the name of the space"
     : `<em><strong>${PATTERN_CONFIRM}</strong></em>`;
 
-  button.insertAdjacentHTML(
-    "afterend",
+  document.body.insertAdjacentHTML(
+    "beforeend",
     `
         <dialog id="delete-inode-dialog">
           <h1>Delete ${inodeType}</h1>

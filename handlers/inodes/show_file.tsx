@@ -6,6 +6,7 @@ import ButtonDeleteInode from "../../snippets/inodes/ButtonDeleteInode.tsx";
 import FilePreview from "../../snippets/inodes/file_preview/FilePreview.tsx";
 import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";
 import Page from "../../snippets/pages/Page.tsx";
+import PopMenu from "../../snippets/PopMenu.tsx";
 import { INODES_CLOUDFRONT_URL } from "../../util/consts.ts";
 import { getDirByPath, getInodeByDir } from "../../util/kv/inodes.ts";
 import { type AppContext, FileNode } from "../../util/types.ts";
@@ -71,6 +72,21 @@ export default async function showFileHandler(ctx: AppContext) {
     </>
   );
 
+  const menu = (
+    <menu class="menu-bar">
+      <PopMenu id="manage-menu" btnLabel="Manage File">
+        <ButtonToggleChat
+          inodeId={fileNode.id}
+          chatEnabled={fileNode.chatEnabled}
+          skipHidePopoverId="manage-menu"
+        />
+        <ButtonDeleteInode inode={fileNode}>
+          Delete File
+        </ButtonDeleteInode>
+      </PopMenu>
+    </menu>
+  );
+
   return (
     <Page
       id="file-page"
@@ -80,17 +96,7 @@ export default async function showFileHandler(ctx: AppContext) {
     >
       <h1>{fileName}</h1>
 
-      {isOwner && (
-        <menu class="inodes-menu">
-          <ButtonDeleteInode inode={fileNode}>
-            Delete File
-          </ButtonDeleteInode>
-          <ButtonToggleChat
-            inodeId={fileNode.id}
-            chatEnabled={fileNode.chatEnabled}
-          />
-        </menu>
-      )}
+      {isOwner && menu}
       <FilePreview fileNode={fileNode} fileNodeUrl={fileNodeUrl} />
       {chatSection}
     </Page>

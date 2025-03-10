@@ -101,8 +101,8 @@ async function submitData() {
 // =====================
 
 function insertDialog() {
-  btnShowDialog.insertAdjacentHTML(
-    "afterend",
+  document.body.insertAdjacentHTML(
+    "beforeend",
     `
       <dialog id="create-dir-dialog">
         <h1>${btnShowDialog.textContent}</h1>
