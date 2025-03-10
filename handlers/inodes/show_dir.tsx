@@ -19,6 +19,8 @@ type From = "delete";
 export default async function showInodeHandler(ctx: AppContext) {
   const { user } = ctx.state;
   const path = parsePathname(ctx.url.pathname);
+  const isSpace = path.isRootSegment;
+  const dirNodeLabel = isSpace ? "Space" : "Folder";
   const fragmentId = ctx.url.searchParams.get("fragment") as FragmentId | null;
   const from = ctx.state.from as From | undefined;
 
@@ -72,9 +74,6 @@ export default async function showInodeHandler(ctx: AppContext) {
     </>
   );
 
-  const isSpace = path.isRootSegment;
-  const dirNodeLabel = isSpace ? "Space" : "Folder";
-
   const menu = (
     <menu class="menu-bar">
       <ButtonUpload dirNode={dirNode} />
@@ -85,11 +84,9 @@ export default async function showInodeHandler(ctx: AppContext) {
           chatEnabled={dirNode.chatEnabled}
           skipHidePopoverId="manage-menu"
         />
-        {isSpace && (
-          <ButtonDeleteInode inode={dirNode}>
-            Delete {dirNodeLabel}
-          </ButtonDeleteInode>
-        )}
+        <ButtonDeleteInode inode={dirNode}>
+          Delete {dirNodeLabel}
+        </ButtonDeleteInode>
       </PopMenu>
       <BatchOperationsButtons inode={dirNode} />
     </menu>

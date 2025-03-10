@@ -101,15 +101,9 @@ async function submitData() {
 // =====================
 
 function insertDialog() {
-  const PATTERN_CONFIRM = isSpace ? inodeName : "permanently delete";
-
   const introText = isDir
     ? `${inodeType} <strong>'${inodeName}'</strong> and its content`
     : `<strong>${inodeNameDecoded}</strong>  and its chat messages`;
-
-  const confirmText = isSpace
-    ? "the name of the space"
-    : `<em><strong>${PATTERN_CONFIRM}</strong></em>`;
 
   document.body.insertAdjacentHTML(
     "beforeend",
@@ -123,8 +117,8 @@ function insertDialog() {
             </p>
             <p id="delete-inode-error" class="alert error" hidden></p>
             <label>
-              <span>To confirm, type ${confirmText} in the field:</span>
-              <input type="text" autofocus required pattern="${PATTERN_CONFIRM}" />
+              <span>To confirm, type the name of the ${inodeType.toLowerCase()}:</span>
+              <input type="text" autofocus required pattern="${inodeName}" />
             </label>
             <footer>
               <button type="button" id="delete-inode-close">Cancel</button>
