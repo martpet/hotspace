@@ -167,9 +167,9 @@ a.inode {
   display: flex;
   height: 200px;
   align-items: center;
+  gap: 0.7em;
   &::after {
     order: -1;
-    margin-right: 0.7em;
   }
 }
 

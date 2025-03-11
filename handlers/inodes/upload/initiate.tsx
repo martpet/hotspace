@@ -30,7 +30,7 @@ export default async function initiateUploadHandler(ctx: AppContext) {
     return new Headers({
       [HEADER.ContentType]: upload.fileType,
       [HEADER.ContentDisposition]: `inline; filename*=UTF-8''${fileName}`,
-      [HEADER.CacheControl]: `public, max-age=${DAY * 359 / 1000}, immutable`,
+      [HEADER.CacheControl]: `public, max-age=${DAY * 365 / 1000}, immutable`,
     });
   };
 

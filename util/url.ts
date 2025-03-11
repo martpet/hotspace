@@ -7,7 +7,7 @@ import {
 } from "./consts.ts";
 import { DEPLOYMENT_HEX } from "./deployment_hex.ts";
 
-export function signUploadUrl(url: string) {
+export function signCloudfrontUrl(url: string) {
   return cloudfront.signUrl({
     url,
     keyPairId: CLOUDFRONT_KEYPAIR_ID,

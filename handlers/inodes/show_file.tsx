@@ -10,7 +10,7 @@ import PopMenu from "../../snippets/PopMenu.tsx";
 import { INODES_CLOUDFRONT_URL } from "../../util/consts.ts";
 import { getDirByPath, getInodeByDir } from "../../util/kv/inodes.ts";
 import { type AppContext, FileNode } from "../../util/types.ts";
-import { asset, signUploadUrl } from "../../util/url.ts";
+import { asset } from "../../util/url.ts";
 
 type FragmentId = "chat";
 
@@ -18,7 +18,6 @@ export default async function showFileHandler(ctx: AppContext) {
   const { user } = ctx.state;
   const path = parsePathname(ctx.url.pathname) as NonRootPath;
   const fragmentId = ctx.url.searchParams.get("fragment") as FragmentId | null;
-  const IS_PUBLIC_ACCESS_ENABLED = true;
 
   if (path.isRootSegment) {
     return ctx.redirect(ctx.req.url + "/", STATUS_CODE.PermanentRedirect);
@@ -58,11 +57,8 @@ export default async function showFileHandler(ctx: AppContext) {
   }
 
   const fileName = decodeURIComponent(fileNode.name);
-  let fileNodeUrl = `${INODES_CLOUDFRONT_URL}/${fileNode.s3Key}`;
-
-  if (!IS_PUBLIC_ACCESS_ENABLED) {
-    fileNodeUrl = await signUploadUrl(fileNodeUrl);
-  }
+  const fileNodeUrl = `${INODES_CLOUDFRONT_URL}/${fileNode.s3Key}`;
+  // const fileNodeUrl = await signCloudfrontUrl(unsignedUrl);
 
   const head = (
     <>
