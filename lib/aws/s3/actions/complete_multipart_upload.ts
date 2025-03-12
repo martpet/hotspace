@@ -1,6 +1,5 @@
-import { toSha256Hex } from "$util";
+import { fetchWithRetry, toSha256Hex } from "$util";
 import { DOMParser, initParser } from "@b-fuze/deno-dom/wasm-noinit";
-import { fetchWithRetry } from "../../util.ts";
 import type { CompletedMultipartUpload, S3ReqOptions } from "../types.ts";
 
 interface Options extends S3ReqOptions, CompletedMultipartUpload {
@@ -14,6 +13,7 @@ export async function completeMultipartUpload(options: Options) {
     finishedParts,
     bucket,
     signer,
+    retryOpt,
   } = options;
   const url = new URL(`https://${bucket}.s3.amazonaws.com/${s3Key}`);
 
@@ -44,7 +44,7 @@ export async function completeMultipartUpload(options: Options) {
   });
 
   const signedReq = await signer.sign("s3", req);
-  const resp = await fetchWithRetry(signedReq);
+  const resp = await fetchWithRetry(signedReq, retryOpt);
   const respText = await resp.text();
 
   if (!resp.ok) {

@@ -1,6 +1,5 @@
-import { toSha256Base64, toSha256Hex } from "$util";
+import { fetchWithRetry, toSha256Base64, toSha256Hex } from "$util";
 import { chunk } from "@std/collections";
-import { fetchWithRetry } from "../../util.ts";
 import type { S3ReqOptions } from "../types.ts";
 
 export interface Options extends S3ReqOptions {
@@ -16,7 +15,7 @@ export async function deleteObjects(options: Options) {
 }
 
 async function run(options: Options) {
-  const { s3Keys, bucket, signer } = options;
+  const { s3Keys, bucket, signer, retryOpt } = options;
   const url = `https://${bucket}.s3.amazonaws.com/?delete`;
 
   let body = '<Delete xmlns="http://s3.amazonaws.com/doc/2006-03-01/">';
@@ -43,7 +42,7 @@ async function run(options: Options) {
 
   const signedReq = await signer.sign("s3", req);
 
-  const resp = await fetchWithRetry(signedReq);
+  const resp = await fetchWithRetry(signedReq, retryOpt);
 
   if (!resp.ok) {
     const respText = await resp.text();

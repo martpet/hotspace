@@ -1,5 +1,4 @@
-import { toSha256Hex } from "$util";
-import { fetchWithRetry } from "../../util.ts";
+import { fetchWithRetry, toSha256Hex } from "$util";
 import type { S3ReqOptions } from "../types.ts";
 
 export interface GetObjectOptions extends S3ReqOptions {
@@ -7,8 +6,8 @@ export interface GetObjectOptions extends S3ReqOptions {
   head?: boolean;
 }
 
-export default async function getObject(options: GetObjectOptions) {
-  const { s3Key, head, bucket, signer } = options;
+export async function getObject(options: GetObjectOptions) {
+  const { s3Key, head, bucket, signer, retryOpt } = options;
   const url = `https://${bucket}.s3.amazonaws.com/${s3Key}`;
 
   const req = new Request(url, {
@@ -19,11 +18,11 @@ export default async function getObject(options: GetObjectOptions) {
   });
 
   const signedReq = await signer.sign("s3", req);
-  const resp = await fetchWithRetry(signedReq);
+  const resp = await fetchWithRetry(signedReq, retryOpt);
 
   if (!resp.ok) {
     throw new Error(await resp.json());
   }
 
-  return Object.fromEntries(resp.headers.entries());
+  return resp;
 }
