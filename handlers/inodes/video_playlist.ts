@@ -1,5 +1,9 @@
+import { s3 } from "$aws";
+import { parsePathname } from "$util";
 import { DAY } from "@std/datetime";
 import { HEADER, STATUS_CODE } from "@std/http";
+import { getSigner } from "../../util/aws.ts";
+import { INODES_BUCKET } from "../../util/consts.ts";
 import { getFileNodeUrl } from "../../util/inodes/helpers.ts";
 import type { AppContext } from "../../util/types.ts";
 
@@ -12,40 +16,41 @@ export default async function videoPlaylistHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  const fileNodeUrl = await getFileNodeUrl(s3Key);
-  const fileNodeUrlObj = new URL(fileNodeUrl);
-  const normalizedFileNodeUrl = fileNodeUrlObj.origin + fileNodeUrlObj.pathname;
-  const normalizedReq = new Request(normalizedFileNodeUrl);
-  const cachedResp = await cache.match(normalizedReq);
-  const resp = cachedResp || await fetch(fileNodeUrl);
+  const cachedS3Resp = await cache.match(ctx.url);
+
+  const resp = cachedS3Resp || await s3.getObject({
+    s3Key,
+    signer: getSigner(),
+    bucket: INODES_BUCKET,
+  });
 
   if (!resp.ok) {
     return ctx.respond(null, STATUS_CODE.BadGateway);
   }
 
-  if (!cachedResp) {
-    await cache.put(normalizedReq, resp.clone());
+  if (!cachedS3Resp) {
+    await cache.put(ctx.url, resp.clone());
   }
 
   const playlist = await resp.text();
   const lines = playlist.split("\n");
   const cachedLines: Record<string, string> = {};
+  const segmentPathBase = parsePathname(s3Key).parentSegments?.join("/");
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     if (!line.endsWith(".ts")) continue;
-    cachedLines[line] ??= await getFileNodeUrl(
-      fileNodeUrlObj.pathname.replace("m3u8", "ts").substring(1),
-    );
+    if (!cachedLines[line]) {
+      const segmentS3Key = `${segmentPathBase}/${line}`;
+      cachedLines[line] = await getFileNodeUrl(segmentS3Key);
+    }
     lines[i] = cachedLines[line];
   }
-
-  const editedPlaylist = lines.join("\n");
 
   ctx.resp.headers.set(
     HEADER.CacheControl,
     `public, max-age=${DAY * 365 / 1000}, immutable`,
   );
 
-  return ctx.respond(editedPlaylist);
+  return ctx.respond(lines.join("\n"));
 }

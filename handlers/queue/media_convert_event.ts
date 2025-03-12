@@ -1,5 +1,7 @@
+import { s3 } from "$aws";
+import { getSigner } from "../../util/aws.ts";
+import { INODES_BUCKET } from "../../util/consts.ts";
 import {
-  getFileNodeUrl,
   makeVideoNodePlaylistDataUrl,
   updateInodeWithRetry,
 } from "../../util/inodes/helpers.ts";
@@ -68,8 +70,11 @@ export async function handleMediaConvertEvent(
 }
 
 async function fetchPlaylist(inode: VideoNode) {
-  const url = await getFileNodeUrl(inode.s3Key + ".m3u8");
-  const resp = await fetch(url);
+  const resp = await s3.getObject({
+    s3Key: inode.s3Key + ".m3u8",
+    signer: getSigner(),
+    bucket: INODES_BUCKET,
+  });
   if (!resp.ok) {
     const respText = await resp.text();
     throw new Error(
