@@ -324,8 +324,8 @@ dialog {
     inset: unset;
     flex-direction: column;
     align-items: flex-start;
-    gap: 7px;
-    padding: 5px;
+    gap: 0.5rem;
+    padding: 0.5rem;
     border-width: 1px;
     border-radius: 5px;
     @supports (position-anchor: auto) {
