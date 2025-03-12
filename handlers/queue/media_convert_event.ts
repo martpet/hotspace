@@ -68,13 +68,12 @@ export async function handleMediaConvertEvent(
 }
 
 async function fetchPlaylist(inode: VideoNode) {
-  const url = new URL(await getFileNodeUrl(inode));
-  url.pathname += ".m3u8";
+  const url = await getFileNodeUrl(inode.s3Key + ".m3u8");
   const resp = await fetch(url);
   if (!resp.ok) {
     const respText = await resp.text();
     throw new Error(
-      `Cannot fetch playlist; Status: ${resp.status}); Text: "${respText}"`,
+      `Cannot fetch playlist; Status: ${resp.status}; Text: "${respText}"`,
     );
   }
   return resp.text();

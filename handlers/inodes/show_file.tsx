@@ -58,7 +58,7 @@ export default async function showFileHandler(ctx: AppContext) {
   }
 
   const fileName = decodeURIComponent(fileNode.name);
-  const fileNodeUrl = await getFileNodeUrl(fileNode);
+  const fileNodeUrl = await getFileNodeUrl(fileNode.s3Key);
 
   const head = (
     <>

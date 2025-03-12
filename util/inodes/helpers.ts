@@ -33,8 +33,8 @@ export async function updateInodeWithRetry<T extends Inode>(
   }
 }
 
-export function getFileNodeUrl(fileNode: Pick<FileNode, "s3Key">) {
-  const url = `${INODES_CLOUDFRONT_URL}/${fileNode.s3Key}`;
+export function getFileNodeUrl(s3Key: string) {
+  const url = `${INODES_CLOUDFRONT_URL}/${s3Key}`;
   return signCloudfrontUrl(url);
 }
 

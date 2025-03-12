@@ -12,7 +12,7 @@ export default async function videoPlaylistHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  const fileNodeUrl = await getFileNodeUrl({ s3Key });
+  const fileNodeUrl = await getFileNodeUrl(s3Key);
   const fileNodeUrlObj = new URL(fileNodeUrl);
   const normalizedFileNodeUrl = fileNodeUrlObj.origin + fileNodeUrlObj.pathname;
   const normalizedReq = new Request(normalizedFileNodeUrl);
@@ -34,9 +34,9 @@ export default async function videoPlaylistHandler(ctx: AppContext) {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     if (!line.endsWith(".ts")) continue;
-    cachedLines[line] ??= await getFileNodeUrl({
-      s3Key: fileNodeUrlObj.pathname.replace("m3u8", "ts").substring(1),
-    });
+    cachedLines[line] ??= await getFileNodeUrl(
+      fileNodeUrlObj.pathname.replace("m3u8", "ts").substring(1),
+    );
     lines[i] = cachedLines[line];
   }
 
