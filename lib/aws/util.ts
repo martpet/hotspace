@@ -1,5 +1,5 @@
 import { retry } from "@std/async";
-import { STATUS_CODE } from "@std/http/status";
+import { STATUS_CODE } from "@std/http";
 
 export function fetchWithRetry(req: Request) {
   return retry(async () => {

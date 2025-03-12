@@ -7,11 +7,11 @@ import ButtonCreateDir from "../../snippets/inodes/ButtonCreateDir.tsx";
 import ButtonDeleteInode from "../../snippets/inodes/ButtonDeleteInode.tsx";
 import ButtonUpload from "../../snippets/inodes/ButtonUpload.tsx";
 import InodesTable from "../../snippets/inodes/InodesTable.tsx";
-import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";
 import Page from "../../snippets/pages/Page.tsx";
 import { getDirByPath, listInodesByDir } from "../../util/kv/inodes.ts";
 import type { AppContext } from "../../util/types.ts";
 import { asset } from "../../util/url.ts";
+import notFoundHandler from "../not_found.tsx";
 
 type FragmentId = "inodes" | "chat";
 type From = "delete";
@@ -23,6 +23,7 @@ export default async function showInodeHandler(ctx: AppContext) {
   const dirNodeLabel = isSpace ? "Space" : "Folder";
   const fragmentId = ctx.url.searchParams.get("fragment") as FragmentId | null;
   const from = ctx.state.from as From | undefined;
+  const notFound = () => notFoundHandler(ctx, { header: { breadcrumb: true } });
 
   const dirNodeEntry = await getDirByPath(path.segments, {
     consistency: fragmentId === "chat" ? "strong" : "eventual",
@@ -31,7 +32,7 @@ export default async function showInodeHandler(ctx: AppContext) {
   const dirNode = dirNodeEntry.value;
 
   if (!dirNode) {
-    return <NotFoundPage header={{ breadcrumb: true }} />;
+    return notFound();
   }
 
   const isDirOwner = dirNode.ownerId === user?.id;

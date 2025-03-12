@@ -4,13 +4,13 @@ import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
 import Chat from "../../snippets/chat/ChatSection.tsx";
 import ButtonDeleteInode from "../../snippets/inodes/ButtonDeleteInode.tsx";
 import FilePreview from "../../snippets/inodes/file_preview/FilePreview.tsx";
-import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";
 import Page from "../../snippets/pages/Page.tsx";
 import PopMenu from "../../snippets/PopMenu.tsx";
-import { INODES_CLOUDFRONT_URL } from "../../util/consts.ts";
+import { getFileNodeUrl } from "../../util/inodes/helpers.ts";
 import { getDirByPath, getInodeByDir } from "../../util/kv/inodes.ts";
 import { type AppContext, FileNode } from "../../util/types.ts";
 import { asset } from "../../util/url.ts";
+import notFoundHandler from "../not_found.tsx";
 
 type FragmentId = "chat";
 
@@ -18,6 +18,7 @@ export default async function showFileHandler(ctx: AppContext) {
   const { user } = ctx.state;
   const path = parsePathname(ctx.url.pathname) as NonRootPath;
   const fragmentId = ctx.url.searchParams.get("fragment") as FragmentId | null;
+  const notFound = () => notFoundHandler(ctx, { header: { breadcrumb: true } });
 
   if (path.isRootSegment) {
     return ctx.redirect(ctx.req.url + "/", STATUS_CODE.PermanentRedirect);
@@ -28,7 +29,7 @@ export default async function showFileHandler(ctx: AppContext) {
   })).value;
 
   if (!parentDir) {
-    return <NotFoundPage header={{ breadcrumb: true }} />;
+    return notFound();
   }
 
   const fileNode = (await getInodeByDir<FileNode>({
@@ -38,7 +39,7 @@ export default async function showFileHandler(ctx: AppContext) {
   })).value;
 
   if (!fileNode) {
-    return <NotFoundPage header={{ breadcrumb: true }} />;
+    return notFound();
   }
 
   const isOwner = fileNode.ownerId === user?.id;
@@ -57,8 +58,7 @@ export default async function showFileHandler(ctx: AppContext) {
   }
 
   const fileName = decodeURIComponent(fileNode.name);
-  const fileNodeUrl = `${INODES_CLOUDFRONT_URL}/${fileNode.s3Key}`;
-  // const fileNodeUrl = await signCloudfrontUrl(unsignedUrl);
+  const fileNodeUrl = await getFileNodeUrl(fileNode);
 
   const head = (
     <>

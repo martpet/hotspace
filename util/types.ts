@@ -90,5 +90,6 @@ export interface VideoNode extends FileNode {
     status: "PENDING" | "COMPLETE" | "ERROR";
     jobId?: string;
     jobPercentComplete?: number;
+    playlistDataUrl?: string;
   };
 }

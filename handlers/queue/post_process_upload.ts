@@ -1,13 +1,14 @@
 import { mediaconvert } from "$aws";
 import { getSigner } from "../../util/aws.ts";
+import { AWS_REGION, LOCAL_DEV_PUBLIC_URL } from "../../util/consts.ts";
 import {
-  AWS_REGION,
-  IS_LOCAL_DEV,
-  isProd,
-  LOCAL_DEV_PUBLIC_URL,
-} from "../../util/consts.ts";
-import { isVideoNode, updateInodeWithRetry } from "../../util/inodes/util.ts";
-import { getVideoJob, type JobOptions } from "../../util/inodes/video_job.ts";
+  isVideoNode,
+  updateInodeWithRetry,
+} from "../../util/inodes/helpers.ts";
+import {
+  getVideoJob,
+  type JobOptions,
+} from "../../util/inodes/mediaconvert.ts";
 import { getInodeById } from "../../util/kv/inodes.ts";
 
 export interface QueueMsgPostProcessUpload {
@@ -39,16 +40,11 @@ export async function handlePostProcessUpload(
 
   const jobOptions: JobOptions = {
     s3Key: inode.s3Key,
-    metaData: { inodeId: inode.id },
-  };
-
-  if (!isProd) {
-    jobOptions.metaData.appUrl = IS_LOCAL_DEV ? LOCAL_DEV_PUBLIC_URL : origin;
-  }
-
-  inode.mediaConvert = {
-    streamType: "hls",
-    status: "PENDING",
+    metaData: {
+      inodeId: inode.id,
+      origin,
+      devUrl: LOCAL_DEV_PUBLIC_URL || origin,
+    },
   };
 
   try {

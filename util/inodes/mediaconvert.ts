@@ -57,7 +57,7 @@ export function getVideoJob({ s3Key, metaData }: JobOptions) {
               "SegmentLength": 10,
               "Destination": `s3://${INODES_BUCKET}/`,
               "MinSegmentLength": 0,
-              "SegmentControl": "SEGMENTED_FILES",
+              "SegmentControl": "SINGLE_FILE",
             },
           },
           "AutomatedEncodingSettings": {

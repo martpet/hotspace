@@ -1,61 +1,60 @@
 const videoEl = document.getElementById("video");
 const convertingEl = document.getElementById("video-converting");
 
-const { inodeId, workerPath, videoSrc, supportsHls, isConverting } =
-  videoEl.dataset;
+const { videoUrl, inodeId, supportsHls, workerPath } = videoEl.dataset;
 
-if (isConverting) {
-  waitConverted();
-} else if (!supportsHls) {
-  loadHlsFallback();
+if (videoUrl) {
+  loadHlsFallback(videoUrl);
+} else {
+  waitMediaConvertEvent();
 }
 
-function waitConverted() {
-  const path = `/inodes/check-video-converted/${inodeId}`;
+async function loadHlsFallback(url) {
+  const { isSupported, Hls } = await import("$hls");
+  if (isSupported) {
+    const hls = new Hls({ workerPath });
+    hls.loadSource(url);
+    hls.attachMedia(videoEl);
+  }
+}
+
+function waitMediaConvertEvent() {
+  const path = `/inodes/listen-media-convert-event/${inodeId}`;
   const evtSource = new EventSource(path);
   evtSource.onerror = () => waitConverted();
   evtSource.onmessage = (evt) => handleConvertEvent(evt, evtSource);
 }
 
-async function loadHlsFallback() {
-  const { isSupported, Hls } = await import("$hls");
-  if (isSupported) {
-    const hls = new Hls({ workerPath });
-    hls.loadSource(videoSrc);
-    hls.attachMedia(videoEl);
-  }
-}
-
 function handleConvertEvent(evt, evtSource) {
-  const data = JSON.parse(evt.data);
-  if (data.status === "COMPLETE") {
+  const { status, playlistDataUrl, jobProgress } = JSON.parse(evt.data);
+  if (status === "COMPLETE") {
+    onComplete(playlistDataUrl);
     evtSource.close();
-    showVideo();
-  } else if (data.status === "ERROR") {
+  } else if (status === "ERROR") {
+    onError();
     evtSource.close();
-    showError();
   } else {
-    updateProgress(data.jobPercentComplete);
+    onProgress(jobProgress);
   }
 }
 
-function showVideo() {
+function onComplete(url) {
   convertingEl.remove();
   videoEl.hidden = false;
   if (supportsHls) {
-    videoEl.src = videoSrc;
+    videoEl.src = url;
   } else {
-    loadHlsFallback();
+    loadHlsFallback(url);
   }
 }
 
-function showError() {
+function onError() {
   const errorEl = document.getElementById("converting-error");
   errorEl.hidden = false;
   convertingEl.remove();
 }
 
-function updateProgress(perc) {
+function onProgress(perc) {
   if (!perc) return;
   const percEl = document.getElementById("progress-perc");
   percEl.textContent = perc + "%";

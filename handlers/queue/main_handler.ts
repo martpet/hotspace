@@ -1,7 +1,3 @@
-import {
-  handleAwsMediaConvertEvent,
-  isAwsMediaConvertEvent,
-} from "./aws_media_convert_event.ts";
 import { handleCleanUpInode, isCleanUpInode } from "./clean_up_inode.ts";
 import { handleCleanUpUser, isCleanUpUser } from "./clean_up_user.ts";
 import {
@@ -12,6 +8,10 @@ import {
   handleDeleteS3Objects,
   isDeleteS3Objects,
 } from "./delete_s3_objects.ts";
+import {
+  handleMediaConvertEvent,
+  isMediaConvertEvent,
+} from "./media_convert_event.ts";
 import {
   handlePostProcessUpload,
   isPostProcessUpload,
@@ -28,7 +28,7 @@ export function queueHandler(msg: unknown) {
   if (isCleanUpInode(msg)) return handleCleanUpInode(msg);
   if (isCleanUpUser(msg)) return handleCleanUpUser(msg);
   if (isPostProcessUpload(msg)) return handlePostProcessUpload(msg);
-  if (isAwsMediaConvertEvent(msg)) return handleAwsMediaConvertEvent(msg);
+  if (isMediaConvertEvent(msg)) return handleMediaConvertEvent(msg);
 
   console.error("Unhandled KV Queue message", msg);
 }

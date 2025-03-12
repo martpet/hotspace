@@ -1,4 +1,4 @@
-import { isVideoNode } from "../../../util/inodes/util.ts";
+import { isVideoNode } from "../../../util/inodes/helpers.ts";
 import type { FileNode } from "../../../util/types.ts";
 import DocxPreview from "./DocxPreview.tsx";
 import { VideoPreview } from "./VideoPreview.tsx";
@@ -27,12 +27,7 @@ export default function FilePreview(props: Props) {
           <img src={fileNodeUrl} height={200} />
         </a>
       )}
-      {isVideoNode(fileNode) && (
-        <VideoPreview
-          videoNode={fileNode}
-          fileNodeUrl={fileNodeUrl}
-        />
-      )}
+      {isVideoNode(fileNode) && <VideoPreview videoNode={fileNode} />}
       {showInFirame && (
         <iframe
           id="inode-preview-iframe"

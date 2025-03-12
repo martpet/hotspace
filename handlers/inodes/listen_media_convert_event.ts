@@ -4,7 +4,7 @@ import { keys as inodesKeys } from "../../util/kv/inodes.ts";
 import { watch } from "../../util/kv/kv.ts";
 import type { AppContext, VideoNode } from "../../util/types.ts";
 
-export default function checkVideoConvertedHandler(ctx: AppContext) {
+export default function listenMediaConvertEventHandler(ctx: AppContext) {
   const { inodeId } = ctx.urlPatternResult.pathname.groups;
 
   if (!inodeId) {
@@ -13,15 +13,19 @@ export default function checkVideoConvertedHandler(ctx: AppContext) {
 
   ctx.resp.headers.set(HEADER.ContentType, "text/event-stream");
 
-  const kvKey = inodesKeys.byId(inodeId);
   let kvReader: ReadableStreamDefaultReader<[Deno.KvEntryMaybe<VideoNode>]>;
+  const kvKey = inodesKeys.byId(inodeId);
 
   const resBody = new ReadableStream({
     start(controller) {
       kvReader = watch<[VideoNode]>([kvKey], ([kvEntry]) => {
         const inode = kvEntry.value;
         if (!inode) return;
-        const data = pick(inode.mediaConvert, ["status", "jobPercentComplete"]);
+        const data = pick(inode.mediaConvert, [
+          "status",
+          "jobPercentComplete",
+          "playlistDataUrl",
+        ]);
         const msg = `data: ${JSON.stringify(data)}\r\n\r\n`;
         controller.enqueue(new TextEncoder().encode(msg));
       });

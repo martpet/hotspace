@@ -1,5 +1,8 @@
+import { encodeBase64 } from "@std/encoding/base64";
+import { INODES_CLOUDFRONT_URL } from "../consts.ts";
 import { getInodeById, setInode } from "../kv/inodes.ts";
 import type { FileNode, Inode, VideoNode } from "../types.ts";
+import { signCloudfrontUrl } from "../url.ts";
 
 export function isPostProcessableUpload(inode: Inode) {
   return isVideoNode(inode);
@@ -28,4 +31,22 @@ export async function updateInodeWithRetry<T extends Inode>(
     commit = await atomic.commit();
     i++;
   }
+}
+
+export function getFileNodeUrl(fileNode: Pick<FileNode, "s3Key">) {
+  const url = `${INODES_CLOUDFRONT_URL}/${fileNode.s3Key}`;
+  return signCloudfrontUrl(url);
+}
+
+export function makeVideoNodePlaylistDataUrl(
+  playlist: string,
+  origin: string,
+) {
+  const NEW_LINE = "\n";
+  const result = playlist.split(NEW_LINE)
+    .map((line) =>
+      line.endsWith(".m3u8") ? `${origin}/inodes/video-playlist/${line}` : line
+    )
+    .join(NEW_LINE);
+  return `data:application/vnd.apple.mpegurl;base64,${encodeBase64(result)}`;
 }

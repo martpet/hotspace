@@ -21,7 +21,8 @@ import type { FileNode, Inode, VideoNode } from "../types.ts";
 import {
   isFileNodeWithManyS3Objects,
   isPostProcessableUpload,
-} from "./util.ts";
+  isVideoNode,
+} from "./helpers.ts";
 
 export function createFileNode(options: {
   fileNode: FileNode;
@@ -29,6 +30,9 @@ export function createFileNode(options: {
   atomic?: Deno.AtomicOperation;
 }) {
   const { fileNode, origin, atomic = kv.atomic() } = options;
+  if (isVideoNode(fileNode)) {
+    fileNode.mediaConvert = { status: "PENDING", streamType: "hls" };
+  }
   setInode(fileNode, atomic);
   setFileNodeStats({ fileNode, isAdd: true, atomic });
 

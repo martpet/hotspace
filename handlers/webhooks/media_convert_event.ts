@@ -2,9 +2,9 @@ import { STATUS_CODE } from "@std/http";
 import { MEDIA_CONVERT_WEBHOOK_KEY } from "../../util/consts.ts";
 import { enqueue } from "../../util/kv/enqueue.ts";
 import type { AppContext } from "../../util/types.ts";
-import { QueueMsgAwsMediaConvertEvent } from "../queue/aws_media_convert_event.ts";
+import { QueueMsgMediaConvertEvent } from "../queue/media_convert_event.ts";
 
-export default async function awsMediaConvertEventHandler(ctx: AppContext) {
+export default async function mediaConvertEventHandler(ctx: AppContext) {
   const apiKey = ctx.req.headers.get("X-Api-Key");
 
   if (apiKey !== MEDIA_CONVERT_WEBHOOK_KEY) {
@@ -12,15 +12,16 @@ export default async function awsMediaConvertEventHandler(ctx: AppContext) {
   }
 
   const data = await ctx.req.json();
-  const status = data.detail.status;
+  const { status } = data.detail;
   const jobPercentComplete = data.detail.jobProgress?.jobPercentComplete;
-  const inodeId = data.detail.userMetadata.inodeId;
+  const { inodeId, origin } = data.detail.userMetadata;
 
-  await enqueue<QueueMsgAwsMediaConvertEvent>({
-    type: "aws-media-convert-event",
+  await enqueue<QueueMsgMediaConvertEvent>({
+    type: "media-convert-event",
     inodeId,
     status,
     jobPercentComplete,
+    origin,
   }).commit();
 
   return ctx.respond();

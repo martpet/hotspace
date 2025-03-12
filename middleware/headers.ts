@@ -21,20 +21,21 @@ export const headersMiddleware: AppMiddleware = async (ctx, next) => {
 
   const defaultCsp = [
     `default-src 'self' 'nonce-${ctx.scpNonce}' ${ASSETS_CLOUDFRONT_URL} ${INODES_CLOUDFRONT_URL}`,
+    `connect-src 'self' data: ${INODES_CLOUDFRONT_URL}`,
     `worker-src 'self' blob:`,
-    `media-src 'self' blob: ${INODES_CLOUDFRONT_URL}`,
+    `media-src 'self' blob: data: ${INODES_CLOUDFRONT_URL}`,
     `frame-src 'self' ${ASSETS_CLOUDFRONT_URL} ${INODES_CLOUDFRONT_URL}`,
   ].join(";");
 
   const docxIframeCsp =
     `default-src 'self' 'unsafe-inline' blob: ${INODES_CLOUDFRONT_URL}`;
 
-  const usedCsp = ctx.url.pathname === "/static/docx/iframe.html"
+  const csp = ctx.url.pathname === "/static/docx/iframe.html"
     ? docxIframeCsp
     : defaultCsp;
 
   if (docExt === "html") {
-    resp.headers.set("Content-Security-Policy", usedCsp);
+    resp.headers.set("Content-Security-Policy", csp);
   }
 
   return resp;
