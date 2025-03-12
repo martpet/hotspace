@@ -72,8 +72,10 @@ async function fetchPlaylist(inode: VideoNode) {
   url.pathname += ".m3u8";
   const resp = await fetch(url);
   if (!resp.ok) {
-    const msg = `Cannot fetch playlist, status: ${resp.status})`;
-    throw new Error(msg);
+    const respText = await resp.text();
+    throw new Error(
+      `Cannot fetch playlist; Status: ${resp.status}); Text: "${respText}"`,
+    );
   }
   return resp.text();
 }
