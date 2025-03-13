@@ -15,13 +15,16 @@ export default async function mediaConvertEventHandler(ctx: AppContext) {
   const { status } = data.detail;
   const jobPercentComplete = data.detail.jobProgress?.jobPercentComplete;
   const { inodeId, origin } = data.detail.userMetadata;
+  const duratonInMs = data.detail.outputGroupDetails?.[0].outputDetails[0]
+    .durationInMs;
 
   await enqueue<QueueMsgMediaConvertEvent>({
     type: "media-convert-event",
     inodeId,
     status,
-    jobPercentComplete,
     origin,
+    jobPercentComplete,
+    duratonInMs,
   }).commit();
 
   return ctx.respond();

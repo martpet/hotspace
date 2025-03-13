@@ -12,8 +12,9 @@ export type QueueMsgMediaConvertEvent = {
   type: "media-convert-event";
   inodeId: string;
   status: "COMPLETE" | "ERROR" | "STATUS_UPDATE";
-  jobPercentComplete?: number;
   origin: string;
+  jobPercentComplete?: number;
+  duratonInMs?: number;
 };
 
 export function isMediaConvertEvent(
@@ -22,30 +23,35 @@ export function isMediaConvertEvent(
   const {
     type,
     inodeId,
-    jobPercentComplete,
-    status,
     origin,
+    jobPercentComplete,
+    duratonInMs,
+    status,
   } = msg as Partial<QueueMsgMediaConvertEvent>;
   return typeof msg === "object" &&
     type === "media-convert-event" &&
     typeof inodeId === "string" &&
+    typeof origin === "string" &&
     (status === "COMPLETE" || status === "ERROR" ||
       status === "STATUS_UPDATE") &&
     (typeof jobPercentComplete === "undefined" ||
       typeof jobPercentComplete === "number") &&
-    typeof origin === "string";
+    (typeof duratonInMs === "undefined" ||
+      typeof duratonInMs === "number");
 }
 
 export async function handleMediaConvertEvent(
   msg: QueueMsgMediaConvertEvent,
 ) {
-  const { inodeId, status, jobPercentComplete, origin } = msg;
+  const { inodeId, status, origin, jobPercentComplete, duratonInMs } = msg;
   const entry = await getInodeById<VideoNode>(inodeId);
   const inode = entry.value;
 
   if (!inode) {
     return;
   }
+
+  inode.mediaConvert.duratonInMs = duratonInMs;
 
   if (typeof jobPercentComplete !== "undefined") {
     inode.mediaConvert.jobPercentComplete = jobPercentComplete;

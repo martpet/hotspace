@@ -91,5 +91,6 @@ export interface VideoNode extends FileNode {
     jobId?: string;
     jobPercentComplete?: number;
     playlistDataUrl?: string;
+    duratonInMs?: number;
   };
 }
