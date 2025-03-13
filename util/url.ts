@@ -1,19 +1,6 @@
-import { cloudfront } from "$aws";
 import { ASSET_CACHE_PARAM } from "$server";
-import {
-  ASSETS_CLOUDFRONT_URL,
-  CLOUDFRONT_KEYPAIR_ID,
-  CLOUDFRONT_SIGNER_PRIVATE_KEY,
-} from "./consts.ts";
+import { ASSETS_CLOUDFRONT_URL } from "./consts.ts";
 import { DEPLOYMENT_HEX } from "./deployment_hex.ts";
-
-export function signCloudfrontUrl(url: string) {
-  return cloudfront.signUrl({
-    url,
-    keyPairId: CLOUDFRONT_KEYPAIR_ID,
-    privateKey: CLOUDFRONT_SIGNER_PRIVATE_KEY,
-  });
-}
 
 export function asset(pathname: string, options: { cdn?: boolean } = {}) {
   const { cdn = true } = options;

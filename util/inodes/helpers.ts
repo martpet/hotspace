@@ -1,8 +1,8 @@
 import { encodeBase64 } from "@std/encoding/base64";
+import { signCloudfrontUrl, type SignCloudfrontUrlOptions } from "../aws.ts";
 import { INODES_CLOUDFRONT_URL } from "../consts.ts";
 import { getInodeById, setInode } from "../kv/inodes.ts";
 import type { FileNode, Inode, VideoNode } from "../types.ts";
-import { signCloudfrontUrl } from "../url.ts";
 
 export function isPostProcessableUpload(inode: Inode) {
   return isVideoNode(inode);
@@ -33,9 +33,12 @@ export async function updateInodeWithRetry<T extends Inode>(
   }
 }
 
-export function getFileNodeUrl(s3Key: string) {
+export function getFileNodeUrl(
+  s3Key: string,
+  opt: SignCloudfrontUrlOptions = {},
+) {
   const url = `${INODES_CLOUDFRONT_URL}/${s3Key}`;
-  return signCloudfrontUrl(url);
+  return signCloudfrontUrl(url, opt);
 }
 
 export function makeVideoNodePlaylistDataUrl(

@@ -43,7 +43,7 @@ export default async function videoPlaylistHandler(ctx: AppContext) {
     if (!line.endsWith(".ts")) continue;
     if (!cachedLines[line]) {
       const segmentS3Key = `${segmentPathBase}/${line}`;
-      cachedLines[line] = await getFileNodeUrl(segmentS3Key);
+      cachedLines[line] = await getFileNodeUrl(segmentS3Key, { expireIn: DAY });
     }
     lines[i] = cachedLines[line];
   }

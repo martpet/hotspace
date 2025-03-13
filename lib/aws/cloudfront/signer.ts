@@ -1,24 +1,24 @@
 import { HOUR } from "@std/datetime";
 import { decodeBase64, encodeBase64 } from "@std/encoding";
 
-interface Options {
+export interface SignUrlOptions {
   url: string;
   keyPairId: string;
   privateKey: string;
-  expiresIn?: number;
+  expireIn?: number;
   customPolicy?: Record<string, unknown>;
 }
 
-export async function signUrl(options: Options) {
+export async function signUrl(options: SignUrlOptions) {
   const {
     url,
     keyPairId,
     privateKey,
-    expiresIn = HOUR,
+    expireIn = HOUR,
     customPolicy,
   } = options;
 
-  const expiresEpoch = Math.floor(Date.now() + expiresIn / 1000);
+  const expiresEpoch = Math.floor(Date.now() + expireIn / 1000);
   const pemContents = privateKey.replace(/-----.*?-----/g, "");
   const keyData = decodeBase64(pemContents);
 
