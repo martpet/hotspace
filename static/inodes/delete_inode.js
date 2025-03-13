@@ -118,7 +118,7 @@ function insertDialog() {
             <p id="delete-inode-error" class="alert error" hidden></p>
             <label>
               <span>To confirm, type the name of the ${inodeType.toLowerCase()}:</span>
-              <input type="text" autofocus required pattern="${inodeName}" />
+              <input type="text" autofocus required pattern="${inodeNameDecoded}" />
             </label>
             <footer>
               <button type="button" id="delete-inode-close">Cancel</button>
