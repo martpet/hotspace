@@ -1,6 +1,7 @@
 import { fetchWithRetry, toSha256Hex } from "$util";
 import { DOMParser, initParser } from "@b-fuze/deno-dom/wasm-noinit";
 import type { S3ReqOptions } from "../types.ts";
+import { getS3Endpoint } from "../util.ts";
 
 interface Options extends S3ReqOptions {
   prefix: string;
@@ -34,9 +35,10 @@ async function run(options: RunOptions) {
     continuationToken,
     signer,
     retryOpt,
+    accelerated,
   } = options;
 
-  const url = new URL(`https://${bucket}.s3.amazonaws.com?list-type=2`);
+  const url = new URL(`${getS3Endpoint(bucket, accelerated)}?list-type=2`);
 
   if (prefix) {
     url.searchParams.set("prefix", prefix);

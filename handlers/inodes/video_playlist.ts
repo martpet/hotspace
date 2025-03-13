@@ -22,6 +22,7 @@ export default async function videoPlaylistHandler(ctx: AppContext) {
     s3Key,
     signer: getSigner(),
     bucket: INODES_BUCKET,
+    accelerated: true,
   });
 
   if (!resp.ok) {

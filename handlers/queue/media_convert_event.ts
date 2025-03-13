@@ -74,6 +74,7 @@ async function fetchPlaylist(inode: VideoNode) {
     s3Key: inode.s3Key + ".m3u8",
     signer: getSigner(),
     bucket: INODES_BUCKET,
+    accelerated: true,
   });
   if (!resp.ok) {
     const respText = await resp.text();

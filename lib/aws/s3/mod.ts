@@ -5,4 +5,5 @@ export * from "./actions/delete_objects.ts";
 export * from "./actions/get_object.ts";
 export * from "./actions/head_object.ts";
 export * from "./actions/list_objects.ts";
+export * from "./consts.ts";
 export * from "./types.ts";

@@ -1,3 +1,4 @@
+import { s3 } from "$aws";
 import { initUploads, type UploadInitData } from "$upload";
 import { DAY } from "@std/datetime";
 import { HEADER } from "@std/http";
@@ -7,7 +8,6 @@ import {
   AWS_CREDENTIALS,
   AWS_REGION,
   INODES_BUCKET,
-  S3_ACCELERATE_HOST,
   SAVED_UPLOAD_EXPIRES,
 } from "../../../util/consts.ts";
 import type { AppContext } from "../../../util/types.ts";
@@ -41,7 +41,7 @@ export default async function initiateUploadHandler(ctx: AppContext) {
     credentials: AWS_CREDENTIALS,
     signer: getSigner(),
     savedUploadExpiresIn: SAVED_UPLOAD_EXPIRES,
-    s3Endpoint: S3_ACCELERATE_HOST,
+    s3Endpoint: s3.ACCELERATED_ENDPOINT,
     headersFn,
   });
 

@@ -1,5 +1,6 @@
 import { fetchWithRetry, toSha256Hex } from "$util";
 import type { S3ReqOptions } from "../types.ts";
+import { getS3Endpoint } from "../util.ts";
 
 export interface GetObjectOptions extends S3ReqOptions {
   s3Key: string;
@@ -7,8 +8,8 @@ export interface GetObjectOptions extends S3ReqOptions {
 }
 
 export async function getObject(options: GetObjectOptions) {
-  const { s3Key, head, bucket, signer, retryOpt } = options;
-  const url = `https://${bucket}.s3.amazonaws.com/${s3Key}`;
+  const { s3Key, head, bucket, signer, retryOpt, accelerated } = options;
+  const url = `${getS3Endpoint(bucket, accelerated)}/${s3Key}`;
 
   const req = new Request(url, {
     method: head ? "head" : "get",

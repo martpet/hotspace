@@ -1,5 +1,5 @@
+import { assert } from "@std/assert";
 import { DAY, WEEK } from "@std/datetime";
-import { assert } from "jsr:@std/assert@0.224/assert";
 import { prodKvEntry } from "./kv/kv.ts";
 
 export const isProd = prodKvEntry.value === true;
@@ -57,11 +57,6 @@ export const AWS_CREDENTIALS = {
 export const INODES_BUCKET = isProd
   ? "uploads-hotspace-lol"
   : "uploads-dev-hotspace-lol";
-
-export const S3_ACCELERATE_HOST = "s3-accelerate.amazonaws.com";
-
-export const INODES_BUCKET_URL =
-  `https://${INODES_BUCKET}.${S3_ACCELERATE_HOST}`;
 
 export const CLOUDFRONT_SIGNER_PRIVATE_KEY = isProd
   ? env.CLOUDFRONT_SIGNER_PRIVATE_KEY_PROD
