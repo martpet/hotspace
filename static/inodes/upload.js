@@ -151,7 +151,7 @@ function insertDialog() {
     "beforeend",
     `
       <dialog id="upload-dialog">
-        <h1>Upload Files</h1>
+        <h1>Add Files</h1>
         <form class="basic-form">
           <label>
             <input type="file" multiple autofocus required />
