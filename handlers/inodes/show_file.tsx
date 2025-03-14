@@ -66,6 +66,12 @@ export default async function showFileHandler(ctx: AppContext) {
     </>
   );
 
+  const menu = (
+    <menu class="menu-bar">
+      <ButtonManage inode={fileNode} />
+    </menu>
+  );
+
   return (
     <Page
       id="file-page"
@@ -73,12 +79,10 @@ export default async function showFileHandler(ctx: AppContext) {
       head={head}
       header={{ breadcrumb: true }}
     >
-      <h1>{fileName}</h1>
-      {isOwner && (
-        <menu class="menu-bar">
-          <ButtonManage inode={fileNode} />
-        </menu>
-      )}
+      <header>
+        <h1>{fileName}</h1>
+        {isOwner && menu}
+      </header>
       <FilePreview fileNode={fileNode} fileNodeUrl={fileNodeUrl} />
       {chatSection}
     </Page>

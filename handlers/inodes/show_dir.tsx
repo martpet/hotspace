@@ -71,6 +71,15 @@ export default async function showInodeHandler(ctx: AppContext) {
     </>
   );
 
+  const menu = (
+    <menu class="menu-bar">
+      <ButtonUpload dirNode={dirNode} />
+      <ButtonCreateDir parentDirId={dirNode.id} />
+      <ButtonManage inode={dirNode} />
+      <BatchOperationsButtons inode={dirNode} />
+    </menu>
+  );
+
   return (
     <Page
       id="dir-page"
@@ -78,16 +87,9 @@ export default async function showInodeHandler(ctx: AppContext) {
       head={head}
       header={{ breadcrumb: true }}
     >
-      <header>
+      <header class="inodes-header">
         <h1>{dirNode.name}</h1>
-        {isDirOwner && (
-          <menu class="menu-bar">
-            <ButtonUpload dirNode={dirNode} />
-            <ButtonCreateDir parentDirId={dirNode.id} />
-            <ButtonManage inode={dirNode} />
-            <BatchOperationsButtons inode={dirNode} />
-          </menu>
-        )}
+        {isDirOwner && menu}
       </header>
       <div id="inodes-container">
         {inodesTable}
