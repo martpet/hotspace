@@ -257,7 +257,6 @@ dialog {
   min-height: 4rem;
   flex-wrap: wrap;
   align-items: center;
-  margin-bottom: 1rem;
   gap: 0.8rem;
   padding: 1rem 0;
   border-bottom: 1px solid var(--border-grey-light);

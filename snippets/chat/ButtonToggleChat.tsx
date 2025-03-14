@@ -5,11 +5,10 @@ import { asset } from "../../util/url.ts";
 export interface ButtonToggleChatProps
   extends JSX.HTMLAttributes<HTMLButtonElement> {
   chat: ChatResource;
-  skipHidePopoverId?: string;
 }
 
 export default function ButtonToggleChat(props: ButtonToggleChatProps) {
-  const { chat, skipHidePopoverId, ...btnProps } = props;
+  const { chat, ...btnProps } = props;
   let btnClass = "wait-disabled";
   if (btnProps.class) btnClass += ` ${btnProps.class}`;
 
@@ -20,7 +19,6 @@ export default function ButtonToggleChat(props: ButtonToggleChatProps) {
         id="toggle-chat"
         disabled
         data-inode-id={chat.id}
-        data-hide-popover-id={skipHidePopoverId}
         {...btnProps}
         class={btnClass}
       >

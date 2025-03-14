@@ -87,7 +87,7 @@ async function submitData() {
     }),
   });
   if (resp.ok) {
-    await replaceFragment(isParentRoot ? "spaces" : "inodes");
+    await replaceFragment("inodes");
     statusSignal.value = "closed";
   } else {
     errorSignal.value = await resp.text() || GENERAL_ERR_MSG;

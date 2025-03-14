@@ -1,7 +1,6 @@
 import { replaceFragment } from "$main";
 
 const button = document.getElementById("toggle-chat");
-const menuPopover = document.getElementById(button.dataset.hidePopoverId);
 
 button.disabled = false;
 button.classList.remove("wait-disabled");
@@ -29,8 +28,6 @@ button.onclick = async function () {
 
   button.textContent = `${!showChat ? "Enable" : "Disable"} Chat`;
   setInProgress(false);
-
-  menuPopover.hidePopover();
 };
 
 function setInProgress(inProgress) {

@@ -6,7 +6,7 @@ interface Props {
 
 export default function UserRootDirs({ dirNodes }: Props) {
   return (
-    <ul id="user-root-dirs">
+    <ul id="inodes" class="user-root-dirs">
       {dirNodes.map((dirNode) => (
         <li>
           <a href={`${dirNode.name}/`} class="name">

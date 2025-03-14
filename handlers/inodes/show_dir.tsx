@@ -1,8 +1,8 @@
 import { parsePathname } from "$util";
+import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
 import ChatSection from "../../snippets/chat/ChatSection.tsx";
 import BatchOperationsButtons from "../../snippets/inodes/BatchOperationsButtons.tsx";
 import ButtonCreateDir from "../../snippets/inodes/ButtonCreateDir.tsx";
-import { ButtonManage } from "../../snippets/inodes/ButtonManage.tsx";
 import ButtonUpload from "../../snippets/inodes/ButtonUpload.tsx";
 import InodesTable from "../../snippets/inodes/InodesTable.tsx";
 import Page from "../../snippets/pages/Page.tsx";
@@ -52,12 +52,7 @@ export default async function showInodeHandler(ctx: AppContext) {
       : "eventual",
   });
 
-  const inodesTable = (
-    <InodesTable
-      inodes={inodes}
-      isDirOwner={isDirOwner}
-    />
-  );
+  const inodesTable = <InodesTable inodes={inodes} isDirOwner={isDirOwner} />;
 
   if (fragmentId === "inodes") {
     return ctx.jsxFragment(inodesTable);
@@ -71,12 +66,12 @@ export default async function showInodeHandler(ctx: AppContext) {
     </>
   );
 
-  const menu = (
+  const inodesMenu = (
     <menu class="menu-bar">
+      <BatchOperationsButtons inode={dirNode} />
       <ButtonUpload dirNode={dirNode} />
       <ButtonCreateDir parentDirId={dirNode.id} />
-      <ButtonManage inode={dirNode} />
-      <BatchOperationsButtons inode={dirNode} />
+      <ButtonToggleChat chat={dirNode} />
     </menu>
   );
 
@@ -89,7 +84,7 @@ export default async function showInodeHandler(ctx: AppContext) {
     >
       <header class="inodes-header">
         <h1>{dirNode.name}</h1>
-        {isDirOwner && menu}
+        {isDirOwner && inodesMenu}
       </header>
       <div id="inodes-container">
         {inodesTable}

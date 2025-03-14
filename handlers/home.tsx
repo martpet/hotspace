@@ -6,7 +6,7 @@ import { listRootDirsByOwner } from "../util/kv/inodes.ts";
 import type { AppContext } from "../util/types.ts";
 import { asset } from "../util/url.ts";
 
-type FragmentId = "spaces";
+type FragmentId = "inodes";
 type From = "delete";
 
 export default async function homeHandler(ctx: AppContext) {
@@ -20,15 +20,15 @@ export default async function homeHandler(ctx: AppContext) {
   const from = ctx.state.from as From | undefined;
 
   const dirNodes = await listRootDirsByOwner(user.id, {
-    consistency: fragmentId === "spaces" || from === "delete"
+    consistency: fragmentId === "inodes" || from === "delete"
       ? "strong"
       : "eventual",
   });
 
-  const userSpacesList = <UserRootDirs dirNodes={dirNodes} />;
+  const rootDirsList = <UserRootDirs dirNodes={dirNodes} />;
 
-  if (fragmentId === "spaces") {
-    return ctx.jsxFragment(userSpacesList);
+  if (fragmentId === "inodes") {
+    return ctx.jsxFragment(rootDirsList);
   }
 
   const head = <link rel="stylesheet" href={asset("inodes/inodes.css")} />;
@@ -36,7 +36,7 @@ export default async function homeHandler(ctx: AppContext) {
   return (
     <Page head={head}>
       <h1>Your spaces</h1>
-      {userSpacesList}
+      {rootDirsList}
       <ButtonCreateDir parentDirId={ROOT_DIR_ID} />
     </Page>
   );

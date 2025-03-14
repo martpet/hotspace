@@ -7,7 +7,7 @@ interface Props {
 
 export function VideoPreview(props: Props, ctx: AppContext) {
   const { videoNode } = props;
-  const workerPath = asset("hls/hls.worker.js", { cdn: false });
+  const workerPath = asset("vendored/hls.worker.js", { cdn: false });
   const supportsHls = ctx.userAgent.browser.name === "Safari";
   const isConverting = videoNode.mediaConvert.status === "PENDING";
   const hasConvertError = videoNode.mediaConvert.status === "ERROR";
@@ -17,7 +17,7 @@ export function VideoPreview(props: Props, ctx: AppContext) {
   return (
     <>
       {!supportsHls && !hasConvertError && (
-        <link rel="modulepreload" href={asset("hls/hls.mjs")} />
+        <link rel="modulepreload" href={asset("vendored/hls.mjs")} />
       )}
 
       {!hasConvertError && (!supportsHls || isConverting) && (

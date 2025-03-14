@@ -11,9 +11,9 @@ let submitButton;
 let closeButton;
 let errorEl;
 
-const btnDelete = document.getElementById("batch-delete-button");
 const container = document.getElementById("inodes-container");
 const batchMenu = document.getElementById("batch-operations-buttons");
+const btnDelete = document.getElementById("batch-delete-button");
 const mutationObserver = new MutationObserver(onMutationObserve);
 const { dirId } = btnDelete.dataset;
 
@@ -22,7 +22,7 @@ mutationObserver.observe(container, {
   childList: true,
 });
 
-getContainerElements();
+refreshContainerElements();
 
 // =====================
 // Events
@@ -59,7 +59,8 @@ function initDialogEvents() {
 }
 
 function onMutationObserve() {
-  getContainerElements();
+  console.log("---here");
+  refreshContainerElements();
 }
 
 // =====================
@@ -131,7 +132,7 @@ function handleSelectionChange(target) {
   batchMenu.hidden = !hasChecked;
 }
 
-function getContainerElements() {
+function refreshContainerElements() {
   toggler = container.querySelector("thead .chbox input");
   checkboxes = container.querySelectorAll("tbody .chbox input");
   if (toggler) toggler.disabled = false;
@@ -161,7 +162,7 @@ function insertDialog() {
     "beforeend",
     `
         <dialog id="batch-delete-dialog">
-          <h1>Delete Selected Items</h1>
+          <h1>Delete Selected</h1>
           <form class="basic-form">
             <p class="alert warning">
               <span id="batch-delete-intro"></span> will be deleted.<br />

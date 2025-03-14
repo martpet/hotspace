@@ -7,23 +7,28 @@ interface Props {
 
 export default function DocxPreview(props: Props, ctx: AppContext) {
   const { fileNodeUrl } = props;
-  const src = asset("docx/iframe.html");
-  const url = new URL(src, URL.canParse(src) ? undefined : ctx.url.origin);
+  const src = asset("inodes/docx_iframe.html");
+  const isExternalAsset = URL.canParse(src);
+  const url = new URL(src, isExternalAsset ? undefined : ctx.url.origin);
 
-  url.searchParams.set("fileNodeUrl", fileNodeUrl);
-  url.searchParams.set("jszipPath", asset("docx/jszip.min.js"));
-  url.searchParams.set("docxPreviewPath", asset("docx/docx-preview.min.js"));
+  const searchParams = {
+    "fileNodeUrl": fileNodeUrl,
+    "jszipPath": asset("vendored/jszip.min.js"),
+    "docxPreviewPath": asset("vendored/docx-preview.min.js"),
+  };
+
+  url.search = searchParams.toString();
 
   return (
     <>
       <link
         rel="preload"
-        href={asset("docx/jszip.min.js")}
+        href={asset("vendored/jszip.min.js")}
         as="script"
       />
       <link
         rel="preload"
-        href={asset("docx/docx-preview.min.js")}
+        href={asset("vendored/docx-preview.min.js")}
         as="script"
       />
       <iframe id="docx-iframe" src={url.href} />

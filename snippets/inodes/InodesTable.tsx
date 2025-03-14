@@ -11,52 +11,61 @@ export default function InodesTable(props: Props) {
   const { inodes, isDirOwner } = props;
 
   return (
-    <table id="inodes">
-      {inodes.length > 0 && (
-        <>
-          <thead>
-            <tr>
-              <th class="name">Name</th>
-              <th class="type">Type</th>
-              <th class="date">Created</th>
-              <th class="size">Size</th>
-              {isDirOwner && (
-                <th class="chbox">
-                  <label>
-                    <Checkbox />
-                  </label>
-                </th>
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {inodes.sort(sortInodes).map((inode) => (
+    <div id="inodes">
+      {inodes.length === 0 && isDirOwner && (
+        <div class="inodes-blank-slate">
+          <strong>No items</strong>
+          <p>You don't have any items in this folder.</p>
+        </div>
+      )}
+
+      <table class="inodes-table">
+        {inodes.length > 0 && (
+          <>
+            <thead>
               <tr>
-                <td class="name">
-                  <InodeAnchor inode={inode} />
-                </td>
-                <td class="type">
-                  {inode.type === "file" ? inode.fileType : "Folder"}
-                </td>
-                <td class="date">
-                  <RelativeTime uuid={inode.id} />
-                </td>
-                <td class="size">
-                  {inode.type === "file" ? formatBytes(inode.fileSize) : "-"}
-                </td>
                 {isDirOwner && (
-                  <td class="chbox">
+                  <th class="chbox">
                     <label>
                       <Checkbox />
                     </label>
-                  </td>
+                  </th>
                 )}
+                <th class="name">Name</th>
+                <th class="type">Type</th>
+                <th class="date">Created</th>
+                <th class="size">Size</th>
               </tr>
-            ))}
-          </tbody>
-        </>
-      )}
-    </table>
+            </thead>
+            <tbody>
+              {inodes.sort(sortInodes).map((inode) => (
+                <tr>
+                  {isDirOwner && (
+                    <td class="chbox">
+                      <label>
+                        <Checkbox />
+                      </label>
+                    </td>
+                  )}
+                  <td class="name">
+                    <InodeAnchor inode={inode} />
+                  </td>
+                  <td class="type">
+                    {inode.type === "file" ? inode.fileType : "Folder"}
+                  </td>
+                  <td class="date">
+                    <RelativeTime uuid={inode.id} />
+                  </td>
+                  <td class="size">
+                    {inode.type === "file" ? formatBytes(inode.fileSize) : "-"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </>
+        )}
+      </table>
+    </div>
   );
 }
 

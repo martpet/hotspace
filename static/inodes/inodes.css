@@ -1,3 +1,12 @@
+.inodes-header {
+  display: flex;
+  margin-bottom: 1em;
+  align-items: center;
+  menu {
+    margin-left: auto;
+  }
+}
+
 #upload-progress {
   gap: 0.2em;
   progress {
@@ -10,7 +19,7 @@
   }
 }
 
-#user-root-dirs {
+.user-root-dirs {
   margin-bottom: 1.5em;
   padding: 0;
   list-style: none;
@@ -54,15 +63,6 @@
   max-width: 32em;
 }
 
-#inodes {
-  margin-top: 1em;
-  thead {
-    background: Canvas;
-    position: sticky;
-    top: 0;
-  }
-}
-
 a.inode {
   &::before {
     display: inline-block;
@@ -82,9 +82,19 @@ a.inode {
   container-type: inline-size;
 }
 
-#inodes {
+.inodes-blank-slate {
+  text-align: center;
+  color: var(--text-grey);
+}
+
+.inodes-table {
   width: 100%;
   border-spacing: 0;
+  thead {
+    background: Canvas;
+    position: sticky;
+    top: 0;
+  }
   tbody {
     tr {
       &:has(.chbox:hover) {
@@ -99,7 +109,7 @@ a.inode {
   td {
     padding-inline: 1em;
     &:first-child {
-      padding-left: 0.5em;
+      padding-inline: 0.5em;
     }
   }
   th {

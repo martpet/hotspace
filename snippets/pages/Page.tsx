@@ -8,7 +8,7 @@ const importmap = {
   "imports": {
     "$main": asset("main.js"),
     "$db": asset("db.js"),
-    "$hls": asset("hls/hls.mjs"),
+    "$hls": asset("vendored/hls.mjs"),
   },
 };
 

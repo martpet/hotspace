@@ -30,7 +30,7 @@ export const headersMiddleware: AppMiddleware = async (ctx, next) => {
   const docxIframeCsp =
     `default-src 'self' 'unsafe-inline' blob: ${INODES_CLOUDFRONT_URL}`;
 
-  const csp = ctx.url.pathname === "/static/docx/iframe.html"
+  const csp = ctx.url.pathname === "/static/inodes/docx_iframe.html"
     ? docxIframeCsp
     : defaultCsp;
 

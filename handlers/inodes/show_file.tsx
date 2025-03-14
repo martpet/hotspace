@@ -1,7 +1,8 @@
 import { type NonRootPath, parsePathname } from "$util";
 import { STATUS_CODE } from "@std/http";
+import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
 import Chat from "../../snippets/chat/ChatSection.tsx";
-import { ButtonManage } from "../../snippets/inodes/ButtonManage.tsx";
+import ButtonDeleteInode from "../../snippets/inodes/ButtonDeleteInode.tsx";
 import FilePreview from "../../snippets/inodes/file_preview/FilePreview.tsx";
 import Page from "../../snippets/pages/Page.tsx";
 import { getFileNodeUrl } from "../../util/inodes/helpers.ts";
@@ -66,9 +67,10 @@ export default async function showFileHandler(ctx: AppContext) {
     </>
   );
 
-  const menu = (
+  const inodesMenu = (
     <menu class="menu-bar">
-      <ButtonManage inode={fileNode} />
+      <ButtonToggleChat chat={fileNode} />
+      <ButtonDeleteInode inode={fileNode} />
     </menu>
   );
 
@@ -79,9 +81,9 @@ export default async function showFileHandler(ctx: AppContext) {
       head={head}
       header={{ breadcrumb: true }}
     >
-      <header>
+      <header class="inodes-header">
         <h1>{fileName}</h1>
-        {isOwner && menu}
+        {isOwner && inodesMenu}
       </header>
       <FilePreview fileNode={fileNode} fileNodeUrl={fileNodeUrl} />
       {chatSection}
