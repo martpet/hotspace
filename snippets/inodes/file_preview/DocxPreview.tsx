@@ -11,11 +11,11 @@ export default function DocxPreview(props: Props, ctx: AppContext) {
   const isExternalAsset = URL.canParse(src);
   const url = new URL(src, isExternalAsset ? undefined : ctx.url.origin);
 
-  const searchParams = {
+  const searchParams = new URLSearchParams({
     "fileNodeUrl": fileNodeUrl,
     "jszipPath": asset("vendored/jszip.min.js"),
     "docxPreviewPath": asset("vendored/docx-preview.min.js"),
-  };
+  });
 
   url.search = searchParams.toString();
 
