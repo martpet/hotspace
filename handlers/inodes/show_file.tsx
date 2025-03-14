@@ -1,11 +1,9 @@
 import { type NonRootPath, parsePathname } from "$util";
 import { STATUS_CODE } from "@std/http";
-import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
 import Chat from "../../snippets/chat/ChatSection.tsx";
-import ButtonDeleteInode from "../../snippets/inodes/ButtonDeleteInode.tsx";
+import { ButtonManage } from "../../snippets/inodes/ButtonManage.tsx";
 import FilePreview from "../../snippets/inodes/file_preview/FilePreview.tsx";
 import Page from "../../snippets/pages/Page.tsx";
-import PopMenu from "../../snippets/PopMenu.tsx";
 import { getFileNodeUrl } from "../../util/inodes/helpers.ts";
 import { getDirByPath, getInodeByDir } from "../../util/kv/inodes.ts";
 import { type AppContext, FileNode } from "../../util/types.ts";
@@ -68,21 +66,6 @@ export default async function showFileHandler(ctx: AppContext) {
     </>
   );
 
-  const menu = (
-    <menu class="menu-bar">
-      <PopMenu id="manage-menu" btnLabel="Manage File">
-        <ButtonToggleChat
-          inodeId={fileNode.id}
-          chatEnabled={fileNode.chatEnabled}
-          skipHidePopoverId="manage-menu"
-        />
-        <ButtonDeleteInode inode={fileNode}>
-          Delete File
-        </ButtonDeleteInode>
-      </PopMenu>
-    </menu>
-  );
-
   return (
     <Page
       id="file-page"
@@ -91,8 +74,11 @@ export default async function showFileHandler(ctx: AppContext) {
       header={{ breadcrumb: true }}
     >
       <h1>{fileName}</h1>
-
-      {isOwner && menu}
+      {isOwner && (
+        <menu class="menu-bar">
+          <ButtonManage inode={fileNode} />
+        </menu>
+      )}
       <FilePreview fileNode={fileNode} fileNodeUrl={fileNodeUrl} />
       {chatSection}
     </Page>

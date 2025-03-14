@@ -1,15 +1,15 @@
+import { type ChatResource } from "$chat";
 import { type JSX } from "preact";
 import { asset } from "../../util/url.ts";
 
 export interface ButtonToggleChatProps
   extends JSX.HTMLAttributes<HTMLButtonElement> {
-  inodeId: string;
-  chatEnabled: boolean | undefined;
+  chat: ChatResource;
   skipHidePopoverId?: string;
 }
 
 export default function ButtonToggleChat(props: ButtonToggleChatProps) {
-  const { inodeId, chatEnabled, skipHidePopoverId, ...btnProps } = props;
+  const { chat, skipHidePopoverId, ...btnProps } = props;
   let btnClass = "wait-disabled";
   if (btnProps.class) btnClass += ` ${btnProps.class}`;
 
@@ -19,12 +19,12 @@ export default function ButtonToggleChat(props: ButtonToggleChatProps) {
       <button
         id="toggle-chat"
         disabled
-        data-inode-id={inodeId}
+        data-inode-id={chat.id}
         data-hide-popover-id={skipHidePopoverId}
         {...btnProps}
         class={btnClass}
       >
-        {chatEnabled ? "Disable" : "Enable"} Chat
+        {chat.chatEnabled ? "Disable" : "Enable"} Chat
       </button>
     </>
   );

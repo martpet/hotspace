@@ -1,10 +1,8 @@
 import { parsePathname } from "$util";
-import PopMenu from "../../snippets/PopMenu.tsx";
-import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
 import ChatSection from "../../snippets/chat/ChatSection.tsx";
 import BatchOperationsButtons from "../../snippets/inodes/BatchOperationsButtons.tsx";
 import ButtonCreateDir from "../../snippets/inodes/ButtonCreateDir.tsx";
-import ButtonDeleteInode from "../../snippets/inodes/ButtonDeleteInode.tsx";
+import { ButtonManage } from "../../snippets/inodes/ButtonManage.tsx";
 import ButtonUpload from "../../snippets/inodes/ButtonUpload.tsx";
 import InodesTable from "../../snippets/inodes/InodesTable.tsx";
 import Page from "../../snippets/pages/Page.tsx";
@@ -19,8 +17,6 @@ type From = "delete";
 export default async function showInodeHandler(ctx: AppContext) {
   const { user } = ctx.state;
   const path = parsePathname(ctx.url.pathname);
-  const isSpace = path.isRootSegment;
-  const dirNodeLabel = isSpace ? "Space" : "Folder";
   const fragmentId = ctx.url.searchParams.get("fragment") as FragmentId | null;
   const from = ctx.state.from as From | undefined;
   const notFound = () => notFoundHandler(ctx, { header: { breadcrumb: true } });
@@ -75,24 +71,6 @@ export default async function showInodeHandler(ctx: AppContext) {
     </>
   );
 
-  const menu = (
-    <menu class="menu-bar">
-      <ButtonUpload dirNode={dirNode} />
-      <ButtonCreateDir parentDirId={dirNode.id} />
-      <PopMenu id="manage-menu" btnLabel={`Manage ${dirNodeLabel}`}>
-        <ButtonToggleChat
-          inodeId={dirNode.id}
-          chatEnabled={dirNode.chatEnabled}
-          skipHidePopoverId="manage-menu"
-        />
-        <ButtonDeleteInode inode={dirNode}>
-          Delete {dirNodeLabel}
-        </ButtonDeleteInode>
-      </PopMenu>
-      <BatchOperationsButtons inode={dirNode} />
-    </menu>
-  );
-
   return (
     <Page
       id="dir-page"
@@ -102,7 +80,14 @@ export default async function showInodeHandler(ctx: AppContext) {
     >
       <header>
         <h1>{dirNode.name}</h1>
-        {isDirOwner && menu}
+        {isDirOwner && (
+          <menu class="menu-bar">
+            <ButtonUpload dirNode={dirNode} />
+            <ButtonCreateDir parentDirId={dirNode.id} />
+            <ButtonManage inode={dirNode} />
+            <BatchOperationsButtons inode={dirNode} />
+          </menu>
+        )}
       </header>
       <div id="inodes-container">
         {inodesTable}

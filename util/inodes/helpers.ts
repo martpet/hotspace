@@ -16,6 +16,12 @@ export function isVideoNode(inode: Inode): inode is VideoNode {
   return (inode as FileNode).fileType.startsWith("video");
 }
 
+export function getInodeLabel(inode: Inode) {
+  if (inode.type === "file") return "File";
+  if (inode.isRootDir) return "Space";
+  return "Folder";
+}
+
 export async function updateInodeWithRetry<T extends Inode>(
   entry: Deno.KvEntryMaybe<Inode>,
   data: T,
