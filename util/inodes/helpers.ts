@@ -3,6 +3,7 @@ import { signCloudfrontUrl, type SignCloudfrontUrlOptions } from "../aws.ts";
 import { INODES_CLOUDFRONT_URL } from "../consts.ts";
 import { getInodeById, setInode } from "../kv/inodes.ts";
 import type { FileNode, Inode, VideoNode } from "../types.ts";
+import { ROOT_DIR_ID } from "./consts.ts";
 
 export function isPostProcessableUpload(inode: Inode) {
   return isVideoNode(inode);
@@ -18,7 +19,7 @@ export function isVideoNode(inode: Inode): inode is VideoNode {
 
 export function getInodeLabel(inode: Inode) {
   if (inode.type === "file") return "File";
-  if (inode.isRootDir) return "Space";
+  if (inode.parentDirId === ROOT_DIR_ID) return "Space";
   return "Folder";
 }
 

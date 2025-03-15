@@ -1,5 +1,6 @@
 import ButtonCreateDir from "../snippets/inodes/ButtonCreateDir.tsx";
-import UserRootDirs from "../snippets/inodes/UserRootDirs.tsx";
+import InodesTable from "../snippets/inodes/InodesTable.tsx";
+import InodesTableMenu from "../snippets/inodes/InodesTableMenu.tsx";
 import Page from "../snippets/pages/Page.tsx";
 import { ROOT_DIR_ID } from "../util/inodes/consts.ts";
 import { listRootDirsByOwner } from "../util/kv/inodes.ts";
@@ -25,19 +26,43 @@ export default async function homeHandler(ctx: AppContext) {
       : "eventual",
   });
 
-  const rootDirsList = <UserRootDirs dirNodes={dirNodes} />;
+  const spacesTable = (
+    <InodesTable
+      inodes={dirNodes}
+      isDirOwner
+      isSpaces
+      isMultiSelect={false}
+      skipSize
+      skipType
+    />
+  );
 
   if (fragmentId === "inodes") {
-    return ctx.jsxFragment(rootDirsList);
+    return ctx.jsxFragment(spacesTable);
   }
 
-  const head = <link rel="stylesheet" href={asset("inodes/inodes.css")} />;
+  const head = (
+    <>
+      <link rel="stylesheet" href={asset("inodes/inodes.css")} />
+    </>
+  );
+
+  const inodesMenu = (
+    <menu class="menu-bar">
+      <InodesTableMenu dirId={ROOT_DIR_ID} isSpaces />
+      <ButtonCreateDir parentDirId={ROOT_DIR_ID} />
+    </menu>
+  );
 
   return (
     <Page head={head}>
-      <h1>Your spaces</h1>
-      {rootDirsList}
-      <ButtonCreateDir parentDirId={ROOT_DIR_ID} />
+      <header class="inodes-header">
+        <h1>Your spaces</h1>
+        {inodesMenu}
+      </header>
+      <div id="inodes-container">
+        {spacesTable}
+      </div>
     </Page>
   );
 }

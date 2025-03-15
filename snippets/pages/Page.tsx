@@ -41,6 +41,7 @@ export default function Page(props: PageProps, ctx: AppContext) {
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="color-scheme" content="dark light" />
+        <meta name="robots" content="noindex, nofollow" />
         <title>HotSpace{title && ` — ${title}`}</title>
         <script
           type="importmap"

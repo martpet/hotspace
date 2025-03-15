@@ -61,7 +61,6 @@ export default async function showFileHandler(ctx: AppContext) {
 
   const head = (
     <>
-      <meta name="robots" content="noindex, nofollow" />
       <link rel="stylesheet" href={asset("inodes/inodes.css")} />
       <link rel="stylesheet" href={asset("chat/chat.css")} />
     </>

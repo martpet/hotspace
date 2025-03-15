@@ -2,7 +2,7 @@
   display: flex;
   margin-bottom: 1em;
   align-items: center;
-  menu {
+  > menu {
     margin-left: auto;
   }
 }
@@ -19,16 +19,7 @@
   }
 }
 
-.user-root-dirs {
-  margin-bottom: 1.5em;
-  padding: 0;
-  list-style: none;
-  li + li {
-    margin-top: 1em;
-  }
-}
-
-#batch-delete-list {
+#table-delete-list {
   min-width: 30em;
   max-width: 50em;
   padding: 1em;
@@ -47,10 +38,6 @@
     font-size: 0.8em;
     display: inline-block;
   }
-}
-
-#batch-operations-buttons {
-  margin-left: auto;
 }
 
 #delete-inode-dialog {
@@ -76,12 +63,6 @@ a.inode {
   container-type: inline-size;
 }
 
-.inodes-blank-slate {
-  margin-bottom: 2rem;
-  text-align: center;
-  color: var(--text-grey);
-}
-
 .inodes-table {
   width: 100%;
   border-spacing: 0;
@@ -95,10 +76,11 @@ a.inode {
   }
   tbody {
     tr {
-      &:has(.chbox:hover) {
+      height: 42px;
+      &:has(.select-input:hover) {
         background-color: var(--bg-light);
       }
-      &:has(.chbox :checked) {
+      &:has(.select-input :checked) {
         background-color: Highlight;
       }
     }
@@ -106,8 +88,13 @@ a.inode {
   th,
   td {
     padding-inline: 1em;
-    &:first-child {
-      padding-inline: 0.5em;
+    &.select-input {
+      width: 30px;
+      padding-inline: 0;
+      text-align: center;
+      input {
+        margin: 0;
+      }
     }
   }
   th {
@@ -115,16 +102,13 @@ a.inode {
     font-weight: 600;
     text-align: initial;
     border-bottom: 2px solid var(--border-grey-light);
-    &.chbox {
-      width: 1px;
-    }
   }
   td {
     padding-block: 0.5em;
     border-style: solid dotted;
     border-width: 0 0 1px 0;
     border-color: var(--border-grey-light);
-    &.chbox {
+    &.select-input {
       position: relative;
       label {
         position: absolute;

@@ -1,13 +1,12 @@
 import type { JSX } from "preact/jsx-runtime";
-import type { DirNode } from "../../util/types.ts";
 import { asset } from "../../util/url.ts";
 
 interface Props extends JSX.HTMLAttributes<HTMLButtonElement> {
-  dirNode: DirNode;
+  dirId: string;
 }
 
 export default function ButtonUpload(props: Props) {
-  const { dirNode, ...buttonProps } = props;
+  const { dirId, ...buttonProps } = props;
 
   return (
     <>
@@ -18,7 +17,7 @@ export default function ButtonUpload(props: Props) {
         id="show-upload"
         disabled
         class="wait-disabled"
-        data-dir-id={dirNode.id}
+        data-dir-id={dirId}
         data-worker-src={asset("upload_worker.js", { cdn: false })}
       >
         Upload Files

@@ -1,10 +1,10 @@
 import { parsePathname } from "$util";
 import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
 import ChatSection from "../../snippets/chat/ChatSection.tsx";
-import BatchOperationsButtons from "../../snippets/inodes/BatchOperationsButtons.tsx";
 import ButtonCreateDir from "../../snippets/inodes/ButtonCreateDir.tsx";
 import ButtonUpload from "../../snippets/inodes/ButtonUpload.tsx";
 import InodesTable from "../../snippets/inodes/InodesTable.tsx";
+import InodesTableMenu from "../../snippets/inodes/InodesTableMenu.tsx";
 import Page from "../../snippets/pages/Page.tsx";
 import { getDirByPath, listInodesByDir } from "../../util/kv/inodes.ts";
 import type { AppContext } from "../../util/types.ts";
@@ -60,7 +60,6 @@ export default async function showInodeHandler(ctx: AppContext) {
 
   const head = (
     <>
-      <meta name="robots" content="noindex, nofollow" />
       <link rel="stylesheet" href={asset("inodes/inodes.css")} />
       <link rel="stylesheet" href={asset("chat/chat.css")} />
     </>
@@ -68,8 +67,8 @@ export default async function showInodeHandler(ctx: AppContext) {
 
   const inodesMenu = (
     <menu class="menu-bar">
-      <BatchOperationsButtons inode={dirNode} />
-      <ButtonUpload dirNode={dirNode} />
+      <InodesTableMenu dirId={dirNode.id} />
+      <ButtonUpload dirId={dirNode.id} />
       <ButtonCreateDir parentDirId={dirNode.id} />
       <ButtonToggleChat chat={dirNode} />
     </menu>

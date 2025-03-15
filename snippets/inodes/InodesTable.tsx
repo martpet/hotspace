@@ -1,87 +1,115 @@
 import { format as formatBytes } from "@std/fmt/bytes";
-import type { Inode } from "../../util/types.ts";
+import { parsePathname } from "../../lib/util/url.ts";
+import type { AppContext, Inode } from "../../util/types.ts";
+import BlankSlate from "../BlankSlate.tsx";
 import RelativeTime from "../RelativeTime.tsx";
 
 interface Props {
   inodes: Inode[];
   isDirOwner: boolean;
+  isSpaces?: boolean;
+  isMultiSelect?: boolean;
+  skipSize?: boolean;
+  skipType?: boolean;
 }
 
-export default function InodesTable(props: Props) {
-  const { inodes, isDirOwner } = props;
+export default function InodesTable(props: Props, ctx: AppContext) {
+  const {
+    inodes,
+    isDirOwner,
+    isSpaces,
+    isMultiSelect = true,
+    skipSize,
+    skipType,
+  } = props;
+
+  const path = parsePathname(ctx.url.pathname);
+  const isParentSpace = path.segments.length === 1;
 
   return (
     <div id="inodes">
-      {inodes.length === 0 && isDirOwner && (
-        <div class="inodes-blank-slate">
-          <strong>No items</strong>
-          <p>You don't have any items in this folder.</p>
-        </div>
+      {isSpaces && inodes.length === 0 && isDirOwner && (
+        <BlankSlate
+          title="No spaces"
+          subTitle="You haven't created any spaces yet."
+        />
       )}
 
-      <table class="inodes-table">
-        {inodes.length > 0 && (
-          <>
-            <thead>
+      {!isSpaces && inodes.length === 0 && isDirOwner && (
+        <BlankSlate
+          title="No items"
+          subTitle={`You don't have any items in this ${
+            isParentSpace ? "space" : "folder"
+          }.`}
+        />
+      )}
+
+      {inodes.length > 0 && (
+        <table class="inodes-table">
+          <thead>
+            <tr>
+              {isDirOwner && (
+                <th class="select-input">
+                  {isMultiSelect && (
+                    <SelectInput isMultiSelect={isMultiSelect} />
+                  )}
+                </th>
+              )}
+              <th class="name">Name</th>
+              {!skipType && <th class="type">Type</th>}
+              <th class="date">Created</th>
+              {!skipSize && <th class="size">Size</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {inodes.sort(sorter).map((inode) => (
               <tr>
                 {isDirOwner && (
-                  <th class="chbox">
-                    <label>
-                      <Checkbox />
-                    </label>
-                  </th>
-                )}
-                <th class="name">Name</th>
-                <th class="type">Type</th>
-                <th class="date">Created</th>
-                <th class="size">Size</th>
-              </tr>
-            </thead>
-            <tbody>
-              {inodes.sort(sortInodes).map((inode) => (
-                <tr>
-                  {isDirOwner && (
-                    <td class="chbox">
-                      <label>
-                        <Checkbox />
-                      </label>
-                    </td>
-                  )}
-                  <td class="name">
-                    <InodeAnchor inode={inode} />
+                  <td class="select-input">
+                    <SelectInput isMultiSelect={isMultiSelect} />
                   </td>
+                )}
+                <td class="name">
+                  <InodeAnchor inode={inode} isSpaces={isSpaces} />
+                </td>
+                {!skipType && (
                   <td class="type">
                     {inode.type === "file" ? inode.fileType : "Folder"}
                   </td>
-                  <td class="date">
-                    <RelativeTime uuid={inode.id} />
-                  </td>
+                )}
+                <td class="date">
+                  <RelativeTime uuid={inode.id} />
+                </td>
+                {!skipSize && (
                   <td class="size">
                     {inode.type === "file" ? formatBytes(inode.fileSize) : "-"}
                   </td>
-                </tr>
-              ))}
-            </tbody>
-          </>
-        )}
-      </table>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }
 
-function Checkbox() {
+function SelectInput({ isMultiSelect }: { isMultiSelect: boolean }) {
   return (
-    <input
-      type="checkbox"
-      autocomplete="off"
-      disabled
-      class="wait-disabled"
-    />
+    <label>
+      <input
+        type={isMultiSelect ? "checkbox" : "radio"}
+        name="inode"
+        autocomplete="off"
+        disabled
+        class="wait-disabled"
+      />
+    </label>
   );
 }
 
-function InodeAnchor(props: { inode: Inode }) {
-  const { inode } = props;
+function InodeAnchor(props: { inode: Inode; isSpaces?: boolean }) {
+  const { inode, isSpaces } = props;
   let href = `./${inode.name}`;
   let name = inode.name;
   if (inode.type === "file") {
@@ -89,10 +117,11 @@ function InodeAnchor(props: { inode: Inode }) {
   } else {
     href = href + "/";
   }
-  return <a href={href} class={`inode ${inode.type}`}>{name}</a>;
+  const classes = isSpaces ? "" : `inode ${inode.type}`;
+  return <a href={href} class={classes}>{name}</a>;
 }
 
-function sortInodes(a: Inode, b: Inode) {
+function sorter(a: Inode, b: Inode) {
   if (a.type === "dir" && b.type !== "dir") return -1;
   if (a.type !== "dir" && b.type === "dir") return 1;
   const aName = a.name.toLowerCase();

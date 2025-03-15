@@ -2,9 +2,10 @@ import { createSignal, GENERAL_ERR_MSG, replaceFragment } from "$main";
 
 let dialog;
 let dialogIntro;
+let dialogConfirmInput;
 let dialogList;
 let toggler;
-let checkboxes;
+let selectInputs;
 let selection;
 let form;
 let submitButton;
@@ -12,10 +13,10 @@ let closeButton;
 let errorEl;
 
 const container = document.getElementById("inodes-container");
-const batchMenu = document.getElementById("batch-operations-buttons");
-const btnDelete = document.getElementById("batch-delete-button");
+const tableMenu = document.getElementById("inodes-table-menu");
+const btnDelete = document.getElementById("inodes-table-delete-button");
 const mutationObserver = new MutationObserver(onMutationObserve);
-const { dirId } = btnDelete.dataset;
+const { dirId, isSpaces } = tableMenu.dataset;
 
 mutationObserver.observe(container, {
   subtree: true,
@@ -37,7 +38,7 @@ btnDelete.onclick = () => {
 };
 
 container.onchange = ({ target }) => {
-  if (target.matches("[type=checkbox]")) {
+  if (target.matches(".select-input input")) {
     handleSelectionChange(target);
   }
 };
@@ -59,7 +60,6 @@ function initDialogEvents() {
 }
 
 function onMutationObserve() {
-  console.log("---here");
   refreshContainerElements();
 }
 
@@ -106,7 +106,7 @@ async function submitData() {
   if (resp.ok) {
     await replaceFragment("inodes");
     statusSignal.value = "closed";
-    batchMenu.hidden = true;
+    tableMenu.hidden = true;
   } else if (resp.status === 404) {
     location.reload();
   } else {
@@ -115,40 +115,40 @@ async function submitData() {
   }
 }
 
-function handleSelectionChange(target) {
-  let hasChecked;
-  let hasUnchecked;
+function handleSelectionChange(eventTarget) {
+  let hasSelected;
+  let hasUnselected;
   selection = [];
-  for (const chbox of checkboxes) {
-    if (target === toggler) chbox.checked = target.checked;
-    if (chbox.checked) {
-      hasChecked = true;
-      selection.push(getChboxData(chbox));
+  for (const input of selectInputs) {
+    if (eventTarget === toggler) input.checked = eventTarget.checked;
+    if (input.checked) {
+      hasSelected = true;
+      selection.push(getSelectInputData(input));
     } else {
-      hasUnchecked = true;
+      hasUnselected = true;
     }
   }
-  toggler.checked = !hasUnchecked;
-  batchMenu.hidden = !hasChecked;
+  if (toggler) toggler.checked = !hasUnselected;
+  tableMenu.hidden = !hasSelected;
 }
 
 function refreshContainerElements() {
-  toggler = container.querySelector("thead .chbox input");
-  checkboxes = container.querySelectorAll("tbody .chbox input");
+  toggler = container.querySelector("thead .select-input input");
+  selectInputs = container.querySelectorAll("tbody .select-input input");
   if (toggler) toggler.disabled = false;
-  checkboxes.forEach((chbox) => chbox.disabled = false);
+  selectInputs.forEach((input) => input.disabled = false);
 }
 
-function getChboxData(chbox) {
-  if (!chbox.dataset.name) {
-    const anchor = chbox.closest("tr").querySelector(".name a");
+function getSelectInputData(input) {
+  if (!input.dataset.name) {
+    const anchor = input.closest("tr").querySelector(".name a");
     const { pathname } = new URL(anchor.href);
-    chbox.dataset.pathname = pathname;
-    chbox.dataset.name = pathname.split("/").filter(Boolean).at(-1);
-    chbox.dataset.decodedName = anchor.textContent;
-    chbox.dataset.isDir = anchor.classList.contains("dir") ? "1" : "";
+    input.dataset.pathname = pathname;
+    input.dataset.name = pathname.split("/").filter(Boolean).at(-1);
+    input.dataset.decodedName = anchor.textContent;
+    input.dataset.isDir = anchor.classList.contains("dir") ? "1" : "";
   }
-  return { ...chbox.dataset };
+  return { ...input.dataset };
 }
 
 // =====================
@@ -156,45 +156,53 @@ function getChboxData(chbox) {
 // =====================
 
 function insertDialog() {
-  const PATTERN_CONFIRM = "permanently delete";
+  const PATTERN_CONFIRM = isSpaces ? "" : "permanently delete";
+  const confirmText = isSpaces
+    ? "the name of the space"
+    : `<em><strong>${PATTERN_CONFIRM}</strong></em> in the field`;
 
   document.body.insertAdjacentHTML(
     "beforeend",
     `
-        <dialog id="batch-delete-dialog">
-          <h1>Delete Selected</h1>
+        <dialog id="table-delete-dialog">
+          <h1>Delete ${isSpaces ? "Space" : "Selected"}</h1>
           <form class="basic-form">
             <p class="alert warning">
-              <span id="batch-delete-intro"></span> will be deleted.<br />
+              <span id="table-delete-intro"></span><br />
               This action cannot be undone.
             </p>
-            <ul id="batch-delete-list">
+            <ul id="table-delete-list" ${isSpaces ? "hidden" : ""}>
             </ul>
-            <p id="batch-delete-error" class="alert error" hidden></p>
+            <p id="table-delete-error" class="alert error" hidden></p>
             <label>
-              <span>To confirm, type <em><strong>${PATTERN_CONFIRM}</strong></em> in the field:</span>
-              <input type="text" autofocus required pattern="${PATTERN_CONFIRM}" />
+              <span>To confirm, type ${confirmText}:</span>
+              <input id="table-delete-confirm" type="text" autofocus required pattern="${PATTERN_CONFIRM}" />
             </label>
             <footer>
-              <button type="button" id="batch-delete-close">Cancel</button>
-              <button id="batch-delete-submit">Delete Forever</button>
+              <button type="button" id="table-delete-close">Cancel</button>
+              <button id="table-delete-submit">Delete Forever</button>
             </footer>
           </form>
         </dialog>
       `,
   );
-  dialog = document.getElementById("batch-delete-dialog");
-  dialogIntro = document.getElementById("batch-delete-intro");
-  dialogList = document.getElementById("batch-delete-list");
+  dialog = document.getElementById("table-delete-dialog");
+  dialogIntro = document.getElementById("table-delete-intro");
+  dialogConfirmInput = document.getElementById("table-delete-confirm");
+  dialogList = document.getElementById("table-delete-list");
   form = dialog.querySelector("form");
-  submitButton = document.getElementById("batch-delete-submit");
-  closeButton = document.getElementById("batch-delete-close");
-  errorEl = document.getElementById("batch-delete-error");
+  submitButton = document.getElementById("table-delete-submit");
+  closeButton = document.getElementById("table-delete-close");
+  errorEl = document.getElementById("table-delete-error");
 }
 
 function updateDialog() {
   const listInfo = updateDialogList();
   updateDialogIntro(listInfo);
+
+  if (isSpaces) {
+    dialogConfirmInput.pattern = selection[0].name;
+  }
 }
 
 function updateDialogList() {
@@ -212,17 +220,26 @@ function updateDialogList() {
 }
 
 function updateDialogIntro({ dirsCount, filesCount }) {
-  let txt = "The following ";
-  if (selection.length === 1) {
-    txt += selection[0].isDir ? "folder" : "file";
+  let txt;
+  if (isSpaces) {
+    const spaceName = selection[0].name;
+    txt =
+      `Space <strong>${spaceName}</strong> and its content will be deleted.`;
   } else {
-    if (filesCount) txt += `${filesCount} file${filesCount > 1 ? "s" : ""}`;
-    if (filesCount && dirsCount) txt += ", ";
-    if (dirsCount) txt += `${dirsCount} folder${dirsCount > 1 ? "s" : ""}`;
-    if (dirsCount && filesCount) txt += ", ";
+    txt = "The following ";
+    if (selection.length === 1) {
+      txt += selection[0].isDir ? "folder" : "file";
+    } else {
+      if (filesCount) txt += `${filesCount} file${filesCount > 1 ? "s" : ""}`;
+      if (filesCount && dirsCount) txt += ", ";
+      if (dirsCount) txt += `${dirsCount} folder${dirsCount > 1 ? "s" : ""}`;
+      if (dirsCount && filesCount) txt += ", ";
+    }
+    const pronoun = selection.length > 1 ? "their" : "its";
+    txt += ` and ${pronoun} chat messages will be deleted.`;
   }
-  txt += ` and ${selection.length > 1 ? "their" : "its"} chat messages`;
-  dialogIntro.textContent = txt;
+
+  dialogIntro.innerHTML = txt;
 }
 
 function renderStatusChange() {

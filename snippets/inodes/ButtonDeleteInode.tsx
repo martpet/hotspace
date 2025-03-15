@@ -15,7 +15,8 @@ export default function ButtonDeleteInode(props: Props) {
 
   return (
     <>
-      <script type="module" src={asset("inodes/delete_inode.js")} />
+      <script type="module" src={asset("inodes/delete.js")} />
+
       <button
         id="delete-inode-button"
         class="wait-disabled"

@@ -87,6 +87,10 @@ dialog {
   }
 }
 
+menu {
+  margin: 0;
+}
+
 #flash {
   width: fit-content;
 }
@@ -330,6 +334,7 @@ dialog {
     @supports (position-anchor: auto) {
       top: calc(anchor(bottom) + 5px);
       left: anchor(left);
+      position-try-fallbacks: flip-inline;
     }
     @supports not (position-anchor: auto) {
       position: absolute;
@@ -339,4 +344,10 @@ dialog {
       display: flex;
     }
   }
+}
+
+.blank-slate {
+  margin-bottom: 2rem;
+  text-align: center;
+  color: var(--text-grey);
 }
