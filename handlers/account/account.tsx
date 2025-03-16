@@ -36,7 +36,7 @@ export default async function passkeysHandler(ctx: AppContext) {
       head={head}
       header={{ siteNameIsLink: true }}
     >
-      <main>
+      <main class="sectioned">
         <h1>{title}</h1>
         <section>
           <h2>Passkeys</h2>

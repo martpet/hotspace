@@ -357,7 +357,7 @@ menu {
   color: var(--text-grey);
 }
 
-#account-page {
+.sectioned {
   section {
     margin: 3em 0;
     &:not(:first-of-type) {
