@@ -1,13 +1,14 @@
 import type { Flash } from "$server";
 import type { JSX } from "preact";
 
-interface Props extends JSX.HTMLAttributes<HTMLParagraphElement> {
-  type: Flash["type"];
+interface Props extends JSX.HTMLAttributes<HTMLDialogElement> {
+  type?: Flash["type"];
 }
 
-export default function Flash({ type, ...rest }: Props) {
+export default function Flash(props: Props) {
+  const { type = "success", ...dialogProps } = props;
   let classes = `alert ${type}`;
-  if (rest.class) classes += ` ${rest.class}`;
+  if (dialogProps.class) classes += ` ${dialogProps.class}`;
 
-  return <p id="flash" {...rest} class={classes} />;
+  return <dialog id="flash" open {...dialogProps} class={classes} />;
 }

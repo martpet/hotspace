@@ -83,7 +83,7 @@ async function submitData() {
   const parentPath = isDir ? "../" : "./";
   if (resp.ok) {
     setFlash(
-      `Successfully deleted ${inodeType.toLowerCase()} '${inodeNameDecoded}'`,
+      `Successfully deleted ${inodeType.toLowerCase()} "${inodeNameDecoded}"`,
     );
     setFromCookie("delete");
     location = parentPath;

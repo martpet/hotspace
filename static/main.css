@@ -92,7 +92,12 @@ menu {
 }
 
 #flash {
-  width: fit-content;
+  margin-top: 6px;
+  border: none;
+  form {
+    display: flex;
+    align-items: center;
+  }
 }
 
 .wait-disabled[disabled] {
@@ -256,7 +261,7 @@ menu {
   border: 1px solid var(--border-grey);
 }
 
-.page-header {
+#page-header {
   display: flex;
   min-height: 4rem;
   flex-wrap: wrap;

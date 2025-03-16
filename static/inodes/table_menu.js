@@ -1,4 +1,9 @@
-import { createSignal, GENERAL_ERR_MSG, replaceFragment } from "$main";
+import {
+  createSignal,
+  GENERAL_ERR_MSG,
+  insertFlash,
+  replaceFragment,
+} from "$main";
 
 let dialog;
 let dialogIntro;
@@ -107,6 +112,11 @@ async function submitData() {
     await replaceFragment("inodes");
     statusSignal.value = "closed";
     tableMenu.hidden = true;
+    const itemsCount = selection.length;
+    const msg = isSingleSelect
+      ? `${inodeLabel} "${selection[0].name}"`
+      : `${itemsCount} item${itemsCount > 1 ? "s" : ""}`;
+    insertFlash(`${msg} sucessfully deleted`);
   } else if (resp.status === 404) {
     location.reload();
   } else {

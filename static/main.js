@@ -12,6 +12,14 @@ export const GENERAL_ERR_MSG = "Oops, something went wrong, try again!";
 export const SESSION_EXPIRED_ERR_MSG = "Your session has expired!";
 
 // =====================
+// Window Events
+// =====================
+
+addEventListener("beforeunload", () => {
+  document.getElementById("flash")?.remove();
+});
+
+// =====================
 // Service Worker Reg
 // =====================
 
@@ -298,6 +306,16 @@ export function setFlash(flash) {
   if (typeof flash === "string") flash = { msg: flash, type: "success" };
   const encoded = encodeURIComponent(JSON.stringify(flash));
   document.cookie = `flash=${encoded};path=/`;
+}
+
+export function insertFlash(flash) {
+  if (typeof flash === "string") flash = { msg: flash, type: "success" };
+  const pageHeader = document.getElementById("page-header");
+  document.getElementById("flash")?.remove();
+  pageHeader.insertAdjacentHTML(
+    "afterend",
+    `<dialog id="flash" open class="alert ${flash.type}">${flash.msg}</dialog>`,
+  );
 }
 
 export function setFromCookie(str) {

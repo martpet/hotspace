@@ -15,7 +15,7 @@ export default function PageHeader(props: PageHeaderProps, ctx: AppContext) {
   const { user } = ctx.state;
 
   return (
-    <header class="page-header">
+    <header id="page-header">
       {breadcrumb
         ? <Breadcrumb />
         : <SiteName isHeading={siteNameIsHeading} isLink={siteNameIsLink} />}

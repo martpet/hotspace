@@ -60,6 +60,7 @@ export default async function homeHandler(ctx: AppContext) {
         <h1>Your spaces</h1>
         {inodesMenu}
       </header>
+
       <div id="inodes-container">
         {spacesTable}
       </div>
