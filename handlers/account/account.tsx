@@ -30,24 +30,31 @@ export default async function passkeysHandler(ctx: AppContext) {
   const uploadSize = Number(uploadedSizeEntry.value);
 
   return (
-    <Page title={title} head={head} header={{ siteNameIsLink: true }}>
-      <h1>{title}</h1>
-      <section>
-        <h2>Storage size</h2>
-        {!!uploadSize && <p>You have uplaoded {format(uploadSize)}.</p>}
-        {!uploadSize && <p>You haven't uploaded anything yet.</p>}
-      </section>
-      <section>
-        <h2>Passkeys</h2>
-        <PasskeysList passkeys={passkeys} />
-      </section>
-      <section>
-        <h2>Delete account</h2>
-        <p>
-          Permanently delete your files and chat messages.
-        </p>
-        <ButtonDeleteAccount />
-      </section>
+    <Page
+      id="account-page"
+      title={title}
+      head={head}
+      header={{ siteNameIsLink: true }}
+    >
+      <main>
+        <h1>{title}</h1>
+        <section>
+          <h2>Passkeys</h2>
+          <PasskeysList passkeys={passkeys} />
+        </section>
+        <section>
+          <h2>Storage size</h2>
+          {!!uploadSize && <p>You have uplaoded {format(uploadSize)}.</p>}
+          {!uploadSize && <p>You haven't uploaded anything yet.</p>}
+        </section>
+        <section>
+          <h2>Delete account</h2>
+          <p>
+            Permanently delete your files and chat messages.
+          </p>
+          <ButtonDeleteAccount />
+        </section>
+      </main>
     </Page>
   );
 }

@@ -7,6 +7,7 @@
 }
 
 #chat {
+  margin-top: 2em;
   --msg-hover-color: var(--bg-light);
   --red-color: crimson;
   @media (prefers-color-scheme: dark) {

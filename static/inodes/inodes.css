@@ -65,10 +65,8 @@ a.inode {
 
 .inodes-table {
   width: 100%;
+  margin-bottom: 2rem;
   border-spacing: 0;
-  &:not(:empty) {
-    margin-bottom: 1rem;
-  }
   thead {
     background: Canvas;
     position: sticky;
