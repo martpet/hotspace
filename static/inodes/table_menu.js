@@ -16,7 +16,7 @@ const container = document.getElementById("inodes-container");
 const tableMenu = document.getElementById("inodes-table-menu");
 const btnDelete = document.getElementById("inodes-table-delete-button");
 const mutationObserver = new MutationObserver(onMutationObserve);
-const { dirId, isSpaces } = tableMenu.dataset;
+const { dirId, isSingleSelect, inodeLabel } = tableMenu.dataset;
 
 mutationObserver.observe(container, {
   subtree: true,
@@ -38,7 +38,7 @@ btnDelete.onclick = () => {
 };
 
 container.onchange = ({ target }) => {
-  if (target.matches(".select-input input")) {
+  if (target.matches(".select input")) {
     handleSelectionChange(target);
   }
 };
@@ -116,25 +116,25 @@ async function submitData() {
 }
 
 function handleSelectionChange(eventTarget) {
-  let hasSelected;
-  let hasUnselected;
+  let someSelected;
+  let someUnselected;
   selection = [];
   for (const input of selectInputs) {
     if (eventTarget === toggler) input.checked = eventTarget.checked;
     if (input.checked) {
-      hasSelected = true;
+      someSelected = true;
       selection.push(getSelectInputData(input));
     } else {
-      hasUnselected = true;
+      someUnselected = true;
     }
   }
-  if (toggler) toggler.checked = !hasUnselected;
-  tableMenu.hidden = !hasSelected;
+  if (toggler) toggler.checked = !someUnselected;
+  tableMenu.hidden = !someSelected;
 }
 
 function refreshContainerElements() {
-  toggler = container.querySelector("thead .select-input input");
-  selectInputs = container.querySelectorAll("tbody .select-input input");
+  toggler = container.querySelector("thead .select input");
+  selectInputs = container.querySelectorAll("tbody .select input");
   if (toggler) toggler.disabled = false;
   selectInputs.forEach((input) => input.disabled = false);
 }
@@ -156,22 +156,22 @@ function getSelectInputData(input) {
 // =====================
 
 function insertDialog() {
-  const PATTERN_CONFIRM = isSpaces ? "" : "permanently delete";
-  const confirmText = isSpaces
-    ? "the name of the space"
+  const PATTERN_CONFIRM = isSingleSelect ? "" : "permanently delete";
+  const confirmText = isSingleSelect
+    ? `the name of the ${inodeLabel.toLowerCase()}`
     : `<em><strong>${PATTERN_CONFIRM}</strong></em> in the field`;
 
   document.body.insertAdjacentHTML(
     "beforeend",
     `
         <dialog id="table-delete-dialog">
-          <h1>Delete ${isSpaces ? "Space" : "Selected"}</h1>
+          <h1>Delete ${isSingleSelect ? inodeLabel : "Selected"}</h1>
           <form class="basic-form">
             <p class="alert warning">
               <span id="table-delete-intro"></span><br />
               This action cannot be undone.
             </p>
-            <ul id="table-delete-list" ${isSpaces ? "hidden" : ""}>
+            <ul id="table-delete-list" ${isSingleSelect ? "hidden" : ""}>
             </ul>
             <p id="table-delete-error" class="alert error" hidden></p>
             <label>
@@ -200,7 +200,7 @@ function updateDialog() {
   const listInfo = updateDialogList();
   updateDialogIntro(listInfo);
 
-  if (isSpaces) {
+  if (isSingleSelect) {
     dialogConfirmInput.pattern = selection[0].name;
   }
 }
@@ -221,10 +221,10 @@ function updateDialogList() {
 
 function updateDialogIntro({ dirsCount, filesCount }) {
   let txt;
-  if (isSpaces) {
+  if (isSingleSelect) {
     const spaceName = selection[0].name;
     txt =
-      `Space <strong>${spaceName}</strong> and its content will be deleted.`;
+      `${inodeLabel} <strong>${spaceName}</strong> and its content will be deleted.`;
   } else {
     txt = "The following ";
     if (selection.length === 1) {

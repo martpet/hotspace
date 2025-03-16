@@ -60,6 +60,8 @@ export interface PushSubscriber {
   pushSubUpdatedAt: Date;
 }
 
+export type InodeLabel = "Space" | "Folder" | "File";
+
 export type Inode = DirNode | FileNode | VideoNode;
 
 interface InodeBase extends ChatResource {

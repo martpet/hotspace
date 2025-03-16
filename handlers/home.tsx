@@ -49,7 +49,7 @@ export default async function homeHandler(ctx: AppContext) {
 
   const inodesMenu = (
     <menu class="menu-bar">
-      <InodesTableMenu dirId={ROOT_DIR_ID} isSpaces />
+      <InodesTableMenu dirId={ROOT_DIR_ID} isSingleSelect inodeLabel="Space" />
       <ButtonCreateDir parentDirId={ROOT_DIR_ID} />
     </menu>
   );

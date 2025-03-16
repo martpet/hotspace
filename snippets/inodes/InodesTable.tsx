@@ -49,7 +49,7 @@ export default function InodesTable(props: Props, ctx: AppContext) {
           <thead>
             <tr>
               {isDirOwner && (
-                <th class="select-input">
+                <th class="select">
                   {isMultiSelect && (
                     <SelectInput isMultiSelect={isMultiSelect} />
                   )}
@@ -65,7 +65,7 @@ export default function InodesTable(props: Props, ctx: AppContext) {
             {inodes.sort(sorter).map((inode) => (
               <tr>
                 {isDirOwner && (
-                  <td class="select-input">
+                  <td class="select">
                     <SelectInput isMultiSelect={isMultiSelect} />
                   </td>
                 )}

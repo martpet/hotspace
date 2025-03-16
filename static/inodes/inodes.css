@@ -77,10 +77,10 @@ a.inode {
   tbody {
     tr {
       height: 42px;
-      &:has(.select-input:hover) {
+      &:has(.select:hover) {
         background-color: var(--bg-light);
       }
-      &:has(.select-input :checked) {
+      &:has(.select :checked) {
         background-color: Highlight;
       }
     }
@@ -88,7 +88,7 @@ a.inode {
   th,
   td {
     padding-inline: 1em;
-    &.select-input {
+    &.select {
       width: 30px;
       padding-inline: 0;
       text-align: center;
@@ -108,7 +108,7 @@ a.inode {
     border-style: solid dotted;
     border-width: 0 0 1px 0;
     border-color: var(--border-grey-light);
-    &.select-input {
+    &.select {
       position: relative;
       label {
         position: absolute;
