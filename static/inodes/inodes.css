@@ -73,13 +73,24 @@ a.inode {
     top: 0;
   }
   tbody {
+    position: relative;
+    z-index: 1;
     tr {
       height: 42px;
       &:has(.select:hover) {
         background-color: var(--bg-light);
       }
       &:has(.select :checked) {
-        background-color: Highlight;
+        background-color: var(--bg-highlight);
+        td {
+          border-bottom-color: Highlight;
+          &:is(tr:first-child td) {
+            border-top-color: Highlight;
+          }
+        }
+      }
+      &:has(+ tr .select :checked) td {
+        border-bottom-color: Highlight;
       }
     }
   }
@@ -100,12 +111,13 @@ a.inode {
     font-weight: 600;
     text-align: initial;
     border-bottom: 2px solid var(--border-grey-light);
+    &:is(thead:has(+ tbody tr:first-child .select :checked) &) {
+      border-bottom-color: transparent;
+    }
   }
   td {
-    padding-block: 0.5em;
-    border-style: solid dotted;
-    border-width: 0 0 1px 0;
-    border-color: var(--border-grey-light);
+    border-top: 1px solid transparent;
+    border-bottom: 1px solid var(--border-grey-light);
     &.select {
       position: relative;
       label {

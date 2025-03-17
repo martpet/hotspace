@@ -1,16 +1,18 @@
 :root {
   --text-grey: darkGrey;
-  --text-dim: oklch(from CanvasText calc(l + 0.5) c h);
+  --text-grey-dark: grey;
   --border-grey: lightGray;
   --border-grey-light: #ebebeb;
   --bg-light: #eee;
+  --bg-highlight: oklch(from Highlight calc(l + 0.05) calc(c - 0.06) h);
 
   @media (prefers-color-scheme: dark) {
     --text-grey: GrayText;
-    --text-dim: oklch(from CanvasText calc(l - 0.2) c h);
+    --text-grey-dark: oklch(from Canvas calc(l + 0.4) c h);
     --border-grey: oklch(from Canvas calc(l + 0.15) c h);
     --border-grey-light: oklch(from Canvas calc(l + 0.08) c h);
     --bg-light: oklch(from Canvas calc(l + 0.05) c h);
+    --bg-highlight: oklch(from Highlight calc(l - 0.06) calc(c - 0.04) h);
   }
 }
 
@@ -357,6 +359,9 @@ menu {
   margin-bottom: 2rem;
   text-align: center;
   color: var(--text-grey);
+  strong {
+    color: var(--text-grey-dark);
+  }
 }
 
 .sectioned {
