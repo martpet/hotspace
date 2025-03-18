@@ -2,6 +2,7 @@ import type { Passkey } from "../util/types.ts";
 import { asset } from "../util/url.ts";
 import RegForm from "./auth/RegForm.tsx";
 import RelativeTime from "./RelativeTime.tsx";
+import Tooltip from "./Tooltip.tsx";
 
 interface Props {
   passkeys: Passkey[];
@@ -41,13 +42,11 @@ function ListItem(props: { passkey: Passkey; count: number }) {
 
 function ButtonRename(props: { passkey: Passkey }) {
   return (
-    <button
-      class="rename-passkey"
-      title="Rename passkey"
-      data-cred-id={props.passkey.credId}
-    >
-      {props.passkey.name || "untitled"}
-    </button>
+    <Tooltip info="Rename passkey">
+      <button class="rename-passkey" data-cred-id={props.passkey.credId}>
+        {props.passkey.name || "untitled"}
+      </button>
+    </Tooltip>
   );
 }
 

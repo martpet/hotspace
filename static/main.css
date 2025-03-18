@@ -217,7 +217,7 @@ menu {
 }
 
 .tooltip {
-  display: inline-blockl;
+  display: inline-block;
   .anchor {
     cursor: default;
     &:hover {

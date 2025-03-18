@@ -1,33 +1,34 @@
 import type { ComponentChild, ComponentChildren, JSX } from "preact";
 
 interface TooltipProps extends JSX.HTMLAttributes<HTMLDivElement> {
-  anchor: ComponentChild;
+  info: ComponentChild;
   children: ComponentChildren;
 }
 
 export default function Tooltip(props: TooltipProps) {
-  const { anchor, children, ...rootElProps } = props;
+  const { info, children, ...rootElProps } = props;
   const classes = ["tooltip"];
   if (rootElProps.class) classes.push(rootElProps.class as string);
 
   return (
     <div {...rootElProps} class={classes.join(" ")}>
       <div class="anchor">
-        {anchor}
+        {children}
       </div>
       <div class="infobox">
-        {children}
+        {info}
       </div>
     </div>
   );
 }
 
-export function HelpTooltip(props: Omit<TooltipProps, "anchor">) {
+export function HelpTooltip(props: Omit<TooltipProps, "children">) {
   return (
     <Tooltip
       {...props}
       class="help-tooltip"
-      anchor={<span class="help-sign">?</span>}
-    />
+    >
+      <span class="help-sign">?</span>
+    </Tooltip>
   );
 }

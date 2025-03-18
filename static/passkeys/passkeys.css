@@ -21,9 +21,8 @@
   border-bottom: 1px dashed #aaa;
   outline: none;
   cursor: default;
+  color: LinkText;
   &:hover {
-    background-color: Mark;
-    color: MarkText;
     cursor: pointer;
   }
 }
