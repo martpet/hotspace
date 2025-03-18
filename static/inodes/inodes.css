@@ -53,6 +53,7 @@ a.inode {
   }
   &.dir::before {
     content: "📁";
+    margin-top: 1px;
   }
   &.file::before {
     content: "📄";
@@ -70,6 +71,7 @@ a.inode {
   thead {
     background: Canvas;
     position: sticky;
+    z-index: 1;
     top: 0;
   }
   tbody {
