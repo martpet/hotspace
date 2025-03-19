@@ -1,5 +1,5 @@
+import { parsePathname } from "$util";
 import { format as formatBytes } from "@std/fmt/bytes";
-import { parsePathname } from "../../lib/util/url.ts";
 import type { AppContext, Inode } from "../../util/types.ts";
 import BlankSlate from "../BlankSlate.tsx";
 import RelativeTime from "../RelativeTime.tsx";

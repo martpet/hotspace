@@ -1,23 +1,3 @@
-export interface NonRootPath {
-  isRoot: false;
-  isDir: boolean;
-  isRootSegment: boolean;
-  segments: string[];
-  parentSegments: string[];
-  lastSegment: string;
-}
-
-export interface RootPath {
-  isRoot: true;
-  isDir: true;
-  isRootSegment: false;
-  segments: [];
-  parentSegments: null;
-  lastSegment: null;
-}
-
-export type Path = RootPath | NonRootPath;
-
 export interface FormFieldConstraints {
   minLength?: number;
   maxLength?: number;
