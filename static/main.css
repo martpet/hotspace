@@ -7,7 +7,7 @@
   --bg-highlight: oklch(from Highlight calc(l + 0.05) calc(c - 0.06) h);
 
   @media (prefers-color-scheme: dark) {
-    --text-grey: GrayText;
+    --text-grey: oklch(from Canvas calc(l + 0.23) c h);
     --text-grey-dark: oklch(from Canvas calc(l + 0.4) c h);
     --border-grey: oklch(from Canvas calc(l + 0.15) c h);
     --border-grey-light: oklch(from Canvas calc(l + 0.08) c h);
