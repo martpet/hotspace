@@ -10,6 +10,11 @@ export const userTypingHandler: ChatEventHandler<UserTypingEvent> = (
   conn,
 ) => {
   const { chat, chatUser } = conn;
+  const { canRead } = conn.permissions;
+
+  if (!canRead) {
+    return null;
+  }
 
   assertUserTypingEvent(event);
   assertChatEntry(chat.kvEntry);

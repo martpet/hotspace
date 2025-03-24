@@ -8,16 +8,16 @@ interface Props extends JSX.HTMLAttributes<HTMLParagraphElement> {
   prevMsg?: ChatMessage;
   timeFmt: Intl.DateTimeFormat;
   dateTimeFmt: Intl.DateTimeFormat;
-  isAdmin: boolean;
+  canModerate: boolean;
 }
 
 export default function Message(props: Props, ctx: AppContext) {
-  const { msg, timeFmt, dateTimeFmt, prevMsg, isAdmin, ...elProps } = props;
+  const { msg, timeFmt, dateTimeFmt, prevMsg, canModerate, ...elProps } = props;
   const { user } = ctx.state;
 
   const dateIso = msg.createdAt.toISOString();
   const canEdit = msg.username === user?.username;
-  const canDelete = canEdit || isAdmin;
+  const canDelete = canEdit || canModerate;
 
   const classes = ["chat-msg"];
   if (elProps.class) classes.push(elProps.class as string);

@@ -17,6 +17,11 @@ export const loadOlderMessagesHandler: ChatEventHandler<
   assertChatEntry(chat.kvEntry);
 
   const { olderMsgsCursor } = event.data;
+  const { canRead } = conn.permissions;
+
+  if (!canRead) {
+    return null;
+  }
 
   const { messages, nextCursor } = await listChatMessages({
     kv,

@@ -1,5 +1,6 @@
 import { s3 } from "$aws";
 import { completeUploads } from "$upload";
+import { getPermissions } from "$util";
 import { STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
 import { getSigner } from "../../../util/aws.ts";
@@ -40,7 +41,7 @@ export default async function completeUploadHandler(ctx: AppContext) {
   const dirEntry = await getInodeById(dirId);
 
   if (!isValidUploadDirEntry(dirEntry, user)) {
-    return ctx.respond(null, STATUS_CODE.Forbidden);
+    return ctx.respond(null, STATUS_CODE.NotFound);
   }
 
   const { completedUploads } = await completeUploads({
@@ -61,6 +62,7 @@ export default async function completeUploadHandler(ctx: AppContext) {
       name: "",
       parentDirId: dirId,
       ownerId: user.id,
+      acl: dirEntry.value.acl,
     };
 
     const isSaved = await saveFileNode({
@@ -111,15 +113,14 @@ export function isValidUploadDirEntry(
   entry: Deno.KvEntryMaybe<Inode>,
   user: User,
 ): entry is Deno.KvEntry<DirNode> {
-  return entry.value !== null &&
-    entry.value.type === "dir" &&
-    !entry.value.isRootDir &&
-    entry.value?.ownerId === user.id;
+  const inode = entry.value;
+  return !!inode && inode.type === "dir" && !inode.isRootDir &&
+    getPermissions({ user, resource: inode }).canCreate;
 }
 
 function cleanupUnsavedFileNodes(
   uploads: s3.CompletedMultipartUpload[],
-  completedIds: string[],
+  completedIds: string[] = [],
 ) {
   const s3Keys = [];
   for (const upload of uploads) {

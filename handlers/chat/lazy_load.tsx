@@ -1,15 +1,24 @@
 import { listChatMessages, MESSAGES_PER_FETCH } from "$chat";
-import { STATUS_CODE } from "@std/http/status";
+import { STATUS_CODE } from "@std/http";
+import { getPermissions } from "../../lib/util/permissions.ts";
 import ChatMessages from "../../snippets/chat/ChatMessages.tsx";
+import { getInodeById } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import type { AppContext } from "../../util/types.ts";
 
 export default async function chatLazyLoadHandler(ctx: AppContext) {
+  const { user } = ctx.state;
   const { chatId } = ctx.urlPatternResult.pathname.groups;
-  const isAdmin = !!ctx.url.searchParams.get("isAdmin");
 
   if (!chatId) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
+  }
+
+  const inode = (await getInodeById(chatId, { consistency: "eventual" })).value;
+  const { canRead, canModerate } = getPermissions({ user, resource: inode });
+
+  if (!inode || !canRead) {
+    return ctx.respond(null, STATUS_CODE.NotFound);
   }
 
   const { messages, nextCursor } = await listChatMessages({
@@ -28,7 +37,7 @@ export default async function chatLazyLoadHandler(ctx: AppContext) {
     <ChatMessages
       messages={messages}
       olderMsgsCursor={nextCursor}
-      isAdmin={isAdmin}
+      canModerate={canModerate}
     />,
   );
 }

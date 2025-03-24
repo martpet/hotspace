@@ -28,7 +28,7 @@ const {
   chatTitle,
   msgFollowupDuration,
   currentUserUsername,
-  isAdmin,
+  canModerate,
   chatSubExpires,
 } = rootEl.dataset;
 
@@ -87,7 +87,7 @@ let newMsgSeen;
 let loadOlderMsgsLocked;
 let currentUserTypingSession;
 let hasCurrentNotification;
-let isSubscriberDispatched;
+let isSubscriberOnlineDispatched;
 
 // =====================
 // After Lazy
@@ -142,12 +142,11 @@ function connectSocket() {
   socket = new WebSocket(socketUrl.href);
 
   socket.onopen = () => {
-    outboundQueue.releaseLock();
-    isSubscriberDispatched = false;
     dispatchSubscriberOnline();
   };
 
   socket.onclose = () => {
+    isSubscriberOnlineDispatched = false;
     setTimeout(connectSocket, 1000);
   };
 
@@ -225,6 +224,7 @@ const outboundQueue = {
 // =====================
 
 const INBOUND_EVENT_HANDLERS = {
+  "chat-ready": handleChatReadyEvent,
   "new-chat-msg-resp": renderOutboundNewMsgResp,
   "edited-chat-msg-resp": renderOutboundEditedMsgResp,
   "deleted-chat-msg-resp": renderOutboundDeletedMsgResp,
@@ -248,6 +248,13 @@ function handleInboundError(data) {
     UserNotFoundError: SESSION_EXPIRED_ERR_MSG,
   };
   reloadWithAlert(msgByName[data.name]);
+}
+
+/**
+ * Inbound Chat Ready Event
+ */
+function handleChatReadyEvent() {
+  outboundQueue.releaseLock();
 }
 
 /**
@@ -695,12 +702,12 @@ function isChatSubExpired(subscriber) {
 }
 
 async function dispatchSubscriberOnline({ skipChatSubUpdate } = {}) {
-  if (isSubscriberDispatched) return;
+  if (isSubscriberOnlineDispatched) return;
   const db = await import("$db");
   const subscriber = await db.getSubscriber();
   const chatSub = await db.getChatSub(chatId);
   if (chatSub) {
-    isSubscriberDispatched = true;
+    isSubscriberOnlineDispatched = true;
     dispatchChatEvent({
       type: "subscriber-online",
       data: {
@@ -717,7 +724,6 @@ async function lazyLoadMsgs() {
     msgsBoxReady.resolve();
   } else {
     const url = new URL(`/chat/lazy-load/${chatId}`, location.origin);
-    if (isAdmin) url.searchParams.set("isAdmin", true);
     const resp = await fetch(url.href);
     if (!resp.ok) {
       showChatError(GENERAL_CHAT_ERR_MSG);
@@ -867,7 +873,7 @@ function buildMsgEl(data) {
   el ??= chatTmpl.content.querySelector(".chat-msg").cloneNode(true);
   const mainEl = el.querySelector(".main");
   const canEdit = username === currentUserUsername;
-  const canDelete = canEdit || isAdmin;
+  const canDelete = canEdit || canModerate;
   const textEl = mainEl.querySelector(".text");
   textEl.textContent = sanitizeChatMsgText(text);
   if (id) el.id = id;

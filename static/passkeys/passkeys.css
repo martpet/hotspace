@@ -18,10 +18,9 @@
   font: inherit;
   background: none;
   border: none;
-  border-bottom: 1px dashed #aaa;
+  border-bottom: 1px dotted CanvasText;
   outline: none;
   cursor: default;
-  color: LinkText;
   &:hover {
     cursor: pointer;
   }

@@ -1,4 +1,5 @@
 import { STATUS_CODE } from "@std/http";
+import { getPermissions } from "../../lib/util/permissions.ts";
 import { setAnyInode } from "../../util/inodes/kv_wrappers.ts";
 import { getInodeById } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
@@ -22,19 +23,15 @@ export default async function toggleChatHandler(ctx: AppContext) {
   }
 
   const inodeEntry = await getInodeById(reqData.inodeId);
+  const inode = inodeEntry.value;
+  const { canModerate } = getPermissions({ user, resource: inode });
 
-  if (!inodeEntry?.value) {
+  if (!inode || !canModerate) {
     return ctx.respond(null, STATUS_CODE.NotFound);
   }
-
-  const inode = inodeEntry.value;
 
   if ((inode as DirNode).isRootDir) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
-  }
-
-  if (inode.ownerId !== user.id) {
-    return ctx.respond(null, STATUS_CODE.NotFound);
   }
 
   inode.chatEnabled = !inode.chatEnabled;

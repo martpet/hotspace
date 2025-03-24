@@ -2,7 +2,7 @@ import { s3 } from "$aws";
 import { getSigner } from "../../util/aws.ts";
 import { INODES_BUCKET } from "../../util/consts.ts";
 import {
-  makeVideoNodePlaylistDataUrl,
+  processVideNodeMasterPlaylist,
   updateInodeWithRetry,
 } from "../../util/inodes/helpers.ts";
 import { getInodeById } from "../../util/kv/inodes.ts";
@@ -64,8 +64,16 @@ export async function handleMediaConvertEvent(
   if (status === "COMPLETE") {
     try {
       const playlist = await fetchPlaylist(inode);
-      const dataUrl = makeVideoNodePlaylistDataUrl(playlist, origin);
-      inode.mediaConvert.playlistDataUrl = dataUrl;
+      const {
+        playListDataUrl,
+        subPlaylistsS3Keys,
+      } = processVideNodeMasterPlaylist({
+        playlist,
+        inodeId,
+        origin,
+      });
+      inode.mediaConvert.playlistDataUrl = playListDataUrl;
+      inode.mediaConvert.subPlaylistsS3Keys = subPlaylistsS3Keys;
     } catch (err) {
       console.error(err);
       inode.mediaConvert.status = "ERROR";

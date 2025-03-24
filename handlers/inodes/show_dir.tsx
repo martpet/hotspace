@@ -1,4 +1,4 @@
-import { parsePathname } from "$util";
+import { getPermissions, parsePathname } from "$util";
 import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
 import ChatSection from "../../snippets/chat/ChatSection.tsx";
 import ButtonCreateDir from "../../snippets/inodes/ButtonCreateDir.tsx";
@@ -26,19 +26,21 @@ export default async function showInodeHandler(ctx: AppContext) {
   });
 
   const dirNode = dirNodeEntry.value;
+  const { canRead, canCreate, canModerate } = getPermissions({
+    user,
+    resource: dirNode,
+  });
 
-  if (!dirNode) {
+  if (!dirNode || !canRead) {
     return notFound();
   }
-
-  const isDirOwner = dirNode.ownerId === user?.id;
 
   const chatSection = (
     <ChatSection
       enabled={dirNode.chatEnabled}
       chatId={dirNode.id}
       chatTitle={dirNode.name}
-      isAdmin={isDirOwner}
+      canModerate={canModerate}
     />
   );
 
@@ -52,7 +54,25 @@ export default async function showInodeHandler(ctx: AppContext) {
       : "eventual",
   });
 
-  const inodesTable = <InodesTable inodes={inodes} isDirOwner={isDirOwner} />;
+  let canModifySome = false;
+  let canChangeAclSome = false;
+
+  const inodesPermissions = inodes.map((inode) => {
+    const per = getPermissions({ user, resource: inode });
+    if (per.canModify) canModifySome = true;
+    if (per.canChangeAcl) canChangeAclSome = true;
+    return per;
+  });
+
+  const inodesTable = (
+    <InodesTable
+      inodes={inodes}
+      canCreate={canCreate}
+      canModifySome={canModifySome}
+      canChangeAclSome={canChangeAclSome}
+      inodesPermissions={inodesPermissions}
+    />
+  );
 
   if (fragmentId === "inodes") {
     return ctx.jsxFragment(inodesTable);
@@ -65,12 +85,14 @@ export default async function showInodeHandler(ctx: AppContext) {
     </>
   );
 
-  const inodesMenu = (
+  const showMenu = canModifySome || canCreate || canModerate;
+
+  const inodesMenu = showMenu && (
     <menu class="menu-bar">
-      <InodesTableMenu dirId={dirNode.id} />
-      <ButtonUpload dirId={dirNode.id} />
-      <ButtonCreateDir parentDirId={dirNode.id} />
-      <ButtonToggleChat chat={dirNode} />
+      {(canModifySome || canCreate) && <InodesTableMenu dirId={dirNode.id} />}
+      {canCreate && <ButtonUpload dirId={dirNode.id} />}
+      {canCreate && <ButtonCreateDir parentDirId={dirNode.id} />}
+      {canModerate && <ButtonToggleChat chat={dirNode} />}
     </menu>
   );
 
@@ -83,7 +105,7 @@ export default async function showInodeHandler(ctx: AppContext) {
     >
       <header class="inodes-header">
         <h1>{dirNode.name}</h1>
-        {isDirOwner && inodesMenu}
+        {inodesMenu}
       </header>
       <div id="inodes-container">
         {inodesTable}

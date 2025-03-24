@@ -6,11 +6,11 @@ import Message from "./Message.tsx";
 interface Props {
   messages: ChatMessage[];
   olderMsgsCursor: string | null;
-  isAdmin: boolean;
+  canModerate: boolean;
 }
 
 export default function ChatMessages(props: Props, ctx: AppContext) {
-  const { messages, olderMsgsCursor, isAdmin } = props;
+  const { messages, olderMsgsCursor, canModerate } = props;
   const { dateFmt, timeFmt, dateTimeFmt } = chatIntlFmt(ctx.locale);
 
   const msgsByDay = Object.groupBy(
@@ -43,7 +43,7 @@ export default function ChatMessages(props: Props, ctx: AppContext) {
               <Message
                 msg={msg}
                 prevMsg={msgs[i - 1]}
-                isAdmin={isAdmin}
+                canModerate={canModerate}
                 timeFmt={timeFmt}
                 dateTimeFmt={dateTimeFmt}
               />

@@ -67,7 +67,7 @@ app.post("/inodes/delete", deleteInodes);
 app.post("/inodes/upload/initiate", initiateUpload);
 app.post("/inodes/upload/complete", completeUpload);
 app.get("/inodes/listen-media-convert-event/:inodeId", listenMediaConvertEvent);
-app.get("/inodes/video-playlist/:s3Key*", videoPlaylist);
+app.get("/inodes/video-playlist/:inodeId/:renditionIndex", videoPlaylist);
 
 app.get("/chat/lazy-load/:chatId", chatLazyLoad);
 app.get("/chat/connection/:chatId", chatConnection);

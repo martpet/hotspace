@@ -1,8 +1,10 @@
-import type { AsyncQueue, MaybePromise } from "$util";
+import type { Acl, AsyncQueue, MaybePromise } from "$util";
 import type { ChatConnection } from "../ChatConnection.ts";
 
 export interface ChatResource {
   id: string;
+  ownerId: string;
+  acl: Acl;
   chatEnabled?: boolean;
 }
 
@@ -51,8 +53,6 @@ export type ValidChatConnection = Omit<ChatConnection, "chatEntry"> & {
 export type ChatConnectionWithUser = Omit<ValidChatConnection, "userEntry"> & {
   userEntry: Deno.KvEntry<ChatUserResource>;
 };
-
-export type CheckAdminFn = (chatResource?: ChatResource | null) => boolean;
 
 export type KvEnqueueFn = (
   msg: { type: string; nonce?: string },
@@ -137,6 +137,7 @@ export interface SubscriberOnlineEvent extends ChatEventBase {
 // =====================
 
 export type OutboundChatEvent =
+  | ChatReadyEvent
   | NewChatMsgEventResp
   | EditedChatMsgEventResp
   | DeletedChatMsgEventResp
@@ -144,6 +145,10 @@ export type OutboundChatEvent =
   | UserTypingEvent
   | FeedebEvent
   | ErrorEvent;
+
+export interface ChatReadyEvent extends ChatEventBase {
+  type: "chat-ready";
+}
 
 export interface NewChatMsgEventResp extends ChatEventBase {
   type: "new-chat-msg-resp";

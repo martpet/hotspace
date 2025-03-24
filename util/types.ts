@@ -58,6 +58,7 @@ export interface PushSubscriber {
   id: string;
   pushSub: PushSub | null;
   pushSubUpdatedAt: Date;
+  userId?: string;
 }
 
 export type InodeLabel = "Space" | "Folder" | "File";
@@ -69,6 +70,7 @@ interface InodeBase extends ChatResource {
   name: string;
   parentDirId: string;
   ownerId: string;
+  visibleByOthers?: string[];
   description?: string;
 }
 
@@ -93,6 +95,7 @@ export interface VideoNode extends FileNode {
     jobId?: string;
     jobPercentComplete?: number;
     playlistDataUrl?: string;
+    subPlaylistsS3Keys?: string[];
     duratonInMs?: number;
   };
 }

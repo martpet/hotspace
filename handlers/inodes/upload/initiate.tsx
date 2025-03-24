@@ -12,18 +12,24 @@ import {
 } from "../../../util/consts.ts";
 import type { AppContext } from "../../../util/types.ts";
 
-type ReqData = UploadInitData[];
+interface ReqData {
+  uploadsInitData: UploadInitData[];
+}
 
 export default async function initiateUploadHandler(ctx: AppContext) {
-  if (!ctx.state.user) {
+  const { user } = ctx.state;
+
+  if (!user) {
     return ctx.respond(null, STATUS_CODE.Unauthorized);
   }
 
-  const uploads = await ctx.req.json();
+  const reqData = await ctx.req.json();
 
-  if (!isValidReqData(uploads)) {
+  if (!isValidReqData(reqData)) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
+
+  const { uploadsInitData } = reqData;
 
   const headersFn = (upload: UploadInitData) => {
     const fileName = encodeURIComponent(upload.fileName);
@@ -35,7 +41,7 @@ export default async function initiateUploadHandler(ctx: AppContext) {
   };
 
   const result = await initUploads({
-    uploads,
+    uploadsInitData,
     region: AWS_REGION,
     bucket: INODES_BUCKET,
     credentials: AWS_CREDENTIALS,
@@ -49,8 +55,10 @@ export default async function initiateUploadHandler(ctx: AppContext) {
 }
 
 function isValidReqData(data: unknown): data is ReqData {
-  return Array.isArray(data) &&
-    data.every((item) => {
+  const { uploadsInitData } = data as ReqData;
+  return typeof data === "object" &&
+    Array.isArray(uploadsInitData) &&
+    uploadsInitData.every((item) => {
       const { fileType, fileName, numberOfParts, savedUpload } =
         item as Partial<UploadInitData>;
       return typeof fileType === "string" &&

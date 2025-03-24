@@ -12,7 +12,7 @@ import type {
 
 export const deletedChatMsgHandler: ChatEventHandler<DeletedChatMsgEventResp> =
   async (event, conn) => {
-    const { chat, chatUser, isAdmin, kv } = conn;
+    const { chat, chatUser, kv } = conn;
     assertDeletedChatMsgEvent(event);
     assertChatEntry(chat.kvEntry);
     assertUserEntry(chatUser?.kvEntry);
@@ -20,8 +20,9 @@ export const deletedChatMsgHandler: ChatEventHandler<DeletedChatMsgEventResp> =
     const { id } = event.data;
     const msg = (await getChatMessage({ kv, id, chatId: chat.id })).value;
     const isMsgOwner = chatUser.kvEntry.value.username === msg?.username;
+    const { canModerate } = conn.permissions;
 
-    if (!msg || (!isMsgOwner && !isAdmin)) {
+    if (!msg || (!isMsgOwner && !canModerate)) {
       return null;
     }
 

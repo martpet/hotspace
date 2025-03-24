@@ -1,3 +1,4 @@
+import { getPermissions } from "../util/permissions.ts";
 import { Chat } from "./Chat.ts";
 import { ChatUser } from "./ChatUser.ts";
 import { config as handlersConfig } from "./event_handlers/config.ts";
@@ -5,7 +6,6 @@ import { ChatError } from "./util/errors.ts";
 import { getChatSub, setChatSub } from "./util/kv/chat_subs.ts";
 import type {
   ChatFeedItem,
-  CheckAdminFn,
   InboundChatEvent,
   KvEnqueueFn,
   OutboundChatEvent,
@@ -22,7 +22,6 @@ interface ChatConnectionOptions {
   lastSeenFeedItemId: string | null;
   kv: Deno.Kv;
   kvEnqueue: KvEnqueueFn;
-  checkAdmin: CheckAdminFn;
 }
 
 export class ChatConnection {
@@ -35,12 +34,6 @@ export class ChatConnection {
   ready: Promise<unknown>;
   kv: Deno.Kv;
   kvEnqueue: KvEnqueueFn;
-  #kvReaders: ReadableStreamDefaultReader[] = [];
-  #checkAdmin: CheckAdminFn;
-
-  get isAdmin() {
-    return this.#checkAdmin(this.chat.kvEntry?.value);
-  }
 
   constructor(opt: ChatConnectionOptions) {
     const { socket, response } = Deno.upgradeWebSocket(opt.request);
@@ -66,33 +59,29 @@ export class ChatConnection {
     this.lastSeenFeedItemId = opt.lastSeenFeedItemId || "";
     this.kv = opt.kv;
     this.kvEnqueue = opt.kvEnqueue;
-    this.#checkAdmin = opt.checkAdmin;
 
     this.ready = Promise.all([
       this.chat.ready,
       this.chatUser?.ready,
     ]);
 
-    socket.onopen = () => {
+    socket.onopen = async () => {
       this.chat.addConnection(this);
       this.chatUser?.addConnection(this);
+      await this.ready;
+      this.send({ type: "chat-ready" });
       this.#sendUnseenFeedItems();
     };
 
     socket.onclose = () => {
       this.chat.removeConnection(this);
       this.chatUser?.removeConnection(this);
-      this.#cleanup();
+      this.#setSubscriberOffline();
     };
 
     socket.onmessage = (event) => {
       this.#handleSocketMsgEvent(event);
     };
-  }
-
-  #cleanup() {
-    this.#kvReaders.forEach((r) => r.cancel());
-    this.#setSubscriberOffline();
   }
 
   send(data: OutboundChatEvent) {
@@ -103,7 +92,18 @@ export class ChatConnection {
     this.chat.sendAll(data, { except: this });
   }
 
+  get permissions() {
+    return getPermissions({
+      user: this.chatUser?.kvEntry?.value,
+      resource: this.chat.kvEntry?.value,
+    });
+  }
+
   async #sendUnseenFeedItems() {
+    await this.ready;
+    const { canRead } = this.permissions;
+    const isChatEnabled = this.chat.kvEntry?.value?.chatEnabled;
+    if (!isChatEnabled || !canRead) return;
     const lastSeenId = this.lastSeenFeedItemId;
     if (lastSeenId >= this.chat.lastFeedItemId) return;
     const items = await this.chat.fetchFeedItems(lastSeenId);

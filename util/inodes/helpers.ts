@@ -48,15 +48,37 @@ export function getFileNodeUrl(
   return signCloudfrontUrl(url, opt);
 }
 
-export function makeVideoNodePlaylistDataUrl(
-  playlist: string,
-  origin: string,
-) {
-  const NEW_LINE = "\n";
-  const result = playlist.split(NEW_LINE)
-    .map((line) =>
-      line.endsWith(".m3u8") ? `${origin}/inodes/video-playlist/${line}` : line
-    )
-    .join(NEW_LINE);
-  return `data:application/vnd.apple.mpegurl;base64,${encodeBase64(result)}`;
+export function processVideNodeMasterPlaylist(input: {
+  playlist: string;
+  inodeId: string;
+  origin: string;
+}) {
+  const { playlist, inodeId, origin } = input;
+  const lines = playlist.split("\n");
+  const processedLines = [];
+  const subPlaylistsS3Keys: string[] = [];
+  let subPlaylistIndex = 0;
+
+  for (const line of lines) {
+    if (!line.endsWith(".m3u8")) {
+      processedLines.push(line);
+    } else {
+      subPlaylistsS3Keys.push(line);
+      processedLines.push(
+        `${origin}/inodes/video-playlist/${inodeId}/${subPlaylistIndex}`,
+      );
+      subPlaylistIndex++;
+    }
+  }
+
+  const playlistResult = processedLines.join("\n");
+
+  const playListDataUrl = `data:application/vnd.apple.mpegurl;base64,${
+    encodeBase64(playlistResult)
+  }`;
+
+  return {
+    playListDataUrl,
+    subPlaylistsS3Keys,
+  };
 }

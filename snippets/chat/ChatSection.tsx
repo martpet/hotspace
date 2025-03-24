@@ -14,7 +14,7 @@ type Props = (PropsWithLazyLoad | PropsWithoutLazyLoad) & {
   enabled: boolean | undefined;
   chatId: string;
   chatTitle: string;
-  isAdmin: boolean;
+  canModerate: boolean;
 };
 
 interface PropsWithLazyLoad {
@@ -32,7 +32,7 @@ export default function ChatSection(props: Props, ctx: AppContext) {
     chatId,
     enabled,
     chatTitle,
-    isAdmin,
+    canModerate,
     messages,
     olderMsgsCursor,
   } = props;
@@ -50,7 +50,7 @@ export default function ChatSection(props: Props, ctx: AppContext) {
       id="chat"
       data-chat-id={chatId}
       data-chat-title={chatTitle}
-      data-is-admin={isAdmin ? "1" : null}
+      data-can-moderate={canModerate ? "1" : null}
       data-current-user-username={user?.username}
       data-msg-followup-duration={CHAT_MSG_FOLLOWUP_DURATION}
       data-chat-sub-expires={CHAT_SUB_WITHOUT_PUSH_SUB_EXPIRES}
@@ -67,7 +67,7 @@ export default function ChatSection(props: Props, ctx: AppContext) {
               <ChatMessages
                 messages={messages}
                 olderMsgsCursor={olderMsgsCursor}
-                isAdmin={isAdmin}
+                canModerate={canModerate}
               />
             )
             : <div id="chat-lazy-root" class="spinner-lg" />}
@@ -85,7 +85,7 @@ export default function ChatSection(props: Props, ctx: AppContext) {
         <DayHeading />
         <Message
           msg={{ createdAt: new Date(), username: "" } as ChatMessage}
-          isAdmin={false}
+          canModerate={false}
           timeFmt={timeFmt}
           dateTimeFmt={dateTimeFmt}
         />

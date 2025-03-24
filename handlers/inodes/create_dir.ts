@@ -1,3 +1,4 @@
+import { getPermissions } from "$util";
 import { STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
 import { DIR_NAME_CONSTRAINTS } from "../../util/constraints.ts";
@@ -6,7 +7,7 @@ import { setAnyInode } from "../../util/inodes/kv_wrappers.ts";
 import { getDirByPath, getInodeById } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { reservedWords } from "../../util/reserved_words.ts";
-import type { AppContext } from "../../util/types.ts";
+import type { AppContext, DirNode } from "../../util/types.ts";
 
 interface ReqData {
   parentDirId: string;
@@ -43,17 +44,14 @@ export default async function createDirNodeHandler(ctx: AppContext) {
   }
 
   const parentDir = parentDirEntry.value;
+  const { canCreate } = getPermissions({ user, resource: parentDir });
 
-  if (!parentDir) {
+  if (!parentDir || (!canCreate && !(parentDir as DirNode).isRootDir)) {
     return ctx.respond(null, STATUS_CODE.NotFound);
   }
 
   if (parentDir.type !== "dir") {
     return ctx.respond(null, STATUS_CODE.BadRequest);
-  }
-
-  if (!isParentRoot && parentDir.ownerId !== user.id) {
-    return ctx.respond(null, STATUS_CODE.Forbidden);
   }
 
   const pathSegments = [...parentDir.pathSegments, dirName];
@@ -71,14 +69,15 @@ export default async function createDirNodeHandler(ctx: AppContext) {
     return ctx.respond(errMsg, STATUS_CODE.Conflict);
   }
 
-  const dirNode = {
+  const dirNode: DirNode = {
     type: "dir",
     id: ulid(),
     name: dirName,
     parentDirId,
     pathSegments,
     ownerId: user.id,
-  } as const;
+    acl: isParentRoot ? { [user.id]: "admin" } as const : parentDir.acl,
+  };
 
   const atomic = kv.atomic();
 

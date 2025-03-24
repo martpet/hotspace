@@ -6,9 +6,11 @@ import {
   setChatSub,
 } from "$chat";
 import { METHOD, STATUS_CODE } from "@std/http";
+import { getPermissions } from "../../lib/util/permissions.ts";
+import { keys as inodesKeys } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
-import { getSubscriber } from "../../util/kv/push_subscribers.ts";
-import type { AppContext } from "../../util/types.ts";
+import { keys as pushSubscribersKeys } from "../../util/kv/push_subscribers.ts";
+import type { AppContext, Inode, PushSubscriber } from "../../util/types.ts";
 
 export default function chatSubsHandler(ctx: AppContext) {
   const { method } = ctx.req;
@@ -33,6 +35,7 @@ function isValidReqData(
 }
 
 async function handleCreate(ctx: AppContext) {
+  const { user } = ctx.state;
   const reqData = await ctx.req.json();
 
   if (!isValidReqData(reqData)) {
@@ -40,7 +43,20 @@ async function handleCreate(ctx: AppContext) {
   }
 
   const { chatId, subscriberId, isSubscriberInChat } = reqData;
-  const subscriberEntry = await getSubscriber(subscriberId);
+
+  const [subscriberEntry, inodeEntry] = await kv.getMany<
+    [PushSubscriber, Inode]
+  >([
+    pushSubscribersKeys.byId(subscriberId),
+    inodesKeys.byId(chatId),
+  ]);
+
+  const inode = inodeEntry.value;
+  const { canRead } = getPermissions({ user, resource: inode });
+
+  if (!inode || !canRead) {
+    return ctx.respond(null, STATUS_CODE.NotFound);
+  }
 
   if (!subscriberEntry.value) {
     return ctx.respond(null, STATUS_CODE.UnprocessableEntity);
@@ -83,11 +99,11 @@ async function handleDelete(ctx: AppContext) {
   if (!chatSubEntry.value) {
     return ctx.respond(null, STATUS_CODE.UnprocessableEntity);
   }
-  const { ok } = await deleteChatSub(chatSubEntry.value, kv.atomic())
+  const commit = await deleteChatSub(chatSubEntry.value, kv.atomic())
     .check(chatSubEntry)
     .commit();
 
-  if (!ok) {
+  if (!commit.ok) {
     return ctx.respond(null, STATUS_CODE.Conflict);
   }
   return ctx.respond(null, STATUS_CODE.NoContent);

@@ -10,4 +10,5 @@ export const ROOT_DIR: DirNode = {
   pathSegments: [],
   isRootDir: true,
   ownerId: "",
+  acl: {},
 };

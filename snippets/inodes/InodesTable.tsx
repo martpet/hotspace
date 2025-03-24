@@ -1,97 +1,126 @@
-import { parsePathname } from "$util";
+import { getPermissions, parsePathname, type Permission } from "$util";
 import { format as formatBytes } from "@std/fmt/bytes";
+import { type JSX } from "preact";
 import type { AppContext, Inode } from "../../util/types.ts";
 import BlankSlate from "../BlankSlate.tsx";
 import RelativeTime from "../RelativeTime.tsx";
+import Tooltip from "../Tooltip.tsx";
+import { InodeAnchor } from "./InodeAnchor.tsx";
 
 interface Props {
   inodes: Inode[];
-  isDirOwner: boolean;
-  isSpaces?: boolean;
+  inodesPermissions: Permission[];
+  canCreate: boolean;
+  canModifySome: boolean;
+  canChangeAclSome: boolean;
   isMultiSelect?: boolean;
-  skipSize?: boolean;
-  skipType?: boolean;
+  skipCols?: ("size" | "type")[];
+  skipIcons?: boolean;
+  blankSlate?: JSX.Element;
 }
 
 export default function InodesTable(props: Props, ctx: AppContext) {
   const {
     inodes,
-    isDirOwner,
-    isSpaces,
+    inodesPermissions,
+    canCreate,
+    canModifySome,
+    canChangeAclSome,
     isMultiSelect = true,
-    skipSize,
-    skipType,
+    skipCols,
+    skipIcons,
+    blankSlate,
   } = props;
 
   const path = parsePathname(ctx.url.pathname);
   const isParentSpace = path.segments.length === 1;
+  const skipSize = skipCols?.includes("size");
+  const skipType = skipCols?.includes("type");
 
   return (
     <div id="inodes">
-      {isSpaces && inodes.length === 0 && isDirOwner && (
-        <BlankSlate
-          title="No spaces"
-          subTitle="You haven't created any spaces yet."
-        />
-      )}
-
-      {!isSpaces && inodes.length === 0 && isDirOwner && (
-        <BlankSlate
-          title="No items"
-          subTitle={`You don't have any items in this ${
-            isParentSpace ? "space" : "folder"
-          }.`}
-        />
+      {inodes.length === 0 && canCreate && (
+        blankSlate || (
+          <BlankSlate
+            title="No items"
+            subTitle={`You don't have any items in this ${
+              isParentSpace ? "space" : "folder"
+            }.`}
+          />
+        )
       )}
 
       {inodes.length > 0 && (
         <table class="inodes-table">
           <thead>
             <tr>
-              {isDirOwner && (
-                <th class="select">
-                  {isMultiSelect && (
-                    <SelectInput isMultiSelect={isMultiSelect} />
-                  )}
-                </th>
-              )}
+              <th class="select">
+                {canModifySome && isMultiSelect && (
+                  <SelectInput isMultiSelect={isMultiSelect} />
+                )}
+              </th>
               <th class="name">Name</th>
               {!skipType && <th class="type">Type</th>}
+              {canChangeAclSome && <th>Visible to</th>}
               <th class="date">Created</th>
               {!skipSize && <th class="size">Size</th>}
             </tr>
           </thead>
+
           <tbody>
-            {inodes.sort(sorter).map((inode) => (
-              <tr>
-                {isDirOwner && (
+            {inodes.sort(inodesSorter).map((inode, i) => {
+              const perm = inodesPermissions[i];
+              if (!perm.canRead) {
+                return null;
+              }
+              return (
+                <tr>
                   <td class="select">
-                    <SelectInput isMultiSelect={isMultiSelect} />
+                    {perm.canModify && (
+                      <SelectInput isMultiSelect={isMultiSelect} />
+                    )}
                   </td>
-                )}
-                <td class="name">
-                  <InodeAnchor inode={inode} isSpaces={isSpaces} />
-                </td>
-                {!skipType && (
-                  <td class="type">
-                    {inode.type === "file" ? inode.fileType : "Folder"}
+                  <td class="name">
+                    <InodeAnchor inode={inode} skipIcons={skipIcons} />
                   </td>
-                )}
-                <td class="date">
-                  <RelativeTime uuid={inode.id} />
-                </td>
-                {!skipSize && (
-                  <td class="size">
-                    {inode.type === "file" ? formatBytes(inode.fileSize) : "-"}
+                  {!skipType && (
+                    <td class="type">
+                      {inode.type === "file" ? inode.fileType : "Folder"}
+                    </td>
+                  )}
+                  {canChangeAclSome && (
+                    <td>
+                      {perm.canChangeAcl && <Visibility inode={inode} />}
+                    </td>
+                  )}
+                  <td class="date">
+                    <RelativeTime uuid={inode.id} />
                   </td>
-                )}
-              </tr>
-            ))}
+                  {!skipSize && (
+                    <td class="size">
+                      {inode.type === "file"
+                        ? formatBytes(inode.fileSize)
+                        : "-"}
+                    </td>
+                  )}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       )}
     </div>
   );
+}
+
+function inodesSorter(a: Inode, b: Inode) {
+  if (a.type === "dir" && b.type !== "dir") return -1;
+  if (a.type !== "dir" && b.type === "dir") return 1;
+  const aName = a.name.toLowerCase();
+  const bName = b.name.toLocaleLowerCase();
+  if (aName > bName) return 1;
+  if (aName < bName) return -1;
+  return 0;
 }
 
 function SelectInput({ isMultiSelect }: { isMultiSelect: boolean }) {
@@ -108,25 +137,24 @@ function SelectInput({ isMultiSelect }: { isMultiSelect: boolean }) {
   );
 }
 
-function InodeAnchor(props: { inode: Inode; isSpaces?: boolean }) {
-  const { inode, isSpaces } = props;
-  let href = `./${inode.name}`;
-  let name = inode.name;
-  if (inode.type === "file") {
-    name = decodeURIComponent(name);
-  } else {
-    href = href + "/";
+function Visibility(props: { inode: Inode }, ctx: AppContext) {
+  const { inode } = props;
+  const others = inode.visibleByOthers || [];
+  if (others.length === 1) {
+    return <>You and {others[0]}</>;
   }
-  const classes = isSpaces ? "" : `inode ${inode.type}`;
-  return <a href={href} class={classes}>{name}</a>;
-}
-
-function sorter(a: Inode, b: Inode) {
-  if (a.type === "dir" && b.type !== "dir") return -1;
-  if (a.type !== "dir" && b.type === "dir") return 1;
-  const aName = a.name.toLowerCase();
-  const bName = b.name.toLocaleLowerCase();
-  if (aName > bName) return 1;
-  if (aName < bName) return -1;
-  return 0;
+  if (others.length > 1) {
+    const othersNames = new Intl.ListFormat(ctx.locale).format(others);
+    return (
+      <>
+        You and{" "}
+        <Tooltip info={othersNames}>
+          <span class="permissions-others">{others.length} others</span>
+        </Tooltip>
+      </>
+    );
+  }
+  const perm = getPermissions({ user: null, resource: inode });
+  if (perm.canRead) return <>Everyone</>;
+  return <>You</>;
 }

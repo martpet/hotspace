@@ -1,22 +1,40 @@
 import { s3 } from "$aws";
-import { parsePathname } from "$util";
+import { getPermissions, parsePathname } from "$util";
 import { DAY } from "@std/datetime";
 import { HEADER, STATUS_CODE } from "@std/http";
 import { getSigner } from "../../util/aws.ts";
 import { INODES_BUCKET } from "../../util/consts.ts";
-import { getFileNodeUrl } from "../../util/inodes/helpers.ts";
+import { getFileNodeUrl, isVideoNode } from "../../util/inodes/helpers.ts";
+import { getInodeById } from "../../util/kv/inodes.ts";
 import type { AppContext } from "../../util/types.ts";
 
 const cache = await caches.open("video-playlist");
 
 export default async function videoPlaylistHandler(ctx: AppContext) {
-  const { s3Key } = ctx.urlPatternResult.pathname.groups;
+  const { user } = ctx.state;
+  const { inodeId, renditionIndex } = ctx.urlPatternResult.pathname.groups;
 
-  if (!s3Key) {
+  if (!inodeId || typeof renditionIndex === "undefined") {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  const cachedS3Resp = await cache.match(ctx.url);
+  const [inodeEntry, cachedS3Resp] = await Promise.all([
+    getInodeById(inodeId, { consistency: "eventual" }),
+    cache.match(ctx.url),
+  ]);
+
+  const inode = inodeEntry.value;
+  const { canRead } = getPermissions({ user, resource: inodeEntry.value });
+
+  if (!inode || !isVideoNode(inode) || !canRead) {
+    return ctx.respond(null, STATUS_CODE.NotFound);
+  }
+
+  const s3Key = inode.mediaConvert.subPlaylistsS3Keys?.[Number(renditionIndex)];
+
+  if (!s3Key) {
+    return ctx.respond(null, STATUS_CODE.InternalServerError);
+  }
 
   const resp = cachedS3Resp || await s3.getObject({
     s3Key,
@@ -48,10 +66,12 @@ export default async function videoPlaylistHandler(ctx: AppContext) {
     lines[i] = cachedLines[line];
   }
 
+  const playlistResult = lines.join("\n");
+
   ctx.resp.headers.set(
     HEADER.CacheControl,
     `public, max-age=${DAY * 365 / 1000}, immutable`,
   );
 
-  return ctx.respond(lines.join("\n"));
+  return ctx.respond(playlistResult);
 }

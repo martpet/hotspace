@@ -9,7 +9,7 @@ const QUEUE_CONCURRENCY = 10;
 const DEFAULT_SIGNED_URL_EXPIRES_IN = DAY / 1000;
 
 interface Options {
-  uploads: UploadInitData[];
+  uploadsInitData: UploadInitData[];
   region: string;
   bucket: string;
   credentials: AwsCredentials;
@@ -22,7 +22,7 @@ interface Options {
 
 export async function initUploads(options: Options) {
   const {
-    uploads,
+    uploadsInitData,
     region,
     bucket,
     credentials,
@@ -46,7 +46,7 @@ export async function initUploads(options: Options) {
   });
 
   const uploadsResult = await Promise.all(
-    uploads.map((uplaod) =>
+    uploadsInitData.map((uplaod) =>
       queue.add(async () => {
         const { numberOfParts, savedUpload } = uplaod;
         const finishedPartsNumbers = [];

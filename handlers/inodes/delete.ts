@@ -1,4 +1,5 @@
 import { STATUS_CODE } from "@std/http";
+import { getPermissions } from "../../lib/util/permissions.ts";
 import { deleteInodesRecursive } from "../../util/inodes/kv_wrappers.ts";
 import { getInodeById, keys as getInodeKey } from "../../util/kv/inodes.ts";
 import { getMany } from "../../util/kv/kv.ts";
@@ -38,7 +39,10 @@ export default async function deleteHandler(ctx: AppContext) {
   );
 
   const inodes = (await getMany<Inode>(inodesKeys))
-    .filter((inode) => [inode.ownerId, dir.ownerId].includes(user.id));
+    .filter((inode) => {
+      const { canModify } = getPermissions({ user, resource: inode });
+      return canModify;
+    });
 
   await deleteInodesRecursive(inodes);
 

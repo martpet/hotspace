@@ -95,6 +95,9 @@ a.inode {
         border-bottom-color: Highlight;
       }
     }
+    .permissions-others {
+      border-bottom: 1px dotted CanvasText;
+    }
   }
   th,
   td {

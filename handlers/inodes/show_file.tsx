@@ -1,4 +1,4 @@
-import { type NonRootPath, parsePathname } from "$util";
+import { getPermissions, type NonRootPath, parsePathname } from "$util";
 import { STATUS_CODE } from "@std/http";
 import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
 import Chat from "../../snippets/chat/ChatSection.tsx";
@@ -37,18 +37,21 @@ export default async function showFileHandler(ctx: AppContext) {
     consistency: fragmentId === "chat" ? "strong" : "eventual",
   })).value;
 
-  if (!fileNode) {
+  const { canRead, canModerate, canModify } = getPermissions({
+    user,
+    resource: fileNode,
+  });
+
+  if (!fileNode || !canRead) {
     return notFound();
   }
-
-  const isOwner = fileNode.ownerId === user?.id;
 
   const chatSection = (
     <Chat
       enabled={fileNode.chatEnabled}
       chatId={fileNode.id}
       chatTitle={fileNode.name}
-      isAdmin={isOwner}
+      canModerate={canModerate}
     />
   );
 
@@ -66,10 +69,12 @@ export default async function showFileHandler(ctx: AppContext) {
     </>
   );
 
-  const inodesMenu = (
+  const showMenu = canModerate || canModify;
+
+  const inodesMenu = showMenu && (
     <menu class="menu-bar">
-      <ButtonToggleChat chat={fileNode} />
-      <ButtonDeleteInode inode={fileNode} />
+      {canModerate && <ButtonToggleChat chat={fileNode} />}
+      {canModify && <ButtonDeleteInode inode={fileNode} />}
     </menu>
   );
 
@@ -82,9 +87,12 @@ export default async function showFileHandler(ctx: AppContext) {
     >
       <header class="inodes-header">
         <h1>{fileName}</h1>
-        {isOwner && inodesMenu}
+        {inodesMenu}
       </header>
-      <FilePreview fileNode={fileNode} fileNodeUrl={fileNodeUrl} />
+      <FilePreview
+        fileNode={fileNode}
+        fileNodeUrl={fileNodeUrl}
+      />
       {chatSection}
     </Page>
   );

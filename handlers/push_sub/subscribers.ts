@@ -16,6 +16,7 @@ type RequestData = {
 };
 
 export default async function subscribersHandler(ctx: AppContext) {
+  const { user } = ctx.state;
   const reqData = await ctx.req.json();
 
   if (!isReqDataValid(reqData)) {
@@ -51,6 +52,7 @@ export default async function subscribersHandler(ctx: AppContext) {
     id: subscriberEntry?.value?.id || ulid(),
     pushSub,
     pushSubUpdatedAt,
+    userId: user?.id,
   };
 
   const atomic = setSubscriber(subscriber);

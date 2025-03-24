@@ -1,3 +1,5 @@
+import { getPermissions } from "../lib/util/permissions.ts";
+import BlankSlate from "../snippets/BlankSlate.tsx";
 import ButtonCreateDir from "../snippets/inodes/ButtonCreateDir.tsx";
 import InodesTable from "../snippets/inodes/InodesTable.tsx";
 import InodesTableMenu from "../snippets/inodes/InodesTableMenu.tsx";
@@ -26,14 +28,26 @@ export default async function homeHandler(ctx: AppContext) {
       : "eventual",
   });
 
+  const inodesPermissions = dirNodes.map((inode) =>
+    getPermissions({ user, resource: inode })
+  );
+
   const spacesTable = (
     <InodesTable
       inodes={dirNodes}
-      isDirOwner
-      isSpaces
       isMultiSelect={false}
-      skipSize
-      skipType
+      skipIcons
+      skipCols={["size", "type"]}
+      canCreate
+      canModifySome
+      canChangeAclSome
+      inodesPermissions={inodesPermissions}
+      blankSlate={
+        <BlankSlate
+          title="No spaces"
+          subTitle="You haven't created any spaces yet."
+        />
+      }
     />
   );
 

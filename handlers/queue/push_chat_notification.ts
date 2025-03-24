@@ -10,12 +10,14 @@ import { PushMessageError } from "@negrel/webpush";
 import { retry } from "@std/async/retry";
 import { associateBy, chunk } from "@std/collections";
 import { STATUS_CODE } from "@std/http";
+import { getPermissions } from "../../lib/util/permissions.ts";
 import { CHAT_SUB_WITHOUT_PUSH_SUB_EXPIRES } from "../../util/consts.ts";
-import type { PushMessage, PushSubscriber } from "../../util/types.ts";
-import { sendPushNotification } from "../../util/webpush.ts";
 import { deleteQueueNonce, getQueueNonce } from "../../util/kv/enqueue.ts";
+import { getInodeById } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { keys as subscribersKeys } from "../../util/kv/push_subscribers.ts";
+import type { PushMessage, PushSubscriber } from "../../util/types.ts";
+import { sendPushNotification } from "../../util/webpush.ts";
 
 export function isPushChatNotification(
   msg: unknown,
@@ -49,11 +51,18 @@ export async function handlePushChatNotification(
   if (!nonceEntry.value) return;
   deleteQueueNonce(nonce);
 
-  const chatSubs = await listChatSubs({
-    chatId,
-    listOptions: { consistency: "eventual" },
-    kv,
-  });
+  const [inodeEntry, chatSubs] = await Promise.all([
+    getInodeById(chatId, { consistency: "eventual" }),
+    listChatSubs({
+      chatId,
+      listOptions: { consistency: "eventual" },
+      kv,
+    }),
+  ]);
+
+  if (!inodeEntry.value) {
+    return;
+  }
 
   const chatSubsBySubscriber = associateBy(chatSubs, (s) => s.subscriberId);
 
@@ -75,7 +84,13 @@ export async function handlePushChatNotification(
       consistency: "eventual",
     });
     for (const { value: subscriber } of entries) {
-      if (!subscriber) continue;
+      const { canRead } = getPermissions({
+        user: subscriber,
+        resource: inodeEntry.value,
+      });
+      if (!subscriber || !canRead) {
+        continue;
+      }
       itemsToPush.push({
         subscriber,
         chatSub: chatSubsBySubscriber[subscriber.id],
