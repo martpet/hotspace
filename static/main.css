@@ -22,6 +22,12 @@
   }
 }
 
+@keyframes hide {
+  to {
+    display: none;
+  }
+}
+
 *,
 *::before,
 *::after {
@@ -95,9 +101,12 @@ menu {
   margin: 0;
 }
 
-#flash {
+.flash {
   margin-top: 10px;
   border: none;
+  &.auto-hide {
+    animation: hide 0s 3s forwards;
+  }
   form {
     display: flex;
     align-items: center;

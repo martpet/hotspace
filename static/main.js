@@ -309,12 +309,13 @@ export function setFlash(flash) {
 }
 
 export function insertFlash(flash) {
-  if (typeof flash === "string") flash = { msg: flash, type: "success" };
-  const pageHeader = document.getElementById("page-header");
+  if (typeof flash === "string") flash = { msg: flash, autoHide: true };
+  let classes = ["flash", "alert", flash.type || "success"];
+  if (flash.autoHide !== false) classes.push("auto-hide");
   document.getElementById("flash")?.remove();
-  pageHeader.insertAdjacentHTML(
+  document.getElementById("page-header").insertAdjacentHTML(
     "afterend",
-    `<dialog id="flash" open class="alert ${flash.type}">${flash.msg}</dialog>`,
+    `<dialog open class="${classes.join(" ")}">${flash.msg}</dialog>`,
   );
 }
 

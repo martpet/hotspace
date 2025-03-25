@@ -29,6 +29,7 @@ export type CtxRespondFn = (
 export interface Flash {
   msg: string;
   type: "success" | "warning" | "error";
+  autoHide?: boolean;
 }
 
 export interface Context<S = Record<string, never>> {
