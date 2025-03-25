@@ -133,31 +133,20 @@ a.inode {
         align-items: center;
       }
     }
+    &.name {
+      word-break: break-all;
+    }
   }
   @container (width < 640px) {
-    thead {
-      display: none;
-    }
-    tr {
-      display: flex;
-      padding: 0.5em 0;
-      gap: 1em;
-      align-items: center;
-      border-bottom: 1px solid var(--border-grey-light);
-    }
+    th,
     td {
-      padding-block: 0;
-      border: none !important;
       &:empty,
       &.type,
       &.size {
         display: none;
       }
-      &.name {
-        margin-right: auto;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
+    }
+    td {
       &.name a::before {
         font-size: 1em;
         margin-right: 0.5em;

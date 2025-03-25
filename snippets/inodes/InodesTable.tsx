@@ -61,7 +61,7 @@ export default function InodesTable(props: Props, ctx: AppContext) {
               </th>
               <th class="name">Name</th>
               {!skipType && <th class="type">Type</th>}
-              {canChangeAclSome && <th>Visible to</th>}
+              {canChangeAclSome && <th>Visibility</th>}
               <th class="date">Created</th>
               {!skipSize && <th class="size">Size</th>}
             </tr>
@@ -155,6 +155,6 @@ function Visibility(props: { inode: Inode }, ctx: AppContext) {
     );
   }
   const perm = getPermissions({ user: null, resource: inode });
-  if (perm.canRead) return <>Everyone</>;
-  return <>You</>;
+  if (perm.canRead) return <>Public</>;
+  return <>Private</>;
 }
