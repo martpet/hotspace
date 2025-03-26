@@ -23,8 +23,12 @@
 }
 
 @keyframes hide {
-  to {
-    display: none;
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
   }
 }
 
@@ -105,7 +109,7 @@ menu {
   margin-top: 10px;
   border: none;
   &.auto-hide {
-    animation: hide 0s 3s forwards;
+    animation: hide 0.2s 3s forwards;
   }
   form {
     display: flex;
