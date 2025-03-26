@@ -1,15 +1,15 @@
-import { getPermissions, parsePathname, type Permission } from "$util";
+import { parsePathname, type ResourcePermissions } from "$util";
 import { format as formatBytes } from "@std/fmt/bytes";
 import { type JSX } from "preact";
 import type { AppContext, Inode } from "../../util/types.ts";
 import BlankSlate from "../BlankSlate.tsx";
 import RelativeTime from "../RelativeTime.tsx";
-import Tooltip from "../Tooltip.tsx";
 import { InodeAnchor } from "./InodeAnchor.tsx";
+import InodeVisibility from "./InodeVisibility.tsx";
 
 interface Props {
   inodes: Inode[];
-  inodesPermissions: Permission[];
+  inodesPermissions: ResourcePermissions[];
   canCreate: boolean;
   canModifySome: boolean;
   canChangeAclSome: boolean;
@@ -90,7 +90,7 @@ export default function InodesTable(props: Props, ctx: AppContext) {
                   )}
                   {canChangeAclSome && (
                     <td>
-                      {perm.canChangeAcl && <Visibility inode={inode} />}
+                      {perm.canChangeAcl && <InodeVisibility inode={inode} />}
                     </td>
                   )}
                   <td class="date">
@@ -135,26 +135,4 @@ function SelectInput({ isMultiSelect }: { isMultiSelect: boolean }) {
       />
     </label>
   );
-}
-
-function Visibility(props: { inode: Inode }, ctx: AppContext) {
-  const { inode } = props;
-  const others = inode.visibleByOthers || [];
-  if (others.length === 1) {
-    return <>You and {others[0]}</>;
-  }
-  if (others.length > 1) {
-    const othersNames = new Intl.ListFormat(ctx.locale).format(others);
-    return (
-      <>
-        You and{" "}
-        <Tooltip info={othersNames}>
-          <span class="permissions-others">{others.length} others</span>
-        </Tooltip>
-      </>
-    );
-  }
-  const perm = getPermissions({ user: null, resource: inode });
-  if (perm.canRead) return <>Public</>;
-  return <>Private</>;
 }

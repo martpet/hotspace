@@ -1,52 +1,52 @@
-export type Acl = Record<UserId, Group | Action[]>;
-
-type UserId = string;
-type Group = "admin";
+type Role =
+  | "admin"
+  | "viewer"
+  | "contributor"
+  | "moderator"
+  | "moderator_contributor";
 
 type Action =
   | "read"
   | "create"
   | "modify"
-  | "modify_own"
   | "moderate"
-  | "change_acl";
+  | "changeAcl";
 
-export interface Permission {
-  canRead: boolean;
-  canCreate: boolean;
-  canModify: boolean;
-  canModerate: boolean;
-  canChangeAcl: boolean;
+export type AccessControlList = Record<string, Role>;
+export type ResourcePermissions = Record<`can${Capitalize<Action>}`, boolean>;
+
+interface GetPermissionsInput {
+  user: { id: string } | null | undefined;
+  resource: { acl: AccessControlList; ownerId: string } | null | undefined;
 }
 
-export function getPermissions(input: {
-  user: { id: string } | null | undefined;
-  resource: { acl: Acl; ownerId: string } | null | undefined;
-}): Permission {
-  const { user, resource } = input;
+export function getPermissions(
+  input: GetPermissionsInput,
+): ResourcePermissions {
+  const userId = input.user?.id;
+  const ownerId = input.resource?.ownerId;
+  const acl = input.resource?.acl;
+  const role = (userId && acl?.[userId]) || acl?.["*"] || "";
+  const isOwner = userId && ownerId && userId === ownerId;
+  const isAdmin = role === "admin";
 
-  const per = {
-    canRead: false,
-    canCreate: false,
-    canModify: false,
-    canModerate: false,
-    canChangeAcl: false,
+  return {
+    canRead: isAdmin ||
+      role === "viewer",
+
+    canCreate: isAdmin ||
+      role === "contributor" ||
+      role === "moderator_contributor",
+
+    canModify: isAdmin ||
+      (isOwner &&
+          role === "contributor" ||
+        role === "moderator_contributor"),
+
+    canModerate: isAdmin ||
+      role === "moderator" ||
+      role === "moderator_contributor",
+
+    canChangeAcl: isAdmin,
   };
-
-  if (resource) {
-    const userId = user?.id;
-    const { acl, ownerId } = resource;
-    const match = userId && acl?.[userId] || acl?.["*"];
-    if (match) {
-      const isAdmin = match === "admin";
-      per.canRead = isAdmin || match.includes("read");
-      per.canCreate = isAdmin || match.includes("create");
-      per.canModify = isAdmin || match.includes("modify") ||
-        (match.includes("modify_own") && userId === ownerId);
-      per.canModerate = isAdmin || match.includes("moderate");
-      per.canChangeAcl = isAdmin || match.includes("change_acl");
-    }
-  }
-
-  return per;
 }

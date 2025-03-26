@@ -1,10 +1,10 @@
-import type { Acl, AsyncQueue, MaybePromise } from "$util";
+import type { AccessControlList, AsyncQueue, MaybePromise } from "$util";
 import type { ChatConnection } from "../ChatConnection.ts";
 
 export interface ChatResource {
   id: string;
   ownerId: string;
-  acl: Acl;
+  acl: AccessControlList;
   chatEnabled?: boolean;
 }
 
