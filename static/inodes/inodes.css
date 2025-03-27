@@ -140,7 +140,6 @@ a.inode {
   @container (width < 640px) {
     th,
     td {
-      &:empty,
       &.type,
       &.size {
         display: none;
