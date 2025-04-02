@@ -142,8 +142,8 @@ async function submitChanges() {
   }
   const { notFoundUsernames } = await resp.json();
   if (notFoundUsernames.length) {
-    handleNotFoundUsernames(notFoundUsernames);
     statusSignal.value = "idle";
+    handleNotFoundUsernames(notFoundUsernames);
     return;
   }
   await replaceFragment("inodes");
