@@ -23,10 +23,7 @@ const btnDelete = document.getElementById("inodes-table-delete-button");
 const mutationObserver = new MutationObserver(onMutationObserve);
 const { dirId, isSingleSelect, inodeLabel } = tableMenu.dataset;
 
-mutationObserver.observe(container, {
-  subtree: true,
-  childList: true,
-});
+mutationObserver.observe(container, { subtree: true, childList: true });
 
 refreshContainerElements();
 

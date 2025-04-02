@@ -1,5 +1,5 @@
 import { STATUS_CODE } from "@std/http";
-import { getPermissions } from "../../lib/util/permissions.ts";
+import { getPermissions } from "../../lib/util/file_permissions.ts";
 import { deleteInodesRecursive } from "../../util/inodes/kv_wrappers.ts";
 import { getInodeById, keys as getInodeKey } from "../../util/kv/inodes.ts";
 import { getMany } from "../../util/kv/kv.ts";

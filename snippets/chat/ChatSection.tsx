@@ -41,7 +41,6 @@ export default function ChatSection(props: Props, ctx: AppContext) {
     return <div id="chat" hidden />;
   }
 
-  const { user } = ctx.state;
   const { locale } = ctx;
   const { dateTimeFmt, timeFmt } = chatIntlFmt(locale);
 
@@ -51,7 +50,6 @@ export default function ChatSection(props: Props, ctx: AppContext) {
       data-chat-id={chatId}
       data-chat-title={chatTitle}
       data-can-moderate={canModerate ? "1" : null}
-      data-current-user-username={user?.username}
       data-msg-followup-duration={CHAT_MSG_FOLLOWUP_DURATION}
       data-chat-sub-expires={CHAT_SUB_WITHOUT_PUSH_SUB_EXPIRES}
       data-locale={locale}

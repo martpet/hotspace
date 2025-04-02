@@ -1,9 +1,10 @@
-import { encodeBase64 } from "@std/encoding/base64";
+import { encodeBase64 } from "@std/encoding";
 import { signCloudfrontUrl, type SignCloudfrontUrlOptions } from "../aws.ts";
 import { INODES_CLOUDFRONT_URL } from "../consts.ts";
-import { getInodeById, setInode } from "../kv/inodes.ts";
+import { getInodeById } from "../kv/inodes.ts";
 import type { FileNode, Inode, InodeLabel, VideoNode } from "../types.ts";
 import { ROOT_DIR_ID } from "./consts.ts";
+import { setAnyInode } from "./kv_wrappers.ts";
 
 export function isPostProcessableUpload(inode: Inode) {
   return isVideoNode(inode);
@@ -23,9 +24,9 @@ export function getInodeLabel(inode: Inode): InodeLabel {
   return "Folder";
 }
 
-export async function updateInodeWithRetry<T extends Inode>(
+export async function updateInodeWithRetry(
   entry: Deno.KvEntryMaybe<Inode>,
-  data: T,
+  inode: Inode,
 ) {
   if (!entry.value) return;
   let commit = { ok: false };
@@ -33,7 +34,7 @@ export async function updateInodeWithRetry<T extends Inode>(
   while (!commit.ok) {
     if (i > 0) entry = await getInodeById(entry.value.id);
     if (!entry.value) return;
-    const atomic = setInode(data);
+    const atomic = setAnyInode(inode);
     atomic.check(entry);
     commit = await atomic.commit();
     i++;
@@ -48,7 +49,7 @@ export function getFileNodeUrl(
   return signCloudfrontUrl(url, opt);
 }
 
-export function processVideNodeMasterPlaylist(input: {
+export function processVideоNodeMasterPlaylist(input: {
   playlist: string;
   inodeId: string;
   origin: string;
@@ -58,7 +59,6 @@ export function processVideNodeMasterPlaylist(input: {
   const processedLines = [];
   const subPlaylistsS3Keys: string[] = [];
   let subPlaylistIndex = 0;
-
   for (const line of lines) {
     if (!line.endsWith(".m3u8")) {
       processedLines.push(line);
@@ -70,13 +70,10 @@ export function processVideNodeMasterPlaylist(input: {
       subPlaylistIndex++;
     }
   }
-
   const playlistResult = processedLines.join("\n");
-
   const playListDataUrl = `data:application/vnd.apple.mpegurl;base64,${
     encodeBase64(playlistResult)
   }`;
-
   return {
     playListDataUrl,
     subPlaylistsS3Keys,

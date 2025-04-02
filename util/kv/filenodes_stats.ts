@@ -3,7 +3,7 @@ import { kv, toKvSumBigInt } from "./kv.ts";
 
 export const keys = {
   totalUploadSize: () => ["total_upload_size"],
-  uploadSizeByUser: (userId: string) => ["upload_size_by_user", userId],
+  uploadSizeByOwner: (userId: string) => ["upload_size_by_user", userId],
   fileTypesCount: (fileType: string) => ["file_types_count", fileType],
 };
 
@@ -20,18 +20,18 @@ export function setFileNodeStats(options: {
 
   return atomic
     .sum(keys.totalUploadSize(), fileSizeChange)
-    .sum(keys.uploadSizeByUser(fileNode.ownerId), fileSizeChange)
+    .sum(keys.uploadSizeByOwner(fileNode.ownerId), fileSizeChange)
     .sum(keys.fileTypesCount(fileNode.fileType), fileTypeCountChange);
 }
 
-export function deleteUploadSizeByUser(userId: string) {
-  return kv.delete(keys.uploadSizeByUser(userId));
+export function deleteuploadSizeByOwner(userId: string) {
+  return kv.delete(keys.uploadSizeByOwner(userId));
 }
 
-export function getUploadSizeByUser(
+export function getuploadSizeByOwner(
   user: User,
   options: { consistency?: Deno.KvConsistencyLevel } = {},
 ) {
   const { consistency } = options;
-  return kv.get<bigint>(keys.uploadSizeByUser(user.id), { consistency });
+  return kv.get<bigint>(keys.uploadSizeByOwner(user.id), { consistency });
 }

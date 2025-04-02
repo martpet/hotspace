@@ -19,7 +19,6 @@ let errorEl;
 // =====================
 
 button.onclick = (e) => {
-  e.preventDefault();
   if (!dialog) {
     insertDialog();
     initDialogEvents();
@@ -133,7 +132,6 @@ function insertDialog() {
   closeButton = document.getElementById("delete-inode-close");
   submitButton = document.getElementById("delete-inode-submit");
   errorEl = document.getElementById("delete-inode-error");
-  statusSignal.value = "closed";
 }
 
 function renderStatusChange() {

@@ -10,6 +10,7 @@ import {
   pushSubLockSignal,
   SESSION_EXPIRED_ERR_MSG,
   syncPushSub,
+  userUsername,
 } from "$main";
 
 // =====================
@@ -27,7 +28,6 @@ const {
   chatId,
   chatTitle,
   msgFollowupDuration,
-  currentUserUsername,
   canModerate,
   chatSubExpires,
 } = rootEl.dataset;
@@ -305,7 +305,7 @@ function handleInboundFeed(feedItems) {
   for (const item of feedItems) {
     FEED_ITEM_HANDLERS[item.type](item.data);
     const isChatMsg = item.type === "new-chat-msg";
-    if (isChatMsg && item.data.username !== currentUserUsername) {
+    if (isChatMsg && item.data.username !== userUsername) {
       firstNewMsg ??= item.data;
       renderUsersTyping(item.data.username, false);
     }
@@ -498,8 +498,8 @@ textareaNewMsg?.addEventListener("input", async () => {
   currentUserTypingSession.prevText = text;
   if (isDeleting || throttled) return;
   const data = {
-    username: currentUserUsername,
-    lastUserMsgId: findLastMsgByUser(currentUserUsername)?.id,
+    username: userUsername,
+    lastUserMsgId: findLastMsgByUser(userUsername)?.id,
   };
   const outboundEvent = { type: "user-typing", data };
   const { ok } = await dispatchChatEvent(outboundEvent, { retry: false });
@@ -742,7 +742,7 @@ function renderOutboundNewMsg({ clientMsgId, text }) {
   const createdAt = new Date();
   const msgEl = buildMsgEl({
     id: clientMsgId,
-    username: currentUserUsername,
+    username: userUsername,
     text,
     createdAt,
   });
@@ -872,7 +872,7 @@ function buildMsgEl(data) {
   let el = data.el;
   el ??= chatTmpl.content.querySelector(".chat-msg").cloneNode(true);
   const mainEl = el.querySelector(".main");
-  const canEdit = username === currentUserUsername;
+  const canEdit = username === userUsername;
   const canDelete = canEdit || canModerate;
   const textEl = mainEl.querySelector(".text");
   textEl.textContent = sanitizeChatMsgText(text);
@@ -924,7 +924,7 @@ function appendDayElMaybe({ createdAt, container = msgsBox }) {
 // =====================
 
 function prepareFormFields() {
-  if (!currentUserUsername) return;
+  if (!userUsername) return;
   formNewMsg.querySelector("fieldset").disabled = false;
   formNewMsg.querySelector("fieldset button").hidden = deviceType !== "mobile";
 }
@@ -1036,7 +1036,7 @@ function insertMsgMenuMaybe(msgEl) {
 }
 
 function insertMessageDialogs() {
-  if (!currentUserUsername) return;
+  if (!userUsername) return;
   function msgPreview({ editMode } = {}) {
     return `
       <blockquote class="preview">

@@ -1,4 +1,4 @@
-import { getPermissions } from "../util/permissions.ts";
+import { getPermissions } from "../util/file_permissions.ts";
 import { Chat } from "./Chat.ts";
 import { ChatUser } from "./ChatUser.ts";
 import { config as handlersConfig } from "./event_handlers/config.ts";

@@ -33,7 +33,7 @@ export function createFileNode(options: {
   if (isVideoNode(fileNode)) {
     fileNode.mediaConvert = { status: "PENDING", streamType: "hls" };
   }
-  setInode(fileNode, atomic);
+  setAnyInode(fileNode, atomic);
   setFileNodeStats({ fileNode, isAdd: true, atomic });
 
   if (isPostProcessableUpload(fileNode)) {

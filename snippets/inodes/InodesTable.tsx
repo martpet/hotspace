@@ -4,15 +4,15 @@ import { type JSX } from "preact";
 import type { AppContext, Inode } from "../../util/types.ts";
 import BlankSlate from "../BlankSlate.tsx";
 import RelativeTime from "../RelativeTime.tsx";
+import InodeAccess from "./InodeAccess.tsx";
 import { InodeAnchor } from "./InodeAnchor.tsx";
-import InodeVisibility from "./InodeVisibility.tsx";
 
 interface Props {
   inodes: Inode[];
   inodesPermissions: ResourcePermissions[];
   canCreate: boolean;
   canModifySome: boolean;
-  canChangeAclSome: boolean;
+  canViewAclSome: boolean;
   isMultiSelect?: boolean;
   skipCols?: ("size" | "type")[];
   skipIcons?: boolean;
@@ -25,7 +25,7 @@ export default function InodesTable(props: Props, ctx: AppContext) {
     inodesPermissions,
     canCreate,
     canModifySome,
-    canChangeAclSome,
+    canViewAclSome,
     isMultiSelect = true,
     skipCols,
     skipIcons,
@@ -61,7 +61,7 @@ export default function InodesTable(props: Props, ctx: AppContext) {
               </th>
               <th class="name">Name</th>
               {!skipType && <th class="type">Type</th>}
-              {canChangeAclSome && <th>Visibility</th>}
+              {canViewAclSome && <th>Access</th>}
               <th class="date">Created</th>
               {!skipSize && <th class="size">Size</th>}
             </tr>
@@ -69,16 +69,16 @@ export default function InodesTable(props: Props, ctx: AppContext) {
 
           <tbody>
             {inodes.sort(inodesSorter).map((inode, i) => {
-              const perm = inodesPermissions[i];
-              if (!perm.canRead) {
+              const { canRead, canModify, canChangeAcl, canViewAcl } =
+                inodesPermissions[i];
+
+              if (!canRead) {
                 return null;
               }
               return (
                 <tr>
                   <td class="select">
-                    {perm.canModify && (
-                      <SelectInput isMultiSelect={isMultiSelect} />
-                    )}
+                    {canModify && <SelectInput isMultiSelect={isMultiSelect} />}
                   </td>
                   <td class="name">
                     <InodeAnchor inode={inode} skipIcons={skipIcons} />
@@ -88,9 +88,14 @@ export default function InodesTable(props: Props, ctx: AppContext) {
                       {inode.type === "file" ? inode.fileType : "Folder"}
                     </td>
                   )}
-                  {canChangeAclSome && (
+                  {canViewAclSome && (
                     <td>
-                      {perm.canChangeAcl && <InodeVisibility inode={inode} />}
+                      {canViewAcl && (
+                        <InodeAccess
+                          inode={inode}
+                          canChangeAcl={canChangeAcl}
+                        />
+                      )}
                     </td>
                   )}
                   <td class="date">

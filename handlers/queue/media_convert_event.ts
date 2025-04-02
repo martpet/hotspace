@@ -2,7 +2,7 @@ import { s3 } from "$aws";
 import { getSigner } from "../../util/aws.ts";
 import { INODES_BUCKET } from "../../util/consts.ts";
 import {
-  processVideNodeMasterPlaylist,
+  processVideоNodeMasterPlaylist,
   updateInodeWithRetry,
 } from "../../util/inodes/helpers.ts";
 import { getInodeById } from "../../util/kv/inodes.ts";
@@ -67,7 +67,7 @@ export async function handleMediaConvertEvent(
       const {
         playListDataUrl,
         subPlaylistsS3Keys,
-      } = processVideNodeMasterPlaylist({
+      } = processVideоNodeMasterPlaylist({
         playlist,
         inodeId,
         origin,

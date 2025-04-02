@@ -1,6 +1,6 @@
 import { pick } from "@std/collections";
 import { HEADER, STATUS_CODE } from "@std/http";
-import { getPermissions } from "../../lib/util/permissions.ts";
+import { getPermissions } from "../../lib/util/file_permissions.ts";
 import { getInodeById, keys as inodesKeys } from "../../util/kv/inodes.ts";
 import { watch } from "../../util/kv/kv.ts";
 import type { AppContext, VideoNode } from "../../util/types.ts";

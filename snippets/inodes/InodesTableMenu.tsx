@@ -1,4 +1,4 @@
-import { InodeLabel } from "../../util/types.ts";
+import type { InodeLabel } from "../../util/types.ts";
 import { asset } from "../../util/url.ts";
 
 interface Props {

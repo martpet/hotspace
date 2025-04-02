@@ -1,5 +1,7 @@
 import type { DirNode } from "../types.ts";
 
+// export const USERS_WITH_ACCESS_SUBSET_SIZE = 5;
+
 export const ROOT_DIR_ID = "0";
 
 export const ROOT_DIR: DirNode = {
@@ -11,4 +13,8 @@ export const ROOT_DIR: DirNode = {
   isRootDir: true,
   ownerId: "",
   acl: {},
+  aclStats: {
+    usersCount: 0,
+    previewSubset: {},
+  },
 };

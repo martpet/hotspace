@@ -23,13 +23,13 @@ export const keys = {
 // Inodes
 // =====================
 
-export function setInode(inode: Inode, atomic = kv.atomic()) {
+export function setInode(inode: Inode, atomic = kv.atomic()) { // Do not use directly
   return atomic
     .set(keys.byId(inode.id), inode)
     .set(keys.byDir(inode.parentDirId, inode.name), inode);
 }
 
-export function deleteInode(inode: Inode, atomic = kv.atomic()) {
+export function deleteInode(inode: Inode, atomic = kv.atomic()) { // Do not use directly
   return atomic
     .delete(keys.byId(inode.id))
     .delete(keys.byDir(inode.parentDirId, inode.name));
@@ -55,13 +55,20 @@ export function getInodeByDir<T = Inode>({
   return kv.get<T>(keys.byDir(parentDirId, inodeName), { consistency });
 }
 
-export async function listInodesByDir(
+export function listInodesEntriesByDir(
   dirId: string,
   options?: Deno.KvListOptions,
 ) {
   const prefix = keys.byDir(dirId, "").slice(0, -1);
   const iter = kv.list<Inode>({ prefix }, options);
-  const entries = await Array.fromAsync(iter);
+  return Array.fromAsync(iter);
+}
+
+export async function listInodesByDir(
+  dirId: string,
+  options?: Deno.KvListOptions,
+) {
+  const entries = await listInodesEntriesByDir(dirId, options);
   return entries.map((x) => x.value);
 }
 

@@ -10,7 +10,7 @@ import { PushMessageError } from "@negrel/webpush";
 import { retry } from "@std/async/retry";
 import { associateBy, chunk } from "@std/collections";
 import { STATUS_CODE } from "@std/http";
-import { getPermissions } from "../../lib/util/permissions.ts";
+import { getPermissions } from "../../lib/util/file_permissions.ts";
 import { CHAT_SUB_WITHOUT_PUSH_SUB_EXPIRES } from "../../util/consts.ts";
 import { deleteQueueNonce, getQueueNonce } from "../../util/kv/enqueue.ts";
 import { getInodeById } from "../../util/kv/inodes.ts";

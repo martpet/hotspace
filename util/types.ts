@@ -1,5 +1,6 @@
 import type { ChatResource, ChatUserResource } from "$chat";
 import type { Context, Middleware } from "$server";
+import { AclResource, type AclRole } from "$util";
 import type { PushSubscription } from "@negrel/webpush";
 
 export type AppContext = Context<
@@ -61,17 +62,36 @@ export interface PushSubscriber {
   userId?: string;
 }
 
+// =====================
+// Inodes
+//
+// TODO: move to utils/inodes
+// =====================
+
 export type InodeLabel = "Space" | "Folder" | "File";
+
+export type AclPreview = Record<string, AclRole>;
+
+export interface AclDiffWithUsername {
+  username: string;
+  role: AclRole | null;
+}
+
+export interface AclDiffWithUserId {
+  userId: string;
+  role: AclRole | null;
+}
 
 export type Inode = DirNode | FileNode | VideoNode;
 
-interface InodeBase extends ChatResource {
+interface InodeBase extends ChatResource, AclResource {
   type: string;
   name: string;
   parentDirId: string;
-  ownerId: string;
-  visibleByOthers?: string[];
-  description?: string;
+  aclStats: {
+    usersCount: number;
+    previewSubset: AclPreview;
+  };
 }
 
 export interface DirNode extends InodeBase {

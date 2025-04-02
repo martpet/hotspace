@@ -1,5 +1,5 @@
 import { STATUS_CODE } from "@std/http";
-import { getPermissions } from "../../lib/util/permissions.ts";
+import { getPermissions } from "../../lib/util/file_permissions.ts";
 import { setAnyInode } from "../../util/inodes/kv_wrappers.ts";
 import { getInodeById } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";

@@ -63,6 +63,7 @@ export default async function completeUploadHandler(ctx: AppContext) {
       parentDirId: dirId,
       ownerId: user.id,
       acl: dirEntry.value.acl,
+      aclStats: dirEntry.value.aclStats,
     };
 
     const isSaved = await saveFileNode({

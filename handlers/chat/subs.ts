@@ -6,7 +6,7 @@ import {
   setChatSub,
 } from "$chat";
 import { METHOD, STATUS_CODE } from "@std/http";
-import { getPermissions } from "../../lib/util/permissions.ts";
+import { getPermissions } from "../../lib/util/file_permissions.ts";
 import { keys as inodesKeys } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { keys as pushSubscribersKeys } from "../../util/kv/push_subscribers.ts";

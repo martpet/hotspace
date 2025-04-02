@@ -6,6 +6,7 @@ export const {
   browserName,
   canUserServiceWorker,
   serviceWorkerPath,
+  userUsername,
 } = isServiceWorkerScope ? {} : document.documentElement.dataset;
 
 export const GENERAL_ERR_MSG = "Oops, something went wrong, try again!";

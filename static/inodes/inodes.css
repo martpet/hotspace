@@ -95,9 +95,6 @@ a.inode {
         border-bottom-color: Highlight;
       }
     }
-    .permissions-others {
-      border-bottom: 1px dotted CanvasText;
-    }
   }
   th,
   td {
@@ -184,4 +181,50 @@ a.inode {
   max-width: 100%;
   max-height: 100vh;
   margin: 0 auto;
+}
+
+.inode-access {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  .others-preview {
+    border-bottom: 1px dotted CanvasText;
+  }
+}
+
+#acl-dialog {
+  .inode-name {
+    margin-top: -0.8em;
+    margin-bottom: 1.5em;
+    padding-bottom: 1.5em;
+    font-size: 1em;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-grey-light);
+  }
+  .permissions {
+    margin-top: 2em;
+    padding: 0.5em 1em 1em;
+    border: 1px solid var(--border-grey);
+    border-radius: 5px;
+    legend {
+      font-weight: 600;
+    }
+    label {
+      display: flex;
+      margin: 1em 0;
+      gap: 0.5em;
+    }
+    select {
+      text-transform: capitalize;
+    }
+    #acl-add-user {
+      margin-top: 1em;
+    }
+    #acl-loading {
+      display: flex;
+      gap: 0.5em;
+      justify-content: center;
+      color: var(--text-grey-dark);
+    }
+  }
 }

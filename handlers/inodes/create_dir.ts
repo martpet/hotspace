@@ -1,4 +1,4 @@
-import { getPermissions } from "$util";
+import { AclRole, getPermissions } from "$util";
 import { STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
 import { DIR_NAME_CONSTRAINTS } from "../../util/constraints.ts";
@@ -69,6 +69,18 @@ export default async function createDirNodeHandler(ctx: AppContext) {
     return ctx.respond(errMsg, STATUS_CODE.Conflict);
   }
 
+  let acl = parentDir.acl;
+  let aclStats = parentDir.aclStats;
+
+  if (isParentRoot) {
+    const role: AclRole = "admin";
+    acl = { [user.id]: role };
+    aclStats = {
+      usersCount: 1,
+      previewSubset: { [user.username]: role },
+    };
+  }
+
   const dirNode: DirNode = {
     type: "dir",
     id: ulid(),
@@ -76,15 +88,13 @@ export default async function createDirNodeHandler(ctx: AppContext) {
     parentDirId,
     pathSegments,
     ownerId: user.id,
-    acl: isParentRoot ? { [user.id]: "admin" } as const : parentDir.acl,
+    acl,
+    aclStats,
   };
 
   const atomic = kv.atomic();
-
   atomic.check(currentDirEntry, parentDirEntry);
-
   setAnyInode(dirNode, atomic);
-
   const commit = await atomic.commit();
 
   if (!commit.ok) {

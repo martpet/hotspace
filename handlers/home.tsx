@@ -1,4 +1,4 @@
-import { getPermissions } from "../lib/util/permissions.ts";
+import { getPermissions } from "../lib/util/file_permissions.ts";
 import BlankSlate from "../snippets/BlankSlate.tsx";
 import ButtonCreateDir from "../snippets/inodes/ButtonCreateDir.tsx";
 import InodesTable from "../snippets/inodes/InodesTable.tsx";
@@ -40,7 +40,7 @@ export default async function homeHandler(ctx: AppContext) {
       skipCols={["size", "type"]}
       canCreate
       canModifySome
-      canChangeAclSome
+      canViewAclSome
       inodesPermissions={inodesPermissions}
       blankSlate={
         <BlankSlate
@@ -57,6 +57,7 @@ export default async function homeHandler(ctx: AppContext) {
 
   const head = (
     <>
+      <script type="module" src={asset("inodes/acl.js")} />
       <link rel="stylesheet" href={asset("inodes/inodes.css")} />
     </>
   );

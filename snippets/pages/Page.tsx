@@ -36,6 +36,7 @@ export default function Page(props: PageProps, ctx: AppContext) {
       data-browser-name={userAgent.browser.name}
       data-can-user-service-worker={ctx.state.canUseServiceWorker ? "1" : ""}
       data-service-worker-path={asset("service_worker.js", { cdn: false })}
+      data-user-username={ctx.state.user?.username || null}
     >
       <head>
         <meta charset="UTF-8" />

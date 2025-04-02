@@ -2,7 +2,7 @@ import { listChatMessagesByUser } from "$chat";
 import { newQueue } from "@henrygd/queue";
 import { setDeletedChatMessage } from "../../lib/chat/util/kv/chat_messages_wrappers.ts";
 import { deleteInodesRecursive } from "../../util/inodes/kv_wrappers.ts";
-import { deleteUploadSizeByUser } from "../../util/kv/filenodes_stats.ts";
+import { deleteuploadSizeByOwner } from "../../util/kv/filenodes_stats.ts";
 import { listRootDirsByOwner } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { deletePasskey, listPasskeysByUser } from "../../util/kv/passkeys.ts";
@@ -34,7 +34,7 @@ export async function handleCleanUpUser(msg: QueueMsgCleanUpUser) {
 
   queue.add(() => deleteInodesRecursive(inodes));
 
-  queue.add(() => deleteUploadSizeByUser(userId));
+  queue.add(() => deleteuploadSizeByOwner(userId));
 
   for (const passkey of passkeys) {
     queue.add(() => deletePasskey(passkey).commit());
