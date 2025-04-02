@@ -56,13 +56,11 @@ export default async function showInodeHandler(ctx: AppContext) {
 
   let canModifySome = false;
   let canViewAclSome = false;
-  let canChangeAclSome = false;
 
   const inodesPermissions = inodes.map((inode) => {
     const per = getPermissions({ user, resource: inode });
     if (per.canModify) canModifySome = true;
     if (per.canViewAcl) canViewAclSome = true;
-    if (per.canChangeAcl) canChangeAclSome = true;
     return per;
   });
 
@@ -82,12 +80,7 @@ export default async function showInodeHandler(ctx: AppContext) {
 
   const head = (
     <>
-      {canChangeAclSome && (
-        <script
-          type="module"
-          src={asset("inodes/acl.js")}
-        />
-      )}
+      <script type="module" src={asset("inodes/acl.js")} />
       <link rel="stylesheet" href={asset("inodes/inodes.css")} />
       <link rel="stylesheet" href={asset("chat/chat.css")} />
     </>
