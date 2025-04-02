@@ -37,7 +37,7 @@ const errorSignal = createSignal("");
 const aclSignal = createSignal();
 
 statusSignal.subscribe((status) => {
-  showSubmitting(status === "submitting");
+  showSubmitting(status === "submitted");
 
   if (status === "idle") {
     dialog.showModal();
