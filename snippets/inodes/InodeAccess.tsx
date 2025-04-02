@@ -23,7 +23,7 @@ export default function InodeAccess(props: Props) {
   if (hasPublicAccess) {
     return (
       <Wrap>
-        public
+        Public
       </Wrap>
     );
   }
@@ -31,14 +31,14 @@ export default function InodeAccess(props: Props) {
   if (usersCount === 1) {
     return (
       <Wrap>
-        private
+        Private
       </Wrap>
     );
   }
 
   return (
     <Wrap>
-      you and {usersCount - 1} other{usersCount > 2 ? "s" : ""}
+      You and {usersCount - 1} other{usersCount > 2 ? "s" : ""}
     </Wrap>
   );
 }
