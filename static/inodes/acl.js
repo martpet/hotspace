@@ -253,9 +253,10 @@ function insertDialog() {
 }
 
 function renderAcl() {
-  const aclEntries = Object.entries(aclSignal.value);
-  const aclElements = aclEntries.map((aclItem) => createAclEl(aclItem));
-  aclRoot.append(...aclElements);
+  const sortCurrentUserFirst = ([name]) => name === userUsername ? -1 : 0;
+  const entries = Object.entries(aclSignal.value).sort(sortCurrentUserFirst);
+  const elements = entries.map((aclItem) => createAclEl(aclItem));
+  aclRoot.append(...elements);
 }
 
 function createAclEl(aclItem) {
