@@ -86,7 +86,7 @@ function initListeners() {
 
   form.onsubmit = (e) => {
     e.preventDefault();
-    if (checkFormValidity()) {
+    if (checkFormValid()) {
       statusSignal.value = "submitted";
     }
   };
@@ -108,20 +108,24 @@ async function init(button) {
   insertDialog();
   initListeners();
   statusSignal.value = "idle";
-  const acl = dataset.acl ? JSON.parse(dataset.acl) : await fetchAclPreview();
+  const acl = dataset.acl ? JSON.parse(dataset.acl) : await fetchAcl();
   aclSignal.value = acl;
 }
 
-async function fetchAclPreview() {
+async function fetchAcl() {
   disableControls(true);
   aclLoader.hidden = false;
   buttonAddUser.hidden = true;
   const resp = await fetch(`/inodes/acl-preview/${inodeId}`);
-  if (!resp.ok) errorSignal.value = GENERAL_ERR_MSG;
+  if (resp.ok) {
+    buttonAddUser.hidden = false;
+    disableControls(false);
+    return resp.json();
+  } else {
+    errorSignal.value = "Error loading access settings, try again";
+    buttonClose.disabled = false;
+  }
   aclLoader.hidden = true;
-  disableControls(false);
-  buttonAddUser.hidden = false;
-  return resp.json();
 }
 
 async function submitChanges() {
@@ -151,7 +155,7 @@ async function submitChanges() {
   statusSignal.value = "closed";
 }
 
-function checkFormValidity() {
+function checkFormValid() {
   const usernamesInputs = aclRoot.querySelectorAll("input.username");
   for (const input of usernamesInputs) {
     const isAlreadyAdded = aclSignal.value[input.value] !== undefined;
@@ -165,8 +169,8 @@ function checkFormValidity() {
 }
 
 function handleNotFoundUsernames(usernames) {
-  const inputEls = aclRoot.querySelectorAll("input.username");
-  inputEls.forEach((input, i) => {
+  const usernamesInputs = aclRoot.querySelectorAll("input.username");
+  usernamesInputs.forEach((input, i) => {
     if (usernames.includes(input.value)) {
       input.setCustomValidity("Username not found");
       if (i === 0) input.reportValidity();

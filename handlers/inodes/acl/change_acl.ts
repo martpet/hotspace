@@ -74,12 +74,11 @@ export default async function changeAclHandler(ctx: AppContext) {
 
   for (const diff of diffs) {
     const { username, role } = diff;
-    if (!username || username === user.username) {
+    if (username === "") {
       continue;
     }
     if (username === ACL_ROLE_ALL) {
-      const roleSanitzied = role === null ? null : "viewer";
-      finalDiffs.push({ userId: ACL_ROLE_ALL, role: roleSanitzied });
+      finalDiffs.push({ userId: username, role });
       continue;
     }
     const existingUser = usersByUsername[username];

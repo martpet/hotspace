@@ -1,4 +1,10 @@
-import { Acl, getAclUsersCount, getAclUsersIds, getPermissions } from "$util";
+import {
+  Acl,
+  ACL_ROLE_ALL,
+  getAclUsersCount,
+  getAclUsersIds,
+  getPermissions,
+} from "$util";
 import { sortBy } from "@std/collections";
 import { QueueMsgChangeDirChildrenAcl } from "../../handlers/queue/change_dir_children_acl.ts";
 import { keys as usersKeys } from "../../util/kv/users.ts";
@@ -61,8 +67,12 @@ export async function changeAcl(input: {
   const acl = { ...inode.acl };
 
   for (const { role, userId } of diffs) {
-    if (role === null) {
+    if (userId === actingUserId) {
+      continue;
+    } else if (role === null) {
       delete acl[userId];
+    } else if (userId === ACL_ROLE_ALL) {
+      acl[userId] = "viewer";
     } else {
       acl[userId] = role;
     }

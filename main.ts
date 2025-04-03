@@ -16,7 +16,7 @@ import chatSubs from "./handlers/chat/subs.ts";
 import toggleChat from "./handlers/chat/toggle_chat.ts";
 import home from "./handlers/home.tsx";
 import changeAcl from "./handlers/inodes/acl/change_acl.ts";
-import getAcl from "./handlers/inodes/acl/get_acl_preview.ts";
+import getAclPreview from "./handlers/inodes/acl/get_acl_preview.ts";
 import setDirByPath from "./handlers/inodes/create_dir.ts";
 import deleteInodes from "./handlers/inodes/delete.ts";
 import listenMediaConvertEvent from "./handlers/inodes/listen_media_convert_event.ts";
@@ -71,7 +71,7 @@ app.post("/inodes/upload/complete", completeUpload);
 app.get("/inodes/listen-media-convert-event/:inodeId", listenMediaConvertEvent);
 app.get("/inodes/video-playlist/:inodeId/:renditionIndex", videoPlaylist);
 app.post("/inodes/acl", changeAcl);
-app.get("/inodes/acl-preview/:inodeId", getAcl);
+app.get("/inodes/acl-preview/:inodeId", getAclPreview);
 
 app.get("/chat/lazy-load/:chatId", chatLazyLoad);
 app.get("/chat/connection/:chatId", chatConnection);
