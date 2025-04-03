@@ -35,14 +35,14 @@ if (isProd) {
   assert(env.CLOUDFRONT_SIGNER_PRIVATE_KEY_PROD);
   assert(env.CLOUDFRONT_KEYPAIR_ID_PROD);
   assert(env.MEDIACONVERT_ROLE_PROD);
-  assert(env.MEDIA_CONVERT_WEBHOOK_KEY_PROD);
+  assert(env.AWS_WEBHOOKS_KEY_PROD);
 } else {
   assert(env.AWS_ACCESS_KEY_ID_DEV);
   assert(env.AWS_SECRET_ACCESS_KEY_DEV);
   assert(env.CLOUDFRONT_SIGNER_PRIVATE_KEY_DEV);
   assert(env.CLOUDFRONT_KEYPAIR_ID_DEV);
   assert(env.MEDIACONVERT_ROLE_DEV);
-  assert(env.MEDIA_CONVERT_WEBHOOK_KEY_DEV);
+  assert(env.AWS_WEBHOOKS_KEY_DEV);
 }
 
 export const AWS_REGION = "us-east-1";
@@ -78,6 +78,6 @@ export const MEDIACONVERT_ROLE = isProd
   ? env.MEDIACONVERT_ROLE_PROD
   : env.MEDIACONVERT_ROLE_DEV;
 
-export const MEDIA_CONVERT_WEBHOOK_KEY = isProd
-  ? env.MEDIA_CONVERT_WEBHOOK_KEY_PROD
-  : env.MEDIA_CONVERT_WEBHOOK_KEY_DEV;
+export const AWS_WEBHOOKS_KEY = isProd
+  ? env.AWS_WEBHOOKS_KEY_PROD
+  : env.AWS_WEBHOOKS_KEY_DEV;
