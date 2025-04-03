@@ -21,9 +21,12 @@ export const PUSH_SUB_HOSTS = [
 ];
 
 const env = Deno.env.toObject();
+
 assert(env.ADMIN_EMAIL);
 assert(env.VAPID_KEYS);
-export const { VAPID_KEYS, ADMIN_EMAIL, LOCAL_DEV_PUBLIC_URL } = env;
+assert(env.APP_ADMIN);
+
+export const { VAPID_KEYS, ADMIN_EMAIL, LOCAL_DEV_PUBLIC_URL, APP_ADMIN } = env;
 
 // =====================
 // AWS

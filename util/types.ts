@@ -3,6 +3,10 @@ import type { Context, Middleware } from "$server";
 import { AclResource, type AclRole } from "$util";
 import type { PushSubscription } from "@negrel/webpush";
 
+export interface AppSettings {
+  isUploadEnabled?: boolean;
+}
+
 export type AppContext = Context<
   State & {
     from?: string;

@@ -4,6 +4,8 @@ import account from "./handlers/account/account.tsx";
 import deleteAccount from "./handlers/account/delete.tsx";
 import logout from "./handlers/account/logout.ts";
 import register from "./handlers/account/register.tsx";
+import appSettings from "./handlers/admin/app_settings.ts";
+import showAdmin from "./handlers/admin/showAdmin.tsx";
 import credCreatOpt from "./handlers/auth/cred_creation_options.ts";
 import credCreatVer from "./handlers/auth/cred_creation_verify.ts";
 import credReqOpt from "./handlers/auth/cred_request_options.ts";
@@ -81,6 +83,9 @@ app.post("/push-subs/subscribers", subscribers);
 app.get("/push-subs/vapid", vapid);
 
 app.post("/webhooks/aws", awsWebhooksHandler);
+
+app.get("/admin", showAdmin);
+app.post("/admin/app_settings", appSettings);
 
 app.get("*", showInode);
 

@@ -1,6 +1,7 @@
 export const reservedWords = [
   "about",
   "account",
+  "admin",
   "api",
   "app",
   "assets",

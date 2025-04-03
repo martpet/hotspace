@@ -1,3 +1,5 @@
+- implement APP_ADMIN in permissions
+
 - Chat subs: subscriber to public chat remains subsribed if chat becomes
   private.
 
