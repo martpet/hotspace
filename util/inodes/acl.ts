@@ -11,6 +11,7 @@ import { keys as usersKeys } from "../../util/kv/users.ts";
 import { enqueue } from "../kv/enqueue.ts";
 import { getManyEntries } from "../kv/kv.ts";
 import type { AclDiffWithUserId, AclPreview, Inode, User } from "../types.ts";
+import { ROOT_DIR_ID } from "./consts.ts";
 import { updateInodeWithRetry } from "./helpers.ts";
 
 const ACL_PREVIEW_SUBSET_SIZE = 5;
@@ -41,6 +42,7 @@ export async function changeAcl(input: {
 }) {
   const { diffs, inodeEntry, actingUserId, usersById = {}, recursive } = input;
   const inode = inodeEntry.value;
+  const isSpace = inode?.parentDirId === ROOT_DIR_ID;
 
   if (!inode) {
     return;
@@ -68,6 +70,8 @@ export async function changeAcl(input: {
 
   for (const { role, userId } of diffs) {
     if (userId === actingUserId) {
+      continue;
+    } else if (userId === inode.ownerId && isSpace) {
       continue;
     } else if (role === null) {
       delete acl[userId];

@@ -1,5 +1,3 @@
-- space owner should not be removed from acl
-
 - Chat subs: subscriber to public chat remains subsribed if chat becomes
   private.
 
