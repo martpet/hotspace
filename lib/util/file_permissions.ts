@@ -43,8 +43,6 @@ export function getPermissions(input: PermissionsInput): ResourcePermissions {
   const isContributor = checkContributor(role);
   const isModerator = checkModerator(role);
 
-  console.log(role);
-
   return {
     canRead: checkCanRead(role),
     canCreate: isAdmin || isContributor,
