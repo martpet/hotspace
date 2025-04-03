@@ -6,11 +6,13 @@ export const isProd = prodKvEntry.value === true;
 
 export const DEPLOYMENT_ID = Deno.env.get("DENO_DEPLOYMENT_ID");
 export const IS_LOCAL_DEV = DEPLOYMENT_ID === undefined;
-
-export const GENERAL_ERR_MSG = "Oops, something went wrong, try again!";
 export const SESSION_TIMEOUT = WEEK * 4;
 export const CHAT_SUB_WITHOUT_PUSH_SUB_EXPIRES = WEEK * 2;
 export const SAVED_UPLOAD_EXPIRES = DAY * 7;
+
+export const GENERAL_ERR_MSG = "Oops, something went wrong, try again!";
+export const UPLOAD_DISABLED_MSG =
+  "Sorry, uploading is currently disabled for all users. Try later.";
 
 export const PUSH_SUB_HOSTS = [
   "fcm.googleapis.com",

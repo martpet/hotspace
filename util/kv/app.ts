@@ -9,6 +9,6 @@ export function setAppSettings(data: AppSettings) {
   return kv.set(keys.settings, data);
 }
 
-export function getAppSettings() {
-  return kv.get<AppSettings>(keys.settings);
+export function getAppSettings(consistency?: Deno.KvConsistencyLevel) {
+  return kv.get<AppSettings>(keys.settings, { consistency });
 }

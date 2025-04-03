@@ -4,8 +4,9 @@ import { getPermissions } from "$util";
 import { STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
 import { getSigner } from "../../../util/aws.ts";
-import { INODES_BUCKET } from "../../../util/consts.ts";
+import { INODES_BUCKET, UPLOAD_DISABLED_MSG } from "../../../util/consts.ts";
 import { createFileNode } from "../../../util/inodes/kv_wrappers.ts";
+import { getAppSettings } from "../../../util/kv/app.ts";
 import { enqueue } from "../../../util/kv/enqueue.ts";
 import { getInodeById, keys as getInodeKey } from "../../../util/kv/inodes.ts";
 import { kv } from "../../../util/kv/kv.ts";
@@ -29,6 +30,12 @@ export default async function completeUploadHandler(ctx: AppContext) {
 
   if (!user) {
     return ctx.respond(null, STATUS_CODE.Unauthorized);
+  }
+
+  const { isUploadEnabled } = (await getAppSettings("eventual")).value || {};
+
+  if (!isUploadEnabled) {
+    return ctx.respond(UPLOAD_DISABLED_MSG, STATUS_CODE.ServiceUnavailable);
   }
 
   const reqData = await ctx.req.json();
