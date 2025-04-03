@@ -10,7 +10,7 @@ interface Props extends JSX.HTMLAttributes<HTMLButtonElement> {
 
 export default function ButtonCreateDir(props: Props) {
   const { parentDirId, ...btnProps } = props;
-  const isParentRoot = parentDirId === ROOT_DIR_ID;
+  const isSpace = parentDirId === ROOT_DIR_ID;
 
   return (
     <>
@@ -22,10 +22,10 @@ export default function ButtonCreateDir(props: Props) {
         class="wait-disabled"
         disabled
         data-parent-dir-id={parentDirId}
-        data-is-parent-root={isParentRoot ? "1" : ""}
+        data-is-space={isSpace ? "1" : null}
         data-constraints={JSON.stringify(DIR_NAME_CONSTRAINTS)}
       >
-        Create {isParentRoot ? "Space" : "Folder"}
+        Create {isSpace ? "Space" : "Folder"}
       </button>
     </>
   );

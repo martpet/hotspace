@@ -9,8 +9,8 @@ let btnClose;
 let errorEl;
 
 const btnShowDialog = document.getElementById("show-create-dir");
-const { parentDirId, isParentRoot } = btnShowDialog.dataset;
-const showPreview = isParentRoot;
+const { parentDirId, isSpace } = btnShowDialog.dataset;
+const showPreview = isSpace;
 
 btnShowDialog.disabled = false;
 

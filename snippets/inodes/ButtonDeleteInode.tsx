@@ -10,7 +10,7 @@ interface Props extends JSX.HTMLAttributes<HTMLButtonElement> {
 
 export default function ButtonDeleteInode(props: Props) {
   const { inode, ...btnProps } = props;
-  const isParentRoot = inode.parentDirId === ROOT_DIR_ID;
+  const isSpace = inode.parentDirId === ROOT_DIR_ID;
   const inodeLabel = getInodeLabel(inode);
 
   return (
@@ -23,8 +23,8 @@ export default function ButtonDeleteInode(props: Props) {
         disabled
         data-inode-name={inode.name}
         data-parent-dir-id={inode.parentDirId}
-        data-is-dir={inode.type === "dir" ? "1" : ""}
-        data-is-parent-root={isParentRoot ? "1" : ""}
+        data-is-dir={inode.type === "dir" ? "1" : null}
+        data-is-space={isSpace ? "1" : null}
         {...btnProps}
       >
         Delete {inodeLabel}
