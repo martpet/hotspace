@@ -3,5 +3,7 @@ import showDirHandler from "./show_dir.tsx";
 import showFileHandler from "./show_file.tsx";
 
 export default function showInodeHandler(ctx: AppContext) {
-  return ctx.req.url.endsWith("/") ? showDirHandler(ctx) : showFileHandler(ctx);
+  return ctx.url.pathname.endsWith("/")
+    ? showDirHandler(ctx)
+    : showFileHandler(ctx);
 }
