@@ -20,8 +20,7 @@ import getAclPreview from "./handlers/inodes/acl/get_acl_preview.ts";
 import setDirByPath from "./handlers/inodes/create_dir.ts";
 import deleteInodes from "./handlers/inodes/delete.ts";
 import listenMediaConvertEvent from "./handlers/inodes/listen_media_convert_event.ts";
-import showDir from "./handlers/inodes/show_dir.tsx";
-import showFile from "./handlers/inodes/show_file.tsx";
+import showInode from "./handlers/inodes/showInode.ts";
 import completeUpload from "./handlers/inodes/upload/complete.tsx";
 import initiateUpload from "./handlers/inodes/upload/initiate.tsx";
 import videoPlaylist from "./handlers/inodes/video_playlist.ts";
@@ -83,8 +82,7 @@ app.get("/push-subs/vapid", vapid);
 
 app.post("/webhooks/aws-media-convert", mediaConvertWebHook);
 
-app.get("*/", showDir);
-app.get("*", showFile);
+app.get("*", showInode);
 
 let serveOptions;
 

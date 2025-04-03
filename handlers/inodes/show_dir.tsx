@@ -14,7 +14,7 @@ import notFoundHandler from "../not_found.tsx";
 type FragmentId = "inodes" | "chat";
 type From = "delete";
 
-export default async function showInodeHandler(ctx: AppContext) {
+export default async function showDirHandler(ctx: AppContext) {
   const { user } = ctx.state;
   const path = parsePathname(ctx.url.pathname);
   const fragmentId = ctx.url.searchParams.get("fragment") as FragmentId | null;
