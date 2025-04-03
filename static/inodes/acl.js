@@ -172,7 +172,7 @@ function handleNotFoundUsernames(usernames) {
   const usernamesInputs = aclRoot.querySelectorAll("input.username");
   usernamesInputs.forEach((input, i) => {
     if (usernames.includes(input.value)) {
-      input.setCustomValidity("Username not found");
+      input.setCustomValidity("User doesn't exist");
       if (i === 0) input.reportValidity();
     }
   });
@@ -278,7 +278,7 @@ function createAclEl(aclItem) {
     inputEl.autocomplete = "off";
     inputEl.autocapitalize = "off";
     inputEl.spellcheck = false;
-    inputEl.addEventListener("change", clearCustomValidity);
+    inputEl.addEventListener("input", clearCustomValidity);
     aclEl.append(inputEl);
     aclEl.insertAdjacentHTML(
       "beforeend",
