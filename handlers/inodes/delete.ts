@@ -1,9 +1,10 @@
 import { STATUS_CODE } from "@std/http";
 import { getPermissions } from "../../lib/util/file_permissions.ts";
 import { deleteInodesRecursive } from "../../util/inodes/kv_wrappers.ts";
+import type { Inode } from "../../util/inodes/types.ts";
 import { getInodeById, keys as getInodeKey } from "../../util/kv/inodes.ts";
 import { getMany } from "../../util/kv/kv.ts";
-import type { AppContext, Inode } from "../../util/types.ts";
+import type { AppContext } from "../../util/types.ts";
 
 interface ReqData {
   dirId: string;

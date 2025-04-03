@@ -1,8 +1,8 @@
 import { checkIsRole } from "$util";
 import { newQueue } from "@henrygd/queue";
 import { changeAcl } from "../../util/inodes/acl.ts";
+import type { AclDiffWithUserId } from "../../util/inodes/types.ts";
 import { listInodesEntriesByDir } from "../../util/kv/inodes.ts";
-import type { AclDiffWithUserId } from "../../util/types.ts";
 
 export interface QueueMsgChangeDirChildrenAcl {
   type: "change-dir-children-acl";

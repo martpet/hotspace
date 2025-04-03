@@ -1,4 +1,4 @@
-import type { DirNode } from "../types.ts";
+import type { DirNode } from "../inodes/types.ts";
 
 export const ROOT_DIR_ID = "0";
 

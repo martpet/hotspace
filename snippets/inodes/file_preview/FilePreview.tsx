@@ -1,5 +1,5 @@
 import { isVideoNode } from "../../../util/inodes/helpers.ts";
-import type { FileNode } from "../../../util/types.ts";
+import type { FileNode } from "../../../util/inodes/types.ts";
 import DocxPreview from "./DocxPreview.tsx";
 import { VideoPreview } from "./VideoPreview.tsx";
 

@@ -1,7 +1,8 @@
 import { parsePathname, type ResourcePermissions } from "$util";
 import { format as formatBytes } from "@std/fmt/bytes";
 import { type JSX } from "preact";
-import type { AppContext, Inode } from "../../util/types.ts";
+import type { Inode } from "../../util/inodes/types.ts";
+import type { AppContext } from "../../util/types.ts";
 import BlankSlate from "../BlankSlate.tsx";
 import RelativeTime from "../RelativeTime.tsx";
 import InodeAccess from "./InodeAccess.tsx";

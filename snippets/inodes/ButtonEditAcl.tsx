@@ -1,7 +1,7 @@
 import { checkHasPublicAccess } from "$util";
 import { type JSX } from "preact";
 import { getInodeLabel } from "../../util/inodes/helpers.ts";
-import type { Inode } from "../../util/types.ts";
+import type { Inode } from "../../util/inodes/types.ts";
 import ButtonSettings from "../ButtonSettings.tsx";
 
 interface Props extends JSX.HTMLAttributes<HTMLButtonElement> {

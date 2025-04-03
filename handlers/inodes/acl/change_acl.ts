@@ -7,15 +7,14 @@ import {
 import { associateBy } from "@std/collections";
 import { STATUS_CODE } from "@std/http";
 import { changeAcl } from "../../../util/inodes/acl.ts";
-import { getInodeById } from "../../../util/kv/inodes.ts";
-import { getManyEntries } from "../../../util/kv/kv.ts";
-import { keys as usersKeys } from "../../../util/kv/users.ts";
 import type {
   AclDiffWithUserId,
   AclDiffWithUsername,
-  AppContext,
-  User,
-} from "../../../util/types.ts";
+} from "../../../util/inodes/types.ts";
+import { getInodeById } from "../../../util/kv/inodes.ts";
+import { getManyEntries } from "../../../util/kv/kv.ts";
+import { keys as usersKeys } from "../../../util/kv/users.ts";
+import type { AppContext, User } from "../../../util/types.ts";
 
 interface ReqData {
   inodeId: string;

@@ -5,8 +5,8 @@ import {
   processVideоNodeMasterPlaylist,
   updateInodeWithRetry,
 } from "../../util/inodes/helpers.ts";
+import type { VideoNode } from "../../util/inodes/types.ts";
 import { getInodeById } from "../../util/kv/inodes.ts";
-import type { VideoNode } from "../../util/types.ts";
 
 export type QueueMsgMediaConvertEvent = {
   type: "media-convert-event";

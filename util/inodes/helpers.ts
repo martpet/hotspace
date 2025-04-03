@@ -1,8 +1,13 @@
 import { encodeBase64 } from "@std/encoding";
 import { signCloudfrontUrl, type SignCloudfrontUrlOptions } from "../aws.ts";
 import { INODES_CLOUDFRONT_URL } from "../consts.ts";
+import type {
+  FileNode,
+  Inode,
+  InodeLabel,
+  VideoNode,
+} from "../inodes/types.ts";
 import { getInodeById } from "../kv/inodes.ts";
-import type { FileNode, Inode, InodeLabel, VideoNode } from "../types.ts";
 import { ROOT_DIR_ID } from "./consts.ts";
 import { setAnyInode } from "./kv_wrappers.ts";
 

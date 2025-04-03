@@ -1,4 +1,5 @@
-import type { FileNode, User } from "../types.ts";
+import type { FileNode } from "../inodes/types.ts";
+import type { User } from "../types.ts";
 import { kv, toKvSumBigInt } from "./kv.ts";
 
 export const keys = {

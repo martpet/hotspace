@@ -6,6 +6,7 @@ import {
 } from "../../handlers/queue/delete_s3_objects.ts";
 import { type QueueMsgPostProcessUpload } from "../../handlers/queue/post_process_upload.ts";
 import { INODES_BUCKET } from "../consts.ts";
+import type { FileNode, Inode, VideoNode } from "../inodes/types.ts";
 import { enqueue } from "../kv/enqueue.ts";
 import { setFileNodeStats } from "../kv/filenodes_stats.ts";
 import {
@@ -17,7 +18,6 @@ import {
   setRootDirByOwner,
 } from "../kv/inodes.ts";
 import { kv } from "../kv/kv.ts";
-import type { FileNode, Inode, VideoNode } from "../types.ts";
 import {
   isFileNodeWithManyS3Objects,
   isPostProcessableUpload,

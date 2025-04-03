@@ -4,10 +4,11 @@ import { ulid } from "@std/ulid";
 import { DIR_NAME_CONSTRAINTS } from "../../util/constraints.ts";
 import { ROOT_DIR, ROOT_DIR_ID } from "../../util/inodes/consts.ts";
 import { setAnyInode } from "../../util/inodes/kv_wrappers.ts";
+import type { DirNode } from "../../util/inodes/types.ts";
 import { getDirByPath, getInodeById } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { reservedWords } from "../../util/reserved_words.ts";
-import type { AppContext, DirNode } from "../../util/types.ts";
+import type { AppContext } from "../../util/types.ts";
 
 interface ReqData {
   parentDirId: string;

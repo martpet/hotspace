@@ -8,9 +8,10 @@ import {
 import { sortBy } from "@std/collections";
 import { QueueMsgChangeDirChildrenAcl } from "../../handlers/queue/change_dir_children_acl.ts";
 import { keys as usersKeys } from "../../util/kv/users.ts";
+import type { AclDiffWithUserId, AclPreview, Inode } from "../inodes/types.ts";
 import { enqueue } from "../kv/enqueue.ts";
 import { getManyEntries } from "../kv/kv.ts";
-import type { AclDiffWithUserId, AclPreview, Inode, User } from "../types.ts";
+import type { User } from "../types.ts";
 import { ROOT_DIR_ID } from "./consts.ts";
 import { updateInodeWithRetry } from "./helpers.ts";
 

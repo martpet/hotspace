@@ -1,4 +1,5 @@
-import type { AppContext, VideoNode } from "../../../util/types.ts";
+import type { VideoNode } from "../../../util/inodes/types.ts";
+import type { AppContext } from "../../../util/types.ts";
 import { asset } from "../../../util/url.ts";
 
 interface Props {

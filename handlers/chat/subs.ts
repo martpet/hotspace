@@ -7,10 +7,11 @@ import {
 } from "$chat";
 import { METHOD, STATUS_CODE } from "@std/http";
 import { getPermissions } from "../../lib/util/file_permissions.ts";
+import type { Inode } from "../../util/inodes/types.ts";
 import { keys as inodesKeys } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { keys as pushSubscribersKeys } from "../../util/kv/push_subscribers.ts";
-import type { AppContext, Inode, PushSubscriber } from "../../util/types.ts";
+import type { AppContext, PushSubscriber } from "../../util/types.ts";
 
 export default function chatSubsHandler(ctx: AppContext) {
   const { method } = ctx.req;

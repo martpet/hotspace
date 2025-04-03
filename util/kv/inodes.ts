@@ -1,4 +1,4 @@
-import type { DirNode, Inode } from "../types.ts";
+import type { DirNode, Inode } from "../inodes/types.ts";
 import { kv } from "./kv.ts";
 
 export const keys = {

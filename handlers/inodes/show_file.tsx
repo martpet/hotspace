@@ -6,8 +6,9 @@ import ButtonDeleteInode from "../../snippets/inodes/ButtonDeleteInode.tsx";
 import FilePreview from "../../snippets/inodes/file_preview/FilePreview.tsx";
 import Page from "../../snippets/pages/Page.tsx";
 import { getFileNodeUrl } from "../../util/inodes/helpers.ts";
+import { type FileNode } from "../../util/inodes/types.ts";
 import { getDirByPath, getInodeByDir } from "../../util/kv/inodes.ts";
-import { type AppContext, FileNode } from "../../util/types.ts";
+import { type AppContext } from "../../util/types.ts";
 import { asset } from "../../util/url.ts";
 import notFoundHandler from "../not_found.tsx";
 

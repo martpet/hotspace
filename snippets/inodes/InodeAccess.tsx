@@ -1,6 +1,6 @@
 import { checkHasPublicAccess } from "$util";
 import { type JSX } from "preact";
-import type { Inode } from "../../util/types.ts";
+import type { Inode } from "../../util/inodes/types.ts";
 import ButtonEditAcl from "./ButtonEditAcl.tsx";
 
 type Props = {

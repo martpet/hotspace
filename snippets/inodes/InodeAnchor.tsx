@@ -1,4 +1,4 @@
-import type { Inode } from "../../util/types.ts";
+import type { Inode } from "../../util/inodes/types.ts";
 
 interface Props {
   inode: Inode;
