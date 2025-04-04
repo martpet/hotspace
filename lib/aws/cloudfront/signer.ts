@@ -1,6 +1,28 @@
 import { HOUR } from "@std/datetime";
 import { decodeBase64, encodeBase64 } from "@std/encoding";
 
+const keyCache = new Map<string, CryptoKey>();
+
+async function getCryptoKey(privateKey: string) {
+  if (keyCache.has(privateKey)) {
+    return keyCache.get(privateKey)!;
+  }
+
+  const pemContents = privateKey.replace(/-----.*?-----|\s+/g, "");
+  const keyData = decodeBase64(pemContents);
+
+  const cryptoKey = await crypto.subtle.importKey(
+    "pkcs8",
+    keyData,
+    { name: "RSASSA-PKCS1-v1_5", hash: "SHA-1" },
+    false,
+    ["sign"],
+  );
+
+  keyCache.set(privateKey, cryptoKey);
+  return cryptoKey;
+}
+
 export interface SignUrlOptions {
   url: string;
   keyPairId: string;
@@ -19,16 +41,7 @@ export async function signUrl(options: SignUrlOptions) {
   } = options;
 
   const expiresEpoch = Math.floor(Date.now() + expireIn / 1000);
-  const pemContents = privateKey.replace(/-----.*?-----|\s+/g, "");
-  const keyData = decodeBase64(pemContents);
-
-  const cryptoKey = await crypto.subtle.importKey(
-    "pkcs8",
-    keyData,
-    { name: "RSASSA-PKCS1-v1_5", hash: "SHA-1" },
-    false,
-    ["sign"],
-  );
+  const cryptoKey = await getCryptoKey(privateKey);
 
   const policy = customPolicy || {
     Statement: [{
