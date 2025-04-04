@@ -30,7 +30,7 @@ import manifestJson from "./handlers/manifest_json.ts";
 import subscribers from "./handlers/push_sub/subscribers.ts";
 import vapid from "./handlers/push_sub/vapid.ts";
 import { queueHandler } from "./handlers/queue/main_handler.ts";
-import { awsWebhooksHandler } from "./handlers/webhooks/aws/main_handler.ts";
+import { awsWebhookHandler } from "./handlers/webhooks/aws/main_handler.ts";
 import { csrfMiddleware } from "./middleware/csrf.tsx";
 import { headersMiddleware } from "./middleware/headers.ts";
 import { errorMiddleware } from "./middleware/server_error.tsx";
@@ -82,7 +82,7 @@ app.all("/chat/subs", chatSubs);
 app.post("/push-subs/subscribers", subscribers);
 app.get("/push-subs/vapid", vapid);
 
-app.post("/webhooks/aws", awsWebhooksHandler);
+app.post("/webhooks/aws", awsWebhookHandler);
 
 app.get("/admin", showAdmin);
 app.post("/admin/app_settings", appSettings);

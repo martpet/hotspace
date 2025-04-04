@@ -7,7 +7,7 @@ import {
   isMediaConvertJobStateChange,
 } from "./media_convert_job_state_change.ts";
 
-export async function awsWebhooksHandler(ctx: AppContext) {
+export async function awsWebhookHandler(ctx: AppContext) {
   const apiKey = ctx.req.headers.get("X-Api-Key");
 
   if (apiKey !== AWS_WEBHOOKS_KEY) {
