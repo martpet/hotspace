@@ -1,8 +1,8 @@
 import { s3 } from "$aws";
 import { initUploads, type UploadInitData } from "$upload";
 import { DAY } from "@std/datetime";
-import { HEADER } from "@std/http";
-import { STATUS_CODE } from "@std/http/status";
+import { STATUS_CODE } from "@std/http";
+import { HEADER } from "@std/http/unstable-header";
 import { getSigner } from "../../../util/aws.ts";
 import {
   AWS_CREDENTIALS,

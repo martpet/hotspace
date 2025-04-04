@@ -1,12 +1,7 @@
 import { fileUrlToRelative, LimitedMap } from "$util";
-import {
-  getCookies,
-  HEADER,
-  type Method,
-  setCookie,
-  STATUS_CODE,
-  UserAgent,
-} from "@std/http";
+import { getCookies, setCookie, STATUS_CODE, UserAgent } from "@std/http";
+import { HEADER } from "@std/http/unstable-header";
+import { type Method } from "@std/http/unstable-method";
 import { contentType } from "@std/media-types";
 import { renderToString } from "preact-render-to-string";
 import { staticFilesHandler } from "./handlers/static_files_handler.ts";

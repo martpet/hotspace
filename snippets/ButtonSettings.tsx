@@ -1,6 +1,6 @@
 import { type JSX } from "preact";
 
-type Props = JSX.HTMLAttributes<HTMLButtonElement>;
+type Props = JSX.ButtonHTMLAttributes;
 
 export default function ButtonSettings(props: Props) {
   const classes = ["btn-settings"];

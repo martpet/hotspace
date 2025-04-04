@@ -1,7 +1,8 @@
 import { s3 } from "$aws";
 import { getPermissions, parsePathname } from "$util";
 import { DAY } from "@std/datetime";
-import { HEADER, STATUS_CODE } from "@std/http";
+import { STATUS_CODE } from "@std/http";
+import { HEADER } from "@std/http/unstable-header";
 import { getSigner } from "../../util/aws.ts";
 import { INODES_BUCKET } from "../../util/consts.ts";
 import { getFileNodeUrl, isVideoNode } from "../../util/inodes/helpers.ts";

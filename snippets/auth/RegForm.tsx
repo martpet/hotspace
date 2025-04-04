@@ -16,7 +16,7 @@ export default function RegForm(_props: unknown, ctx: AppContext) {
               required
               autocomplete="off"
               autocapitalize="off"
-              spellCheck={false}
+              spellcheck={false}
               {...USERNAME_CONSTRAINTS}
             />
           </>

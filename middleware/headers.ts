@@ -1,4 +1,4 @@
-import { HEADER } from "@std/http";
+import { HEADER } from "@std/http/unstable-header";
 import { extension } from "@std/media-types";
 import {
   ASSETS_CLOUDFRONT_URL,

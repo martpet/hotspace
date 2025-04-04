@@ -19,7 +19,7 @@ export async function signUrl(options: SignUrlOptions) {
   } = options;
 
   const expiresEpoch = Math.floor(Date.now() + expireIn / 1000);
-  const pemContents = privateKey.replace(/-----.*?-----/g, "");
+  const pemContents = privateKey.replace(/-----.*?-----|\s+/g, "");
   const keyData = decodeBase64(pemContents);
 
   const cryptoKey = await crypto.subtle.importKey(

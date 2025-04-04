@@ -1,5 +1,6 @@
 import { pick } from "@std/collections";
-import { HEADER, STATUS_CODE } from "@std/http";
+import { STATUS_CODE } from "@std/http";
+import { HEADER } from "@std/http/unstable-header";
 import { getPermissions } from "../../lib/util/file_permissions.ts";
 import type { VideoNode } from "../../util/inodes/types.ts";
 import { getInodeById, keys as inodesKeys } from "../../util/kv/inodes.ts";

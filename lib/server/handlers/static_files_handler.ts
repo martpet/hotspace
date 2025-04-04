@@ -1,5 +1,6 @@
 import { DAY } from "@std/datetime";
-import { HEADER, serveDir } from "@std/http";
+import { serveDir } from "@std/http";
+import { HEADER } from "@std/http/unstable-header";
 import { ASSET_CACHE_PARAM } from "../util/consts.ts";
 import type { Context } from "../util/types.ts";
 

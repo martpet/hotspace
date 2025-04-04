@@ -1,4 +1,5 @@
-import type { Method, RedirectStatus, UserAgent } from "@std/http";
+import type { RedirectStatus, UserAgent } from "@std/http";
+import type { Method } from "@std/http/unstable-method";
 import type { VNode } from "preact";
 
 export type TrailingSlashMode = "always" | "never" | "mixed";
