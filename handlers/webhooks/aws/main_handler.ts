@@ -16,6 +16,9 @@ export async function awsWebhooksHandler(ctx: AppContext) {
 
   const event = await ctx.req.json();
 
+  // temp
+  console.log(event);
+
   const handlers = [
     [isMediaConvertJobStateChange, handleMediaConvertJobStateChange],
     [isBudgetAlarm, handleBudgetAlarm],
