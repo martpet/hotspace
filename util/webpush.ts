@@ -1,13 +1,13 @@
-import * as webpush from "@negrel/webpush";
+import { ApplicationServer, importVapidKeys } from "@negrel/webpush";
 import { ADMIN_EMAIL, VAPID_KEYS } from "./consts.ts";
 import type { PushMessage, PushSub } from "./types.ts";
 
-export const vapidKeys = await webpush.importVapidKeys(
+export const vapidKeys = await importVapidKeys(
   JSON.parse(VAPID_KEYS),
   { extractable: false },
 );
 
-const appServer = await webpush.ApplicationServer.new({
+const appServer = await ApplicationServer.new({
   contactInformation: "mailto:" + ADMIN_EMAIL,
   vapidKeys,
 });
