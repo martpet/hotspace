@@ -1,7 +1,7 @@
 import { STATUS_CODE } from "@std/http";
 import { AWS_WEBHOOKS_KEY } from "../../../util/consts.ts";
 import type { AppContext } from "../../../util/types.ts";
-import { handleBudgetAlarm, isBudgetAlarm } from "./budget_alert.ts";
+
 import {
   handleMediaConvertJobStateChange,
   isMediaConvertJobStateChange,
@@ -16,12 +16,8 @@ export async function awsWebhooksHandler(ctx: AppContext) {
 
   const event = await ctx.req.json();
 
-  // temp
-  console.log(event);
-
   const handlers = [
     [isMediaConvertJobStateChange, handleMediaConvertJobStateChange],
-    [isBudgetAlarm, handleBudgetAlarm],
   ];
 
   for (const [check, handler] of handlers) {
