@@ -2,12 +2,12 @@ import { mediaconvert } from "$aws";
 import { getSigner } from "../../util/aws.ts";
 import { AWS_REGION, LOCAL_DEV_PUBLIC_URL } from "../../util/consts.ts";
 import { isVideoNode } from "../../util/inodes/helpers.ts";
-import {
-  getVideoJob,
-  type JobOptions,
-} from "../../util/inodes/mediaconvert.ts";
 import { getInodeById } from "../../util/kv/inodes.ts";
 import { saveWithRetry } from "../../util/kv/kv.ts";
+import {
+  createJobOptions,
+  JobOptionsInput,
+} from "../../util/mediaconvert/job_options.ts";
 
 export interface QueueMsgPostProcessUpload {
   type: "post-process-upload";
@@ -36,9 +36,9 @@ export async function handlePostProcessUpload(
     return;
   }
 
-  const jobOptions: JobOptions = {
+  const jobOptionsInput: JobOptionsInput = {
     s3Key: inode.s3Key,
-    metaData: {
+    userMetadata: {
       inodeId: inode.id,
       origin,
       devUrl: LOCAL_DEV_PUBLIC_URL || origin,
@@ -47,7 +47,7 @@ export async function handlePostProcessUpload(
 
   try {
     inode.mediaConvert.jobId = await mediaconvert.createJob({
-      job: getVideoJob(jobOptions),
+      job: createJobOptions(jobOptionsInput),
       signer: getSigner(),
       region: AWS_REGION,
     });

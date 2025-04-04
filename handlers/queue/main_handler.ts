@@ -13,8 +13,8 @@ import {
   isDeleteS3Objects,
 } from "./delete_s3_objects.ts";
 import {
-  handleMediaConvertEvent,
-  isMediaConvertEvent,
+  hanleMediaConvertJobState,
+  isMediaConvertJobState,
 } from "./media_convert_event.ts";
 import {
   handlePostProcessUpload,
@@ -33,7 +33,7 @@ export function queueHandler(msg: unknown) {
   if (isCleanUpInode(msg)) return handleCleanUpInode(msg);
   if (isCleanUpUser(msg)) return handleCleanUpUser(msg);
   if (isPostProcessUpload(msg)) return handlePostProcessUpload(msg);
-  if (isMediaConvertEvent(msg)) return handleMediaConvertEvent(msg);
+  if (isMediaConvertJobState(msg)) return hanleMediaConvertJobState(msg);
 
   console.error("Unhandled KV Queue message", msg);
 }

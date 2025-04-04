@@ -21,12 +21,12 @@ async function loadHlsFallback(url) {
 function waitMediaConvertEvent() {
   const path = `/inodes/listen-media-convert-event/${inodeId}`;
   const evtSource = new EventSource(path);
-  evtSource.onerror = () => waitConverted();
+  evtSource.onerror = () => waitMediaConvertEvent();
   evtSource.onmessage = (evt) => handleConvertEvent(evt, evtSource);
 }
 
 function handleConvertEvent(evt, evtSource) {
-  const { status, playlistDataUrl, jobProgress } = JSON.parse(evt.data);
+  const { status, playlistDataUrl, jobPercentComplete } = JSON.parse(evt.data);
   if (status === "COMPLETE") {
     onComplete(playlistDataUrl);
     evtSource.close();
@@ -34,7 +34,7 @@ function handleConvertEvent(evt, evtSource) {
     onError();
     evtSource.close();
   } else {
-    onProgress(jobProgress);
+    onProgress(jobPercentComplete);
   }
 }
 

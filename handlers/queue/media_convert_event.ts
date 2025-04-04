@@ -1,57 +1,39 @@
-import { s3 } from "$aws";
-import { getSigner } from "../../util/aws.ts";
-import { INODES_BUCKET } from "../../util/consts.ts";
-import { processVideоNodeMasterPlaylist } from "../../util/inodes/helpers.ts";
 import type { VideoNode } from "../../util/inodes/types.ts";
+import { processMasterPlaylist } from "../../util/inodes/video_node_playlist.ts";
 import { getInodeById } from "../../util/kv/inodes.ts";
 import { saveWithRetry } from "../../util/kv/kv.ts";
+import { MediaConvertJobChangeStateDetail } from "../../util/mediaconvert/types.ts";
 
-export type QueueMsgMediaConvertEvent = {
-  type: "media-convert-event";
-  inodeId: string;
-  status: "COMPLETE" | "ERROR" | "STATUS_UPDATE";
-  origin: string;
-  jobPercentComplete?: number;
-  duratonInMs?: number;
+export type QueueMsgMediaConvertJobState = {
+  type: "mediaconvert-job-state";
+  detail: MediaConvertJobChangeStateDetail;
 };
 
-export function isMediaConvertEvent(
+export function isMediaConvertJobState(
   msg: unknown,
-): msg is QueueMsgMediaConvertEvent {
-  const {
-    type,
-    inodeId,
-    origin,
-    jobPercentComplete,
-    duratonInMs,
-    status,
-  } = msg as Partial<QueueMsgMediaConvertEvent>;
+): msg is QueueMsgMediaConvertJobState {
+  const { type } = msg as Partial<QueueMsgMediaConvertJobState>;
   return typeof msg === "object" &&
-    type === "media-convert-event" &&
-    typeof inodeId === "string" &&
-    typeof origin === "string" &&
-    (status === "COMPLETE" || status === "ERROR" ||
-      status === "STATUS_UPDATE") &&
-    (typeof jobPercentComplete === "undefined" ||
-      typeof jobPercentComplete === "number") &&
-    (typeof duratonInMs === "undefined" ||
-      typeof duratonInMs === "number");
+    type === "mediaconvert-job-state";
 }
 
-export async function handleMediaConvertEvent(
-  msg: QueueMsgMediaConvertEvent,
+export async function hanleMediaConvertJobState(
+  msg: QueueMsgMediaConvertJobState,
 ) {
-  const { inodeId, status, origin, jobPercentComplete, duratonInMs } = msg;
-  const entry = await getInodeById<VideoNode>(inodeId);
-  const inode = entry.value;
+  const { userMetadata, status, jobProgress, outputGroupDetails } = msg.detail;
+  const { inodeId, origin } = userMetadata;
+  const durationInMs = outputGroupDetails?.[0].outputDetails[0].durationInMs;
+  const jobPercentComplete = jobProgress?.jobPercentComplete;
+  const inodeEntry = await getInodeById<VideoNode>(inodeId);
+  const inode = inodeEntry.value;
 
   if (!inode) {
     return;
   }
 
-  inode.mediaConvert.duratonInMs = duratonInMs;
+  inode.mediaConvert.duratonInMs = durationInMs;
 
-  if (typeof jobPercentComplete !== "undefined") {
+  if (jobPercentComplete !== undefined) {
     inode.mediaConvert.jobPercentComplete = jobPercentComplete;
   }
 
@@ -61,38 +43,14 @@ export async function handleMediaConvertEvent(
 
   if (status === "COMPLETE") {
     try {
-      const playlist = await fetchPlaylist(inode);
-      const {
-        playListDataUrl,
-        subPlaylistsS3Keys,
-      } = processVideоNodeMasterPlaylist({
-        playlist,
-        inodeId,
-        origin,
-      });
-      inode.mediaConvert.playlistDataUrl = playListDataUrl;
-      inode.mediaConvert.subPlaylistsS3Keys = subPlaylistsS3Keys;
+      const playlist = await processMasterPlaylist({ inode, origin });
+      inode.mediaConvert.playlistDataUrl = playlist.dataUrl;
+      inode.mediaConvert.subPlaylistsS3Keys = playlist.subPlaylistsS3Keys;
     } catch (err) {
       console.error(err);
       inode.mediaConvert.status = "ERROR";
     }
   }
 
-  await saveWithRetry(entry);
-}
-
-async function fetchPlaylist(inode: VideoNode) {
-  const resp = await s3.getObject({
-    s3Key: inode.s3Key + ".m3u8",
-    signer: getSigner(),
-    bucket: INODES_BUCKET,
-    accelerated: true,
-  });
-  if (!resp.ok) {
-    const respText = await resp.text();
-    throw new Error(
-      `Cannot fetch playlist; Status: ${resp.status}; Text: "${respText}"`,
-    );
-  }
-  return resp.text();
+  await saveWithRetry(inodeEntry);
 }

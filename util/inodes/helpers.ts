@@ -1,4 +1,3 @@
-import { encodeBase64 } from "@std/encoding";
 import { signCloudfrontUrl, type SignCloudfrontUrlOptions } from "../aws.ts";
 import { INODES_CLOUDFRONT_URL } from "../consts.ts";
 import type {
@@ -33,35 +32,4 @@ export function getFileNodeUrl(
 ) {
   const url = `${INODES_CLOUDFRONT_URL}/${s3Key}`;
   return signCloudfrontUrl(url, opt);
-}
-
-export function processVideоNodeMasterPlaylist(input: {
-  playlist: string;
-  inodeId: string;
-  origin: string;
-}) {
-  const { playlist, inodeId, origin } = input;
-  const lines = playlist.split("\n");
-  const processedLines = [];
-  const subPlaylistsS3Keys: string[] = [];
-  let subPlaylistIndex = 0;
-  for (const line of lines) {
-    if (!line.endsWith(".m3u8")) {
-      processedLines.push(line);
-    } else {
-      subPlaylistsS3Keys.push(line);
-      processedLines.push(
-        `${origin}/inodes/video-playlist/${inodeId}/${subPlaylistIndex}`,
-      );
-      subPlaylistIndex++;
-    }
-  }
-  const playlistResult = processedLines.join("\n");
-  const playListDataUrl = `data:application/vnd.apple.mpegurl;base64,${
-    encodeBase64(playlistResult)
-  }`;
-  return {
-    playListDataUrl,
-    subPlaylistsS3Keys,
-  };
 }

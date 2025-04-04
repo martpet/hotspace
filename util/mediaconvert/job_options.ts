@@ -1,13 +1,16 @@
 import { INODES_BUCKET, MEDIACONVERT_ROLE } from "../consts.ts";
+import type { JobUserMetaData } from "./types.ts";
 
-export interface JobOptions {
+export interface JobOptionsInput {
   s3Key: string;
-  metaData: Record<string, string>;
+  userMetadata: JobUserMetaData;
 }
 
-export function getVideoJob({ s3Key, metaData }: JobOptions) {
+export function createJobOptions(input: JobOptionsInput) {
+  const { s3Key, userMetadata } = input;
+
   return {
-    "UserMetadata": metaData,
+    "UserMetadata": userMetadata,
     "Role": MEDIACONVERT_ROLE,
     "Settings": {
       "TimecodeConfig": {

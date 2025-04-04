@@ -160,6 +160,7 @@ a.inode {
   height: 200px;
   align-items: center;
   gap: 0.7em;
+  color: var(--text-grey-dark);
   &::after {
     order: -1;
   }
