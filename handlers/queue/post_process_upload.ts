@@ -1,15 +1,13 @@
 import { mediaconvert } from "$aws";
 import { getSigner } from "../../util/aws.ts";
 import { AWS_REGION, LOCAL_DEV_PUBLIC_URL } from "../../util/consts.ts";
-import {
-  isVideoNode,
-  updateInodeWithRetry,
-} from "../../util/inodes/helpers.ts";
+import { isVideoNode } from "../../util/inodes/helpers.ts";
 import {
   getVideoJob,
   type JobOptions,
 } from "../../util/inodes/mediaconvert.ts";
 import { getInodeById } from "../../util/kv/inodes.ts";
+import { saveWithRetry } from "../../util/kv/kv.ts";
 
 export interface QueueMsgPostProcessUpload {
   type: "post-process-upload";
@@ -58,5 +56,5 @@ export async function handlePostProcessUpload(
     console.error(err);
   }
 
-  return updateInodeWithRetry(entry, inode);
+  return saveWithRetry(entry);
 }

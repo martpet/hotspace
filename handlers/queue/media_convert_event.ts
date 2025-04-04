@@ -1,12 +1,10 @@
 import { s3 } from "$aws";
 import { getSigner } from "../../util/aws.ts";
 import { INODES_BUCKET } from "../../util/consts.ts";
-import {
-  processVideоNodeMasterPlaylist,
-  updateInodeWithRetry,
-} from "../../util/inodes/helpers.ts";
+import { processVideоNodeMasterPlaylist } from "../../util/inodes/helpers.ts";
 import type { VideoNode } from "../../util/inodes/types.ts";
 import { getInodeById } from "../../util/kv/inodes.ts";
+import { saveWithRetry } from "../../util/kv/kv.ts";
 
 export type QueueMsgMediaConvertEvent = {
   type: "media-convert-event";
@@ -80,7 +78,7 @@ export async function handleMediaConvertEvent(
     }
   }
 
-  await updateInodeWithRetry(entry, inode);
+  await saveWithRetry(entry);
 }
 
 async function fetchPlaylist(inode: VideoNode) {

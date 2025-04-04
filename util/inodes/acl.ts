@@ -10,10 +10,9 @@ import { QueueMsgChangeDirChildrenAcl } from "../../handlers/queue/change_dir_ch
 import { keys as usersKeys } from "../../util/kv/users.ts";
 import type { AclDiffWithUserId, AclPreview, Inode } from "../inodes/types.ts";
 import { enqueue } from "../kv/enqueue.ts";
-import { getManyEntries } from "../kv/kv.ts";
+import { getManyEntries, saveWithRetry } from "../kv/kv.ts";
 import type { User } from "../types.ts";
 import { ROOT_DIR_ID } from "./consts.ts";
-import { updateInodeWithRetry } from "./helpers.ts";
 
 const ACL_PREVIEW_SUBSET_SIZE = 5;
 
@@ -67,19 +66,17 @@ export async function changeAcl(input: {
     return;
   }
 
-  const acl = { ...inode.acl };
-
   for (const { role, userId } of diffs) {
     if (userId === actingUserId) {
       continue;
     } else if (userId === inode.ownerId && isSpace) {
       continue;
     } else if (role === null) {
-      delete acl[userId];
+      delete inode.acl[userId];
     } else if (userId === ACL_ROLE_ALL) {
-      acl[userId] = "viewer";
+      inode.acl[userId] = "viewer";
     } else {
-      acl[userId] = role;
+      inode.acl[userId] = role;
     }
   }
 
@@ -88,7 +85,7 @@ export async function changeAcl(input: {
     ids: <string[]> [],
   };
 
-  const usersIds = getAclUsersIds(acl);
+  const usersIds = getAclUsersIds(inode.acl);
 
   for (const userId of usersIds) {
     if (!usersById[userId]) {
@@ -106,19 +103,19 @@ export async function changeAcl(input: {
         usersById[user.id] = user;
       } else {
         const userId = extraUsers.ids[i];
-        delete acl[userId];
+        delete inode.acl[userId];
       }
     });
   }
 
-  const users = Object.values(usersById);
+  inode.aclStats = {
+    usersCount: getAclUsersCount(inode.acl),
+    previewSubset: createAclPreview({
+      users: Object.values(usersById),
+      acl: inode.acl,
+      subsetOnly: true,
+    }),
+  };
 
-  return updateInodeWithRetry(inodeEntry, {
-    ...inode,
-    acl,
-    aclStats: {
-      usersCount: getAclUsersCount(acl),
-      previewSubset: createAclPreview({ users, acl, subsetOnly: true }),
-    },
-  });
+  return saveWithRetry(inodeEntry);
 }

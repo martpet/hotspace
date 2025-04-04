@@ -7,9 +7,7 @@ import type {
   InodeLabel,
   VideoNode,
 } from "../inodes/types.ts";
-import { getInodeById } from "../kv/inodes.ts";
 import { ROOT_DIR_ID } from "./consts.ts";
-import { setAnyInode } from "./kv_wrappers.ts";
 
 export function isPostProcessableUpload(inode: Inode) {
   return isVideoNode(inode);
@@ -27,23 +25,6 @@ export function getInodeLabel(inode: Inode): InodeLabel {
   if (inode.type === "file") return "File";
   if (inode.parentDirId === ROOT_DIR_ID) return "Space";
   return "Folder";
-}
-
-export async function updateInodeWithRetry(
-  entry: Deno.KvEntryMaybe<Inode>,
-  inode: Inode,
-) {
-  if (!entry.value) return;
-  let commit = { ok: false };
-  let i = 0;
-  while (!commit.ok) {
-    if (i > 0) entry = await getInodeById(entry.value.id);
-    if (!entry.value) return;
-    const atomic = setAnyInode(inode);
-    atomic.check(entry);
-    commit = await atomic.commit();
-    i++;
-  }
 }
 
 export function getFileNodeUrl(
