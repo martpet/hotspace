@@ -4,13 +4,13 @@ import { getSigner } from "../aws.ts";
 import { INODES_BUCKET } from "../consts.ts";
 import type { VideoNode } from "./types.ts";
 
-export async function processMasterPlaylist(input: {
-  inode: VideoNode;
+export function processMasterPlaylist(input: {
+  masterPlaylist: string;
+  inodeId: string;
   origin: string;
 }) {
-  const { inode, origin } = input;
-  const playlist = await fetchPlaylist(inode);
-  const lines = playlist.split("\n");
+  const { masterPlaylist, inodeId, origin } = input;
+  const lines = masterPlaylist.split("\n");
   const processedLines = [];
   const subPlaylistsS3Keys: string[] = [];
   let subPlaylistIndex = 0;
@@ -20,7 +20,7 @@ export async function processMasterPlaylist(input: {
     } else {
       subPlaylistsS3Keys.push(line);
       processedLines.push(
-        `${origin}/inodes/video-playlist/${inode.id}/${subPlaylistIndex}`,
+        `${origin}/inodes/video-playlist/${inodeId}/${subPlaylistIndex}`,
       );
       subPlaylistIndex++;
     }
@@ -35,7 +35,7 @@ export async function processMasterPlaylist(input: {
   };
 }
 
-async function fetchPlaylist(inode: VideoNode) {
+export async function fetchMasterPlaylist(inode: VideoNode) {
   const resp = await s3.getObject({
     s3Key: inode.s3Key + ".m3u8",
     signer: getSigner(),

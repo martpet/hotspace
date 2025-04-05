@@ -108,8 +108,11 @@ async function init(button) {
   insertDialog();
   initListeners();
   statusSignal.value = "idle";
-  const acl = dataset.acl ? JSON.parse(dataset.acl) : await fetchAcl();
-  aclSignal.value = acl;
+  if (dataset.acl) {
+    aclSignal.value = JSON.parse(dataset.acl);
+  } else {
+    fetchAcl();
+  }
 }
 
 async function fetchAcl() {
@@ -120,7 +123,7 @@ async function fetchAcl() {
   if (resp.ok) {
     buttonAddUser.hidden = false;
     disableControls(false);
-    return resp.json();
+    aclSignal.value = await resp.json();
   } else {
     errorSignal.value = "Error loading access settings, try again";
     buttonClose.disabled = false;
@@ -256,7 +259,7 @@ function renderAcl() {
   const sortCurrentUserFirst = ([name]) => name === userUsername ? -1 : 0;
   const entries = Object.entries(aclSignal.value).sort(sortCurrentUserFirst);
   const elements = entries.map((aclItem) => createAclEl(aclItem));
-  aclRoot.append(...elements);
+  aclRoot.replaceChildren(...elements);
 }
 
 function createAclEl(aclItem) {

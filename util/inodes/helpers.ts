@@ -1,11 +1,6 @@
 import { signCloudfrontUrl, type SignCloudfrontUrlOptions } from "../aws.ts";
 import { INODES_CLOUDFRONT_URL } from "../consts.ts";
-import type {
-  FileNode,
-  Inode,
-  InodeLabel,
-  VideoNode,
-} from "../inodes/types.ts";
+import type { Inode, InodeLabel, VideoNode } from "../inodes/types.ts";
 import { ROOT_DIR_ID } from "./consts.ts";
 
 export function isPostProcessableUpload(inode: Inode) {
@@ -17,7 +12,7 @@ export function isFileNodeWithManyS3Objects(inode: Inode) {
 }
 
 export function isVideoNode(inode: Inode): inode is VideoNode {
-  return (inode as FileNode).fileType.startsWith("video");
+  return inode.type === "file" && inode.fileType.startsWith("video");
 }
 
 export function getInodeLabel(inode: Inode): InodeLabel {

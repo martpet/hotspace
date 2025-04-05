@@ -11,19 +11,6 @@ export function watch<T extends unknown[]>(
   return watchKv(kv, ...args);
 }
 
-export async function saveWithRetry(entry: Deno.KvEntryMaybe<unknown>) {
-  let i = 0;
-  let commit = { ok: false };
-  while (!commit.ok) {
-    if (i > 0) entry = await kv.get(entry.key);
-    const atomic = kv.atomic();
-    atomic.check(entry);
-    atomic.set(entry.key, entry.value);
-    commit = await atomic.commit();
-    i++;
-  }
-}
-
 export function toKvSumBigInt(n: number) {
   if (n >= 0) return BigInt(n);
   const abs = BigInt(Math.abs(n));

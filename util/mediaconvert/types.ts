@@ -11,6 +11,7 @@ interface JobOutputVideoDetails {
 }
 
 export interface MediaConvertJobChangeStateDetail {
+  timestamp: number;
   status: "STATUS_UPDATE" | "COMPLETE" | "ERROR";
   userMetadata: JobUserMetaData;
   jobProgress?: {

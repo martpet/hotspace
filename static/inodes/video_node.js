@@ -26,7 +26,7 @@ function waitMediaConvertEvent() {
 }
 
 function handleConvertEvent(evt, evtSource) {
-  const { status, playlistDataUrl, jobPercentComplete } = JSON.parse(evt.data);
+  const { status, playlistDataUrl, percentComplete } = JSON.parse(evt.data);
   if (status === "COMPLETE") {
     onComplete(playlistDataUrl);
     evtSource.close();
@@ -34,7 +34,7 @@ function handleConvertEvent(evt, evtSource) {
     onError();
     evtSource.close();
   } else {
-    onProgress(jobPercentComplete);
+    onProgress(percentComplete);
   }
 }
 

@@ -31,7 +31,8 @@ export default async function videoPlaylistHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.NotFound);
   }
 
-  const s3Key = inode.mediaConvert.subPlaylistsS3Keys?.[Number(renditionIndex)];
+  const s3Key = inode.mediaConvert?.subPlaylistsS3Keys
+    ?.[Number(renditionIndex)];
 
   if (!s3Key) {
     return ctx.respond(null, STATUS_CODE.InternalServerError);

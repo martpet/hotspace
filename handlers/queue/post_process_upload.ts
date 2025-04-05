@@ -2,8 +2,8 @@ import { mediaconvert } from "$aws";
 import { getSigner } from "../../util/aws.ts";
 import { AWS_REGION, LOCAL_DEV_PUBLIC_URL } from "../../util/consts.ts";
 import { isVideoNode } from "../../util/inodes/helpers.ts";
+import { setAnyInode } from "../../util/inodes/kv_wrappers.ts";
 import { getInodeById } from "../../util/kv/inodes.ts";
-import { saveWithRetry } from "../../util/kv/kv.ts";
 import {
   createJobOptions,
   JobOptionsInput,
@@ -29,8 +29,8 @@ export async function handlePostProcessUpload(
   msg: QueueMsgPostProcessUpload,
 ) {
   const { inodeId, origin } = msg;
-  const entry = await getInodeById(inodeId);
-  const inode = entry.value;
+  let inodeEntry = await getInodeById(inodeId);
+  let inode = inodeEntry.value;
 
   if (!inode || !isVideoNode(inode)) {
     return;
@@ -45,16 +45,32 @@ export async function handlePostProcessUpload(
     },
   };
 
+  const { mediaConvert } = inode;
+
   try {
-    inode.mediaConvert.jobId = await mediaconvert.createJob({
+    mediaConvert.jobId = await mediaconvert.createJob({
       job: createJobOptions(jobOptionsInput),
       signer: getSigner(),
       region: AWS_REGION,
     });
   } catch (err) {
-    inode.mediaConvert.status = "ERROR";
+    mediaConvert.status = "ERROR";
     console.error(err);
   }
 
-  return saveWithRetry(entry);
+  let commit = { ok: false };
+  let commitIndex = 0;
+
+  while (!commit.ok) {
+    if (commitIndex) {
+      inodeEntry = await getInodeById(inode.id);
+      inode = inodeEntry.value;
+      if (!inode || !isVideoNode(inode)) return;
+    }
+    inode.mediaConvert = mediaConvert;
+    const atomic = setAnyInode(inode);
+    atomic.check(inodeEntry);
+    commit = await atomic.commit();
+    commitIndex++;
+  }
 }

@@ -16,31 +16,31 @@ import { kv } from "../../util/kv/kv.ts";
 export interface QueueMsgCleanUpInode {
   type: "clean-up-inode";
   inodeId: string;
-  pendingMediaConvertJobId?: string;
+  pendingMediaConvertJob?: string;
 }
 
 export function isCleanUpInode(msg: unknown): msg is QueueMsgCleanUpInode {
-  const { type, inodeId, pendingMediaConvertJobId } = msg as Partial<
+  const { type, inodeId, pendingMediaConvertJob } = msg as Partial<
     QueueMsgCleanUpInode
   >;
   return typeof msg === "object" &&
     type === "clean-up-inode" &&
     typeof inodeId === "string" &&
-    (typeof pendingMediaConvertJobId === "string" ||
-      typeof pendingMediaConvertJobId === "undefined");
+    (typeof pendingMediaConvertJob === "string" ||
+      typeof pendingMediaConvertJob === "undefined");
 }
 
 export async function handleCleanUpInode(msg: QueueMsgCleanUpInode) {
-  const { inodeId, pendingMediaConvertJobId } = msg;
+  const { inodeId, pendingMediaConvertJob } = msg;
 
   const promises = [
     cleanUpChat(inodeId),
   ];
 
-  if (pendingMediaConvertJobId) {
+  if (pendingMediaConvertJob) {
     promises.push(
       cancelJob({
-        jobId: pendingMediaConvertJobId,
+        jobId: pendingMediaConvertJob,
         signer: getSigner(),
         region: AWS_REGION,
       }).catch((err) => console.error(err)),

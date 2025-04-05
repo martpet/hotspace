@@ -10,36 +10,36 @@ export function VideoPreview(props: Props, ctx: AppContext) {
   const { videoNode } = props;
   const workerPath = asset("vendored/hls.worker.js", { cdn: false });
   const supportsHls = ctx.userAgent.browser.name === "Safari";
-  const isConverting = videoNode.mediaConvert.status === "PENDING";
-  const hasConvertError = videoNode.mediaConvert.status === "ERROR";
-  const convertingPerc = videoNode.mediaConvert.jobPercentComplete;
+  const { status, percentComplete } = videoNode.mediaConvert || {};
+  const isPending = status === "PENDING";
+  const isError = status === "ERROR";
   const videoUrl = videoNode.mediaConvert.playlistDataUrl;
 
   return (
     <>
-      {!supportsHls && !hasConvertError && (
+      {!supportsHls && !isError && (
         <link rel="modulepreload" href={asset("vendored/hls.mjs")} />
       )}
 
-      {!hasConvertError && (!supportsHls || isConverting) && (
+      {!isError && (!supportsHls || isPending) && (
         <script type="module" src={asset("inodes/video_node.js")} />
       )}
 
-      {isConverting && (
+      {isPending && (
         <p id="video-converting" class="spinner">
           Video is converting…{"  "}
-          <span id="progress-perc">{convertingPerc || null}</span>
+          <span id="progress-perc">{percentComplete || null}</span>
         </p>
       )}
 
-      <p id="converting-error" hidden={!hasConvertError} class="alert error">
+      <p id="converting-error" hidden={!isError} class="alert error">
         There was an error converting the video, try uploading it again.
       </p>
 
-      {!hasConvertError && (
+      {!isError && (
         <video
           id="video"
-          hidden={isConverting}
+          hidden={isPending}
           controls
           src={supportsHls ? videoUrl : undefined}
           data-video-url={videoUrl || !supportsHls ? videoUrl : null}

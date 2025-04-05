@@ -1,13 +1,12 @@
-import { pick } from "@std/collections";
 import { STATUS_CODE } from "@std/http";
 import { HEADER } from "@std/http/unstable-header";
 import { getPermissions } from "../../lib/util/file_permissions.ts";
 import type { VideoNode } from "../../util/inodes/types.ts";
-import { getInodeById, keys as inodesKeys } from "../../util/kv/inodes.ts";
+import { keys as inodesKeys } from "../../util/kv/inodes.ts";
 import { watch } from "../../util/kv/kv.ts";
 import type { AppContext } from "../../util/types.ts";
 
-export default async function listenMediaConvertEventHandler(ctx: AppContext) {
+export default function listenMediaConvertEventHandler(ctx: AppContext) {
   const { user } = ctx.state;
   const { inodeId } = ctx.urlPatternResult.pathname.groups;
 
@@ -15,26 +14,16 @@ export default async function listenMediaConvertEventHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  const inodeEntry = await getInodeById(inodeId, { consistency: "eventual" });
-  const inode = inodeEntry.value;
-  const { canRead } = getPermissions({ user, resource: inode });
-
-  if (!inode || !canRead) {
-    return ctx.respond(null, STATUS_CODE.NotFound);
-  }
-
   let kvReader: ReadableStreamDefaultReader<[Deno.KvEntryMaybe<VideoNode>]>;
   const kvKey = inodesKeys.byId(inodeId);
 
   const resBody = new ReadableStream({
     start(controller) {
-      kvReader = watch<[VideoNode]>([kvKey], ([entry]) => {
-        if (!entry.value) return;
-        const data = pick(entry.value.mediaConvert, [
-          "status",
-          "jobPercentComplete",
-          "playlistDataUrl",
-        ]);
+      kvReader = watch<[VideoNode]>([kvKey], ([{ value: inode }]) => {
+        const { canRead } = getPermissions({ user, resource: inode });
+        if (!inode || !canRead) return;
+        const { status, percentComplete, playlistDataUrl } = inode.mediaConvert;
+        const data = { status, percentComplete, playlistDataUrl };
         const msg = `data: ${JSON.stringify(data)}\r\n\r\n`;
         controller.enqueue(new TextEncoder().encode(msg));
       });

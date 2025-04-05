@@ -10,9 +10,11 @@ import { QueueMsgChangeDirChildrenAcl } from "../../handlers/queue/change_dir_ch
 import { keys as usersKeys } from "../../util/kv/users.ts";
 import type { AclDiffWithUserId, AclPreview, Inode } from "../inodes/types.ts";
 import { enqueue } from "../kv/enqueue.ts";
-import { getManyEntries, saveWithRetry } from "../kv/kv.ts";
+import { getInodeById } from "../kv/inodes.ts";
+import { getManyEntries } from "../kv/kv.ts";
 import type { User } from "../types.ts";
 import { ROOT_DIR_ID } from "./consts.ts";
+import { setAnyInode } from "./kv_wrappers.ts";
 
 const ACL_PREVIEW_SUBSET_SIZE = 5;
 
@@ -40,13 +42,16 @@ export async function changeAcl(input: {
   recursive?: boolean;
   usersById?: Record<string, User>;
 }) {
-  const { diffs, inodeEntry, actingUserId, usersById = {}, recursive } = input;
-  const inode = inodeEntry.value;
+  const { diffs, actingUserId, usersById = {}, recursive } = input;
+  let { inodeEntry } = input;
+  let inode = inodeEntry.value;
   const isSpace = inode?.parentDirId === ROOT_DIR_ID;
 
   if (!inode) {
     return;
   }
+
+  const { acl, aclStats } = inode;
 
   if (inode.type === "dir" && recursive) {
     await enqueue<QueueMsgChangeDirChildrenAcl>({
@@ -72,11 +77,11 @@ export async function changeAcl(input: {
     } else if (userId === inode.ownerId && isSpace) {
       continue;
     } else if (role === null) {
-      delete inode.acl[userId];
+      delete acl[userId];
     } else if (userId === ACL_ROLE_ALL) {
-      inode.acl[userId] = "viewer";
+      acl[userId] = "viewer";
     } else {
-      inode.acl[userId] = role;
+      acl[userId] = role;
     }
   }
 
@@ -85,7 +90,7 @@ export async function changeAcl(input: {
     ids: <string[]> [],
   };
 
-  const usersIds = getAclUsersIds(inode.acl);
+  const usersIds = getAclUsersIds(acl);
 
   for (const userId of usersIds) {
     if (!usersById[userId]) {
@@ -103,19 +108,33 @@ export async function changeAcl(input: {
         usersById[user.id] = user;
       } else {
         const userId = extraUsers.ids[i];
-        delete inode.acl[userId];
+        delete acl[userId];
       }
     });
   }
 
-  inode.aclStats = {
-    usersCount: getAclUsersCount(inode.acl),
-    previewSubset: createAclPreview({
-      users: Object.values(usersById),
-      acl: inode.acl,
-      subsetOnly: true,
-    }),
-  };
+  aclStats.usersCount = getAclUsersCount(acl);
 
-  return saveWithRetry(inodeEntry);
+  aclStats.previewSubset = createAclPreview({
+    users: Object.values(usersById),
+    acl: inode.acl,
+    subsetOnly: true,
+  });
+
+  let commit = { ok: false };
+  let commitIndex = 0;
+
+  while (!commit.ok) {
+    if (commitIndex) {
+      inodeEntry = await getInodeById(inode.id);
+      inode = inodeEntry.value;
+      if (!inode) return;
+    }
+    inode.acl = acl;
+    inode.aclStats = aclStats;
+    const atomic = setAnyInode(inode);
+    atomic.check(inodeEntry);
+    commit = await atomic.commit();
+    commitIndex++;
+  }
 }

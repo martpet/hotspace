@@ -6,7 +6,7 @@ import {
 } from "../../handlers/queue/delete_s3_objects.ts";
 import { type QueueMsgPostProcessUpload } from "../../handlers/queue/post_process_upload.ts";
 import { INODES_BUCKET } from "../consts.ts";
-import type { FileNode, Inode, VideoNode } from "../inodes/types.ts";
+import type { FileNode, Inode } from "../inodes/types.ts";
 import { enqueue } from "../kv/enqueue.ts";
 import { setFileNodeStats } from "../kv/filenodes_stats.ts";
 import {
@@ -30,11 +30,16 @@ export function createFileNode(options: {
   atomic?: Deno.AtomicOperation;
 }) {
   const { fileNode, origin, atomic = kv.atomic() } = options;
-  if (isVideoNode(fileNode)) {
-    fileNode.mediaConvert = { status: "PENDING", streamType: "hls" };
-  }
   setAnyInode(fileNode, atomic);
   setFileNodeStats({ fileNode, isAdd: true, atomic });
+
+  if (isVideoNode(fileNode)) {
+    fileNode.mediaConvert = {
+      jobId: "",
+      status: "PENDING",
+      percentComplete: 0,
+    };
+  }
 
   if (isPostProcessableUpload(fileNode)) {
     enqueue<QueueMsgPostProcessUpload>({
@@ -65,10 +70,16 @@ export async function deleteInodesRecursive(inodes: Inode[]) {
 
     deleteAnyInode(inode, atomic);
 
+    let pendingMediaConvertJob;
+
+    if (isVideoNode(inode) && inode.mediaConvert?.status === "PENDING") {
+      pendingMediaConvertJob = inode.mediaConvert.jobId;
+    }
+
     enqueue<QueueMsgCleanUpInode>({
       type: "clean-up-inode",
       inodeId: inode.id,
-      pendingMediaConvertJobId: (inode as VideoNode).mediaConvert?.jobId,
+      pendingMediaConvertJob,
     }, atomic);
 
     if (inode.type === "dir") {
