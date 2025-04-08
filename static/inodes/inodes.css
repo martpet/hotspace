@@ -1,0 +1,231 @@
+.inodes-header {
+  display: flex;
+  margin-bottom: 1em;
+  align-items: center;
+  > menu {
+    margin-left: auto;
+  }
+}
+
+#upload-progress {
+  gap: 0.2em;
+  progress {
+    display: block;
+    width: 100%;
+  }
+  .info {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+  }
+}
+
+#table-delete-list {
+  min-width: 30em;
+  max-width: 50em;
+  padding: 1em;
+  border: 1px dotted var(--border-grey);
+  list-style: none;
+  li + li {
+    margin-top: 0.7em;
+  }
+  .inode::before {
+    font-size: 1.2em;
+    margin-right: 0.3em;
+  }
+  .inode::after {
+    content: "↗";
+    margin-left: 0.5em;
+    font-size: 0.8em;
+    display: inline-block;
+  }
+}
+
+#delete-inode-dialog {
+  max-width: 32em;
+}
+
+a.inode {
+  &::before {
+    display: inline-block;
+    margin-right: 0.6em;
+    font-size: 1.5em;
+    vertical-align: middle;
+  }
+  &.dir::before {
+    content: "📁";
+    margin-top: 1px;
+  }
+  &.file::before {
+    content: "📄";
+  }
+}
+
+#inodes-container {
+  container-type: inline-size;
+}
+
+.inodes-table {
+  width: 100%;
+  margin-bottom: 2rem;
+  border-spacing: 0;
+  thead {
+    background: Canvas;
+    position: sticky;
+    z-index: 1;
+    top: 0;
+  }
+  tbody {
+    position: relative;
+    z-index: 1;
+    tr {
+      height: 42px;
+      &:has(.select:hover) {
+        background-color: var(--bg-light);
+      }
+      &:has(.select :checked) {
+        background-color: var(--bg-highlight);
+        td {
+          border-bottom-color: Highlight;
+          &:is(tr:first-child td) {
+            border-top-color: Highlight;
+          }
+        }
+      }
+      &:has(+ tr .select :checked) td {
+        border-bottom-color: Highlight;
+      }
+    }
+  }
+  th,
+  td {
+    padding-inline: 1em;
+    &.select {
+      width: 30px;
+      padding-inline: 0;
+      text-align: center;
+      input {
+        margin: 0;
+      }
+    }
+  }
+  th {
+    padding-block: 0.3em;
+    font-weight: 600;
+    text-align: initial;
+    border-bottom: 2px solid var(--border-grey-light);
+    &:is(thead:has(+ tbody tr:first-child .select :checked) &) {
+      border-bottom-color: transparent;
+    }
+  }
+  td {
+    border-top: 1px solid transparent;
+    border-bottom: 1px solid var(--border-grey-light);
+    &.select {
+      position: relative;
+      label {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+    }
+    &.name {
+      word-break: break-all;
+    }
+  }
+  @container (width < 640px) {
+    th,
+    td {
+      &.type,
+      &.size {
+        display: none;
+      }
+    }
+    td {
+      &.name a::before {
+        font-size: 1em;
+        margin-right: 0.5em;
+      }
+    }
+  }
+}
+
+#video {
+  height: 200px;
+}
+
+#video-converting {
+  display: flex;
+  height: 200px;
+  align-items: center;
+  gap: 0.7em;
+  color: var(--text-grey-dark);
+  &::after {
+    order: -1;
+  }
+}
+
+#converting-error {
+  display: inline-block;
+}
+
+#filenode-iframe {
+  width: 100%;
+  height: 400px;
+}
+
+#docx-iframe {
+  display: block;
+  aspect-ratio: 8.5 / 11;
+  width: 794px;
+  max-width: 100%;
+  max-height: 100vh;
+  margin: 0 auto;
+}
+
+.inode-access {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  .others-preview {
+    border-bottom: 1px dotted CanvasText;
+  }
+}
+
+#acl-dialog {
+  .inode-name {
+    margin-top: -0.8em;
+    margin-bottom: 1.5em;
+    padding-bottom: 1.5em;
+    font-size: 1em;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border-grey-light);
+  }
+  .permissions {
+    margin-top: 2em;
+    padding: 0.5em 1em 1em;
+    border: 1px solid var(--border-grey);
+    border-radius: 5px;
+    legend {
+      font-weight: 600;
+    }
+    label {
+      display: flex;
+      margin: 1em 0;
+      gap: 0.5em;
+    }
+    select {
+      text-transform: capitalize;
+    }
+    #acl-add-user {
+      margin-top: 1em;
+    }
+    #acl-loading {
+      display: flex;
+      gap: 0.5em;
+      justify-content: center;
+      color: var(--text-grey-dark);
+    }
+  }
+}

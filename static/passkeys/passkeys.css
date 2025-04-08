@@ -1,0 +1,32 @@
+.passkeys-list {
+  width: max-content;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+
+  li:has(.delete-passkey button:active) {
+    background-color: Mark;
+    color: MarkText;
+  }
+  ~ footer {
+    margin-top: 2rem;
+  }
+}
+
+.rename-passkey {
+  padding: 0;
+  font: inherit;
+  background: none;
+  border: none;
+  border-bottom: 1px dotted CanvasText;
+  outline: none;
+  cursor: default;
+  &:hover {
+    cursor: pointer;
+  }
+}
+
+.delete-passkey {
+  display: inline-block;
+  margin-left: 0.5rem;
+}

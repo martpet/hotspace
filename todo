@@ -1,0 +1,14 @@
+- refactor chat with preact standalone
+
+- implement APP_ADMIN in permissions
+
+- Chat subs: subscriber to public chat remains subsribed if chat becomes
+  private.
+
+- "uploadSizeByOwner" (file owner) should be "by space owner"
+
+- Load initial chat messages from socket connection instead of http req.
+
+- Use custom element for chat (to allow connect/disconnect on mount/unmount).
+
+- improve createSignal: execute callback on subscribing

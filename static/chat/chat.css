@@ -1,0 +1,334 @@
+#chat-lazy-root {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: var(--border-grey);
+}
+
+#chat {
+  margin-top: 5em;
+  --msg-hover-color: var(--bg-light);
+  --red-color: crimson;
+  @media (prefers-color-scheme: dark) {
+    --red-color: darkred;
+  }
+
+  textarea {
+    resize: none;
+    field-sizing: content;
+    min-height: 1.1rem;
+    padding: 0.1rem 0.25rem;
+    font-size: 14px;
+    &::placeholder {
+      font-size: 13px;
+    }
+  }
+}
+
+#chat-box {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  resize: both;
+  width: 26rem;
+  height: 21.5rem;
+  min-height: 5rem;
+  min-width: 10rem;
+  max-width: 100%;
+  border: 1px solid var(--border-grey);
+}
+
+#chat-main {
+  display: flex;
+  flex-direction: column;
+  overflow: scroll;
+  flex-grow: 1;
+  min-height: 3rem;
+  padding: 1.5rem 0.8rem;
+  .splash {
+    flex-grow: 1;
+    display: flex;
+    margin: 2rem 0;
+    justify-content: center;
+    align-items: center;
+  }
+  &:has(#chat-beginning[hidden]) .day:first-of-type {
+    display: none;
+  }
+}
+
+#chat-msgs-loader {
+  align-self: center;
+  display: flex;
+  align-items: center;
+  margin: 0 0 0.25rem;
+  gap: 0.35rem;
+  color: var(--text-grey);
+  &:not(.visible) {
+    visibility: hidden;
+  }
+  &::after {
+    order: -1;
+  }
+}
+
+#chat-beginning {
+  text-align: center;
+  color: var(--text-grey);
+}
+
+#chat-msgs {
+  h3.day {
+    display: flex;
+    margin: 1rem 0 0;
+    justify-content: center;
+    align-items: center;
+    gap: 0.2em;
+    font: inherit;
+    color: var(--text-grey);
+    &::before,
+    &::after {
+      content: "";
+      flex-grow: 1;
+      border-top: 1px solid var(--border-grey);
+    }
+    &:has(+ .first-new-msg) {
+      color: var(--red-color);
+      &::before,
+      &::after {
+        border-top-color: var(--red-color);
+      }
+    }
+  }
+}
+
+.chat-msg {
+  margin: 0.5rem 0 0;
+  padding-top: calc(0.5rem - 1px);
+  border-top: 1px solid transparent;
+  transition: border-color 500ms ease-out;
+  &.first-new-msg:not(.day + &) {
+    border-top-color: var(--red-color);
+  }
+  &.follow-up {
+    margin-top: 0;
+    padding-top: 0;
+    .username,
+    time {
+      display: none;
+    }
+  }
+  .username {
+    margin-right: 0.3em;
+  }
+  .main {
+    position: relative;
+    display: block;
+    padding: 1px 0;
+    [class*="spinner-"] {
+      margin-right: 0.2rem;
+      color: var(--text-grey);
+    }
+  }
+  time {
+    font-size: 0.8em;
+    color: var(--text-grey);
+  }
+  .text {
+    margin-right: 0.5rem;
+    white-space: pre-line;
+    .pending & {
+      color: var(--text-grey);
+    }
+    .deleted & {
+      text-decoration: line-through;
+    }
+  }
+  .tag-edited {
+    font-size: 0.75rem;
+    font-style: italic;
+    color: var(--text-grey);
+  }
+}
+
+.chat-msg:not(.pending):is(.edit, .del) .main:hover {
+  clip-path: inset(0 0 0 0);
+  border-radius: 3px;
+  background-color: var(--msg-hover-color);
+  .chat-msg-menu {
+    visibility: visible;
+    transition: visibility;
+    transition-delay: 0.15s;
+  }
+}
+
+.chat-msg-menu {
+  position: absolute;
+  top: 0;
+  right: 1px;
+  visibility: hidden;
+  display: flex;
+  gap: 0.3rem;
+  padding: 0 0 5px 5px;
+  border-radius: 5px;
+  background-color: var(--msg-hover-color);
+  box-shadow: 0 0 30px 5px var(--msg-hover-color);
+  button {
+    display: none;
+    font-size: 0.7rem;
+    vertical-align: top;
+    &:is(.chat-msg.edit .edit-btn),
+    &:is(.chat-msg.del .del-btn) {
+      display: revert;
+    }
+  }
+}
+
+#chat-footer {
+  position: relative;
+  display: flex;
+  max-height: calc(100% - 4rem);
+  margin: 0 0.5rem;
+}
+
+#chat-msg-form {
+  flex-grow: 1;
+  display: flex;
+  margin-bottom: 0.5rem;
+  fieldset {
+    display: contents;
+    &[disabled] textarea {
+      cursor: wait;
+    }
+  }
+  textarea {
+    flex-grow: 1;
+  }
+}
+
+.chat-msg-dialog {
+  max-width: 30rem;
+  &[open],
+  form:has(.preview),
+  .preview {
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+  }
+  h1 + * {
+    margin-top: 0;
+  }
+  .alert {
+    margin-bottom: 1.2em;
+  }
+  blockquote.preview {
+    margin: 0;
+    padding: 1rem;
+    gap: 1rem;
+    box-shadow: inset 0px 0px 4px #ccc;
+    @media (prefers-color-scheme: dark) {
+      box-shadow: inset 0px 0px 4px #444;
+    }
+    .chat-msg {
+      margin: 0;
+      padding: 0;
+    }
+  }
+}
+
+#chat-error {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 5px;
+  transform: translateX(-50%);
+  width: fit-content;
+  margin: 0;
+}
+
+#scrollto-unseen-msg-btn {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background-color: var(--red-color);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0px 0px 1px 1px #0000001a;
+  cursor: pointer;
+}
+
+#chat-users-typing {
+  display: flex;
+  min-height: 1rem;
+  margin: 0.3rem 0.2rem;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--text-grey);
+  .names:empty + .dots {
+    display: none;
+  }
+  .dots {
+    order: -1; /* no reflow in safari on updating .names when .dots before .names */
+  }
+}
+
+#chat-sub {
+  display: flex;
+  flex-wrap: wrap;
+  min-height: 1.3rem;
+  margin-block: 0.6rem;
+  gap: 0.3em;
+  align-items: center;
+  font-size: 0.9em;
+  label {
+    display: flex;
+    gap: 0.3em;
+    align-items: center;
+  }
+  .alert {
+    padding: 0 0.3em;
+    line-height: 1.4;
+  }
+  &[class*="spinner-"]::after {
+    position: relative;
+    top: 1px;
+  }
+  .help-tooltip {
+    margin-inline: 2px;
+    .anchor {
+      anchor-name: --chat-sub-help;
+    }
+    .infobox {
+      position-anchor: --chat-sub-help;
+    }
+  }
+}
+
+#chat-sub-checkbox {
+  position: relative;
+  top: -1px;
+  &[disabled]:hover {
+    cursor: wait;
+    &.not-allowed {
+      cursor: not-allowed;
+    }
+  }
+}
+
+#ios-chat-sub-help {
+  margin-top: 1rem;
+  margin-bottom: 3rem;
+  figure {
+    display: flex;
+    flex-direction: column;
+    margin-block: 0;
+    gap: 2rem;
+  }
+}

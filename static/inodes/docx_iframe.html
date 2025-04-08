@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+
+<style>
+  body {
+    display: flex;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+  }
+  .docx {
+    margin-bottom: 0 !important;
+    @media (max-width: 767px) {
+      padding-inline: 5% !important;
+    }
+  }
+  #spinner {
+    width: 48px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 1px solid grey;
+    border-bottom-color: transparent;
+    animation: spin 0.5s linear infinite;
+  }
+  @keyframes spin {
+    to {
+      transform: rotate(1turn);
+    }
+  }
+</style>
+
+<script type="module">
+  const {
+      jszipPath,
+      docxPreviewPath,
+      fileNodeUrl,
+    } = Object.fromEntries(new URLSearchParams(location.search));
+
+    const scriptsReady = Promise.withResolvers();
+    loadScriptsSync([jszipPath, docxPreviewPath]);
+    const blob = await fetch(fileNodeUrl).then((resp) => resp.blob());
+    await scriptsReady.promise;
+
+    docx.renderAsync(blob, document.body, undefined, {
+      inWrapper: false,
+      ignoreWidth: true,
+      ignoreHeight: true,
+      breakPages: false,
+    });
+
+    function loadScriptsSync(paths, i = 0) {
+      const script = document.createElement("script");
+      script.src = paths[i];
+      script.onload = () => {
+        if (++i === paths.length) {
+          scriptsReady.resolve();
+        } else {
+          loadScriptsSync(paths, i);
+        }
+      };
+      document.head.append(script);
+    }
+</script>
+
+<div id="spinner"></div>

@@ -1,0 +1,29 @@
+#settings-form {
+  label {
+    display: block;
+    margin: 0.5em 0;
+  }
+  .submit {
+    margin-top: 3em;
+  }
+  fieldset {
+    position: relative;
+    width: fit-content;
+    margin: 1em 0;
+  }
+}
+
+.budget-fieldset {
+  padding-right: 50px;
+  &.new-budget {
+    border-color: green;
+  }
+  button.remove {
+    position: absolute;
+    right: 1em;
+    top: 0;
+  }
+  .live-cost.danger {
+    color: red;
+  }
+}
