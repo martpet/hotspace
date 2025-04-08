@@ -227,7 +227,7 @@ function insertDialog() {
             <p>
               <label>
                 <input id="pub-acl" type="checkbox" ${pubAccessCheckAttr} />
-                Enable public access
+                Public access enabled
               </label>
             </p>
             <fieldset class="permissions">

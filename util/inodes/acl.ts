@@ -35,6 +35,14 @@ export function createAclPreview(options: {
   return aclPreview;
 }
 
+export function createAclStats(options: { users: User[]; acl: Acl }) {
+  const { users, acl } = options;
+  return {
+    usersCount: getAclUsersCount(acl),
+    previewSubset: createAclPreview({ users, acl, subsetOnly: true }),
+  };
+}
+
 export async function changeAcl(input: {
   diffs: AclDiffWithUserId[];
   inodeEntry: Deno.KvEntryMaybe<Inode>;
@@ -51,7 +59,7 @@ export async function changeAcl(input: {
     return;
   }
 
-  const { acl, aclStats } = inode;
+  const { acl } = inode;
 
   if (inode.type === "dir" && recursive) {
     await enqueue<QueueMsgChangeDirChildrenAcl>({
@@ -113,12 +121,9 @@ export async function changeAcl(input: {
     });
   }
 
-  aclStats.usersCount = getAclUsersCount(acl);
-
-  aclStats.previewSubset = createAclPreview({
+  const aclStats = createAclStats({
     users: Object.values(usersById),
     acl: inode.acl,
-    subsetOnly: true,
   });
 
   let commit = { ok: false };

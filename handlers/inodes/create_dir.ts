@@ -1,7 +1,8 @@
-import { AclRole, getPermissions } from "$util";
+import { getPermissions } from "$util";
 import { STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
 import { DIR_NAME_CONSTRAINTS } from "../../util/constraints.ts";
+import { createAclStats } from "../../util/inodes/acl.ts";
 import { ROOT_DIR, ROOT_DIR_ID } from "../../util/inodes/consts.ts";
 import { setAnyInode } from "../../util/inodes/kv_wrappers.ts";
 import type { DirNode } from "../../util/inodes/types.ts";
@@ -74,12 +75,11 @@ export default async function createDirNodeHandler(ctx: AppContext) {
   let aclStats = parentDir.aclStats;
 
   if (isParentRoot) {
-    const role: AclRole = "admin";
-    acl = { [user.id]: role };
-    aclStats = {
-      usersCount: 1,
-      previewSubset: { [user.username]: role },
+    acl = {
+      [user.id]: "admin",
+      "*": "viewer",
     };
+    aclStats = createAclStats({ users: [user], acl });
   }
 
   const dirNode: DirNode = {
