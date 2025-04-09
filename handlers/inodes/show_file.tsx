@@ -86,14 +86,15 @@ export default async function showFileHandler(ctx: AppContext) {
       head={head}
       header={{ breadcrumb: true }}
     >
-      <header class="inodes-header">
-        <h1>{fileName}</h1>
-        {inodesMenu}
-      </header>
       <FilePreview
         fileNode={fileNode}
         fileNodeUrl={fileNodeUrl}
       />
+      <header class="inodes-header">
+        <h1>{fileName}</h1>
+        {inodesMenu}
+      </header>
+      <a href={fileNodeUrl} target="_blank">Open File ↗</a>
       {chatSection}
     </Page>
   );

@@ -1,9 +1,43 @@
+#file-preview {
+  display: flex;
+  width: 100vw;
+  margin-bottom: 0.5em;
+  margin-left: calc(-1 * var(--body-gutter));
+  justify-content: center;
+  background: black;
+  img {
+    display: block;
+    width: auto;
+    max-height: 500px;
+    margin: 0 auto;
+  }
+  #preview-iframe {
+    width: 50em;
+    height: 20em;
+    max-width: 100%;
+    background: Canvas;
+  }
+  #docx-iframe {
+    display: block;
+    aspect-ratio: 8.5 / 11;
+    width: 794px;
+    max-width: 100%;
+    max-height: 100vh;
+    margin: 0 auto;
+  }
+}
+
 .inodes-header {
   display: flex;
   margin-bottom: 1em;
   align-items: center;
   > menu {
     margin-left: auto;
+  }
+  #file-page & {
+    h1 {
+      font-size: 1.2rem;
+    }
   }
 }
 
@@ -173,15 +207,6 @@ a.inode {
 #filenode-iframe {
   width: 100%;
   height: 400px;
-}
-
-#docx-iframe {
-  display: block;
-  aspect-ratio: 8.5 / 11;
-  width: 794px;
-  max-width: 100%;
-  max-height: 100vh;
-  margin: 0 auto;
 }
 
 .inode-access {

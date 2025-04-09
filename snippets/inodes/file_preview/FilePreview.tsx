@@ -13,33 +13,25 @@ export default function FilePreview(props: Props) {
   const { fileType } = fileNode;
   const [mainType, subType] = fileType.split("/");
 
-  const showInFirame = mainType === "text" ||
-    subType === "pdf" ||
-    subType === "x-javascript";
-
   const isDocx = fileType ===
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
   return (
-    <>
+    <div id="file-preview">
       {mainType === "image" && (
         <a href={fileNodeUrl}>
-          <img src={fileNodeUrl} height={200} />
+          <img src={fileNodeUrl} />
         </a>
       )}
       {isVideoNode(fileNode) && <VideoPreview videoNode={fileNode} />}
-      {showInFirame && (
-        <iframe
-          id="inode-preview-iframe"
-          src={fileNodeUrl}
-          width="400"
-          height="200"
-        />
+
+      {(mainType === "text" ||
+        subType === "pdf" ||
+        subType === "x-javascript") && (
+        <iframe id="preview-iframe" src={fileNodeUrl} />
       )}
+
       {isDocx && <DocxPreview fileNodeUrl={fileNodeUrl} />}
-      <p>
-        <a href={fileNodeUrl} target="_blank">Open Original ↗</a>
-      </p>
-    </>
+    </div>
   );
 }

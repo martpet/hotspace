@@ -55,11 +55,11 @@ export default function InodesTable(props: Props, ctx: AppContext) {
         <table class="inodes-table">
           <thead>
             <tr>
-              <th class="select">
-                {canModifySome && isMultiSelect && (
-                  <SelectInput isMultiSelect={isMultiSelect} />
-                )}
-              </th>
+              {canModifySome && (
+                <th class="select">
+                  {isMultiSelect && <SelectInput isMultiSelect />}
+                </th>
+              )}
               <th class="name">Name</th>
               {!skipType && <th class="type">Type</th>}
               {canViewAclSome && <th>Access</th>}
@@ -78,9 +78,11 @@ export default function InodesTable(props: Props, ctx: AppContext) {
               }
               return (
                 <tr>
-                  <td class="select">
-                    {canModify && <SelectInput isMultiSelect={isMultiSelect} />}
-                  </td>
+                  {canModify && (
+                    <td class="select">
+                      <SelectInput isMultiSelect={isMultiSelect} />
+                    </td>
+                  )}
                   <td class="name">
                     <InodeAnchor inode={inode} skipIcons={skipIcons} />
                   </td>
