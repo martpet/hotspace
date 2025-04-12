@@ -1,4 +1,5 @@
 import { newQueue } from "@henrygd/queue";
+import { MINUTE } from "@std/datetime";
 import { type QueueMsgCleanUpInode } from "../../handlers/queue/clean_up_inode.ts";
 import { type QueueMsgDeleteDirChildren } from "../../handlers/queue/delete_dir_children.ts";
 import {
@@ -69,11 +70,15 @@ export async function deleteInodesRecursive(inodes: Inode[]) {
 
   if (s3KeysToDelete.length) {
     queue.add(() =>
-      enqueue<QueueMsgDeleteS3Objects>({
-        type: "delete-s3-objects",
-        bucket: INODES_BUCKET,
-        s3Keys: s3KeysToDelete,
-      }).commit()
+      enqueue<QueueMsgDeleteS3Objects>(
+        {
+          type: "delete-s3-objects",
+          bucket: INODES_BUCKET,
+          s3Keys: s3KeysToDelete,
+        },
+        undefined,
+        MINUTE * 30,
+      ).commit()
     );
   }
 
