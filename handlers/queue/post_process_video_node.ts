@@ -72,7 +72,17 @@ export async function handlePostProcessVideoNode(
     if (commitIndex) {
       inodeEntry = await getInodeById(inode.id);
       inode = inodeEntry.value;
-      if (!isVideoNode(inode)) return;
+      if (!isVideoNode(inode)) {
+        const { jobId } = inodePatch.mediaConvert;
+        if (jobId) {
+          mediaconvert.cancelJob({
+            jobId,
+            signer: getSigner(),
+            region: AWS_REGION,
+          });
+        }
+        return;
+      }
     }
     const atomic = setAnyInode({ ...inode, ...inodePatch });
     atomic.check(inodeEntry);

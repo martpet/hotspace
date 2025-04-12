@@ -1,3 +1,4 @@
+import { mediaconvert } from "$aws";
 import {
   deleteChatFeedItem,
   deleteChatMessage,
@@ -8,7 +9,6 @@ import {
   listFeedItemsByChat,
 } from "$chat";
 import { newQueue } from "@henrygd/queue";
-import { cancelJob } from "../../lib/aws/mediaconvert/mod.ts";
 import { getSigner } from "../../util/aws.ts";
 import { AWS_REGION } from "../../util/consts.ts";
 import { kv } from "../../util/kv/kv.ts";
@@ -39,7 +39,7 @@ export async function handleCleanUpInode(msg: QueueMsgCleanUpInode) {
 
   if (pendingMediaConvertJob) {
     promises.push(
-      cancelJob({
+      mediaconvert.cancelJob({
         jobId: pendingMediaConvertJob,
         signer: getSigner(),
         region: AWS_REGION,
