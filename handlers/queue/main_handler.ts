@@ -17,9 +17,9 @@ import {
   isMediaConvertJobState,
 } from "./media_convert_event.ts";
 import {
-  handlePostProcessUpload,
-  isPostProcessUpload,
-} from "./post_process_upload.ts";
+  handlePostProcessVideoNode,
+  isPostProcessVideoNode,
+} from "./post_process_video_node.ts";
 import {
   handlePushChatNotification,
   isPushChatNotification,
@@ -32,7 +32,7 @@ export function queueHandler(msg: unknown) {
   if (isChangeDirChildrenAcl(msg)) return handleChangeDirChildrenAcl(msg);
   if (isCleanUpInode(msg)) return handleCleanUpInode(msg);
   if (isCleanUpUser(msg)) return handleCleanUpUser(msg);
-  if (isPostProcessUpload(msg)) return handlePostProcessUpload(msg);
+  if (isPostProcessVideoNode(msg)) return handlePostProcessVideoNode(msg);
   if (isMediaConvertJobState(msg)) return hanleMediaConvertJobState(msg);
 
   console.error("Unhandled KV Queue message", msg);

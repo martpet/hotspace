@@ -43,14 +43,14 @@ export interface FileNode extends InodeBase {
 
 export interface VideoNode extends FileNode {
   fileType: `video/${string}`;
-  mediaConvert: {
-    jobId: string;
-    status: "PENDING" | "COMPLETE" | "ERROR";
-    percentComplete: number;
-    streamType?: "hls";
+  mediaConvert?: {
+    status?: "PENDING" | "COMPLETE" | "ERROR";
+    jobId?: string;
+    percentComplete?: number;
     stateChangeTimestamp?: number;
     playlistDataUrl?: string;
     subPlaylistsS3Keys?: string[];
+    streamType?: "hls";
     durationInMs?: number;
   };
 }

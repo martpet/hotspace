@@ -50,6 +50,8 @@ export async function hanleMediaConvertJobState(
     return;
   }
 
+  inode.mediaConvert ??= {};
+
   if (
     status === "STATUS_UPDATE" &&
     jobPercentComplete === inode.mediaConvert.percentComplete
@@ -107,6 +109,7 @@ export async function hanleMediaConvertJobState(
       inodeEntry = await getInodeById(inode.id);
       inode = inodeEntry.value;
       if (!inode || !isVideoNode(inode)) return;
+      inode.mediaConvert ??= {};
       const hasNewerTimestamp = inode.mediaConvert.stateChangeTimestamp ||
         0 > timestamp;
       if (hasNewerTimestamp) return;

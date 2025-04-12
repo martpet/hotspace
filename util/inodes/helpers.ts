@@ -3,10 +3,6 @@ import { INODES_CLOUDFRONT_URL } from "../consts.ts";
 import type { Inode, InodeLabel, VideoNode } from "../inodes/types.ts";
 import { ROOT_DIR_ID } from "./consts.ts";
 
-export function isPostProcessableInode(inode: Inode | null) {
-  return isVideoNode(inode);
-}
-
 export function isVideoNode(inode: Inode | null): inode is VideoNode {
   return inode !== null && inode.type === "file" &&
     inode.fileType.startsWith("video");

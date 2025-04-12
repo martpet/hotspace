@@ -4,7 +4,7 @@ import { type QueueMsgDeleteDirChildren } from "../../handlers/queue/delete_dir_
 import {
   type QueueMsgDeleteS3Objects,
 } from "../../handlers/queue/delete_s3_objects.ts";
-import { type QueueMsgPostProcessUpload } from "../../handlers/queue/post_process_upload.ts";
+import { type QueueMsgPostProcessVideoNode } from "../../handlers/queue/post_process_video_node.ts";
 import { INODES_BUCKET } from "../consts.ts";
 import type { FileNode, Inode } from "../inodes/types.ts";
 import { enqueue } from "../kv/enqueue.ts";
@@ -18,32 +18,24 @@ import {
   setRootDirByOwner,
 } from "../kv/inodes.ts";
 import { kv } from "../kv/kv.ts";
-import { isPostProcessableInode, isVideoNode } from "./helpers.ts";
+import { isVideoNode } from "./helpers.ts";
 
 export function createFileNode(options: {
   fileNode: FileNode;
   origin: string;
-  atomic?: Deno.AtomicOperation;
+  atomic: Deno.AtomicOperation;
 }) {
-  const { fileNode, origin, atomic = kv.atomic() } = options;
+  const { fileNode, origin, atomic } = options;
 
   if (isVideoNode(fileNode)) {
-    fileNode.mediaConvert = {
-      jobId: "",
-      status: "PENDING",
-      percentComplete: 0,
-    };
-  }
-  setAnyInode(fileNode, atomic);
-  setFileNodeStats({ fileNode, isAdd: true, atomic });
-
-  if (isPostProcessableInode(fileNode)) {
-    enqueue<QueueMsgPostProcessUpload>({
-      type: "post-process-upload",
+    enqueue<QueueMsgPostProcessVideoNode>({
+      type: "post-process-video-node",
       inodeId: fileNode.id,
       origin,
     }, atomic);
   }
+  setAnyInode(fileNode, atomic);
+  setFileNodeStats({ fileNode, isAdd: true, atomic });
 }
 
 export function setAnyInode(inode: Inode, atomic = kv.atomic()) {
