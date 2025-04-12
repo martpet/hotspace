@@ -126,6 +126,11 @@ export async function changeAcl(input: {
     acl: inode.acl,
   });
 
+  const inodePatch = {
+    acl,
+    aclStats,
+  } satisfies Partial<Inode>;
+
   let commit = { ok: false };
   let commitIndex = 0;
 
@@ -135,9 +140,7 @@ export async function changeAcl(input: {
       inode = inodeEntry.value;
       if (!inode) return;
     }
-    inode.acl = acl;
-    inode.aclStats = aclStats;
-    const atomic = setAnyInode(inode);
+    const atomic = setAnyInode({ ...inode, ...inodePatch });
     atomic.check(inodeEntry);
     commit = await atomic.commit();
     commitIndex++;

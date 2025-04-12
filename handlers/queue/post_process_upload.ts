@@ -1,8 +1,9 @@
 import { mediaconvert } from "$aws";
 import { getSigner } from "../../util/aws.ts";
 import { AWS_REGION, LOCAL_DEV_PUBLIC_URL } from "../../util/consts.ts";
-import { isVideoNode } from "../../util/inodes/helpers.ts";
+import { isPostProcessableInode } from "../../util/inodes/helpers.ts";
 import { setAnyInode } from "../../util/inodes/kv_wrappers.ts";
+import { VideoNode } from "../../util/inodes/types.ts";
 import { getInodeById } from "../../util/kv/inodes.ts";
 import {
   createJobOptions,
@@ -32,7 +33,7 @@ export async function handlePostProcessUpload(
   let inodeEntry = await getInodeById(inodeId);
   let inode = inodeEntry.value;
 
-  if (!inode || !isVideoNode(inode)) {
+  if (!isPostProcessableInode(inode)) {
     return;
   }
 
@@ -45,16 +46,19 @@ export async function handlePostProcessUpload(
     },
   };
 
-  const { mediaConvert } = inode;
+  const inodePatch = {
+    mediaConvert: inode.mediaConvert,
+    hasS3Folder: true,
+  } satisfies Partial<VideoNode>;
 
   try {
-    mediaConvert.jobId = await mediaconvert.createJob({
+    inodePatch.mediaConvert.jobId = await mediaconvert.createJob({
       job: createJobOptions(jobOptionsInput),
       signer: getSigner(),
       region: AWS_REGION,
     });
   } catch (err) {
-    mediaConvert.status = "ERROR";
+    inodePatch.mediaConvert.status = "ERROR";
     console.error(err);
   }
 
@@ -65,10 +69,9 @@ export async function handlePostProcessUpload(
     if (commitIndex) {
       inodeEntry = await getInodeById(inode.id);
       inode = inodeEntry.value;
-      if (!inode || !isVideoNode(inode)) return;
+      if (!isPostProcessableInode(inode)) return;
     }
-    inode.mediaConvert = mediaConvert;
-    const atomic = setAnyInode(inode);
+    const atomic = setAnyInode({ ...inode, ...inodePatch });
     atomic.check(inodeEntry);
     commit = await atomic.commit();
     commitIndex++;

@@ -1,6 +1,7 @@
 import { addCost } from "../../util/admin/app_costs.ts";
 import { isVideoNode } from "../../util/inodes/helpers.ts";
 import { setAnyInode } from "../../util/inodes/kv_wrappers.ts";
+import type { VideoNode } from "../../util/inodes/types.ts";
 import {
   fetchMasterPlaylist,
   processMasterPlaylist,
@@ -56,18 +57,20 @@ export async function hanleMediaConvertJobState(
     return;
   }
 
-  const { mediaConvert } = inode;
+  const inodePatch = {
+    mediaConvert: inode.mediaConvert,
+  } satisfies Partial<VideoNode>;
 
   if (jobPercentComplete !== undefined) {
-    mediaConvert.percentComplete = jobPercentComplete;
+    inodePatch.mediaConvert.percentComplete = jobPercentComplete;
   }
 
   if (timestamp) {
-    mediaConvert.stateChangeTimestamp = timestamp;
+    inodePatch.mediaConvert.stateChangeTimestamp = timestamp;
   }
 
   if (status !== "STATUS_UPDATE") {
-    mediaConvert.status = status;
+    inodePatch.mediaConvert.status = status;
   }
 
   if (status === "COMPLETE") {
@@ -77,10 +80,10 @@ export async function hanleMediaConvertJobState(
         inodeId: inode.id,
         origin,
       });
-      mediaConvert.streamType = "hls";
-      mediaConvert.playlistDataUrl = playlist.dataUrl;
-      mediaConvert.subPlaylistsS3Keys = playlist.subPlaylistsS3Keys;
-      mediaConvert.durationInMs = outputsDetails?.[0].durationInMs;
+      inodePatch.mediaConvert.streamType = "hls";
+      inodePatch.mediaConvert.playlistDataUrl = playlist.dataUrl;
+      inodePatch.mediaConvert.subPlaylistsS3Keys = playlist.subPlaylistsS3Keys;
+      inodePatch.mediaConvert.durationInMs = outputsDetails?.[0].durationInMs;
       if (outputsDetails) {
         const settingsEntry = await getAppSettings("eventual");
         const settings = settingsEntry.value;
@@ -92,7 +95,7 @@ export async function hanleMediaConvertJobState(
       }
     } catch (err) {
       console.error(err);
-      mediaConvert.status = "ERROR";
+      inodePatch.mediaConvert.status = "ERROR";
     }
   }
 
@@ -108,8 +111,7 @@ export async function hanleMediaConvertJobState(
         0 > timestamp;
       if (hasNewerTimestamp) return;
     }
-    inode.mediaConvert = mediaConvert;
-    const atomic = setAnyInode(inode);
+    const atomic = setAnyInode({ ...inode, ...inodePatch });
     atomic.check(inodeEntry);
     commit = await atomic.commit();
     commitIndex++;

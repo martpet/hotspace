@@ -18,11 +18,7 @@ import {
   setRootDirByOwner,
 } from "../kv/inodes.ts";
 import { kv } from "../kv/kv.ts";
-import {
-  isFileNodeWithManyS3Objects,
-  isPostProcessableUpload,
-  isVideoNode,
-} from "./helpers.ts";
+import { isPostProcessableInode, isVideoNode } from "./helpers.ts";
 
 export function createFileNode(options: {
   fileNode: FileNode;
@@ -41,7 +37,7 @@ export function createFileNode(options: {
   setAnyInode(fileNode, atomic);
   setFileNodeStats({ fileNode, isAdd: true, atomic });
 
-  if (isPostProcessableUpload(fileNode)) {
+  if (isPostProcessableInode(fileNode)) {
     enqueue<QueueMsgPostProcessUpload>({
       type: "post-process-upload",
       inodeId: fileNode.id,
@@ -92,7 +88,7 @@ export async function deleteInodesRecursive(inodes: Inode[]) {
     if (inode.type === "file") {
       s3KeysToDelete.push({
         name: inode.s3Key,
-        isPrefix: isFileNodeWithManyS3Objects(inode),
+        isPrefix: inode.hasS3Folder,
       });
     }
 

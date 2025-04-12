@@ -38,6 +38,7 @@ export interface FileNode extends InodeBase {
   fileType: string;
   fileSize: number;
   s3Key: string;
+  hasS3Folder?: boolean;
 }
 
 export interface VideoNode extends FileNode {

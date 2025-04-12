@@ -3,16 +3,13 @@ import { INODES_CLOUDFRONT_URL } from "../consts.ts";
 import type { Inode, InodeLabel, VideoNode } from "../inodes/types.ts";
 import { ROOT_DIR_ID } from "./consts.ts";
 
-export function isPostProcessableUpload(inode: Inode) {
+export function isPostProcessableInode(inode: Inode | null) {
   return isVideoNode(inode);
 }
 
-export function isFileNodeWithManyS3Objects(inode: Inode) {
-  return isVideoNode(inode);
-}
-
-export function isVideoNode(inode: Inode): inode is VideoNode {
-  return inode.type === "file" && inode.fileType.startsWith("video");
+export function isVideoNode(inode: Inode | null): inode is VideoNode {
+  return inode !== null && inode.type === "file" &&
+    inode.fileType.startsWith("video");
 }
 
 export function getInodeLabel(inode: Inode): InodeLabel {
