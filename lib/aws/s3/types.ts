@@ -1,9 +1,7 @@
-import type { AWSSignerV4 } from "deno_aws_sign_v4";
 import { AwsActionBase } from "../types.ts";
 
 export interface S3ReqOptions extends AwsActionBase {
   bucket: string;
-  signer: AWSSignerV4;
   accelerated?: boolean;
 }
 

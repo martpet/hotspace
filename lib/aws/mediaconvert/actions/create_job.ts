@@ -1,11 +1,9 @@
 import { fetchWithRetry } from "$util";
-import { type AWSSignerV4 } from "deno_aws_sign_v4";
 import type { AwsActionBase } from "../../types.ts";
 import { getMediaConvertEndpoint } from "../util.ts";
 
 interface Options extends AwsActionBase {
   job: Record<string, unknown>;
-  signer: AWSSignerV4;
   region: string;
 }
 
