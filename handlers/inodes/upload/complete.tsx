@@ -4,10 +4,9 @@ import { STATUS_CODE } from "@std/http";
 import { getSigner } from "../../../util/aws.ts";
 import { INODES_BUCKET, UPLOAD_DISABLED_MSG } from "../../../util/consts.ts";
 import {
-  cleanupUnsavedFileNodes,
-  createFileNodeFromUpload,
+  createFileNodesFromUploads,
   isValidUploadDirEntry,
-} from "../../../util/inodes/upload.ts";
+} from "../../../util/inodes/create_file_node.ts";
 import { getAppSettings } from "../../../util/kv/app_settings.ts";
 import { getInodeById } from "../../../util/kv/inodes.ts";
 import type { AppContext } from "../../../util/types.ts";
@@ -37,7 +36,7 @@ export default async function completeUploadHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  const { uploads, dirId } = reqData;
+  const { dirId, uploads } = reqData;
   const dirEntry = await getInodeById(dirId);
 
   if (!isValidUploadDirEntry(dirEntry, user)) {
@@ -50,24 +49,10 @@ export default async function completeUploadHandler(ctx: AppContext) {
     signer: getSigner(),
   });
 
-  const completedUploadsIds = [];
-
-  savingLoop: for (const upload of completedUploads) {
-    const isSaved = await createFileNodeFromUpload({
-      upload,
-      dirEntry,
-      dirId,
-      user,
-      origin,
-    });
-
-    if (!isSaved) {
-      await cleanupUnsavedFileNodes(uploads, completedUploadsIds);
-      break savingLoop;
-    }
-
-    completedUploadsIds.push(upload.uploadId);
-  }
+  const completedUploadsIds = await createFileNodesFromUploads(
+    completedUploads,
+    { dirEntry, dirId, user, origin },
+  );
 
   return ctx.json(completedUploadsIds);
 }
