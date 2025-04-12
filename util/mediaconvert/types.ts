@@ -7,8 +7,7 @@ export interface MediaConvertPricing {
 
 export interface JobUserMetaData {
   "inodeId": string;
-  "origin": string;
-  "devUrl": string;
+  "devAppUrl": string;
 }
 
 interface JobOutputVideoDetails {

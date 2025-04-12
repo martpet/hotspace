@@ -43,8 +43,7 @@ export async function handlePostProcessVideoNode(
     s3Key: inode.s3Key,
     userMetadata: {
       inodeId: inode.id,
-      origin,
-      devUrl: LOCAL_DEV_PUBLIC_URL || origin,
+      devAppUrl: LOCAL_DEV_PUBLIC_URL || origin,
     },
   };
 
