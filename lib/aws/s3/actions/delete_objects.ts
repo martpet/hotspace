@@ -1,4 +1,5 @@
 import { fetchWithRetry, toSha256Base64, toSha256Hex } from "$util";
+import { newQueue } from "@henrygd/queue";
 import { chunk } from "@std/collections";
 import type { S3ReqOptions } from "../types.ts";
 import { getS3Endpoint } from "../util.ts";
@@ -7,12 +8,15 @@ export interface Options extends S3ReqOptions {
   s3Keys: string[];
 }
 
-export async function deleteObjects(options: Options) {
+export function deleteObjects(options: Options) {
   const chunks = chunk(options.s3Keys, 1000);
+  const queue = newQueue(5);
 
   for (const s3Keys of chunks) {
-    await run({ ...options, s3Keys });
+    queue.add(() => run({ ...options, s3Keys }));
   }
+
+  return queue.done();
 }
 
 async function run(options: Options) {
