@@ -4,9 +4,8 @@ import { type QueueMsgDeleteDirChildren } from "../../handlers/queue/delete_dir_
 import {
   type QueueMsgDeleteS3Objects,
 } from "../../handlers/queue/delete_s3_objects.ts";
-import { type QueueMsgPostProcessVideoNode } from "../../handlers/queue/post_process_video_node.ts";
 import { INODES_BUCKET } from "../consts.ts";
-import type { FileNode, Inode } from "../inodes/types.ts";
+import type { Inode } from "../inodes/types.ts";
 import { enqueue } from "../kv/enqueue.ts";
 import { setFileNodeStats } from "../kv/filenodes_stats.ts";
 import {
@@ -19,24 +18,6 @@ import {
 } from "../kv/inodes.ts";
 import { kv } from "../kv/kv.ts";
 import { isVideoNode } from "./helpers.ts";
-
-export function createFileNode(options: {
-  fileNode: FileNode;
-  origin: string;
-  atomic: Deno.AtomicOperation;
-}) {
-  const { fileNode, origin, atomic } = options;
-
-  if (isVideoNode(fileNode)) {
-    enqueue<QueueMsgPostProcessVideoNode>({
-      type: "post-process-video-node",
-      inodeId: fileNode.id,
-      origin,
-    }, atomic);
-  }
-  setAnyInode(fileNode, atomic);
-  setFileNodeStats({ fileNode, isAdd: true, atomic });
-}
 
 export function setAnyInode(inode: Inode, atomic = kv.atomic()) {
   setInode(inode, atomic);

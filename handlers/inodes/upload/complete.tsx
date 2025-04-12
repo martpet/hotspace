@@ -1,14 +1,12 @@
 import { s3 } from "$aws";
 import { completeUploads } from "$upload";
 import { STATUS_CODE } from "@std/http";
-import { ulid } from "@std/ulid";
 import { getSigner } from "../../../util/aws.ts";
 import { INODES_BUCKET, UPLOAD_DISABLED_MSG } from "../../../util/consts.ts";
-import type { FileNode } from "../../../util/inodes/types.ts";
 import {
   cleanupUnsavedFileNodes,
+  createFileNodeFromUpload,
   isValidUploadDirEntry,
-  saveFileNode,
 } from "../../../util/inodes/upload.ts";
 import { getAppSettings } from "../../../util/kv/app_settings.ts";
 import { getInodeById } from "../../../util/kv/inodes.ts";
@@ -54,23 +52,9 @@ export default async function completeUploadHandler(ctx: AppContext) {
 
   const completedUploadsIds = [];
 
-  saving: for (const upload of completedUploads) {
-    const fileNode: FileNode = {
-      id: ulid(),
-      type: "file",
-      fileType: upload.fileType,
-      fileSize: upload.fileSize,
-      s3Key: upload.s3Key,
-      name: "",
-      parentDirId: dirId,
-      ownerId: user.id,
-      acl: dirEntry.value.acl,
-      aclStats: dirEntry.value.aclStats,
-    };
-
-    const isSaved = await saveFileNode({
+  savingLoop: for (const upload of completedUploads) {
+    const isSaved = await createFileNodeFromUpload({
       upload,
-      fileNode,
       dirEntry,
       dirId,
       user,
@@ -79,7 +63,7 @@ export default async function completeUploadHandler(ctx: AppContext) {
 
     if (!isSaved) {
       await cleanupUnsavedFileNodes(uploads, completedUploadsIds);
-      break saving;
+      break savingLoop;
     }
 
     completedUploadsIds.push(upload.uploadId);

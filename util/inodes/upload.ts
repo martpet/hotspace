@@ -1,13 +1,17 @@
 import { s3 } from "$aws";
 import { getPermissions } from "$util";
+import { ulid } from "@std/ulid/ulid";
 import { type QueueMsgDeleteS3Objects } from "../../handlers/queue/delete_s3_objects.ts";
+import { type QueueMsgPostProcessVideoNode } from "../../handlers/queue/post_process_video_node.ts";
 import { INODES_BUCKET } from "../../util/consts.ts";
-import { createFileNode } from "../../util/inodes/kv_wrappers.ts";
 import type { DirNode, FileNode, Inode } from "../../util/inodes/types.ts";
 import { enqueue } from "../../util/kv/enqueue.ts";
-import { getInodeById, keys as getInodeKey } from "../../util/kv/inodes.ts";
+import { getInodeById, keys as inodesKeys } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
+import { setFileNodeStats } from "../kv/filenodes_stats.ts";
 import type { User } from "../types.ts";
+import { isVideoNode } from "./helpers.ts";
+import { setAnyInode } from "./kv_wrappers.ts";
 
 export function isValidUploadDirEntry(
   entry: Deno.KvEntryMaybe<Inode>,
@@ -37,37 +41,63 @@ export function cleanupUnsavedFileNodes(
   }
 }
 
-export async function saveFileNode(options: {
+export async function createFileNodeFromUpload(options: {
   upload: s3.CompletedMultipartUpload & { fileSize: number };
-  fileNode: FileNode;
   dirEntry: Deno.KvEntryMaybe<DirNode>;
   dirId: string;
   user: User;
   origin: string;
 }) {
-  const { upload, fileNode, dirId, user, origin } = options;
+  const { upload, dirId, user, origin } = options;
   let dirEntry = options.dirEntry;
   let commit = { ok: false };
-  let retry = 0;
+  let commitIndex = 0;
 
   while (!commit.ok) {
-    fileNode.name = encodeURIComponent(upload.fileName);
-    if (retry) {
-      fileNode.name += `-${retry + 1}`;
+    let fileNodeName = encodeURIComponent(upload.fileName);
+
+    if (commitIndex) {
+      fileNodeName += `-${commitIndex + 1}`;
       dirEntry = await getInodeById(dirId);
     }
+
     if (!isValidUploadDirEntry(dirEntry, user)) {
       return false;
     }
-    const atomic = kv.atomic();
+
+    const fileNode: FileNode = {
+      id: ulid(),
+      type: "file",
+      fileType: upload.fileType,
+      fileSize: upload.fileSize,
+      s3Key: upload.s3Key,
+      name: fileNodeName,
+      parentDirId: dirId,
+      ownerId: user.id,
+      acl: dirEntry.value.acl,
+      aclStats: dirEntry.value.aclStats,
+    };
+
     const fileNodeNullCheck = {
-      key: getInodeKey.byDir(dirEntry.value.id, fileNode.name),
+      key: inodesKeys.byDir(dirEntry.value.id, fileNode.name),
       versionstamp: null,
     };
+
+    const atomic = kv.atomic();
     atomic.check(dirEntry, fileNodeNullCheck);
-    createFileNode({ fileNode, origin, atomic });
+    setAnyInode(fileNode, atomic);
+    setFileNodeStats({ fileNode, isAdd: true, atomic });
+
+    if (isVideoNode(fileNode)) {
+      enqueue<QueueMsgPostProcessVideoNode>({
+        type: "post-process-video-node",
+        inodeId: fileNode.id,
+        origin,
+      }, atomic);
+    }
+
     commit = await atomic.commit();
-    retry++;
+    commitIndex++;
   }
   return true;
 }
