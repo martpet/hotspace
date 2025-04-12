@@ -1,5 +1,5 @@
 import { ASSET_CACHE_PARAM } from "$server";
-import { ASSETS_CLOUDFRONT_URL } from "./consts.ts";
+import { ASSETS_CLOUDFRONT_URL, LOCAL_DEV_PUBLIC_URL } from "./consts.ts";
 import { DEPLOYMENT_HEX } from "./deployment_hex.ts";
 
 export function asset(pathname: string, options: { cdn?: boolean } = {}) {
@@ -12,4 +12,8 @@ export function asset(pathname: string, options: { cdn?: boolean } = {}) {
   }
   if (DEPLOYMENT_HEX) url += `?${ASSET_CACHE_PARAM}=${DEPLOYMENT_HEX}`;
   return url;
+}
+
+export function getDevAppUrl(origin: string) {
+  return LOCAL_DEV_PUBLIC_URL || origin;
 }

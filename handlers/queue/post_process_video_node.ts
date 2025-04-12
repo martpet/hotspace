@@ -1,6 +1,6 @@
 import { mediaconvert } from "$aws";
 import { getSigner } from "../../util/aws.ts";
-import { AWS_REGION, LOCAL_DEV_PUBLIC_URL } from "../../util/consts.ts";
+import { AWS_REGION } from "../../util/consts.ts";
 import { isVideoNode } from "../../util/inodes/helpers.ts";
 import { setAnyInode } from "../../util/inodes/kv_wrappers.ts";
 import { VideoNode } from "../../util/inodes/types.ts";
@@ -9,6 +9,7 @@ import {
   createJobOptions,
   JobOptionsInput,
 } from "../../util/mediaconvert/job_options.ts";
+import { getDevAppUrl } from "../../util/url.ts";
 
 export interface QueueMsgPostProcessVideoNode {
   type: "post-process-video-node";
@@ -43,27 +44,24 @@ export async function handlePostProcessVideoNode(
     s3Key: inode.s3Key,
     userMetadata: {
       inodeId: inode.id,
-      devAppUrl: LOCAL_DEV_PUBLIC_URL || origin,
+      origin,
+      devAppUrl: getDevAppUrl(origin),
     },
   };
 
-  const inodePatch: Partial<VideoNode> = {
+  const inodePatch = {
     hasS3Folder: true,
-  };
+    mediaConvert: inode.mediaConvert,
+  } satisfies Partial<VideoNode>;
 
   try {
-    inodePatch.mediaConvert = {
-      status: "PENDING",
-      jobId: await mediaconvert.createJob({
-        job: createJobOptions(jobOptionsInput),
-        signer: getSigner(),
-        region: AWS_REGION,
-      }),
-    };
+    inodePatch.mediaConvert.jobId = await mediaconvert.createJob({
+      job: createJobOptions(jobOptionsInput),
+      signer: getSigner(),
+      region: AWS_REGION,
+    });
   } catch (err) {
-    inodePatch.mediaConvert = {
-      status: "ERROR",
-    };
+    inodePatch.mediaConvert.status = "ERROR";
     console.error(err);
   }
 

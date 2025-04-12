@@ -40,8 +40,7 @@ export async function deleteInodesRecursive(inodes: Inode[]) {
     deleteAnyInode(inode, atomic);
 
     let pendingMediaConvertJob;
-
-    if (isVideoNode(inode) && inode.mediaConvert?.status === "PENDING") {
+    if (isVideoNode(inode) && inode.mediaConvert.status === "PENDING") {
       pendingMediaConvertJob = inode.mediaConvert.jobId;
     }
 

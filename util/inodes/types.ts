@@ -43,8 +43,8 @@ export interface FileNode extends InodeBase {
 
 export interface VideoNode extends FileNode {
   fileType: `video/${string}`;
-  mediaConvert?: {
-    status?: "PENDING" | "COMPLETE" | "ERROR";
+  mediaConvert: {
+    status: "PENDING" | "COMPLETE" | "ERROR";
     jobId?: string;
     percentComplete?: number;
     stateChangeTimestamp?: number;
@@ -53,4 +53,9 @@ export interface VideoNode extends FileNode {
     streamType?: "hls";
     durationInMs?: number;
   };
+}
+
+export interface ImageNode extends FileNode {
+  fileType: `image/${string}`;
+  processedStatus?: "PENDING" | "COMPLETE" | "ERROR";
 }

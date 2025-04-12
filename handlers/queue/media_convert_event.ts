@@ -50,8 +50,6 @@ export async function hanleMediaConvertJobState(
     return;
   }
 
-  inode.mediaConvert ??= {};
-
   if (
     status === "STATUS_UPDATE" &&
     jobPercentComplete === inode.mediaConvert.percentComplete
@@ -61,7 +59,8 @@ export async function hanleMediaConvertJobState(
 
   const inodePatch = {
     mediaConvert: inode.mediaConvert,
-  } satisfies Partial<VideoNode>;
+    hasS3Folder: undefined,
+  } as VideoNode;
 
   if (jobPercentComplete !== undefined) {
     inodePatch.mediaConvert.percentComplete = jobPercentComplete;
@@ -86,6 +85,7 @@ export async function hanleMediaConvertJobState(
       inodePatch.mediaConvert.playlistDataUrl = playlist.dataUrl;
       inodePatch.mediaConvert.subPlaylistsS3Keys = playlist.subPlaylistsS3Keys;
       inodePatch.mediaConvert.durationInMs = outputsDetails?.[0].durationInMs;
+      inodePatch.hasS3Folder = true;
       if (outputsDetails) {
         const settingsEntry = await getAppSettings("eventual");
         const settings = settingsEntry.value;
@@ -109,7 +109,6 @@ export async function hanleMediaConvertJobState(
       inodeEntry = await getInodeById(inode.id);
       inode = inodeEntry.value;
       if (!inode || !isVideoNode(inode)) return;
-      inode.mediaConvert ??= {};
       const hasNewerTimestamp = inode.mediaConvert.stateChangeTimestamp ||
         0 > timestamp;
       if (hasNewerTimestamp) return;

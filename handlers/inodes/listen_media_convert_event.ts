@@ -22,8 +22,7 @@ export default function listenMediaConvertEventHandler(ctx: AppContext) {
       kvReader = watch<[VideoNode]>([kvKey], ([{ value: inode }]) => {
         const { canRead } = getPermissions({ user, resource: inode });
         if (!inode || !canRead) return;
-        const { status, percentComplete, playlistDataUrl } =
-          inode.mediaConvert || { status: "PENDING" };
+        const { status, percentComplete, playlistDataUrl } = inode.mediaConvert;
         const data = { status, percentComplete, playlistDataUrl };
         const msg = `data: ${JSON.stringify(data)}\r\n\r\n`;
         controller.enqueue(new TextEncoder().encode(msg));
