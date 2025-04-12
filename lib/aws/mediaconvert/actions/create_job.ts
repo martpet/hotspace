@@ -1,6 +1,7 @@
 import { fetchWithRetry } from "$util";
 import { type AWSSignerV4 } from "deno_aws_sign_v4";
 import type { AwsActionBase } from "../../types.ts";
+import { getMediaConvertEndpoint } from "../util.ts";
 
 interface Options extends AwsActionBase {
   job: Record<string, unknown>;
@@ -10,7 +11,7 @@ interface Options extends AwsActionBase {
 
 export async function createJob(options: Options) {
   const { region, job, signer, retryOpt } = options;
-  const url = `https://mediaconvert.${region}.amazonaws.com/2017-08-29/jobs`;
+  const url = `${getMediaConvertEndpoint(region)}/jobs`;
 
   const req = new Request(url, {
     method: "post",

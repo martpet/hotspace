@@ -1,6 +1,7 @@
 import { fetchWithRetry } from "$util";
 import { type AWSSignerV4 } from "deno_aws_sign_v4";
 import type { AwsActionBase } from "../../types.ts";
+import { getMediaConvertEndpoint } from "../util.ts";
 
 interface Options extends AwsActionBase {
   jobId: string;
@@ -10,8 +11,7 @@ interface Options extends AwsActionBase {
 
 export async function cancelJob(options: Options) {
   const { jobId, region, signer, retryOpt } = options;
-  const url =
-    `https://mediaconvert.${region}.amazonaws.com/2017-08-29/jobs/${jobId}`;
+  const url = `${getMediaConvertEndpoint(region)}/jobs/${jobId}`;
 
   const req = new Request(url, {
     method: "delete",
