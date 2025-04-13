@@ -35,7 +35,6 @@ export async function getManyEntries<T>(keys: Deno.KvKey[], options: {
 export async function getMany<T>(keys: Deno.KvKey[], options: {
   queueSize?: number;
   consistency?: Deno.KvConsistencyLevel;
-  withNullValues?: boolean;
 } = {}) {
   const entries = await getManyEntries<T>(keys, options);
   const values: T[] = [];

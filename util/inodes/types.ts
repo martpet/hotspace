@@ -38,7 +38,6 @@ export interface FileNode extends InodeBase {
   fileType: string;
   fileSize: number;
   s3Key: string;
-  hasS3Folder?: boolean;
 }
 
 export interface VideoNode extends FileNode {
@@ -52,10 +51,12 @@ export interface VideoNode extends FileNode {
     subPlaylistsS3Keys?: string[];
     streamType?: "hls";
     durationInMs?: number;
+    width?: number;
+    height?: number;
   };
 }
 
 export interface ImageNode extends FileNode {
   fileType: `image/${string}`;
-  processedStatus?: "PENDING" | "COMPLETE" | "ERROR";
+  statusProcessing: "PENDING" | "COMPLETE" | "ERROR";
 }

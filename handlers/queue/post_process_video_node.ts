@@ -3,7 +3,7 @@ import { getSigner } from "../../util/aws.ts";
 import { AWS_REGION } from "../../util/consts.ts";
 import { isVideoNode } from "../../util/inodes/helpers.ts";
 import { setAnyInode } from "../../util/inodes/kv_wrappers.ts";
-import { VideoNode } from "../../util/inodes/types.ts";
+import type { Inode, VideoNode } from "../../util/inodes/types.ts";
 import { getInodeById } from "../../util/kv/inodes.ts";
 import {
   createJobOptions,
@@ -14,29 +14,31 @@ import { getDevAppUrl } from "../../util/url.ts";
 export interface QueueMsgPostProcessVideoNode {
   type: "post-process-video-node";
   inodeId: string;
+  inodeS3Key: string;
   origin: string;
 }
 
 export function isPostProcessVideoNode(
   msg: unknown,
 ): msg is QueueMsgPostProcessVideoNode {
-  const { type, inodeId, origin } = msg as Partial<
+  const { type, inodeId, origin, inodeS3Key } = msg as Partial<
     QueueMsgPostProcessVideoNode
   >;
   return typeof msg === "object" &&
     type === "post-process-video-node" &&
     typeof inodeId === "string" &&
+    typeof inodeS3Key === "string" &&
     typeof origin === "string";
 }
 
 export async function handlePostProcessVideoNode(
   msg: QueueMsgPostProcessVideoNode,
 ) {
-  const { inodeId, origin } = msg;
+  const { inodeId, inodeS3Key, origin } = msg;
   let inodeEntry = await getInodeById(inodeId);
   let inode = inodeEntry.value;
 
-  if (!isVideoNode(inode)) {
+  if (!isValidInode(inode, inodeS3Key)) {
     return;
   }
 
@@ -44,22 +46,25 @@ export async function handlePostProcessVideoNode(
     s3Key: inode.s3Key,
     userMetadata: {
       inodeId: inode.id,
-      origin,
+      inodeS3Key: inode.s3Key,
       devAppUrl: getDevAppUrl(origin),
+      origin,
     },
   };
 
   const inodePatch = {
-    hasS3Folder: true,
     mediaConvert: inode.mediaConvert,
   } satisfies Partial<VideoNode>;
 
+  let jobId;
+
   try {
-    inodePatch.mediaConvert.jobId = await mediaconvert.createJob({
+    jobId = await mediaconvert.createJob({
       job: createJobOptions(jobOptionsInput),
       signer: getSigner(),
       region: AWS_REGION,
     });
+    inodePatch.mediaConvert.jobId = jobId;
   } catch (err) {
     inodePatch.mediaConvert.status = "ERROR";
     console.error(err);
@@ -72,10 +77,9 @@ export async function handlePostProcessVideoNode(
     if (commitIndex) {
       inodeEntry = await getInodeById(inode.id);
       inode = inodeEntry.value;
-      if (!isVideoNode(inode)) {
-        const { jobId } = inodePatch.mediaConvert;
+      if (!isValidInode(inode, inodeS3Key)) {
         if (jobId) {
-          mediaconvert.cancelJob({
+          await mediaconvert.cancelJob({
             jobId,
             signer: getSigner(),
             region: AWS_REGION,
@@ -89,4 +93,11 @@ export async function handlePostProcessVideoNode(
     commit = await atomic.commit();
     commitIndex++;
   }
+}
+
+function isValidInode(
+  inode: Inode | null,
+  inodeS3Key: string,
+): inode is VideoNode {
+  return isVideoNode(inode) && inode.s3Key === inodeS3Key;
 }

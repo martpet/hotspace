@@ -7,6 +7,7 @@ export interface MediaConvertPricing {
 
 export interface JobUserMetaData {
   inodeId: string;
+  inodeS3Key: string;
   devAppUrl: string;
   origin: string;
 }
@@ -18,6 +19,7 @@ interface JobOutputVideoDetails {
 }
 
 export interface MediaConvertJobChangeStateDetail {
+  jobId: string;
   timestamp: number;
   status: "STATUS_UPDATE" | "COMPLETE" | "ERROR";
   userMetadata: JobUserMetaData;
