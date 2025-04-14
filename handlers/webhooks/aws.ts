@@ -2,6 +2,7 @@ import { STATUS_CODE } from "@std/http";
 import { AWS_WEBHOOKS_KEY } from "../../util/consts.ts";
 import { enqueue } from "../../util/kv/enqueue.ts";
 import type { AppContext } from "../../util/types.ts";
+import { type QueueMessageImageProcessingState } from "../queue/image_processing_event.ts";
 import { type QueueMsgMediaConvertJobState } from "../queue/media_convert_event.ts";
 
 export async function awsWebhookHandler(ctx: AppContext) {
@@ -18,6 +19,14 @@ export async function awsWebhookHandler(ctx: AppContext) {
       type: "mediaconvert-job-state",
       detail: msg.detail,
     }).commit();
+  } else if (msg.source === "hotspace.image-processing") {
+    await enqueue<QueueMessageImageProcessingState>({
+      type: "image-processing-state",
+      isoTimestamp: msg.time,
+      detail: msg.detail,
+    }).commit();
+  } else {
+    console.error("Unhandled AWS webhook message", msg);
   }
 
   return ctx.respond();

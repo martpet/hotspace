@@ -73,10 +73,12 @@ export class ChatConnection {
       this.#sendUnseenFeedItems();
     };
 
-    socket.onclose = () => {
-      this.chat.removeConnection(this);
-      this.chatUser?.removeConnection(this);
-      this.#setSubscriberOffline();
+    socket.onclose = async () => {
+      await Promise.all([
+        this.chat.removeConnection(this),
+        this.chatUser?.removeConnection(this),
+        this.#setSubscriberOffline(),
+      ]);
     };
 
     socket.onmessage = (event) => {

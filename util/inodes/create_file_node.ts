@@ -1,7 +1,9 @@
 import { s3 } from "$aws";
 import { getPermissions } from "$util";
+import { pick } from "@std/collections";
 import { ulid } from "@std/ulid/ulid";
 import { type QueueMsgDeleteS3Objects } from "../../handlers/queue/delete_s3_objects.ts";
+import { type QueueMsgPostProcessImageNodes } from "../../handlers/queue/post_process_image_nodes.ts";
 import { type QueueMsgPostProcessVideoNode } from "../../handlers/queue/post_process_video_node.ts";
 import { INODES_BUCKET } from "../consts.ts";
 import { enqueue } from "../kv/enqueue.ts";
@@ -9,7 +11,7 @@ import { setFileNodeStats } from "../kv/filenodes_stats.ts";
 import { getInodeById, keys as inodesKeys } from "../kv/inodes.ts";
 import { kv } from "../kv/kv.ts";
 import type { User } from "../types.ts";
-import { isVideoNode } from "./helpers.ts";
+import { isImageNode, isVideoNode } from "./helpers.ts";
 import { setAnyInode } from "./kv_wrappers.ts";
 import type { DirNode, FileNode, Inode } from "./types.ts";
 
@@ -28,16 +30,28 @@ export async function createFileNodesFromUploads(
   uploads: CompletedUploadWithFileSize[],
   options: CreatFileNodesFromUploadsOpt,
 ) {
-  const completedIds = [];
+  const completedUploadIds = [];
+  const completedImageNodes = [];
+
   for (const upload of uploads) {
-    const isSaved = await createFileNode(upload, options);
-    if (!isSaved) {
-      await cleanupUnsavedFileNodes(uploads, completedIds);
+    const fileNode = await createFileNode(upload, options);
+    if (!fileNode) {
+      await cleanupUnsavedFileNodes(uploads, completedUploadIds);
       break;
     }
-    completedIds.push(upload.uploadId);
+    completedUploadIds.push(upload.uploadId);
+    if (isImageNode(fileNode)) completedImageNodes.push(fileNode);
   }
-  return completedIds;
+
+  if (completedImageNodes.length) {
+    await enqueue<QueueMsgPostProcessImageNodes>({
+      type: "post-process-image-nodes",
+      origin: options.origin,
+      items: completedImageNodes.map((it) => pick(it, ["id", "s3Key", "name"])),
+    }).commit();
+  }
+
+  return completedUploadIds;
 }
 
 async function createFileNode(
@@ -48,6 +62,7 @@ async function createFileNode(
   let dirEntry = options.dirEntry;
   let commit = { ok: false };
   let commitIndex = 0;
+  let fileNode: FileNode;
 
   while (!commit.ok) {
     let fileNodeName = encodeURIComponent(upload.fileName);
@@ -58,10 +73,10 @@ async function createFileNode(
     }
 
     if (!isValidUploadDirEntry(dirEntry, user)) {
-      return false;
+      return;
     }
 
-    const fileNode: FileNode = {
+    fileNode = {
       id: ulid(),
       type: "file",
       fileType: upload.fileType,
@@ -89,15 +104,21 @@ async function createFileNode(
         inodeId: fileNode.id,
         origin,
       }, atomic);
+    } else if (isImageNode(fileNode)) {
+      fileNode.postProcess = { status: "PENDING" };
     }
 
     setAnyInode(fileNode, atomic);
-    setFileNodeStats({ fileNode, isAdd: true, atomic });
+    setFileNodeStats({
+      fileNode,
+      isAdd: true,
+      atomic,
+    });
 
     commit = await atomic.commit();
     commitIndex++;
   }
-  return true;
+  return fileNode!;
 }
 
 export function isValidUploadDirEntry(
@@ -111,18 +132,18 @@ export function isValidUploadDirEntry(
 
 export function cleanupUnsavedFileNodes(
   uploads: s3.CompletedMultipartUpload[],
-  completedIds: string[] = [],
+  completedUploadIds: string[] = [],
 ) {
-  const s3Keys = [];
+  const s3KeysData = [];
   for (const upload of uploads) {
-    if (!completedIds.includes(upload.uploadId)) {
-      s3Keys.push({ name: upload.s3Key });
+    if (!completedUploadIds.includes(upload.uploadId)) {
+      s3KeysData.push({ name: upload.s3Key });
     }
   }
-  if (s3Keys.length) {
+  if (s3KeysData.length) {
     return enqueue<QueueMsgDeleteS3Objects>({
       type: "delete-s3-objects",
-      s3Keys,
+      s3KeysData,
       bucket: INODES_BUCKET,
     }).commit();
   }

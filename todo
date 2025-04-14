@@ -1,3 +1,6 @@
+- style flash msg full width, close button, no pos absolute, dialog el, appear
+  with height animation
+
 - refactor chat with preact standalone
 
 - implement APP_ADMIN in permissions

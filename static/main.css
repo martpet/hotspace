@@ -200,6 +200,12 @@ menu {
   }
 }
 
+.loader {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+}
+
 .dots {
   display: inline-flex;
   --size: 0.4em;

@@ -46,7 +46,7 @@ export interface VideoNode extends FileNode {
     status: "PENDING" | "COMPLETE" | "ERROR";
     jobId?: string;
     percentComplete?: number;
-    stateChangeTimestamp?: number;
+    stateChangeUnixTimestamp?: number;
     playlistDataUrl?: string;
     subPlaylistsS3Keys?: string[];
     streamType?: "hls";
@@ -58,5 +58,10 @@ export interface VideoNode extends FileNode {
 
 export interface ImageNode extends FileNode {
   fileType: `image/${string}`;
-  statusProcessing: "PENDING" | "COMPLETE" | "ERROR";
+  postProcess: {
+    status: "PENDING" | "COMPLETE" | "ERROR";
+    stateChangeIsoTimestamp?: string;
+    width?: number;
+    height?: number;
+  };
 }

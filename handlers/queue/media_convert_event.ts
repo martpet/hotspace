@@ -56,8 +56,8 @@ export async function hanleMediaConvertJobState(
     return;
   }
 
-  if (!isValidInode(inode, inodeS3Key)) {
-    await abortOrCleanup({ status, inodeS3Key, jobId });
+  if (!isVideoNode(inode)) {
+    await cancelJobOrCleanup({ inodeS3Key, status, jobId });
     return;
   }
 
@@ -70,14 +70,14 @@ export async function hanleMediaConvertJobState(
 
   const inodePatch = {
     mediaConvert: inode.mediaConvert,
-  } as VideoNode;
+  };
 
   if (jobPercentComplete !== undefined) {
     inodePatch.mediaConvert.percentComplete = jobPercentComplete;
   }
 
   if (timestamp) {
-    inodePatch.mediaConvert.stateChangeTimestamp = timestamp;
+    inodePatch.mediaConvert.stateChangeUnixTimestamp = timestamp;
   }
 
   if (status !== "STATUS_UPDATE") {
@@ -122,8 +122,8 @@ export async function hanleMediaConvertJobState(
       if (!isStaleEvent(inode, timestamp)) {
         return;
       }
-      if (!isValidInode(inode, inodeS3Key)) {
-        await abortOrCleanup({ status, inodeS3Key, jobId });
+      if (!isVideoNode(inode)) {
+        await cancelJobOrCleanup({ inodeS3Key, status, jobId });
         return;
       }
     }
@@ -134,26 +134,28 @@ export async function hanleMediaConvertJobState(
   }
 }
 
-function isStaleEvent(inode: Inode | null, timestamp: number) {
-  if (!isVideoNode(inode)) return;
-  const prevTimestamp = inode.mediaConvert.stateChangeTimestamp || 0;
-  return prevTimestamp > timestamp;
+function isStaleEvent(inode: Inode | null, currentTimestamp: number) {
+  if (!isVideoNode(inode)) return false;
+  const prevTimestamp = inode.mediaConvert.stateChangeUnixTimestamp;
+  if (!prevTimestamp) return false;
+  return prevTimestamp > currentTimestamp;
 }
 
-function isValidInode(
-  inode: Inode | null,
-  inodeS3Key: string,
-): inode is VideoNode {
-  return isVideoNode(inode) && inode.s3Key === inodeS3Key;
-}
-
-function abortOrCleanup(input: {
-  status: string;
+function cancelJobOrCleanup(input: {
   inodeS3Key: string;
   jobId: string;
+  status:
+    | MediaConvertJobChangeStateDetail["status"]
+    | VideoNode["mediaConvert"]["status"];
 }) {
   const { status, inodeS3Key, jobId } = input;
-  if (status === "COMPLETE") {
+  if (status === "PENDING") {
+    return mediaconvert.cancelJob({
+      jobId,
+      signer: getSigner(),
+      region: AWS_REGION,
+    });
+  } else {
     return enqueue<QueueMsgDeleteS3Objects>({
       type: "delete-s3-objects",
       bucket: INODES_BUCKET,
@@ -162,11 +164,5 @@ function abortOrCleanup(input: {
         isPrefix: true,
       }],
     }).commit();
-  } else {
-    return mediaconvert.cancelJob({
-      jobId,
-      signer: getSigner(),
-      region: AWS_REGION,
-    });
   }
 }

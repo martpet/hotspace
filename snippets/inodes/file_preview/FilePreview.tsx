@@ -1,37 +1,36 @@
-import { isVideoNode } from "../../../util/inodes/helpers.ts";
+import { isImageNode, isVideoNode } from "../../../util/inodes/helpers.ts";
 import type { FileNode } from "../../../util/inodes/types.ts";
 import DocxPreview from "./DocxPreview.tsx";
+import { ImagePreview } from "./ImagePreview.tsx";
 import { VideoPreview } from "./VideoPreview.tsx";
 
 export interface Props {
-  fileNode: FileNode;
-  fileNodeUrl: string;
+  inode: FileNode;
+  originalFileUrl: string;
+  previewImageUrl: string | null;
 }
 
 export default function FilePreview(props: Props) {
-  const { fileNodeUrl, fileNode } = props;
-  const { fileType } = fileNode;
+  const { inode, originalFileUrl, previewImageUrl } = props;
+  const { fileType } = inode;
   const [mainType, subType] = fileType.split("/");
-
-  const isDocx = fileType ===
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
   return (
     <div id="file-preview">
-      {mainType === "image" && (
-        <a href={fileNodeUrl}>
-          <img src={fileNodeUrl} />
-        </a>
+      {isImageNode(inode) && (
+        <ImagePreview imageUrl={previewImageUrl} inode={inode} />
       )}
-      {isVideoNode(fileNode) && <VideoPreview videoNode={fileNode} />}
+      {isVideoNode(inode) && <VideoPreview inode={inode} />}
 
       {(mainType === "text" ||
         subType === "pdf" ||
         subType === "x-javascript") && (
-        <iframe id="preview-iframe" src={fileNodeUrl} />
+        <iframe id="preview-iframe" src={originalFileUrl} />
       )}
 
-      {isDocx && <DocxPreview fileNodeUrl={fileNodeUrl} />}
+      {fileType ===
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document" &&
+        <DocxPreview fileUrl={originalFileUrl} />}
     </div>
   );
 }

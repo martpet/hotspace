@@ -1,44 +1,44 @@
 const videoEl = document.getElementById("video");
 const convertingEl = document.getElementById("video-converting");
-
-const { videoUrl, inodeId, supportsHls, workerPath } = videoEl.dataset;
+const { videoUrl, inodeId, supportsHls, hlsWorkerPath } = videoEl.dataset;
 
 if (videoUrl) {
   loadHlsFallback(videoUrl);
 } else {
-  waitMediaConvertEvent();
+  listenVideoConverting();
 }
 
 async function loadHlsFallback(url) {
   const { isSupported, Hls } = await import("$hls");
   if (isSupported) {
-    const hls = new Hls({ workerPath });
+    const hls = new Hls({ workerPath: hlsWorkerPath });
     hls.loadSource(url);
     hls.attachMedia(videoEl);
   }
 }
 
-function waitMediaConvertEvent() {
-  const path = `/inodes/listen-media-convert-event/${inodeId}`;
+function listenVideoConverting() {
+  const path = `/inodes/listen-video-converting/${inodeId}`;
   const evtSource = new EventSource(path);
-  evtSource.onerror = () => waitMediaConvertEvent();
   evtSource.onmessage = (evt) => handleConvertEvent(evt, evtSource);
+  evtSource.onerror = () => listenVideoConverting();
 }
 
 function handleConvertEvent(evt, evtSource) {
   const { status, playlistDataUrl, percentComplete } = JSON.parse(evt.data);
+  if (status !== "PENDING") {
+    evtSource.close();
+  }
   if (status === "COMPLETE") {
-    onComplete(playlistDataUrl);
-    evtSource.close();
+    handleCompleteMsg(playlistDataUrl);
   } else if (status === "ERROR") {
-    onError();
-    evtSource.close();
-  } else {
-    onProgress(percentComplete);
+    handleErrorMsg();
+  } else if (status === "PENDING") {
+    handleProgressMsg(percentComplete);
   }
 }
 
-function onComplete(url) {
+function handleCompleteMsg(url) {
   convertingEl.remove();
   videoEl.hidden = false;
   if (supportsHls) {
@@ -48,13 +48,13 @@ function onComplete(url) {
   }
 }
 
-function onError() {
-  const errorEl = document.getElementById("converting-error");
+function handleErrorMsg() {
+  const errorEl = document.getElementById("video-converting-error");
   errorEl.hidden = false;
   convertingEl.remove();
 }
 
-function onProgress(perc) {
+function handleProgressMsg(perc) {
   if (!perc) return;
   const percEl = document.getElementById("progress-perc");
   percEl.textContent = perc + "%";

@@ -1,5 +1,4 @@
 import { newQueue } from "@henrygd/queue";
-import { MINUTE } from "@std/datetime";
 import { type QueueMsgCleanUpInode } from "../../handlers/queue/clean_up_inode.ts";
 import { type QueueMsgDeleteDirChildren } from "../../handlers/queue/delete_dir_children.ts";
 import {
@@ -18,9 +17,9 @@ import {
   setRootDirByOwner,
 } from "../kv/inodes.ts";
 import { kv } from "../kv/kv.ts";
-import { isVideoNode } from "./helpers.ts";
+import { isFileNodeWithS3Prefixes, isVideoNode } from "./helpers.ts";
 
-export function setAnyInode(inode: Inode, atomic = kv.atomic()) {
+export function setAnyInode<T extends Inode>(inode: T, atomic = kv.atomic()) {
   setInode(inode, atomic);
   if (inode.type === "dir") {
     setDirByPath(inode, atomic);
@@ -33,7 +32,7 @@ export function setAnyInode(inode: Inode, atomic = kv.atomic()) {
 
 export async function deleteInodesRecursive(inodes: Inode[]) {
   const queue = newQueue(5);
-  const s3KeysToDelete: QueueMsgDeleteS3Objects["s3Keys"] = [];
+  const s3KeysToDelete: QueueMsgDeleteS3Objects["s3KeysData"] = [];
 
   for (const inode of inodes) {
     const atomic = kv.atomic();
@@ -61,7 +60,7 @@ export async function deleteInodesRecursive(inodes: Inode[]) {
     if (inode.type === "file") {
       s3KeysToDelete.push({
         name: inode.s3Key,
-        isPrefix: inode.hasS3Folder,
+        isPrefix: isFileNodeWithS3Prefixes(inode),
       });
     }
 
@@ -70,15 +69,11 @@ export async function deleteInodesRecursive(inodes: Inode[]) {
 
   if (s3KeysToDelete.length) {
     queue.add(() =>
-      enqueue<QueueMsgDeleteS3Objects>(
-        {
-          type: "delete-s3-objects",
-          bucket: INODES_BUCKET,
-          s3Keys: s3KeysToDelete,
-        },
-        undefined,
-        MINUTE * 30,
-      ).commit()
+      enqueue<QueueMsgDeleteS3Objects>({
+        type: "delete-s3-objects",
+        bucket: INODES_BUCKET,
+        s3KeysData: s3KeysToDelete,
+      }).commit()
     );
   }
 

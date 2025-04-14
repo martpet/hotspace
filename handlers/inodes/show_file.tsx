@@ -5,7 +5,11 @@ import Chat from "../../snippets/chat/ChatSection.tsx";
 import ButtonDeleteInode from "../../snippets/inodes/ButtonDeleteInode.tsx";
 import FilePreview from "../../snippets/inodes/file_preview/FilePreview.tsx";
 import Page from "../../snippets/pages/Page.tsx";
-import { getFileNodeUrl } from "../../util/inodes/helpers.ts";
+import {
+  getImageNodeThumbKey,
+  getSignedFileUrl,
+  isImageNode,
+} from "../../util/inodes/helpers.ts";
 import { type FileNode } from "../../util/inodes/types.ts";
 import { getDirByPath, getInodeByDir } from "../../util/kv/inodes.ts";
 import { type AppContext } from "../../util/types.ts";
@@ -32,7 +36,7 @@ export default async function showFileHandler(ctx: AppContext) {
     return notFound();
   }
 
-  const fileNode = (await getInodeByDir<FileNode>({
+  const inode = (await getInodeByDir<FileNode>({
     inodeName: path.lastSegment,
     parentDirId: parentDir.id,
     consistency: fragmentId === "chat" ? "strong" : "eventual",
@@ -40,18 +44,18 @@ export default async function showFileHandler(ctx: AppContext) {
 
   const { canRead, canModerate, canModify } = getPermissions({
     user,
-    resource: fileNode,
+    resource: inode,
   });
 
-  if (!fileNode || !canRead) {
+  if (!inode || !canRead) {
     return notFound();
   }
 
   const chatSection = (
     <Chat
-      enabled={fileNode.chatEnabled}
-      chatId={fileNode.id}
-      chatTitle={fileNode.name}
+      enabled={inode.chatEnabled}
+      chatId={inode.id}
+      chatTitle={inode.name}
       canModerate={canModerate}
     />
   );
@@ -60,23 +64,26 @@ export default async function showFileHandler(ctx: AppContext) {
     return ctx.jsxFragment(chatSection);
   }
 
-  const fileName = decodeURIComponent(fileNode.name);
-  const fileNodeUrl = await getFileNodeUrl(fileNode.s3Key);
+  const fileName = decodeURIComponent(inode.name);
+
+  const originalFileUrl = await getSignedFileUrl(inode.s3Key);
+  const previewImageUrl =
+    isImageNode(inode) && inode.postProcess.status === "COMPLETE"
+      ? await getSignedFileUrl(getImageNodeThumbKey(inode, "md"))
+      : null;
+
+  const inodesMenu = (canModerate || canModify) && (
+    <menu class="menu-bar">
+      {canModify && <ButtonDeleteInode inode={inode} />}
+      {canModerate && <ButtonToggleChat chat={inode} />}
+    </menu>
+  );
 
   const head = (
     <>
       <link rel="stylesheet" href={asset("inodes/inodes.css")} />
       <link rel="stylesheet" href={asset("chat/chat.css")} />
     </>
-  );
-
-  const showMenu = canModerate || canModify;
-
-  const inodesMenu = showMenu && (
-    <menu class="menu-bar">
-      {canModerate && <ButtonToggleChat chat={fileNode} />}
-      {canModify && <ButtonDeleteInode inode={fileNode} />}
-    </menu>
   );
 
   return (
@@ -87,14 +94,15 @@ export default async function showFileHandler(ctx: AppContext) {
       header={{ breadcrumb: true }}
     >
       <FilePreview
-        fileNode={fileNode}
-        fileNodeUrl={fileNodeUrl}
+        inode={inode}
+        originalFileUrl={originalFileUrl}
+        previewImageUrl={previewImageUrl}
       />
       <header class="inodes-header">
         <h1>{fileName}</h1>
         {inodesMenu}
       </header>
-      <a href={fileNodeUrl} target="_blank">Open File ↗</a>
+      <a href={originalFileUrl} target="_blank">Open File ↗</a>
       {chatSection}
     </Page>
   );

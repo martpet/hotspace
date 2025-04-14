@@ -1,11 +1,29 @@
 import { signCloudfrontUrl, type SignCloudfrontUrlOptions } from "../aws.ts";
 import { INODES_CLOUDFRONT_URL } from "../consts.ts";
-import type { Inode, InodeLabel, VideoNode } from "../inodes/types.ts";
+import type {
+  ImageNode,
+  Inode,
+  InodeLabel,
+  VideoNode,
+} from "../inodes/types.ts";
 import { ROOT_DIR_ID } from "./consts.ts";
 
 export function isVideoNode(inode: Inode | null): inode is VideoNode {
   return inode !== null && inode.type === "file" &&
-    inode.fileType.startsWith("video");
+    inode.fileType.startsWith("video/");
+}
+
+export function isImageNode(inode: Inode | null): inode is ImageNode {
+  return inode !== null && inode.type === "file" &&
+    inode.fileType.startsWith("image/");
+}
+
+export function isFileNodeWithS3Prefixes(inode: Inode) {
+  return isVideoNode(inode) || isImageNode(inode);
+}
+
+export function getImageNodeThumbKey(inode: ImageNode, size: "md" | "sm") {
+  return `${inode.s3Key}/thumb_${size}.jpeg`;
 }
 
 export function getInodeLabel(inode: Inode): InodeLabel {
@@ -14,7 +32,7 @@ export function getInodeLabel(inode: Inode): InodeLabel {
   return "Folder";
 }
 
-export function getFileNodeUrl(
+export function getSignedFileUrl(
   s3Key: string,
   opt: SignCloudfrontUrlOptions = {},
 ) {

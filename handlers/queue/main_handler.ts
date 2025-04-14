@@ -13,6 +13,10 @@ import {
   isDeleteS3Objects,
 } from "./delete_s3_objects.ts";
 import {
+  handleImageProcessingState,
+  isImageProcessingState,
+} from "./image_processing_event.ts";
+import {
   hanleMediaConvertJobState,
   isMediaConvertJobState,
 } from "./media_convert_event.ts";
@@ -39,6 +43,7 @@ export function queueHandler(msg: unknown) {
   if (isPostProcessVideoNode(msg)) return handlePostProcessVideoNode(msg);
   if (isPostProcessImageNodes(msg)) return handlePostProcessImageNodes(msg);
   if (isMediaConvertJobState(msg)) return hanleMediaConvertJobState(msg);
+  if (isImageProcessingState(msg)) return handleImageProcessingState(msg);
 
   console.error("Unhandled KV Queue message", msg);
 }

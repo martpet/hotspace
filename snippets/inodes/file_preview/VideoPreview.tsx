@@ -1,21 +1,24 @@
 import type { VideoNode } from "../../../util/inodes/types.ts";
 import type { AppContext } from "../../../util/types.ts";
 import { asset } from "../../../util/url.ts";
+import Loader from "../../Loader.tsx";
 
 interface Props {
-  videoNode: VideoNode;
+  inode: VideoNode;
 }
 
 export function VideoPreview(props: Props, ctx: AppContext) {
-  const { videoNode } = props;
-  const workerPath = asset("vendored/hls.worker.js", { cdn: false });
+  const { inode } = props;
+  const hlsWorkerPath = asset("vendored/hls.worker.js", { cdn: false });
   const supportsHls = ctx.userAgent.browser.name === "Safari";
   const {
     status,
     percentComplete,
+    width,
+    height,
     playlistDataUrl: videoUrl,
-  } = videoNode.mediaConvert || {};
-  const isPending = status === "PENDING";
+  } = inode.mediaConvert || {};
+  const isConverting = status === "PENDING";
   const isError = status === "ERROR";
 
   return (
@@ -24,31 +27,42 @@ export function VideoPreview(props: Props, ctx: AppContext) {
         <link rel="modulepreload" href={asset("vendored/hls.mjs")} />
       )}
 
-      {!isError && (!supportsHls || isPending) && (
-        <script type="module" src={asset("inodes/video_node.js")} />
+      {!isError && (!supportsHls || isConverting) && (
+        <script type="module" src={asset("inodes/filenodes/video.js")} />
       )}
 
-      {isPending && (
-        <p id="video-converting" class="spinner">
-          Converting video…{"  "}
+      {isConverting && (
+        <Loader
+          id="video-converting"
+          class="file-preview-loader"
+          ellipsis={false}
+        >
+          Converting video…{" "}
           <span id="progress-perc">{percentComplete || null}</span>
-        </p>
+        </Loader>
       )}
 
-      <p id="converting-error" hidden={!isError} class="alert error">
+      <p
+        id="video-converting-error"
+        class="file-preview-error alert error"
+        hidden={!isError}
+      >
         There was an error converting the video, try uploading it again.
       </p>
 
       {!isError && (
         <video
           id="video"
-          hidden={isPending}
-          controls
           src={supportsHls ? videoUrl : undefined}
+          hidden={isConverting}
+          controls
           data-video-url={videoUrl || !supportsHls ? videoUrl : null}
-          data-inode-id={videoNode.id}
+          data-inode-id={inode.id}
           data-supports-hls={supportsHls && !videoUrl ? "1" : null}
-          data-worker-path={supportsHls ? null : workerPath}
+          data-hls-worker-path={supportsHls ? null : hlsWorkerPath}
+          style={{
+            aspectRatio: width && height ? `1 / ${height / width}` : undefined,
+          }}
         />
       )}
     </>

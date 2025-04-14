@@ -34,12 +34,12 @@
   const {
       jszipPath,
       docxPreviewPath,
-      fileNodeUrl,
+      fileUrl,
     } = Object.fromEntries(new URLSearchParams(location.search));
 
     const scriptsReady = Promise.withResolvers();
     loadScriptsSync([jszipPath, docxPreviewPath]);
-    const blob = await fetch(fileNodeUrl).then((resp) => resp.blob());
+    const blob = await fetch(fileUrl).then((resp) => resp.blob());
     await scriptsReady.promise;
 
     docx.renderAsync(blob, document.body, undefined, {

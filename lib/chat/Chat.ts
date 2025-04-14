@@ -62,10 +62,10 @@ export class Chat {
     if (!this.#isSetup) this.#setup();
   }
 
-  removeConnection(conn: ChatConnection) {
+  async removeConnection(conn: ChatConnection) {
     this.#connections.delete(conn);
     if (!this.#connections.size) {
-      this.#cleanup();
+      await this.#cleanup();
     }
   }
 
@@ -77,10 +77,10 @@ export class Chat {
     this.#bcChannel.onmessage = (event) => this.#handleBcChannelMsg(event);
   }
 
-  #cleanup() {
+  async #cleanup() {
     Chat.remove(this.id);
     this.#bcChannel?.close();
-    this.#kvReaders.forEach((r) => r.cancel());
+    await Promise.all(this.#kvReaders.map((r) => r.cancel()));
   }
 
   #handleBcChannelMsg(event: MessageEvent) {

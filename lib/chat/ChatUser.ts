@@ -47,10 +47,10 @@ export class ChatUser {
     if (!this.#isSetup) this.#setup();
   }
 
-  removeConnection(conn: ChatConnection) {
+  async removeConnection(conn: ChatConnection) {
     this.#connections.delete(conn);
     if (!this.#connections.size) {
-      this.#cleanup();
+      await this.#cleanup();
     }
   }
 
@@ -59,9 +59,9 @@ export class ChatUser {
     this.#kvReaders.push(this.#whatchUserEntry());
   }
 
-  #cleanup() {
+  async #cleanup() {
     ChatUser.remove(this.id);
-    this.#kvReaders.forEach((r) => r.cancel());
+    await Promise.all(this.#kvReaders.map((r) => r.cancel()));
   }
 
   #whatchUserEntry() {
