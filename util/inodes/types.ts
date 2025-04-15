@@ -63,5 +63,32 @@ export interface ImageNode extends FileNode {
     stateChangeIsoTimestamp?: string;
     width?: number;
     height?: number;
+    exif?: Exif;
+  };
+}
+
+export interface Exif {
+  Image: {
+    Make?: string;
+    Model?: string;
+  };
+  Photo: {
+    DateTimeOriginal?: string;
+    OffsetTimeOriginal?: string;
+  };
+  GPSInfo: {
+    GPSLatitudeRef?: string;
+    GPSLatitude?: [number, number, number];
+    GPSLongitudeRef?: string;
+    GPSLongitude?: [number, number, number];
+    GPSAltitudeRef?: number;
+    GPSAltitude?: number;
+    GPSSpeedRef?: string;
+    GPSSpeed?: number;
+    GPSImgDirectionRef?: string;
+    GPSImgDirection?: number;
+    GPSDestBearingRef?: string;
+    GPSDestBearing?: number;
+    GPSHPositioningError?: number;
   };
 }

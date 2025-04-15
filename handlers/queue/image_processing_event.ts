@@ -1,7 +1,7 @@
 import { INODES_BUCKET } from "../../util/consts.ts";
 import { isImageNode } from "../../util/inodes/helpers.ts";
 import { setAnyInode } from "../../util/inodes/kv_wrappers.ts";
-import type { ImageNode, Inode } from "../../util/inodes/types.ts";
+import type { Exif, ImageNode, Inode } from "../../util/inodes/types.ts";
 import { enqueue } from "../../util/kv/enqueue.ts";
 import { getInodeById } from "../../util/kv/inodes.ts";
 import { type QueueMsgDeleteS3Objects } from "./delete_s3_objects.ts";
@@ -15,6 +15,7 @@ export interface QueueMessageImageProcessingState {
     inodeS3Key: string;
     width?: number;
     height?: number;
+    exif?: Exif;
   };
 }
 
@@ -29,14 +30,29 @@ export function isImageProcessingState(
     typeof detail === "object" &&
     typeof detail.inodeS3Key === "string" &&
     typeof detail.inodeId === "string" &&
-    (detail.status === "COMPLETE" || detail.status === "ERROR");
+    (
+      typeof detail.width === "undefined" ||
+      typeof detail.width === "number"
+    ) &&
+    (
+      typeof detail.height === "undefined" ||
+      typeof detail.height === "number"
+    ) &&
+    (
+      typeof detail.exif === "undefined" ||
+      typeof detail.exif === "object"
+    ) &&
+    (
+      detail.status === "COMPLETE" ||
+      detail.status === "ERROR"
+    );
 }
 
 export async function handleImageProcessingState(
   msg: QueueMessageImageProcessingState,
 ) {
   const { isoTimestamp } = msg;
-  const { inodeId, inodeS3Key, status, width, height } = msg.detail;
+  const { inodeId, inodeS3Key, status, width, height, exif } = msg.detail;
   let inodeEntry = await getInodeById(inodeId);
   let inode = inodeEntry.value;
 
@@ -55,6 +71,7 @@ export async function handleImageProcessingState(
       status,
       width,
       height,
+      exif,
     },
   };
 
