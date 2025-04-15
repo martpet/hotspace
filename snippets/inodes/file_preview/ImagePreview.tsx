@@ -10,10 +10,13 @@ interface Props {
 
 export function ImagePreview(props: Props) {
   const { imageUrl, inode } = props;
-  const { status, width, height } = inode.postProcess;
+  const { width, height } = inode.postProcess;
+
   const waitProcessing = !showOriginalImageAsPreview(inode) &&
-    status === "PENDING";
-  const isError = status === "ERROR";
+    inode.postProcess.status === "PENDING";
+
+  const showError = !showOriginalImageAsPreview(inode) &&
+    inode.postProcess.status === "ERROR";
 
   return (
     <>
@@ -27,18 +30,14 @@ export function ImagePreview(props: Props) {
         </Loader>
       )}
 
-      <p
-        id="image-processing-error"
-        class="file-preview-error alert error"
-        hidden={!isError}
-      >
-        There was an error converting the image, try uploading it again.
+      <p id="image-processing-error" class="alert error" hidden={!showError}>
+        There was an error converting this image, try uploading it again.
       </p>
 
       <img
         id="image"
         src={imageUrl || ""}
-        hidden={waitProcessing}
+        hidden={waitProcessing || showError}
         data-inode-id={waitProcessing ? inode.id : null}
         style={{
           aspectRatio: width && height ? `1 / ${height / width}` : undefined,

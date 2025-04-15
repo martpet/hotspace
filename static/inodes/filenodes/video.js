@@ -51,6 +51,7 @@ function handleCompleteMsg(url) {
 function handleErrorMsg() {
   const errorEl = document.getElementById("video-converting-error");
   errorEl.hidden = false;
+  videoEl.hidden = true;
   convertingEl.remove();
 }
 

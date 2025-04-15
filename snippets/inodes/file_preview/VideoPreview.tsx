@@ -42,19 +42,15 @@ export function VideoPreview(props: Props, ctx: AppContext) {
         </Loader>
       )}
 
-      <p
-        id="video-converting-error"
-        class="file-preview-error alert error"
-        hidden={!isError}
-      >
-        There was an error converting the video, try uploading it again.
+      <p id="video-converting-error" class="alert error" hidden={!isError}>
+        There was an error converting this video, try uploading it again.
       </p>
 
       {!isError && (
         <video
           id="video"
           src={supportsHls ? videoUrl : undefined}
-          hidden={isConverting}
+          hidden={isConverting || isError}
           controls
           data-video-url={videoUrl || !supportsHls ? videoUrl : null}
           data-inode-id={inode.id}

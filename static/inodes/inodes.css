@@ -11,6 +11,7 @@
   margin-bottom: 0.5em;
   margin-left: calc(-1 * var(--body-gutter));
   justify-content: center;
+  align-items: center;
   background: #0e0e0e;
   @media (prefers-color-scheme: dark) {
     background: black;
@@ -39,10 +40,6 @@
     margin: 0;
     align-items: center;
     color: var(--text-grey-dark);
-  }
-  .file-preview-error {
-    height: 200px;
-    display: inline-block;
   }
   #filenode-iframe {
     width: 100%;

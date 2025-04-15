@@ -32,5 +32,6 @@ function handleCompleteMsg(imageUrl) {
 function handleErrorMsg() {
   const errorEl = document.getElementById("image-processing-error");
   errorEl.hidden = false;
+  imageEl.hidden = true;
   processingEl.remove();
 }
