@@ -2,7 +2,7 @@ import { STATUS_CODE } from "@std/http";
 import { HEADER } from "@std/http/unstable-header";
 import { getPermissions } from "../../lib/util/file_permissions.ts";
 import {
-  getImageNodeThumbKey,
+  getPreviewImageKey,
   getSignedFileUrl,
   isImageNode,
 } from "../../util/inodes/helpers.ts";
@@ -36,9 +36,7 @@ export default function listenImageProcessingHandler(ctx: AppContext) {
         const { status } = inode.postProcess;
 
         if (status === "COMPLETE") {
-          imageUrl = await getSignedFileUrl(
-            getImageNodeThumbKey(inode, "md"),
-          );
+          imageUrl = await getSignedFileUrl(getPreviewImageKey(inode));
         }
 
         const data = {

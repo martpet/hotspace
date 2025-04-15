@@ -22,8 +22,19 @@ export function isFileNodeWithS3Prefixes(inode: Inode) {
   return isVideoNode(inode) || isImageNode(inode);
 }
 
+export function showOriginalImageAsPreview(inode: ImageNode) {
+  const fileSizeKb = inode.fileSize / 1024;
+  return fileSizeKb < 200;
+}
+
 export function getImageNodeThumbKey(inode: ImageNode, size: "md" | "sm") {
   return `${inode.s3Key}/thumb_${size}.jpeg`;
+}
+
+export function getPreviewImageKey(inode: ImageNode) {
+  return showOriginalImageAsPreview(inode)
+    ? inode.s3Key
+    : getImageNodeThumbKey(inode, "md");
 }
 
 export function getInodeLabel(inode: Inode): InodeLabel {

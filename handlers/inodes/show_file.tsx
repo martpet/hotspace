@@ -6,9 +6,10 @@ import ButtonDeleteInode from "../../snippets/inodes/ButtonDeleteInode.tsx";
 import FilePreview from "../../snippets/inodes/file_preview/FilePreview.tsx";
 import Page from "../../snippets/pages/Page.tsx";
 import {
-  getImageNodeThumbKey,
+  getPreviewImageKey,
   getSignedFileUrl,
   isImageNode,
+  showOriginalImageAsPreview,
 } from "../../util/inodes/helpers.ts";
 import { type FileNode } from "../../util/inodes/types.ts";
 import { getDirByPath, getInodeByDir } from "../../util/kv/inodes.ts";
@@ -65,12 +66,13 @@ export default async function showFileHandler(ctx: AppContext) {
   }
 
   const fileName = decodeURIComponent(inode.name);
-
   const originalFileUrl = await getSignedFileUrl(inode.s3Key);
-  const previewImageUrl =
-    isImageNode(inode) && inode.postProcess.status === "COMPLETE"
-      ? await getSignedFileUrl(getImageNodeThumbKey(inode, "md"))
-      : null;
+
+  const previewImageUrl = isImageNode(inode) &&
+      (showOriginalImageAsPreview(inode) ||
+        inode.postProcess.status === "COMPLETE")
+    ? await getSignedFileUrl(getPreviewImageKey(inode))
+    : null;
 
   const inodesMenu = (canModerate || canModify) && (
     <menu class="menu-bar">
