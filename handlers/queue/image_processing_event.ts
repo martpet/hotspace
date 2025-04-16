@@ -65,6 +65,10 @@ export async function handleImageProcessingState(
     return;
   }
 
+  if (exif?.DateTimeOriginal) {
+    exif.DateTimeOriginal = new Date(exif.DateTimeOriginal);
+  }
+
   const inodePatch: Partial<ImageNode> = {
     postProcess: {
       stateChangeIsoTimestamp: isoTimestamp,

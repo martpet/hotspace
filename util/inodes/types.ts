@@ -68,27 +68,21 @@ export interface ImageNode extends FileNode {
 }
 
 export interface Exif {
-  Image: {
-    Make?: string;
-    Model?: string;
-  };
-  Photo: {
-    DateTimeOriginal?: string;
-    OffsetTimeOriginal?: string;
-  };
-  GPSInfo: {
-    GPSLatitudeRef?: string;
-    GPSLatitude?: [number, number, number];
-    GPSLongitudeRef?: string;
-    GPSLongitude?: [number, number, number];
-    GPSAltitudeRef?: number;
-    GPSAltitude?: number;
-    GPSSpeedRef?: string;
-    GPSSpeed?: number;
-    GPSImgDirectionRef?: string;
-    GPSImgDirection?: number;
-    GPSDestBearingRef?: string;
-    GPSDestBearing?: number;
-    GPSHPositioningError?: number;
-  };
+  Make?: string;
+  Model?: string;
+  DateTimeOriginal?: Date;
+  OffsetTimeOriginal?: string;
+  GPSLatitudeRef?: string;
+  GPSLatitude?: [number, number, number];
+  GPSLongitudeRef?: string;
+  GPSLongitude?: [number, number, number];
+  GPSAltitudeRef?: number;
+  GPSAltitude?: number;
+  GPSSpeedRef?: string;
+  GPSSpeed?: number;
+  GPSImgDirectionRef?: string;
+  GPSImgDirection?: number;
+  GPSDestBearingRef?: string;
+  GPSDestBearing?: number;
+  GPSHPositioningError?: number;
 }
