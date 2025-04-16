@@ -5,7 +5,7 @@ import { getUserById } from "../util/kv/users.ts";
 import type { AppMiddleware } from "../util/types.ts";
 
 export const sessionMiddleware: AppMiddleware = async (ctx, next) => {
-  if (ctx.url.pathname.startsWith("/static/")) {
+  if (ctx.url.pathname.startsWith("/assets/")) {
     return next();
   }
 

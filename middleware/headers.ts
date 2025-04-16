@@ -7,7 +7,7 @@ import {
 import type { AppMiddleware } from "../util/types.ts";
 
 export const headersMiddleware: AppMiddleware = async (ctx, next) => {
-  if (ctx.url.pathname === "/static/service_worker.js") {
+  if (ctx.url.pathname === "/assets/service_worker.js") {
     ctx.resp.headers.set("Service-Worker-Allowed", "/");
   }
 
@@ -31,7 +31,7 @@ export const headersMiddleware: AppMiddleware = async (ctx, next) => {
   const docxIframeCsp =
     `default-src 'self' 'unsafe-inline' blob: ${INODES_CLOUDFRONT_URL}`;
 
-  const csp = ctx.url.pathname === "/static/inodes/docx_iframe.html"
+  const csp = ctx.url.pathname === "/assets/inodes/docx_iframe.html"
     ? docxIframeCsp
     : defaultCsp;
 

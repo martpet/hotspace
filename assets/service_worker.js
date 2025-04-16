@@ -22,27 +22,33 @@ self.addEventListener("pushsubscriptionchange", (event) => {
 self.addEventListener("push", (event) => {
   const data = event.data.json();
   if (data.type === "test-notification") {
-    event.waitUntil(showNotification({
-      title: "Test notification",
-      body: "Please, ignore. Thank you!",
-    }));
+    event.waitUntil(
+      showNotification({
+        title: "Test notification",
+        body: "Please, ignore. Thank you!",
+      })
+    );
   } else if (data.type === "new-chat-msg") {
-    event.waitUntil(showNewChatMsgNotification({
-      chatTitle: data.chatTitle,
-      chatMsgId: data.chatMsgId,
-      chatPageUrl: data.chatPageUrl,
-    }));
+    event.waitUntil(
+      showNewChatMsgNotification({
+        chatTitle: data.chatTitle,
+        chatMsgId: data.chatMsgId,
+        chatPageUrl: data.chatPageUrl,
+      })
+    );
   }
 });
 
 self.addEventListener("message", (event) => {
   const { data } = event;
   if (data.type === "new-chat-msg") {
-    event.waitUntil(showNewChatMsgNotification({
-      chatTitle: data.chatTitle,
-      chatMsgId: data.chatMsgId,
-      clientId: event.source.id,
-    }));
+    event.waitUntil(
+      showNewChatMsgNotification({
+        chatTitle: data.chatTitle,
+        chatMsgId: data.chatMsgId,
+        clientId: event.source.id,
+      })
+    );
   }
 });
 
@@ -54,9 +60,12 @@ self.addEventListener("notificationclick", (event) => {
   }
 });
 
-function showNewChatMsgNotification(
-  { chatTitle, chatMsgId, chatPageUrl, clientId },
-) {
+function showNewChatMsgNotification({
+  chatTitle,
+  chatMsgId,
+  chatPageUrl,
+  clientId,
+}) {
   return showNotification({
     title: `New message in '${chatTitle}'`,
     data: {
@@ -72,7 +81,7 @@ async function showNotification({ title, body, data }) {
   return self.registration.showNotification(title, {
     body,
     data,
-    icon: "/static/img/logo.png",
+    icon: "/assets/img/logo.png",
   });
 }
 

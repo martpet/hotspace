@@ -1,7 +1,7 @@
 {
   "deno.enable": true,
   "deno.lint": true,
-  "deno.disablePaths": ["static/", "lib/upload/static/upload_worker.js"],
+  "deno.disablePaths": ["assets/", "lib/upload/assets/upload_worker.js"],
   "editor.defaultFormatter": "denoland.vscode-deno",
   "editor.codeActionsOnSave": {
     "source.organizeImports": "always"

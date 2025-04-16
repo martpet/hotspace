@@ -8,7 +8,7 @@ export function asset(pathname: string, options: { cdn?: boolean } = {}) {
   if (cdn && ASSETS_CLOUDFRONT_URL) {
     url = ASSETS_CLOUDFRONT_URL + url;
   } else {
-    url = "/static" + url;
+    url = "/assets" + url;
   }
   if (DEPLOYMENT_HEX) url += `?${ASSET_CACHE_PARAM}=${DEPLOYMENT_HEX}`;
   return url;

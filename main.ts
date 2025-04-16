@@ -56,9 +56,9 @@ app.post("/logout", logout);
 app.get("/account", account);
 app.post("/account/delete", deleteAccount);
 
-app.get("/static/manifest.json", manifestJson);
-app.get("/static/upload_worker.js", uploadWorkerHandler);
-app.get("/static/*", staticFilesHandler);
+app.get("/assets/manifest.json", manifestJson);
+app.get("/assets/upload_worker.js", uploadWorkerHandler);
+app.get("/assets/*", staticFilesHandler);
 
 app.post("/auth/cred-creation-options", credCreatOpt);
 app.post("/auth/cred-creation-verify", credCreatVer);
