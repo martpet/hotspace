@@ -5,7 +5,7 @@ import { enqueue } from "../../util/kv/enqueue.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { deleteUser } from "../../util/kv/users.ts";
 import type { AppContext } from "../../util/types.ts";
-import { type QueueMsgCleanUpUser } from "../queue/clean_up_user.ts";
+import { type QueueMsgCleanUpUser } from "../../util/queue/clean_up_user.ts";
 
 export default async function deleteAccountHandler(ctx: AppContext) {
   const { user } = ctx.state;

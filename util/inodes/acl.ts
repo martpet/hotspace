@@ -6,12 +6,12 @@ import {
   getPermissions,
 } from "$util";
 import { sortBy } from "@std/collections";
-import { QueueMsgChangeDirChildrenAcl } from "../../handlers/queue/change_dir_children_acl.ts";
 import { keys as usersKeys } from "../../util/kv/users.ts";
 import type { AclDiffWithUserId, AclPreview, Inode } from "../inodes/types.ts";
 import { enqueue } from "../kv/enqueue.ts";
 import { getInodeById } from "../kv/inodes.ts";
 import { getManyEntries } from "../kv/kv.ts";
+import { QueueMsgChangeDirChildrenAcl } from "../queue/change_dir_children_acl.ts";
 import type { User } from "../types.ts";
 import { ROOT_DIR_ID } from "./consts.ts";
 import { setAnyInode } from "./kv_wrappers.ts";

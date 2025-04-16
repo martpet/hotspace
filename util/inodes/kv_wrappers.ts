@@ -1,9 +1,4 @@
 import { newQueue } from "@henrygd/queue";
-import { type QueueMsgCleanUpInode } from "../../handlers/queue/clean_up_inode.ts";
-import { type QueueMsgDeleteDirChildren } from "../../handlers/queue/delete_dir_children.ts";
-import {
-  type QueueMsgDeleteS3Objects,
-} from "../../handlers/queue/delete_s3_objects.ts";
 import { INODES_BUCKET } from "../consts.ts";
 import type { Inode } from "../inodes/types.ts";
 import { enqueue } from "../kv/enqueue.ts";
@@ -17,6 +12,9 @@ import {
   setRootDirByOwner,
 } from "../kv/inodes.ts";
 import { kv } from "../kv/kv.ts";
+import { type QueueMsgCleanUpInode } from "../queue/clean_up_inode.ts";
+import { type QueueMsgDeleteDirChildren } from "../queue/delete_dir_children.ts";
+import { type QueueMsgDeleteS3Objects } from "../queue/delete_s3_objects.ts";
 import { isFileNodeWithS3Prefixes, isVideoNode } from "./helpers.ts";
 
 export function setAnyInode<T extends Inode>(inode: T, atomic = kv.atomic()) {
