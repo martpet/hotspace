@@ -41,7 +41,7 @@ if (isProd) {
   assert(env.CLOUDFRONT_KEYPAIR_ID_PROD);
   assert(env.MEDIACONVERT_ROLE_PROD);
   assert(env.AWS_WEBHOOKS_KEY_PROD);
-  assert(env.IMAGE_PROCESSING_SQS_URL_PROD);
+  assert(env.IMAGE_PROCESSOR_SQS_URL_PROD);
 } else {
   assert(env.AWS_ACCESS_KEY_ID_DEV);
   assert(env.AWS_SECRET_ACCESS_KEY_DEV);
@@ -49,7 +49,7 @@ if (isProd) {
   assert(env.CLOUDFRONT_KEYPAIR_ID_DEV);
   assert(env.MEDIACONVERT_ROLE_DEV);
   assert(env.AWS_WEBHOOKS_KEY_DEV);
-  assert(env.IMAGE_PROCESSING_SQS_URL_DEV);
+  assert(env.IMAGE_PROCESSOR_SQS_URL_DEV);
 }
 
 export const AWS_REGION = "us-east-1";
@@ -89,6 +89,6 @@ export const AWS_WEBHOOKS_KEY = isProd
   ? env.AWS_WEBHOOKS_KEY_PROD
   : env.AWS_WEBHOOKS_KEY_DEV;
 
-export const IMAGE_PROCESSING_SQS_URL = isProd
-  ? env.IMAGE_PROCESSING_SQS_URL_PROD
-  : env.IMAGE_PROCESSING_SQS_URL_DEV;
+export const IMAGE_PROCESSOR_SQS_URL = isProd
+  ? env.IMAGE_PROCESSOR_SQS_URL_PROD
+  : env.IMAGE_PROCESSOR_SQS_URL_DEV;

@@ -16,21 +16,21 @@ import { estimateJobCost } from "../../util/mediaconvert/job_cost.ts";
 import { type MediaConvertJobChangeStateDetail } from "../../util/mediaconvert/types.ts";
 import { type QueueMsgDeleteS3Objects } from "./delete_s3_objects.ts";
 
-export type QueueMsgMediaConvertJobState = {
-  type: "mediaconvert-job-state";
+export type QueueMsgMediaConvertEvent = {
+  type: "mediaconvert-event";
   detail: MediaConvertJobChangeStateDetail;
 };
 
-export function isMediaConvertJobState(
+export function isMediaConvertEvent(
   msg: unknown,
-): msg is QueueMsgMediaConvertJobState {
-  const { type } = msg as Partial<QueueMsgMediaConvertJobState>;
+): msg is QueueMsgMediaConvertEvent {
+  const { type } = msg as Partial<QueueMsgMediaConvertEvent>;
   return typeof msg === "object" &&
-    type === "mediaconvert-job-state";
+    type === "mediaconvert-event";
 }
 
-export async function hanleMediaConvertJobState(
-  msg: QueueMsgMediaConvertJobState,
+export async function hanleMediaConvertEvent(
+  msg: QueueMsgMediaConvertEvent,
 ) {
   const {
     userMetadata,

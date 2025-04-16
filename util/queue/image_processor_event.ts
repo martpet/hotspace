@@ -1,13 +1,13 @@
-import { INODES_BUCKET } from "../../util/consts.ts";
-import { isImageNode } from "../../util/inodes/helpers.ts";
-import { setAnyInode } from "../../util/inodes/kv_wrappers.ts";
-import type { Exif, ImageNode, Inode } from "../../util/inodes/types.ts";
-import { enqueue } from "../../util/kv/enqueue.ts";
-import { getInodeById } from "../../util/kv/inodes.ts";
+import { INODES_BUCKET } from "../consts.ts";
+import { isImageNode } from "../inodes/helpers.ts";
+import { setAnyInode } from "../inodes/kv_wrappers.ts";
+import type { Exif, ImageNode, Inode } from "../inodes/types.ts";
+import { enqueue } from "../kv/enqueue.ts";
+import { getInodeById } from "../kv/inodes.ts";
 import { type QueueMsgDeleteS3Objects } from "./delete_s3_objects.ts";
 
-export interface QueueMessageImageProcessingState {
-  type: "image-processing-state";
+export interface QueueMessageImageProcessorEvent {
+  type: "image-processor-event";
   isoTimestamp: "string";
   detail: {
     status: "COMPLETE" | "ERROR";
@@ -19,13 +19,13 @@ export interface QueueMessageImageProcessingState {
   };
 }
 
-export function isImageProcessingState(
+export function isImageProcessorEvent(
   msg: unknown,
-): msg is QueueMessageImageProcessingState {
+): msg is QueueMessageImageProcessorEvent {
   const { type, isoTimestamp, detail } = msg as Partial<
-    QueueMessageImageProcessingState
+    QueueMessageImageProcessorEvent
   >;
-  return typeof msg === "object" && type === "image-processing-state" &&
+  return typeof msg === "object" && type === "image-processor-event" &&
     typeof isoTimestamp === "string" &&
     typeof detail === "object" &&
     typeof detail.inodeS3Key === "string" &&
@@ -49,7 +49,7 @@ export function isImageProcessingState(
 }
 
 export async function handleImageProcessingState(
-  msg: QueueMessageImageProcessingState,
+  msg: QueueMessageImageProcessorEvent,
 ) {
   const { isoTimestamp } = msg;
   const { inodeId, inodeS3Key, status, width, height, exif } = msg.detail;
@@ -111,7 +111,7 @@ function isStaleEvent(inode: Inode | null, currentTimestamp: string) {
 function cleanupMaybe(input: {
   inodeS3Key: string;
   status:
-    | QueueMessageImageProcessingState["detail"]["status"]
+    | QueueMessageImageProcessorEvent["detail"]["status"]
     | ImageNode["postProcess"]["status"];
 }) {
   const { inodeS3Key, status } = input;

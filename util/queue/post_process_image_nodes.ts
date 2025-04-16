@@ -1,7 +1,7 @@
 import { sqs } from "$aws";
 import { newQueue } from "@henrygd/queue";
 import { getSigner } from "../../util/aws.ts";
-import { AWS_REGION, IMAGE_PROCESSING_SQS_URL } from "../../util/consts.ts";
+import { AWS_REGION, IMAGE_PROCESSOR_SQS_URL } from "../../util/consts.ts";
 import { isImageNode } from "../../util/inodes/helpers.ts";
 import { setAnyInode } from "../../util/inodes/kv_wrappers.ts";
 import type { FileNode, ImageNode, Inode } from "../../util/inodes/types.ts";
@@ -51,7 +51,7 @@ export async function handlePostProcessImageNodes(
 
   const failedIds = await sqs.sendMessageBatch({
     messages: sqsMessages,
-    sqsUrl: IMAGE_PROCESSING_SQS_URL,
+    sqsUrl: IMAGE_PROCESSOR_SQS_URL,
     region: AWS_REGION,
     signer: getSigner(),
   });
