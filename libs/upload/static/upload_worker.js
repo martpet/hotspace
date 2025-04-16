@@ -1,6 +1,6 @@
 const searchParams = new URLSearchParams(self.location.search);
 
-let dbName = searchParams.get("dbName") || "uploads";
+const dbName = searchParams.get("dbName") || "uploads";
 let dbOpened;
 let uploader;
 
@@ -116,7 +116,7 @@ class Uploader {
       if (this.aborted) return;
       if (retry > MAX_RETRIES) {
         console.error(
-          `Part#${partNumber} of ${upload.file.name} failed to upload, giving up`,
+          `Part#${partNumber} of ${upload.file.name} failed to upload, giving up`
         );
         this.abort();
         this.sendError();
@@ -127,7 +127,7 @@ class Uploader {
       const backOff = 2 ** newRetry * 400;
 
       console.warning(
-        `Part#${partNumber} of ${upload.file.name} failed to upload, backing off ${backOff} before retrying...`,
+        `Part#${partNumber} of ${upload.file.name} failed to upload, backing off ${backOff} before retrying...`
       );
       setTimeout(() => {
         this.signedUrls.push(signedUrl);
@@ -166,7 +166,7 @@ class Uploader {
             "checksum",
             "createdOn",
             "finishedParts",
-          ]),
+          ])
         );
         resolve();
       };
@@ -201,12 +201,7 @@ class Uploader {
     const uploads = Array.from(this.uploads.values()).map((upload) => ({
       fileName: upload.file.name,
       fileType: upload.file.type,
-      ...pick(upload, [
-        "uploadId",
-        "s3Key",
-        "checksum",
-        "finishedParts",
-      ]),
+      ...pick(upload, ["uploadId", "s3Key", "checksum", "finishedParts"]),
     }));
 
     const resp = await fetch(this.endpoints.complete, {
@@ -225,10 +220,12 @@ class Uploader {
 
     const completedIds = await resp.json();
 
-    await Promise.all(completedIds.map((id) => {
-      const { checksum } = this.uploads.get(id);
-      return deleteSavedUpload(checksum);
-    }));
+    await Promise.all(
+      completedIds.map((id) => {
+        const { checksum } = this.uploads.get(id);
+        return deleteSavedUpload(checksum);
+      })
+    );
 
     postMessage({ type: "completed" });
   }
@@ -257,7 +254,7 @@ function openDb() {
   openReq.onsuccess = (event) => {
     const db = event.target.result;
     dbOpened.resolve(db);
-    db.onclose = () => dbOpened = null;
+    db.onclose = () => (dbOpened = null);
   };
 
   openReq.onupgradeneeded = (event) => {
@@ -272,7 +269,8 @@ function openDb() {
 async function getSavedUpload(checksum) {
   const db = await openDb();
   return new Promise((resolve) => {
-    db.transaction(UPLOADS_STORE)
+    db
+      .transaction(UPLOADS_STORE)
       .objectStore(UPLOADS_STORE)
       .get(checksum).onsuccess = (ev) => resolve(ev.target.result);
   });
@@ -281,7 +279,8 @@ async function getSavedUpload(checksum) {
 async function saveUpload(upload) {
   const db = await openDb();
   return new Promise((resolve) => {
-    db.transaction(UPLOADS_STORE, "readwrite")
+    db
+      .transaction(UPLOADS_STORE, "readwrite")
       .objectStore(UPLOADS_STORE)
       .put(upload).onsuccess = resolve;
   });
@@ -290,7 +289,8 @@ async function saveUpload(upload) {
 async function deleteSavedUpload(checksum) {
   const db = await openDb();
   return new Promise((resolve) => {
-    db.transaction(UPLOADS_STORE, "readwrite")
+    db
+      .transaction(UPLOADS_STORE, "readwrite")
       .objectStore(UPLOADS_STORE)
       .delete(checksum).onsuccess = resolve;
   });
