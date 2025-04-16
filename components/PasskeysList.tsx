@@ -31,7 +31,8 @@ function ListItem(props: { passkey: Passkey; count: number }) {
 
   return (
     <li>
-      <ButtonRename passkey={passkey} /> —{" "}
+      <ButtonName passkey={passkey} /> —{" "}
+      {passkey.aaguidLabel && `${passkey.aaguidLabel} — `}
       {count > 1 && <ButtonDelete passkey={passkey} />}
       created {<RelativeTime date={createdAt} />}, {lastUsedAt
         ? <>last used {<RelativeTime date={lastUsedAt} />}.</>
@@ -40,7 +41,7 @@ function ListItem(props: { passkey: Passkey; count: number }) {
   );
 }
 
-function ButtonRename(props: { passkey: Passkey }) {
+function ButtonName(props: { passkey: Passkey }) {
   return (
     <Tooltip info="Rename passkey">
       <button class="rename-passkey" data-cred-id={props.passkey.credId}>

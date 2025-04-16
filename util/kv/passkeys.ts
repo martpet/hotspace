@@ -1,12 +1,13 @@
 import type { Passkey } from "../types.ts";
 import { kv } from "./kv.ts";
 
-const keys = {
+export const keys = {
   byId: (credId: string) => ["passkeys", credId],
   byUser: (
     userId: string,
     createdAt: Date,
   ) => ["passkeys_by_user", userId, +createdAt],
+  aaguidData: ["aaguid_data"],
 };
 
 export function setPasskey(passkey: Passkey, atomic = kv.atomic()) {
@@ -29,4 +30,12 @@ export async function listPasskeysByUser(userId: string) {
   const prefix = keys.byUser(userId, new Date()).slice(0, -1);
   const iter = kv.list<Passkey>({ prefix });
   return (await Array.fromAsync(iter)).map((x) => x.value);
+}
+
+export function setPasskeysAaguidData(data: Record<string, string>) {
+  return kv.set(keys.aaguidData, data);
+}
+
+export function getPasskeysAaguidData(consistency?: Deno.KvConsistencyLevel) {
+  return kv.get<Record<string, string>>(keys.aaguidData, { consistency });
 }

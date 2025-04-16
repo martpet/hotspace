@@ -5,13 +5,21 @@ import {
 import { decodeBase64 } from "@std/encoding";
 import { deleteCookie, getCookies, STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
-import { getCredentialCreationSession } from "../../util/kv/cred_creation_sessions.ts";
+import {
+  kvKeys as getCredSessionKvKey,
+} from "../../util/kv/cred_creation_sessions.ts";
 import { kv } from "../../util/kv/kv.ts";
-import { setPasskey } from "../../util/kv/passkeys.ts";
+import { keys as getPassKeyKvKey, setPasskey } from "../../util/kv/passkeys.ts";
 import { setSession } from "../../util/kv/sessions.ts";
 import { setUser } from "../../util/kv/users.ts";
 import { setSessionCookie } from "../../util/session.ts";
-import type { AppContext, Passkey, Session, User } from "../../util/types.ts";
+import type {
+  AppContext,
+  CredentialCreationSession,
+  Passkey,
+  Session,
+  User,
+} from "../../util/types.ts";
 
 export default async function credentialCreationVerifyHandler(ctx: AppContext) {
   deleteCookie(ctx.resp.headers, CREDENTIAL_CREATION_SESSION_COOKIE, {
@@ -25,8 +33,16 @@ export default async function credentialCreationVerifyHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  const creationSession =
-    (await getCredentialCreationSession(creationSessionId)).value;
+  const [
+    { value: creationSession },
+    { value: aaguidData },
+  ] = await kv.getMany<[
+    CredentialCreationSession,
+    Record<string, string>,
+  ]>([
+    getCredSessionKvKey.byId(creationSessionId),
+    getPassKeyKvKey.aaguidData,
+  ]);
 
   if (!creationSession) {
     return ctx.respond(null, STATUS_CODE.Forbidden);
@@ -77,6 +93,7 @@ export default async function credentialCreationVerifyHandler(ctx: AppContext) {
     pubKey: decodeBase64(attestation.pubKey),
     counter: authData.counter,
     aaguid: authData.aaguid,
+    aaguidLabel: aaguidData?.[authData.aaguid],
     createdAt: now,
     lastUsedAt: ctx.state.user ? undefined : now,
   };

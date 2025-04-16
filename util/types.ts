@@ -59,6 +59,7 @@ export interface Passkey {
   createdAt: Date;
   lastUsedAt?: Date;
   name?: string;
+  aaguidLabel?: string;
 }
 
 export interface PushSub extends PushSubscription {

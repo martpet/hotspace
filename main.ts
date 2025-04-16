@@ -5,7 +5,7 @@ import deleteAccount from "./handlers/account/delete.tsx";
 import logout from "./handlers/account/logout.ts";
 import register from "./handlers/account/register.tsx";
 import postSettings from "./handlers/admin/settings.ts";
-import { default as showAdmin } from "./handlers/admin/show_admin.tsx";
+import showAdmin from "./handlers/admin/show_admin.tsx";
 import credCreatOpt from "./handlers/auth/cred_creation_options.ts";
 import credCreatVer from "./handlers/auth/cred_creation_verify.ts";
 import credReqOpt from "./handlers/auth/cred_request_options.ts";
@@ -30,7 +30,6 @@ import videoPlaylist from "./handlers/inodes/video_playlist.ts";
 import manifestJson from "./handlers/manifest_json.ts";
 import subscribers from "./handlers/push_sub/subscribers.ts";
 import vapid from "./handlers/push_sub/vapid.ts";
-
 import { awsWebhookHandler } from "./handlers/webhooks/aws.ts";
 import { csrfMiddleware } from "./middleware/csrf.tsx";
 import { headersMiddleware } from "./middleware/headers.ts";
@@ -38,8 +37,11 @@ import { errorMiddleware } from "./middleware/server_error.tsx";
 import { sessionMiddleware } from "./middleware/session.ts";
 import { stateMiddleware } from "./middleware/state.ts";
 import { IS_LOCAL_DEV } from "./util/consts.ts";
+import fetchPasskeysAaguid from "./util/cron/fetchPasskeysAaguid.ts";
 import { kv } from "./util/kv/kv.ts";
 import { queueHandler } from "./util/queue/queue_handler.ts";
+
+kv.listenQueue(queueHandler);
 
 const app = new Server({ trailingSlash: "mixed" });
 
@@ -104,4 +106,8 @@ if (IS_LOCAL_DEV) {
 
 app.serve(serveOptions);
 
-kv.listenQueue(queueHandler);
+// =====================
+// Cron
+// =====================
+
+Deno.cron("Fetch passkeys AAGUID", "0 2 * * 1", fetchPasskeysAaguid);

@@ -61,9 +61,9 @@ export default async function credentialCreationOptionsHandler(
     challenge: credCreationOptions.challenge,
   };
 
-  const { ok } = await setCredentialCreationSession(creationSession);
+  const commit = await setCredentialCreationSession(creationSession);
 
-  if (!ok) {
+  if (!commit.ok) {
     return ctx.respond(null, STATUS_CODE.Conflict);
   }
 

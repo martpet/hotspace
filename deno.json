@@ -30,6 +30,7 @@
   },
   "unstable": [
     "kv",
+    "cron",
     "broadcast-channel"
   ],
   "compilerOptions": {
