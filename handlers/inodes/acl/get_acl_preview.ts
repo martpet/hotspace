@@ -1,6 +1,5 @@
-import { getAclUsersIds } from "$util";
+import { getAclUsersIds, getPermissions } from "$util";
 import { STATUS_CODE } from "@std/http";
-import { getPermissions } from "../../../lib/util/file_permissions.ts";
 import { createAclPreview } from "../../../util/inodes/acl.ts";
 import { getInodeById } from "../../../util/kv/inodes.ts";
 import { getMany } from "../../../util/kv/kv.ts";

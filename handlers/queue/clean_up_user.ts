@@ -1,6 +1,5 @@
-import { listChatMessagesByUser } from "$chat";
+import { listChatMessagesByUser, setDeletedChatMessage } from "$chat";
 import { newQueue } from "@henrygd/queue";
-import { setDeletedChatMessage } from "../../lib/chat/util/kv/chat_messages_wrappers.ts";
 import { deleteInodesRecursive } from "../../util/inodes/kv_wrappers.ts";
 import { deleteuploadSizeByOwner } from "../../util/kv/filenodes_stats.ts";
 import { listRootDirsByOwner } from "../../util/kv/inodes.ts";

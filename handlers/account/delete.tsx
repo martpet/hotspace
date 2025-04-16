@@ -1,5 +1,5 @@
+import { SESSION_COOKIE } from "$webauthn";
 import { deleteCookie } from "@std/http";
-import { SESSION_COOKIE } from "../../lib/webauthn/consts.ts";
 import { GENERAL_ERR_MSG } from "../../util/consts.ts";
 import { enqueue } from "../../util/kv/enqueue.ts";
 import { kv } from "../../util/kv/kv.ts";

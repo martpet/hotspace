@@ -1,6 +1,6 @@
+import { getPermissions } from "$util";
 import { STATUS_CODE } from "@std/http";
 import { HEADER } from "@std/http/unstable-header";
-import { getPermissions } from "../../lib/util/file_permissions.ts";
 import {
   getPreviewImageKey,
   getSignedFileUrl,

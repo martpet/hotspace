@@ -1,6 +1,6 @@
 import { listChatMessages, MESSAGES_PER_FETCH } from "$chat";
+import { getPermissions } from "$util";
 import { STATUS_CODE } from "@std/http";
-import { getPermissions } from "../../lib/util/file_permissions.ts";
 import ChatMessages from "../../snippets/chat/ChatMessages.tsx";
 import { getInodeById } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";

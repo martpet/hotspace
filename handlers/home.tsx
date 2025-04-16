@@ -1,4 +1,4 @@
-import { getPermissions } from "../lib/util/file_permissions.ts";
+import { getPermissions } from "$util";
 import BlankSlate from "../snippets/BlankSlate.tsx";
 import ButtonCreateDir from "../snippets/inodes/ButtonCreateDir.tsx";
 import InodesTable from "../snippets/inodes/InodesTable.tsx";

@@ -5,9 +5,9 @@ import {
   keys as chatSubsKvKeys,
   setChatSub,
 } from "$chat";
+import { getPermissions } from "$util";
 import { STATUS_CODE } from "@std/http";
 import { METHOD } from "@std/http/unstable-method";
-import { getPermissions } from "../../lib/util/file_permissions.ts";
 import type { Inode } from "../../util/inodes/types.ts";
 import { keys as inodesKeys } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
