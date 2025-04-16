@@ -1,10 +1,10 @@
 import { getPermissions, type NonRootPath, parsePathname } from "$util";
 import { STATUS_CODE } from "@std/http";
-import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
-import Chat from "../../snippets/chat/ChatSection.tsx";
-import ButtonDeleteInode from "../../snippets/inodes/ButtonDeleteInode.tsx";
-import FilePreview from "../../snippets/inodes/file_preview/FilePreview.tsx";
-import Page from "../../snippets/pages/Page.tsx";
+import ButtonToggleChat from "../../components/chat/ButtonToggleChat.tsx";
+import Chat from "../../components/chat/ChatSection.tsx";
+import ButtonDeleteInode from "../../components/inodes/ButtonDeleteInode.tsx";
+import FilePreview from "../../components/inodes/file_preview/FilePreview.tsx";
+import Page from "../../components/pages/Page.tsx";
 import {
   getPreviewImageKey,
   getSignedFileUrl,

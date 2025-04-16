@@ -1,6 +1,6 @@
 import { accepts, STATUS_CODE } from "@std/http";
-import NotFoundPage from "../snippets/pages/NotFoundPage.tsx";
-import { type PageProps } from "../snippets/pages/Page.tsx";
+import NotFoundPage from "../components/pages/NotFoundPage.tsx";
+import { type PageProps } from "../components/pages/Page.tsx";
 import type { AppContext } from "../util/types.ts";
 
 export default function notFoundHandler(

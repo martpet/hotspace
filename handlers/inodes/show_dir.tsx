@@ -1,11 +1,11 @@
 import { getPermissions, parsePathname } from "$util";
-import ButtonToggleChat from "../../snippets/chat/ButtonToggleChat.tsx";
-import ChatSection from "../../snippets/chat/ChatSection.tsx";
-import ButtonCreateDir from "../../snippets/inodes/ButtonCreateDir.tsx";
-import ButtonUpload from "../../snippets/inodes/ButtonUpload.tsx";
-import InodesTable from "../../snippets/inodes/InodesTable.tsx";
-import InodesTableMenu from "../../snippets/inodes/InodesTableMenu.tsx";
-import Page from "../../snippets/pages/Page.tsx";
+import ButtonToggleChat from "../../components/chat/ButtonToggleChat.tsx";
+import ChatSection from "../../components/chat/ChatSection.tsx";
+import ButtonCreateDir from "../../components/inodes/ButtonCreateDir.tsx";
+import ButtonUpload from "../../components/inodes/ButtonUpload.tsx";
+import InodesTable from "../../components/inodes/InodesTable.tsx";
+import InodesTableMenu from "../../components/inodes/InodesTableMenu.tsx";
+import Page from "../../components/pages/Page.tsx";
 import { getDirByPath, listInodesByDir } from "../../util/kv/inodes.ts";
 import type { AppContext } from "../../util/types.ts";
 import { asset } from "../../util/url.ts";

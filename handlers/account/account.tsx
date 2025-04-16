@@ -1,8 +1,8 @@
 import { format } from "@std/fmt/bytes";
-import ButtonDeleteAccount from "../../snippets/ButtonDeleteAccount.tsx";
-import LoginPage from "../../snippets/pages/LoginPage.tsx";
-import Page from "../../snippets/pages/Page.tsx";
-import PasskeysList from "../../snippets/PasskeysList.tsx";
+import ButtonDeleteAccount from "../../components/ButtonDeleteAccount.tsx";
+import LoginPage from "../../components/pages/LoginPage.tsx";
+import Page from "../../components/pages/Page.tsx";
+import PasskeysList from "../../components/PasskeysList.tsx";
 import { getuploadSizeByOwner } from "../../util/kv/filenodes_stats.ts";
 import { listPasskeysByUser } from "../../util/kv/passkeys.ts";
 import type { AppContext } from "../../util/types.ts";

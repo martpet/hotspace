@@ -1,9 +1,9 @@
 import { getPermissions } from "$util";
-import BlankSlate from "../snippets/BlankSlate.tsx";
-import ButtonCreateDir from "../snippets/inodes/ButtonCreateDir.tsx";
-import InodesTable from "../snippets/inodes/InodesTable.tsx";
-import InodesTableMenu from "../snippets/inodes/InodesTableMenu.tsx";
-import Page from "../snippets/pages/Page.tsx";
+import BlankSlate from "../components/BlankSlate.tsx";
+import ButtonCreateDir from "../components/inodes/ButtonCreateDir.tsx";
+import InodesTable from "../components/inodes/InodesTable.tsx";
+import InodesTableMenu from "../components/inodes/InodesTableMenu.tsx";
+import Page from "../components/pages/Page.tsx";
 import { ROOT_DIR_ID } from "../util/inodes/consts.ts";
 import { listRootDirsByOwner } from "../util/kv/inodes.ts";
 import type { AppContext } from "../util/types.ts";

@@ -1,6 +1,6 @@
-import { AppSettingsForm } from "../../snippets/admin/AppSettingsForm.tsx";
-import AdminPage from "../../snippets/pages/AdminPage.tsx";
-import NotFoundPage from "../../snippets/pages/NotFoundPage.tsx";
+import { AppSettingsForm } from "../../components/admin/AppSettingsForm.tsx";
+import AdminPage from "../../components/pages/AdminPage.tsx";
+import NotFoundPage from "../../components/pages/NotFoundPage.tsx";
 import { getBudgetsLiveCosts } from "../../util/admin/budgets.ts";
 import { isSuperAdmin } from "../../util/admin/utils.ts";
 import { getAppSettings } from "../../util/kv/app_settings.ts";

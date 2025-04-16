@@ -1,4 +1,4 @@
-import Page, { PageProps } from "../../snippets/pages/Page.tsx";
+import Page, { PageProps } from "../../components/pages/Page.tsx";
 import { asset } from "../../util/url.ts";
 
 interface Props extends PageProps {

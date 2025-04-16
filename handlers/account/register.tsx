@@ -1,5 +1,5 @@
-import RegForm from "../../snippets/auth/RegForm.tsx";
-import Page from "../../snippets/pages/Page.tsx";
+import RegForm from "../../components/auth/RegForm.tsx";
+import Page from "../../components/pages/Page.tsx";
 import type { AppContext } from "../../util/types.ts";
 import { asset } from "../../util/url.ts";
 

@@ -1,5 +1,5 @@
 import { accepts, STATUS_CODE } from "@std/http";
-import ErrorPage from "../snippets/pages/ErrorPage.tsx";
+import ErrorPage from "../components/pages/ErrorPage.tsx";
 import type { AppMiddleware } from "../util/types.ts";
 
 export const errorMiddleware: AppMiddleware = async (ctx, next) => {
