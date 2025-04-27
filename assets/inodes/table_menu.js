@@ -113,11 +113,11 @@ async function submitData() {
     const msg = isSingleSelect
       ? `${inodeLabel} "${selection[0].name}"`
       : `${itemsCount} item${itemsCount > 1 ? "s" : ""}`;
-    insertFlash(`${msg} sucessfully deleted`);
+    insertFlash(`${msg} deleted`);
   } else if (resp.status === 404) {
     location.reload();
   } else {
-    errorSignal.value = await resp.text() || GENERAL_ERR_MSG;
+    errorSignal.value = (await resp.text()) || GENERAL_ERR_MSG;
     statusSignal.value = "idle";
   }
 }
@@ -143,7 +143,7 @@ function refreshContainerElements() {
   toggler = container.querySelector("thead .select input");
   selectInputs = container.querySelectorAll("tbody .select input");
   if (toggler) toggler.disabled = false;
-  selectInputs.forEach((input) => input.disabled = false);
+  selectInputs.forEach((input) => (input.disabled = false));
 }
 
 function getSelectInputData(input) {
@@ -191,7 +191,7 @@ function insertDialog() {
             </footer>
           </form>
         </dialog>
-      `,
+      `
   );
   dialog = document.getElementById("table-delete-dialog");
   dialogIntro = document.getElementById("table-delete-intro");
@@ -219,8 +219,7 @@ function updateDialogList() {
   for (const { isDir, decodedName, pathname } of selection) {
     isDir ? dirsCount++ : filesCount++;
     const css = `inode ${isDir ? "dir" : "file"}`;
-    html +=
-      `<li><a href="${pathname}" target="_blank" class="${css}">${decodedName}</a></li>`;
+    html += `<li><a href="${pathname}" target="_blank" class="${css}">${decodedName}</a></li>`;
   }
   dialogList.innerHTML = html;
   return { dirsCount, filesCount };
@@ -230,8 +229,7 @@ function updateDialogIntro({ dirsCount, filesCount }) {
   let txt;
   if (isSingleSelect) {
     const spaceName = selection[0].name;
-    txt =
-      `${inodeLabel} <strong>${spaceName}</strong> and its content will be deleted.`;
+    txt = `${inodeLabel} <strong>${spaceName}</strong> and its content will be deleted.`;
   } else {
     txt = "The following ";
     if (selection.length === 1) {
