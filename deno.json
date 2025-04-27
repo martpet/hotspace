@@ -3,12 +3,12 @@
     "start": "deno run -A --env-file --watch main.ts"
   },
   "imports": {
-    "$server": "./libs/server/mod.ts",
-    "$webauthn": "./libs/webauthn/mod.ts",
-    "$chat": "./libs/chat/mod.ts",
-    "$upload": "./libs/upload/mod.ts",
-    "$aws": "./libs/aws/mod.ts",
-    "$util": "./libs/util/mod.ts",
+    "$server": "./modules/server/mod.ts",
+    "$webauthn": "./modules/webauthn/mod.ts",
+    "$chat": "./modules/chat/mod.ts",
+    "$upload": "./modules/upload/mod.ts",
+    "$aws": "./modules/aws/mod.ts",
+    "$util": "./modules/util/mod.ts",
     "@henrygd/queue": "jsr:@henrygd/queue@^1.0.7",
     "@negrel/webpush": "jsr:@negrel/webpush@0.3.0",
     "@std/assert": "jsr:@std/assert@^1.0.12",
