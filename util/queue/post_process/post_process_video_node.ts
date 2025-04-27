@@ -1,12 +1,12 @@
 import { mediaconvert } from "$aws";
 import { getSigner } from "../../aws.ts";
 import { AWS_REGION } from "../../consts.ts";
-import { isVideoNode } from "../../inodes/helpers.ts";
-import { setAnyInode } from "../../inodes/kv_wrappers.ts";
 import {
   createJobOptions,
   JobOptionsInput,
-} from "../../inodes/mediaconvert/job_options.ts";
+} from "../../inodes/aws_mediaconvert/job_options.ts";
+import { isVideoNode } from "../../inodes/helpers.ts";
+import { setAnyInode } from "../../inodes/kv_wrappers.ts";
 import type { VideoNode } from "../../inodes/types.ts";
 import { getInodeById } from "../../kv/inodes.ts";
 import { getDevAppUrl } from "../../url.ts";

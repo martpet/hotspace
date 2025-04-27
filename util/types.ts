@@ -2,7 +2,7 @@ import type { ChatUserResource } from "$chat";
 import type { Context, Middleware } from "$server";
 import type { PushSubscription } from "@negrel/webpush";
 import { BUDGET_PERIOD_TYPES } from "./consts.ts";
-import type { MediaConvertPricing } from "./inodes/mediaconvert/types.ts";
+import type { MediaConvertPricing } from "./inodes/aws_mediaconvert/types.ts";
 
 export interface AppBudget {
   period: number;
