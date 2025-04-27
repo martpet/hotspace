@@ -13,21 +13,25 @@ import {
   isDeleteS3Objects,
 } from "./delete_s3_objects.ts";
 import {
-  handleImageProcessingState,
-  isImageProcessorEvent,
-} from "./image_processor_event.ts";
-import {
-  hanleMediaConvertEvent,
-  isMediaConvertEvent,
-} from "./media_convert_event.ts";
-import {
-  handlePostProcessImageNodes,
-  isPostProcessImageNodes,
-} from "./post_process_image_nodes.ts";
+  handlePostProcessFileNodes,
+  isPostProcessFileNodes,
+} from "./post_process/post_process_file_nodes.ts";
 import {
   handlePostProcessVideoNode,
   isPostProcessVideoNode,
-} from "./post_process_video_node.ts";
+} from "./post_process/post_process_video_node.ts";
+import {
+  handleGeneralMediaProcessorEvent,
+  isGeneralMediaProcessorEvent,
+} from "./post_processor_event/general_media_processor_event.ts";
+import {
+  handleImageProcessorEvent,
+  isImageProcessorEvent,
+} from "./post_processor_event/image_processor_event.ts";
+import {
+  handleVideoProcessorEvent,
+  isVideoProcessorEvent,
+} from "./post_processor_event/video_processor_event.ts";
 import {
   handlePushChatNotification,
   isPushChatNotification,
@@ -41,9 +45,12 @@ export function queueHandler(msg: unknown) {
   if (isCleanUpInode(msg)) return handleCleanUpInode(msg);
   if (isCleanUpUser(msg)) return handleCleanUpUser(msg);
   if (isPostProcessVideoNode(msg)) return handlePostProcessVideoNode(msg);
-  if (isPostProcessImageNodes(msg)) return handlePostProcessImageNodes(msg);
-  if (isMediaConvertEvent(msg)) return hanleMediaConvertEvent(msg);
-  if (isImageProcessorEvent(msg)) return handleImageProcessingState(msg);
+  if (isPostProcessFileNodes(msg)) return handlePostProcessFileNodes(msg);
+  if (isVideoProcessorEvent(msg)) return handleVideoProcessorEvent(msg);
+  if (isImageProcessorEvent(msg)) return handleImageProcessorEvent(msg);
+  if (isGeneralMediaProcessorEvent(msg)) {
+    return handleGeneralMediaProcessorEvent(msg);
+  }
 
   console.error("Unhandled KV Queue message", msg);
 }

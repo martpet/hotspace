@@ -1,4 +1,4 @@
-import { INODES_BUCKET, MEDIACONVERT_ROLE } from "../consts.ts";
+import { INODES_BUCKET, MEDIACONVERT_ROLE } from "../../consts.ts";
 import type { JobUserMetaData } from "./types.ts";
 
 export interface JobOptionsInput {

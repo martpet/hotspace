@@ -26,10 +26,8 @@ export default async function showDirHandler(ctx: AppContext) {
   });
 
   const dirNode = dirNodeEntry.value;
-  const { canRead, canCreate, canModerate } = getPermissions({
-    user,
-    resource: dirNode,
-  });
+  const permissions = getPermissions({ user, resource: dirNode });
+  const { canRead, canCreate, canModerate } = permissions;
 
   if (!dirNode || !canRead) {
     return notFound();
@@ -40,7 +38,7 @@ export default async function showDirHandler(ctx: AppContext) {
       enabled={dirNode.chatEnabled}
       chatId={dirNode.id}
       chatTitle={dirNode.name}
-      canModerate={canModerate}
+      permissions={permissions}
     />
   );
 

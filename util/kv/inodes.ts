@@ -35,12 +35,12 @@ export function deleteInode(inode: Inode, atomic = kv.atomic()) { // Do not use 
     .delete(keys.byDir(inode.parentDirId, inode.name));
 }
 
-export function getInodeById<T = Inode>(
+export function getInodeById(
   id: string,
   options: { consistency?: Deno.KvConsistencyLevel } = {},
 ) {
   const { consistency } = options;
-  return kv.get<T>(keys.byId(id), { consistency });
+  return kv.get<Inode>(keys.byId(id), { consistency });
 }
 
 export function getInodeByDir<T = Inode>({

@@ -24,7 +24,7 @@ async function getCryptoKey(privateKey: string) {
 }
 
 export interface SignUrlOptions {
-  url: string;
+  url: string | URL;
   keyPairId: string;
   privateKey: string;
   expireIn?: number;
@@ -33,19 +33,19 @@ export interface SignUrlOptions {
 
 export async function signUrl(options: SignUrlOptions) {
   const {
-    url,
     keyPairId,
     privateKey,
     expireIn = HOUR,
     customPolicy,
   } = options;
 
+  const url = new URL(options.url);
   const expiresEpoch = Math.floor(Date.now() + expireIn / 1000);
   const cryptoKey = await getCryptoKey(privateKey);
 
   const policy = customPolicy || {
     Statement: [{
-      Resource: url,
+      Resource: url.href,
       Condition: {
         DateLessThan: { "AWS:EpochTime": expiresEpoch },
       },
@@ -60,16 +60,14 @@ export async function signUrl(options: SignUrlOptions) {
     binPolicy,
   );
 
-  const signedUrl = new URL(url);
-
-  signedUrl.searchParams.append("Signature", encodeBase64(signature));
-  signedUrl.searchParams.append("Key-Pair-Id", keyPairId);
+  url.searchParams.append("Signature", encodeBase64(signature));
+  url.searchParams.append("Key-Pair-Id", keyPairId);
 
   if (customPolicy) {
-    signedUrl.searchParams.append("Policy", encodeBase64(binPolicy));
+    url.searchParams.append("Policy", encodeBase64(binPolicy));
   } else {
-    signedUrl.searchParams.append("Expires", expiresEpoch.toString());
+    url.searchParams.append("Expires", expiresEpoch.toString());
   }
 
-  return signedUrl.href;
+  return url.href;
 }

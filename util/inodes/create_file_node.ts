@@ -8,19 +8,24 @@ import { setFileNodeStats } from "../kv/filenodes_stats.ts";
 import { getInodeById, keys as inodesKeys } from "../kv/inodes.ts";
 import { kv } from "../kv/kv.ts";
 import { type QueueMsgDeleteS3Objects } from "../queue/delete_s3_objects.ts";
-import { type QueueMsgPostProcessImageNodes } from "../queue/post_process_image_nodes.ts";
-import { type QueueMsgPostProcessVideoNode } from "../queue/post_process_video_node.ts";
+import { type QueueMsgPostProcessFileNodes } from "../queue/post_process/post_process_file_nodes.ts";
+import { type QueueMsgPostProcessVideoNodes } from "../queue/post_process/post_process_video_node.ts";
 import type { User } from "../types.ts";
-import { isImageNode, isVideoNode } from "./helpers.ts";
+import {
+  isImageNode,
+  isLibreProcessable,
+  isPostProcessable,
+  isVideoNode,
+} from "./helpers.ts";
 import { setAnyInode } from "./kv_wrappers.ts";
-import type { DirNode, FileNode, Inode } from "./types.ts";
+import type { DirNode, FileNode, Inode, PostProcessor } from "./types.ts";
 
 interface CompletedUploadWithFileSize extends s3.CompletedMultipartUpload {
   fileSize: number;
 }
 
 interface CreatFileNodesFromUploadsOpt {
-  dirEntry: Deno.KvEntryMaybe<DirNode>;
+  dirEntry: Deno.KvEntryMaybe<Inode>;
   dirId: string;
   user: User;
   origin: string;
@@ -31,24 +36,38 @@ export async function createFileNodesFromUploads(
   options: CreatFileNodesFromUploadsOpt,
 ) {
   const completedUploadIds = [];
-  const completedImageNodes = [];
+
+  const appProcessables: Record<PostProcessor, FileNode[]> = {
+    image: [],
+    libre: [],
+  };
 
   for (const upload of uploads) {
     const fileNode = await createFileNode(upload, options);
+
     if (!fileNode) {
       await cleanupUnsavedFileNodes(uploads, completedUploadIds);
       break;
     }
+
     completedUploadIds.push(upload.uploadId);
-    if (isImageNode(fileNode)) completedImageNodes.push(fileNode);
+
+    if (isImageNode(fileNode)) {
+      appProcessables.image.push(fileNode);
+    } else if (isLibreProcessable(fileNode)) {
+      appProcessables.libre.push(fileNode);
+    }
   }
 
-  if (completedImageNodes.length) {
-    await enqueue<QueueMsgPostProcessImageNodes>({
-      type: "post-process-image-nodes",
-      origin: options.origin,
-      items: completedImageNodes.map((it) => pick(it, ["id", "s3Key", "name"])),
-    }).commit();
+  for (const [processor, inodes] of Object.entries(appProcessables)) {
+    if (inodes.length) {
+      await enqueue<QueueMsgPostProcessFileNodes>({
+        type: "post-process-file-nodes",
+        processor: processor as PostProcessor,
+        origin: options.origin,
+        items: inodes.map((it) => pick(it, ["id", "s3Key", "name"])),
+      }).commit();
+    }
   }
 
   return completedUploadIds;
@@ -97,15 +116,18 @@ async function createFileNode(
     const atomic = kv.atomic();
     atomic.check(dirEntry, fileNodeNullCheck);
 
-    if (isVideoNode(fileNode)) {
-      fileNode.mediaConvert = { status: "PENDING" };
-      enqueue<QueueMsgPostProcessVideoNode>({
-        type: "post-process-video-node",
-        inodeId: fileNode.id,
-        origin,
-      }, atomic);
-    } else if (isImageNode(fileNode)) {
+    if (isPostProcessable(fileNode)) {
       fileNode.postProcess = { status: "PENDING" };
+
+      if (isVideoNode(fileNode)) {
+        enqueue<QueueMsgPostProcessVideoNodes>({
+          type: "post-process-video-node",
+          inodeId: fileNode.id,
+          origin,
+        }, atomic);
+      } else if (isLibreProcessable(fileNode)) {
+        fileNode.postProcess.previewType = "pdf";
+      }
     }
 
     setAnyInode(fileNode, atomic);

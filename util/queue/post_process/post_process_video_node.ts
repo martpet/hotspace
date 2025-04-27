@@ -1,17 +1,17 @@
 import { mediaconvert } from "$aws";
-import { getSigner } from "../../util/aws.ts";
-import { AWS_REGION } from "../../util/consts.ts";
-import { isVideoNode } from "../../util/inodes/helpers.ts";
-import { setAnyInode } from "../../util/inodes/kv_wrappers.ts";
-import type { VideoNode } from "../../util/inodes/types.ts";
-import { getInodeById } from "../../util/kv/inodes.ts";
+import { getSigner } from "../../aws.ts";
+import { AWS_REGION } from "../../consts.ts";
+import { isVideoNode } from "../../inodes/helpers.ts";
+import { setAnyInode } from "../../inodes/kv_wrappers.ts";
 import {
   createJobOptions,
   JobOptionsInput,
-} from "../../util/mediaconvert/job_options.ts";
-import { getDevAppUrl } from "../../util/url.ts";
+} from "../../inodes/mediaconvert/job_options.ts";
+import type { VideoNode } from "../../inodes/types.ts";
+import { getInodeById } from "../../kv/inodes.ts";
+import { getDevAppUrl } from "../../url.ts";
 
-export interface QueueMsgPostProcessVideoNode {
+export interface QueueMsgPostProcessVideoNodes {
   type: "post-process-video-node";
   inodeId: string;
   origin: string;
@@ -19,9 +19,9 @@ export interface QueueMsgPostProcessVideoNode {
 
 export function isPostProcessVideoNode(
   msg: unknown,
-): msg is QueueMsgPostProcessVideoNode {
+): msg is QueueMsgPostProcessVideoNodes {
   const { type, inodeId, origin } = msg as Partial<
-    QueueMsgPostProcessVideoNode
+    QueueMsgPostProcessVideoNodes
   >;
   return typeof msg === "object" &&
     type === "post-process-video-node" &&
@@ -30,7 +30,7 @@ export function isPostProcessVideoNode(
 }
 
 export async function handlePostProcessVideoNode(
-  msg: QueueMsgPostProcessVideoNode,
+  msg: QueueMsgPostProcessVideoNodes,
 ) {
   const { inodeId, origin } = msg;
   let inodeEntry = await getInodeById(inodeId);
@@ -51,7 +51,7 @@ export async function handlePostProcessVideoNode(
   };
 
   const inodePatch = {
-    mediaConvert: inode.mediaConvert,
+    postProcess: inode.postProcess,
   } satisfies Partial<VideoNode>;
 
   let jobId;
@@ -62,9 +62,9 @@ export async function handlePostProcessVideoNode(
       signer: getSigner(),
       region: AWS_REGION,
     });
-    inodePatch.mediaConvert.jobId = jobId;
+    inodePatch.postProcess.jobId = jobId;
   } catch (err) {
-    inodePatch.mediaConvert.status = "ERROR";
+    inodePatch.postProcess.status = "ERROR";
     console.error(err);
   }
 

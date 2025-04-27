@@ -12,7 +12,7 @@ export default function Loader(props: Props) {
   return (
     <p {...rest} class={classes.join(" ")}>
       <span class="spinner" /> {children}
-      {ellipsis && "…"}
+      {ellipsis && children && "…"}
     </p>
   );
 }

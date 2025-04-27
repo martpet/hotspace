@@ -1,5 +1,9 @@
 import { s3 } from "$aws";
-import { initUploads, type UploadInitData } from "$upload";
+import {
+  type InitUploadOptions,
+  initUploads,
+  type UploadInitData,
+} from "$upload";
 import { DAY } from "@std/datetime";
 import { STATUS_CODE } from "@std/http";
 import { HEADER } from "@std/http/unstable-header";
@@ -39,7 +43,7 @@ export default async function initiateUploadHandler(ctx: AppContext) {
 
   const { uploadsInitData } = reqData;
 
-  const headersFn = (upload: UploadInitData) => {
+  const headersFn: InitUploadOptions["headersFn"] = (upload) => {
     const fileName = encodeURIComponent(upload.fileName);
     return new Headers({
       [HEADER.ContentType]: upload.fileType,

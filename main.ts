@@ -21,9 +21,12 @@ import changeAcl from "./handlers/inodes/acl/change_acl.ts";
 import getAclPreview from "./handlers/inodes/acl/get_acl_preview.ts";
 import setDirByPath from "./handlers/inodes/create_dir.ts";
 import deleteInodes from "./handlers/inodes/delete.ts";
-import listenImageProcessing from "./handlers/inodes/listen_image_processing.ts";
-import listenVideoConverting from "./handlers/inodes/listen_video_converting.ts";
-import showInode from "./handlers/inodes/show_inode.ts";
+import getFile from "./handlers/inodes/get_file.ts";
+import listenImageProcessing from "./handlers/inodes/listen_processing/listen_image_processing.ts";
+import listenPdfProcessing from "./handlers/inodes/listen_processing/listen_pdf_processing.ts";
+import listenVideoProcessing from "./handlers/inodes/listen_processing/listen_video_processing.ts";
+import showDirHandler from "./handlers/inodes/show_dir.tsx";
+import showFileHandler from "./handlers/inodes/show_file.tsx";
 import completeUpload from "./handlers/inodes/upload/complete.tsx";
 import initiateUpload from "./handlers/inodes/upload/initiate.tsx";
 import videoPlaylist from "./handlers/inodes/video_playlist.ts";
@@ -69,15 +72,22 @@ app.post("/auth/cred-request-verify", credReqVer);
 app.post("/auth/passkey-delete", passkeyDelete);
 app.post("/auth/passkey-rename", passkeyRename);
 
+app.post("/webhooks/aws", awsWebhookHandler);
+
+app.get("/admin", showAdmin);
+app.post("/admin/settings", postSettings);
+
 app.post("/inodes/dirs", setDirByPath);
 app.post("/inodes/delete", deleteInodes);
 app.post("/inodes/upload/initiate", initiateUpload);
 app.post("/inodes/upload/complete", completeUpload);
+app.get("/inodes/file/:inodeId", getFile);
 app.get("/inodes/video-playlist/:inodeId/:renditionIndex", videoPlaylist);
 app.post("/inodes/acl", changeAcl);
 app.get("/inodes/acl-preview/:inodeId", getAclPreview);
-app.get("/inodes/listen-video-converting/:inodeId", listenVideoConverting);
+app.get("/inodes/listen-video-processing/:inodeId", listenVideoProcessing);
 app.get("/inodes/listen-image-processing/:inodeId", listenImageProcessing);
+app.get("/inodes/listen-pdf-processing/:inodeId", listenPdfProcessing);
 
 app.get("/chat/lazy-load/:chatId", chatLazyLoad);
 app.get("/chat/connection/:chatId", chatConnection);
@@ -87,12 +97,8 @@ app.all("/chat/subs", chatSubs);
 app.post("/push-subs/subscribers", subscribers);
 app.get("/push-subs/vapid", vapid);
 
-app.post("/webhooks/aws", awsWebhookHandler);
-
-app.get("/admin", showAdmin);
-app.post("/admin/settings", postSettings);
-
-app.get("*", showInode);
+app.get("*/", showDirHandler);
+app.get("*", showFileHandler);
 
 let serveOptions;
 

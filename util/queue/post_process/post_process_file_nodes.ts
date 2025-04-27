@@ -1,30 +1,39 @@
 import { sqs } from "$aws";
 import { newQueue } from "@henrygd/queue";
-import { getSigner } from "../../util/aws.ts";
-import { AWS_REGION, IMAGE_PROCESSOR_SQS_URL } from "../../util/consts.ts";
-import { isImageNode } from "../../util/inodes/helpers.ts";
-import { setAnyInode } from "../../util/inodes/kv_wrappers.ts";
-import type { FileNode, ImageNode, Inode } from "../../util/inodes/types.ts";
-import { getInodeById, keys as getInodeKey } from "../../util/kv/inodes.ts";
-import { getManyEntries } from "../../util/kv/kv.ts";
-import { getDevAppUrl } from "../../util/url.ts";
+import { getSigner } from "../../aws.ts";
+import {
+  AWS_REGION,
+  IMAGE_PROCESSOR_SQS_URL,
+  LIBRE_PROCESSOR_SQS_URL,
+} from "../../consts.ts";
+import { isPostProcessedFileNode } from "../../inodes/helpers.ts";
+import { setAnyInode } from "../../inodes/kv_wrappers.ts";
+import type {
+  FileNode,
+  Inode,
+  PostProcessedFileNode,
+  PostProcessor,
+} from "../../inodes/types.ts";
+import { getInodeById, keys as getInodeKey } from "../../kv/inodes.ts";
+import { getManyEntries } from "../../kv/kv.ts";
+import { getDevAppUrl } from "../../url.ts";
 
-type PartialInode = Pick<FileNode, "id" | "s3Key" | "name">;
-
-export interface QueueMsgPostProcessImageNodes {
-  type: "post-process-image-nodes";
-  items: PartialInode[];
+export interface QueueMsgPostProcessFileNodes {
+  type: "post-process-file-nodes";
+  processor: PostProcessor;
+  items: Pick<FileNode, "id" | "s3Key" | "name">[];
   origin: string;
 }
 
-export function isPostProcessImageNodes(
+export function isPostProcessFileNodes(
   msg: unknown,
-): msg is QueueMsgPostProcessImageNodes {
-  const { type, items, origin } = msg as Partial<
-    QueueMsgPostProcessImageNodes
+): msg is QueueMsgPostProcessFileNodes {
+  const { type, processor, items, origin } = msg as Partial<
+    QueueMsgPostProcessFileNodes
   >;
   return typeof msg === "object" &&
-    type === "post-process-image-nodes" &&
+    type === "post-process-file-nodes" &&
+    (processor === "image" || processor === "libre") &&
     typeof origin === "string" &&
     Array.isArray(items) &&
     items.every((item) =>
@@ -33,11 +42,18 @@ export function isPostProcessImageNodes(
     );
 }
 
-export async function handlePostProcessImageNodes(
-  msg: QueueMsgPostProcessImageNodes,
+export async function handlePostProcessFileNodes(
+  msg: QueueMsgPostProcessFileNodes,
 ) {
-  const { items, origin } = msg;
+  const { processor, items, origin } = msg;
   const devAppUrl = getDevAppUrl(origin);
+
+  const sqsUrlByProcessor: Record<PostProcessor, string> = {
+    image: IMAGE_PROCESSOR_SQS_URL,
+    libre: LIBRE_PROCESSOR_SQS_URL,
+  };
+
+  const sqsUrl = sqsUrlByProcessor[processor];
 
   const sqsMessages = items.map((item) => ({
     id: item.id,
@@ -51,7 +67,7 @@ export async function handlePostProcessImageNodes(
 
   const failedIds = await sqs.sendMessageBatch({
     messages: sqsMessages,
-    sqsUrl: IMAGE_PROCESSOR_SQS_URL,
+    sqsUrl,
     region: AWS_REGION,
     signer: getSigner(),
   });
@@ -68,7 +84,7 @@ async function handleFailedMsgs(ids: string[]) {
 
   for (let entry of entries) {
     queue.add(async () => {
-      if (!isImageNode(entry.value)) {
+      if (!isPostProcessedFileNode(entry.value)) {
         return;
       }
       let commit = { ok: false };
@@ -77,10 +93,10 @@ async function handleFailedMsgs(ids: string[]) {
         if (commitIndex) {
           entry = await getInodeById(entry.value.id);
         }
-        if (!isImageNode(entry.value)) {
+        if (!isPostProcessedFileNode(entry.value)) {
           return;
         }
-        const atomic = setAnyInode<ImageNode>({
+        const atomic = setAnyInode<PostProcessedFileNode>({
           ...entry.value,
           postProcess: {
             ...entry.value.postProcess,

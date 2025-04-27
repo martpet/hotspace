@@ -314,10 +314,12 @@ export function insertFlash(flash) {
   let classes = ["flash", "alert", flash.type || "success"];
   if (flash.autoHide !== false) classes.push("auto-hide");
   document.getElementById("flash")?.remove();
-  document.getElementById("page-header").insertAdjacentHTML(
-    "afterend",
-    `<dialog open class="${classes.join(" ")}">${flash.msg}</dialog>`,
-  );
+  document
+    .getElementById("page-header")
+    .insertAdjacentHTML(
+      "afterend",
+      `<dialog open class="${classes.join(" ")}">${flash.msg}</dialog>`
+    );
 }
 
 export function setFromCookie(str) {

@@ -1,11 +1,11 @@
 const videoEl = document.getElementById("video");
-const convertingEl = document.getElementById("video-converting");
-const { videoUrl, inodeId, supportsHls, hlsWorkerPath } = videoEl.dataset;
+const loaderEl = document.getElementById("file-preview-loader");
+const { inodeId, supportsHls, playlistUrl, hlsWorkerPath } = videoEl.dataset;
 
-if (videoUrl) {
-  loadHlsFallback(videoUrl);
+if (playlistUrl) {
+  loadHlsFallback(playlistUrl);
 } else {
-  listenVideoConverting();
+  listenFileProcessing();
 }
 
 async function loadHlsFallback(url) {
@@ -17,11 +17,11 @@ async function loadHlsFallback(url) {
   }
 }
 
-function listenVideoConverting() {
-  const path = `/inodes/listen-video-converting/${inodeId}`;
+function listenFileProcessing() {
+  const path = `/inodes/listen-video-processing/${inodeId}`;
   const evtSource = new EventSource(path);
   evtSource.onmessage = (evt) => handleConvertEvent(evt, evtSource);
-  evtSource.onerror = () => listenVideoConverting();
+  evtSource.onerror = () => listenFileProcessing();
 }
 
 function handleConvertEvent(evt, evtSource) {
@@ -30,16 +30,16 @@ function handleConvertEvent(evt, evtSource) {
     evtSource.close();
   }
   if (status === "COMPLETE") {
-    handleCompleteMsg(playlistDataUrl);
+    handleComplete(playlistDataUrl);
   } else if (status === "ERROR") {
-    handleErrorMsg();
+    handleError();
   } else if (status === "PENDING") {
     handleProgressMsg(percentComplete);
   }
 }
 
-function handleCompleteMsg(url) {
-  convertingEl.remove();
+function handleComplete(url) {
+  loaderEl.remove();
   videoEl.hidden = false;
   if (supportsHls) {
     videoEl.src = url;
@@ -48,11 +48,11 @@ function handleCompleteMsg(url) {
   }
 }
 
-function handleErrorMsg() {
-  const errorEl = document.getElementById("video-converting-error");
+function handleError() {
+  const errorEl = document.getElementById("file-preview-error");
   errorEl.hidden = false;
   videoEl.hidden = true;
-  convertingEl.remove();
+  loaderEl.remove();
 }
 
 function handleProgressMsg(perc) {

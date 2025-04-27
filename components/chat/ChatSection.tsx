@@ -1,4 +1,5 @@
 import { CHAT_MSG_FOLLOWUP_DURATION, type ChatMessage } from "$chat";
+import { type ResourcePermissions } from "$util";
 import { CHAT_SUB_WITHOUT_PUSH_SUB_EXPIRES } from "../../util/consts.ts";
 import type { AppContext } from "../../util/types.ts";
 import { asset } from "../../util/url.ts";
@@ -14,7 +15,7 @@ type Props = (PropsWithLazyLoad | PropsWithoutLazyLoad) & {
   enabled: boolean | undefined;
   chatId: string;
   chatTitle: string;
-  canModerate: boolean;
+  permissions: ResourcePermissions;
 };
 
 interface PropsWithLazyLoad {
@@ -32,7 +33,7 @@ export default function ChatSection(props: Props, ctx: AppContext) {
     chatId,
     enabled,
     chatTitle,
-    canModerate,
+    permissions,
     messages,
     olderMsgsCursor,
   } = props;
@@ -43,6 +44,7 @@ export default function ChatSection(props: Props, ctx: AppContext) {
 
   const { locale } = ctx;
   const { dateTimeFmt, timeFmt } = chatIntlFmt(locale);
+  const { canModerate } = permissions;
 
   return (
     <section

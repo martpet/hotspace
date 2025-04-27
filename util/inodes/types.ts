@@ -13,7 +13,9 @@ export interface AclDiffWithUserId {
   role: AclRole | null;
 }
 
+export type PostProcessor = "image" | "libre";
 export type InodeLabel = "Space" | "Folder" | "File";
+export type ImagePreviewSize = "md" | "sm";
 
 export type Inode = DirNode | FileNode | VideoNode;
 
@@ -40,13 +42,21 @@ export interface FileNode extends InodeBase {
   s3Key: string;
 }
 
-export interface VideoNode extends FileNode {
-  fileType: `video/${string}`;
-  mediaConvert: {
+export interface PostProcessedFileNode extends FileNode {
+  postProcess: {
     status: "PENDING" | "COMPLETE" | "ERROR";
+    stateChangeDate?: Date;
+    previewType?: "pdf";
+  };
+}
+
+export interface VideoNode extends PostProcessedFileNode {
+  fileType: `video/${string}`;
+  postProcess: {
+    status: "PENDING" | "COMPLETE" | "ERROR";
+    stateChangeDate?: Date;
     jobId?: string;
     percentComplete?: number;
-    stateChangeUnixTimestamp?: number;
     playlistDataUrl?: string;
     subPlaylistsS3Keys?: string[];
     streamType?: "hls";
@@ -56,11 +66,11 @@ export interface VideoNode extends FileNode {
   };
 }
 
-export interface ImageNode extends FileNode {
+export interface ImageNode extends PostProcessedFileNode {
   fileType: `image/${string}`;
   postProcess: {
     status: "PENDING" | "COMPLETE" | "ERROR";
-    stateChangeIsoTimestamp?: string;
+    stateChangeDate?: Date;
     width?: number;
     height?: number;
     exif?: Exif;

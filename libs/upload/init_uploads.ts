@@ -1,14 +1,16 @@
 import { type AwsCredentials, s3 } from "$aws";
 import { newQueue } from "@henrygd/queue";
 import { DAY } from "@std/datetime";
+import { contentType, parseMediaType } from "@std/media-types";
 import { getSignatureKey, getSignedUrl } from "aws_s3_presign";
 import { AWSSignerV4 } from "deno_aws_sign_v4";
+import { extraMediaTypesByExtension } from "./consts.ts";
 import type { SavedUpload, UploadInitData } from "./utils/types.ts";
 
 const QUEUE_CONCURRENCY = 10;
 const DEFAULT_SIGNED_URL_EXPIRES_IN = DAY / 1000;
 
-interface Options {
+export interface InitUploadOptions {
   uploadsInitData: UploadInitData[];
   region: string;
   bucket: string;
@@ -20,7 +22,7 @@ interface Options {
   headersFn?: (u: UploadInitData) => Headers;
 }
 
-export async function initUploads(options: Options) {
+export async function initUploads(options: InitUploadOptions) {
   const {
     uploadsInitData,
     region,
@@ -46,9 +48,10 @@ export async function initUploads(options: Options) {
   });
 
   const uploadsResult = await Promise.all(
-    uploadsInitData.map((uplaod) =>
+    uploadsInitData.map((upload) =>
       queue.add(async () => {
-        const { numberOfParts, savedUpload } = uplaod;
+        const { numberOfParts, savedUpload } = upload;
+        const fileType = upload.fileType || findFileType(upload) || "";
         const finishedPartsNumbers = [];
         let uploadId;
         let s3Key;
@@ -67,7 +70,7 @@ export async function initUploads(options: Options) {
             s3Key,
             bucket,
             signer,
-            headers: headersFn?.(uplaod),
+            headers: headersFn?.({ ...upload, fileType }),
           });
           finishedParts = [];
           createdOn = Date.now();
@@ -95,6 +98,7 @@ export async function initUploads(options: Options) {
 
         return {
           uploadId,
+          fileType,
           s3Key,
           createdOn,
           finishedParts,
@@ -116,4 +120,12 @@ function isValidSavedUpload(
 ): upload is SavedUpload {
   return typeof upload !== "undefined" &&
     Date.now() - upload.createdOn < savedUploadExpiresIn;
+}
+
+function findFileType(upload: UploadInitData) {
+  const ext = upload.fileName.split(".").at(-1);
+  if (!ext) return;
+  const cTypeHeader = contentType(`.${ext}`);
+  if (!cTypeHeader) return extraMediaTypesByExtension[ext];
+  return parseMediaType(cTypeHeader)[0];
 }

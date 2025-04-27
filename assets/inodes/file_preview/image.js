@@ -1,14 +1,19 @@
 const imageEl = document.getElementById("image");
-const processingEl = document.getElementById("image-processing");
-const { inodeId } = imageEl.dataset;
+const loaderEl = document.getElementById("file-preview-loader");
+const { inodeId, processingTimeout } = imageEl.dataset;
+let isComplete;
 
-listenImageProcessing();
+setTimeout(() => {
+  if (!isComplete) handleError();
+}, processingTimeout);
 
-function listenImageProcessing() {
+listenFileProcessing();
+
+function listenFileProcessing() {
   const path = `/inodes/listen-image-processing/${inodeId}`;
   const evtSource = new EventSource(path);
   evtSource.onmessage = (evt) => handleProcessingEvent(evt, evtSource);
-  evtSource.onerror = () => listenImageProcessing();
+  evtSource.onerror = () => listenFileProcessing();
 }
 
 function handleProcessingEvent(evt, evtSource) {
@@ -17,21 +22,22 @@ function handleProcessingEvent(evt, evtSource) {
     evtSource.close();
   }
   if (status === "COMPLETE") {
-    handleCompleteMsg(imageUrl);
+    handleComplete(imageUrl);
   } else if (status === "ERROR") {
-    handleErrorMsg();
+    handleError();
   }
 }
 
-function handleCompleteMsg(imageUrl) {
-  processingEl.remove();
+function handleComplete(imageUrl) {
+  let isComplete;
+  loaderEl.remove();
   imageEl.hidden = false;
   imageEl.src = imageUrl;
 }
 
-function handleErrorMsg() {
-  const errorEl = document.getElementById("image-processing-error");
+function handleError() {
+  const errorEl = document.getElementById("file-preview-error");
   errorEl.hidden = false;
   imageEl.hidden = true;
-  processingEl.remove();
+  loaderEl.remove();
 }

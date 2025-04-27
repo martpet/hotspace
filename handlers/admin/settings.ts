@@ -3,8 +3,8 @@ import { STATUS_CODE } from "@std/http";
 import { isSuperAdmin } from "../../util/admin/utils.ts";
 import { BUDGET_PERIOD_TYPES } from "../../util/consts.ts";
 import { extractFormDataArray } from "../../util/form.ts";
+import type { MediaConvertPricing } from "../../util/inodes/mediaconvert/types.ts";
 import { setAppSettings } from "../../util/kv/app_settings.ts";
-import type { MediaConvertPricing } from "../../util/mediaconvert/types.ts";
 import type { AppBudget, AppContext, AppSettings } from "../../util/types.ts";
 
 export default async function postSettingsHandler(ctx: AppContext) {

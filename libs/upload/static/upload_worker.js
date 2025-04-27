@@ -200,7 +200,7 @@ class Uploader {
   async complete() {
     const uploads = Array.from(this.uploads.values()).map((upload) => ({
       fileName: upload.file.name,
-      fileType: upload.file.type,
+      fileType: upload.fileType,
       ...pick(upload, ["uploadId", "s3Key", "checksum", "finishedParts"]),
     }));
 

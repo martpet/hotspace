@@ -73,7 +73,7 @@ function isValidReqData(data: unknown): data is ReqData {
       return typeof s3Key === "string" &&
         typeof uploadId === "string" &&
         typeof fileName === "string" &&
-        typeof fileType === "string" &&
+        (typeof fileType === "string" || fileType === null) &&
         typeof checksum === "string" &&
         Array.isArray(finishedParts) &&
         typeof finishedParts[0].partNumber === "number" &&

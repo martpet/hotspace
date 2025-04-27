@@ -227,7 +227,7 @@ function insertDialog() {
             <p>
               <label>
                 <input id="pub-acl" type="checkbox" ${pubAccessCheckAttr} />
-                Public access enabled
+                Public access
               </label>
             </p>
             <fieldset class="permissions">
@@ -242,7 +242,7 @@ function insertDialog() {
             </footer>
           </form>
         </dialog>
-      `,
+      `
   );
   dialog = document.getElementById("acl-dialog");
   form = document.getElementById("acl-form");
@@ -256,7 +256,7 @@ function insertDialog() {
 }
 
 function renderAcl() {
-  const sortCurrentUserFirst = ([name]) => name === userUsername ? -1 : 0;
+  const sortCurrentUserFirst = ([name]) => (name === userUsername ? -1 : 0);
   const entries = Object.entries(aclSignal.value).sort(sortCurrentUserFirst);
   const elements = entries.map((aclItem) => createAclEl(aclItem));
   aclRoot.replaceChildren(...elements);
@@ -286,13 +286,13 @@ function createAclEl(aclItem) {
     aclEl.append(inputEl);
     aclEl.insertAdjacentHTML(
       "beforeend",
-      createRoleSelectHtml({ withPrompt: true }),
+      createRoleSelectHtml({ withPrompt: true })
     );
   }
   if (aclUsername !== userUsername) {
     aclEl.insertAdjacentHTML(
       "beforeend",
-      '<button type="button" class="acl-remove-item">Remove</button>',
+      '<button type="button" class="acl-remove-item">Remove</button>'
     );
   }
   return aclEl;
@@ -344,7 +344,7 @@ function renderError(msg) {
 
 function disableControls(disabled) {
   const controls = dialog.querySelectorAll("button, input, select");
-  controls.forEach((el) => el.disabled = disabled);
+  controls.forEach((el) => (el.disabled = disabled));
 }
 
 function showSubmitting(enable) {
@@ -354,5 +354,5 @@ function showSubmitting(enable) {
 
 function enableShowDialogButtons() {
   const buttons = document.querySelectorAll(SHOW_DIALOG_SELECTOR);
-  buttons.forEach((btn) => btn.disabled = false);
+  buttons.forEach((btn) => (btn.disabled = false));
 }

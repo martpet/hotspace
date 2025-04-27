@@ -15,9 +15,12 @@ import { kv } from "../kv/kv.ts";
 import { type QueueMsgCleanUpInode } from "../queue/clean_up_inode.ts";
 import { type QueueMsgDeleteDirChildren } from "../queue/delete_dir_children.ts";
 import { type QueueMsgDeleteS3Objects } from "../queue/delete_s3_objects.ts";
-import { isFileNodeWithS3Prefixes, isVideoNode } from "./helpers.ts";
+import { isPostProcessedFileNode, isVideoNode } from "./helpers.ts";
 
-export function setAnyInode<T extends Inode>(inode: T, atomic = kv.atomic()) {
+export function setAnyInode<T extends Inode>(
+  inode: T,
+  atomic = kv.atomic(),
+) {
   setInode(inode, atomic);
   if (inode.type === "dir") {
     setDirByPath(inode, atomic);
@@ -38,8 +41,8 @@ export async function deleteInodesRecursive(inodes: Inode[]) {
     deleteAnyInode(inode, atomic);
 
     let pendingMediaConvertJob;
-    if (isVideoNode(inode) && inode.mediaConvert.status === "PENDING") {
-      pendingMediaConvertJob = inode.mediaConvert.jobId;
+    if (isVideoNode(inode) && inode.postProcess.status === "PENDING") {
+      pendingMediaConvertJob = inode.postProcess.jobId;
     }
 
     enqueue<QueueMsgCleanUpInode>({
@@ -58,7 +61,7 @@ export async function deleteInodesRecursive(inodes: Inode[]) {
     if (inode.type === "file") {
       s3KeysToDelete.push({
         name: inode.s3Key,
-        isPrefix: isFileNodeWithS3Prefixes(inode),
+        isPrefix: isPostProcessedFileNode(inode),
       });
     }
 

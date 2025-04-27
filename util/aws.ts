@@ -24,7 +24,7 @@ export type SignCloudfrontUrlOptions = Pick<
 >;
 
 export function signCloudfrontUrl(
-  url: string,
+  url: cloudfront.SignUrlOptions["url"],
   options: SignCloudfrontUrlOptions = {},
 ) {
   return cloudfront.signUrl({
