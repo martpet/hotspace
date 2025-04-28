@@ -21,7 +21,7 @@ export function isVideoNode(inode: Inode | null): inode is VideoNode {
 
 export function isImageNode(inode: Inode | null): inode is ImageNode {
   return isFileNode(inode) && inode.fileType.startsWith("image/") &&
-    inode.fileType !== "image/x-wmf";
+    inode.fileType !== "image/wmf";
 }
 
 export function isLibreProcessable(

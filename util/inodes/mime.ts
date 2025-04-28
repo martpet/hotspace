@@ -1,5 +1,7 @@
 export const MIME_PREVIEWABLE_AS_TEXT = [
   "application/x-javascript",
+  "application/json",
+  "application/xml",
 ];
 
 export const LIBRE_OFFICE_MIME_SUPPORT = [
@@ -9,7 +11,7 @@ export const LIBRE_OFFICE_MIME_SUPPORT = [
   "application/rtf",
   "text/rtf",
   "application/x-msmetafile",
-  "image/x-wmf",
+  "image/wmf",
   "application/vnd.ms-excel",
   "application/vnd.ms-powerpoint",
   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
