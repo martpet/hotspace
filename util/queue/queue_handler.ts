@@ -25,9 +25,9 @@ import {
   isGeneralMediaProcessorEvent,
 } from "./post_processor_event/general_media_processor_event.ts";
 import {
-  handleImageProcessorEvent,
-  isImageProcessorEvent,
-} from "./post_processor_event/image_processor_event.ts";
+  handleSharpProcessorEvent,
+  isSharpProcessorEvent,
+} from "./post_processor_event/sharp_processor_event.ts";
 import {
   handleVideoProcessorEvent,
   isVideoProcessorEvent,
@@ -47,7 +47,7 @@ export function queueHandler(msg: unknown) {
   if (isPostProcessVideoNode(msg)) return handlePostProcessVideoNode(msg);
   if (isPostProcessFileNodes(msg)) return handlePostProcessFileNodes(msg);
   if (isVideoProcessorEvent(msg)) return handleVideoProcessorEvent(msg);
-  if (isImageProcessorEvent(msg)) return handleImageProcessorEvent(msg);
+  if (isSharpProcessorEvent(msg)) return handleSharpProcessorEvent(msg);
   if (isGeneralMediaProcessorEvent(msg)) {
     return handleGeneralMediaProcessorEvent(msg);
   }

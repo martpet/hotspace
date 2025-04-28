@@ -2,8 +2,8 @@ import { patchPostProcessedNode } from "../../inodes/post_process/post_process.t
 import type { Exif, ImageNode } from "../../inodes/types.ts";
 import { getInodeById } from "../../kv/inodes.ts";
 
-export interface QueueMsgImageProcessorEvent {
-  type: "image-processor-event";
+export interface QueueMsgSharpProcessorEvent {
+  type: "sharp-processor-event";
   time: "string";
   detail: {
     status: "COMPLETE" | "ERROR";
@@ -15,14 +15,14 @@ export interface QueueMsgImageProcessorEvent {
   };
 }
 
-export function isImageProcessorEvent(
+export function isSharpProcessorEvent(
   msg: unknown,
-): msg is QueueMsgImageProcessorEvent {
+): msg is QueueMsgSharpProcessorEvent {
   const { type, time, detail } = msg as Partial<
-    QueueMsgImageProcessorEvent
+    QueueMsgSharpProcessorEvent
   >;
   return typeof msg === "object" &&
-    type === "image-processor-event" &&
+    type === "sharp-processor-event" &&
     typeof time === "string" &&
     typeof detail === "object" &&
     typeof detail.inodeS3Key === "string" &&
@@ -45,8 +45,8 @@ export function isImageProcessorEvent(
     );
 }
 
-export async function handleImageProcessorEvent(
-  msg: QueueMsgImageProcessorEvent,
+export async function handleSharpProcessorEvent(
+  msg: QueueMsgSharpProcessorEvent,
 ) {
   const { inodeId, inodeS3Key, status, width, height, exif } = msg.detail;
   const stateChangeDate = new Date(msg.time);

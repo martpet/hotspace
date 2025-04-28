@@ -3,8 +3,8 @@ import { newQueue } from "@henrygd/queue";
 import { getSigner } from "../../aws.ts";
 import {
   AWS_REGION,
-  IMAGE_PROCESSOR_SQS_URL,
   LIBRE_PROCESSOR_SQS_URL,
+  SHARP_PROCESSOR_SQS_URL,
 } from "../../consts.ts";
 import { isPostProcessedFileNode } from "../../inodes/helpers.ts";
 import { setAnyInode } from "../../inodes/kv_wrappers.ts";
@@ -49,7 +49,7 @@ export async function handlePostProcessFileNodes(
   const devAppUrl = getDevAppUrl(origin);
 
   const sqsUrlByProcessor: Record<PostProcessor, string> = {
-    image: IMAGE_PROCESSOR_SQS_URL,
+    image: SHARP_PROCESSOR_SQS_URL,
     libre: LIBRE_PROCESSOR_SQS_URL,
   };
 

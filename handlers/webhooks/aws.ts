@@ -2,7 +2,7 @@ import { STATUS_CODE } from "@std/http";
 import { AWS_WEBHOOKS_KEY } from "../../util/consts.ts";
 import { enqueue } from "../../util/kv/enqueue.ts";
 import { QueueMsgGeneralMediaProcessorEvent } from "../../util/queue/post_processor_event/general_media_processor_event.ts";
-import { type QueueMsgImageProcessorEvent } from "../../util/queue/post_processor_event/image_processor_event.ts";
+import { type QueueMsgSharpProcessorEvent } from "../../util/queue/post_processor_event/sharp_processor_event.ts";
 import { type QueueMsgVideoProcessorEvent } from "../../util/queue/post_processor_event/video_processor_event.ts";
 import type { AppContext } from "../../util/types.ts";
 
@@ -24,9 +24,9 @@ export async function awsWebhookHandler(ctx: AppContext) {
       break;
     }
 
-    case "hotspace.image-processor": {
-      await enqueue<QueueMsgImageProcessorEvent>({
-        type: "image-processor-event",
+    case "hotspace.sharp-processor": {
+      await enqueue<QueueMsgSharpProcessorEvent>({
+        type: "sharp-processor-event",
         time: msg.time,
         detail: msg.detail,
       }).commit();
