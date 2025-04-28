@@ -4,7 +4,7 @@ export const {
   deviceType,
   osName,
   browserName,
-  canUserServiceWorker,
+  canUseServiceWorker,
   serviceWorkerPath,
   userUsername,
 } = isServiceWorkerScope ? {} : document.documentElement.dataset;
@@ -24,7 +24,7 @@ addEventListener("beforeunload", () => {
 // Service Worker Reg
 // =====================
 
-if (!isServiceWorkerScope && canUserServiceWorker) {
+if (!isServiceWorkerScope && canUseServiceWorker) {
   navigator.serviceWorker.getRegistration().then((reg) => {
     if (!reg) {
       navigator.serviceWorker.register(serviceWorkerPath, {
@@ -209,7 +209,7 @@ export async function createPushSub({ db, forceNew } = {}) {
 }
 
 export async function syncPushSub({ db } = {}) {
-  if (!canUserServiceWorker) return;
+  if (!canUseServiceWorker) return;
   if (pushSubLockSignal.value) return;
 
   pushSubLockSignal.value = true;

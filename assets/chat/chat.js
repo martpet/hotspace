@@ -1,5 +1,5 @@
 import {
-  canUserServiceWorker,
+  canUseServiceWorker,
   collapseLineBreaks,
   createPushSub,
   createSignal,
@@ -173,8 +173,7 @@ function dispatchChatEvent(event, options = {}) {
       try {
         socket.send(payload);
         return resolve({ ok: true });
-      } catch {
-      }
+      } catch {}
     }
     if (!retry) {
       return resolve({ ok: false });
@@ -229,9 +228,9 @@ const INBOUND_EVENT_HANDLERS = {
   "edited-chat-msg-resp": renderOutboundEditedMsgResp,
   "deleted-chat-msg-resp": renderOutboundDeletedMsgResp,
   "load-older-messages-resp": handleLoadOlderMsgsResp,
-  "feed": handleInboundFeed,
+  feed: handleInboundFeed,
   "user-typing": handleInboundUserTyping,
-  "error": handleInboundError,
+  error: handleInboundError,
 };
 
 function handleInboundChatEvent(chatEvent) {
@@ -330,8 +329,8 @@ function handleInboundFeed(feedItems) {
 /**
  * Window Online
  */
-addEventListener("online", () => networkOnlineSignal.value = true);
-addEventListener("offline", () => networkOnlineSignal.value = false);
+addEventListener("online", () => (networkOnlineSignal.value = true));
+addEventListener("offline", () => (networkOnlineSignal.value = false));
 
 /**
  * Window Focus
@@ -341,7 +340,7 @@ addEventListener(
   debouncedEvent(() => {
     userActive();
     syncPushSub();
-  }),
+  })
 );
 
 /**
@@ -352,7 +351,7 @@ addEventListener(
   debouncedEvent(() => {
     userActive();
   }),
-  { passive: true },
+  { passive: true }
 );
 
 /**
@@ -377,7 +376,7 @@ mainBox.addEventListener(
   debouncedEvent(() => {
     userActive();
   }),
-  { passive: true },
+  { passive: true }
 );
 
 /**
@@ -415,7 +414,7 @@ msgsBoxReady.promise.then(() => {
     "mouseover",
     debouncedEvent((event) => {
       insertMsgMenuMaybe(event.target.closest(".chat-msg"));
-    }),
+    })
   );
 });
 
@@ -490,7 +489,7 @@ function onTextareaKeydown(event) {
  * TextArea "New Message" Input
  */
 textareaNewMsg?.addEventListener("input", async () => {
-  const { prevText = "", lastSent = 0 } = currentUserTypingSession ??= {};
+  const { prevText = "", lastSent = 0 } = (currentUserTypingSession ??= {});
   const text = textareaNewMsg.value;
   const isDeleting = text.length < prevText.length;
   const now = Date.now();
@@ -541,7 +540,7 @@ function resizeObserved(entries) {
  */
 const mainBoxIntersectionObserver = new IntersectionObserver(
   mainBoxIntersectionObserved,
-  { root: mainBox },
+  { root: mainBox }
 );
 
 if (msgsLoader) {
@@ -624,8 +623,11 @@ function msgIsScrolledBellowBottom(el) {
 }
 
 function msgIsInView(el) {
-  return isInViewport(el) && !msgIsScrolledOverTop(el) &&
-    !msgIsScrolledBellowBottom(el);
+  return (
+    isInViewport(el) &&
+    !msgIsScrolledOverTop(el) &&
+    !msgIsScrolledBellowBottom(el)
+  );
 }
 
 function isFollowUpMsg({ username, createdAt, container = msgsBox }) {
@@ -639,17 +641,17 @@ function isFollowUpMsg({ username, createdAt, container = msgsBox }) {
 
 function findLastMsgByUser(username) {
   return msgsBox.querySelector(
-    `.chat-msg:nth-last-child(1 of [data-username="${username}"])`,
+    `.chat-msg:nth-last-child(1 of [data-username="${username}"])`
   );
 }
 
 async function showChatMsgNotification(msg) {
-  if (!canUserServiceWorker || hasCurrentNotification) return;
+  if (!canUseServiceWorker || hasCurrentNotification) return;
   const [db, reg] = await Promise.all([
     import("$db"),
     navigator.serviceWorker.getRegistration(),
   ]);
-  if (!await db.getChatSub(chatId)) return;
+  if (!(await db.getChatSub(chatId))) return;
   hasCurrentNotification = true;
   reg.active.postMessage({
     type: "new-chat-msg",
@@ -674,7 +676,7 @@ async function toggleChatSub(isSubscribe) {
     const isDeleted = resp.status === 204;
     const isUnprocessable = resp.status === 422;
     if (isCreated) {
-      await db.setChatSub({ ...await resp.json() });
+      await db.setChatSub({ ...(await resp.json()) });
       dispatchSubscriberOnline({ skipChatSubUpdate: true });
     } else if (isDeleted || isUnprocessable) {
       await db.deleteChatSub(chatId);
@@ -685,7 +687,7 @@ async function toggleChatSub(isSubscribe) {
 }
 
 async function checkExpiredChatSub() {
-  if (!canUserServiceWorker) return;
+  if (!canUseServiceWorker) return;
   chatSubLockSignal.value = true;
   const db = await import("$db");
   const subscriber = await db.getSubscriber();
@@ -696,9 +698,12 @@ async function checkExpiredChatSub() {
 }
 
 function isChatSubExpired(subscriber) {
-  return subscriber && !subscriber.pushSub &&
+  return (
+    subscriber &&
+    !subscriber.pushSub &&
     Date.now() - new Date(subscriber.pushSubUpdatedAt).getTime() >
-      Number(chatSubExpires);
+      Number(chatSubExpires)
+  );
 }
 
 async function dispatchSubscriberOnline({ skipChatSubUpdate } = {}) {
@@ -801,7 +806,7 @@ function renderOutboundDeletedMsg({ id }) {
   const mainEl = el.querySelector(".main");
   mainEl.insertAdjacentHTML(
     "afterbegin",
-    "<span class='spinner-xs' role='progressbar'></span>",
+    "<span class='spinner-xs' role='progressbar'></span>"
   );
   el.classList.add("deleted", "pending");
 }
@@ -847,7 +852,7 @@ function renderUsersTyping(username, isTyping = true) {
   if (isTyping) {
     typingUsers.set(
       username,
-      setTimeout(() => renderUsersTyping(username, false), 10000),
+      setTimeout(() => renderUsersTyping(username, false), 10000)
     );
   } else {
     typingUsers.delete(username);
@@ -855,10 +860,11 @@ function renderUsersTyping(username, isTyping = true) {
   if (isTyping === wasAlreadyTyping) return;
   let str = "";
   if (typingUsers.size) {
-    const limit = 3, diff = typingUsers.size - limit;
-    const names = [...typingUsers.keys()].slice(0, limit).map((username) =>
-      `<b>${username}</b>`
-    );
+    const limit = 3,
+      diff = typingUsers.size - limit;
+    const names = [...typingUsers.keys()]
+      .slice(0, limit)
+      .map((username) => `<b>${username}</b>`);
     if (diff > 0) names[limit] = `${diff} ${diff === 1 ? "other" : "others"}`;
     str = `${listFmt.format(names)} ${
       typingUsers.size === 1 ? "is" : "are"
@@ -956,7 +962,7 @@ function showChatError(msg) {
   const el = document.getElementById("chat-error");
   if (msg) {
     const html = `<p id="chat-error" class="alert error">${msg}</p>`;
-    el ? el.innerHTML = html : chatBox.insertAdjacentHTML("afterbegin", html);
+    el ? (el.innerHTML = html) : chatBox.insertAdjacentHTML("afterbegin", html);
   } else {
     el?.remove();
   }
@@ -1016,10 +1022,7 @@ function showIosChatSubHelp() {
 }
 
 function insertMsgMenuMaybe(msgEl) {
-  if (
-    !msgEl?.classList.contains("edit") &&
-    !msgEl?.classList.contains("del")
-  ) {
+  if (!msgEl?.classList.contains("edit") && !msgEl?.classList.contains("del")) {
     return;
   }
   msgEl.querySelector(".main:not(:has(.chat-msg-menu))")?.insertAdjacentHTML(
@@ -1031,7 +1034,7 @@ function insertMsgMenuMaybe(msgEl) {
           Delete
         </button>
       </span>
-    `,
+    `
   );
 }
 
@@ -1070,6 +1073,6 @@ function insertMessageDialogs() {
           </footer>
         </form>
       </dialog>
-  `,
+  `
   );
 }

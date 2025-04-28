@@ -34,7 +34,7 @@ export default function Page(props: PageProps, ctx: AppContext) {
       data-device-type={userAgent.device.type}
       data-os-name={userAgent.os.name}
       data-browser-name={userAgent.browser.name}
-      data-can-user-service-worker={ctx.state.canUseServiceWorker ? "1" : ""}
+      data-can-use-service-worker={ctx.state.canUseServiceWorker ? "1" : ""}
       data-service-worker-path={asset("service_worker.js", { cdn: false })}
       data-user-username={ctx.state.user?.username || null}
     >
