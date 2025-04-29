@@ -15,7 +15,7 @@ import { kv } from "../kv/kv.ts";
 import { type QueueMsgCleanUpInode } from "../queue/clean_up_inode.ts";
 import { type QueueMsgDeleteDirChildren } from "../queue/delete_dir_children.ts";
 import { type QueueMsgDeleteS3Objects } from "../queue/delete_s3_objects.ts";
-import { isPostProcessedFileNode, isVideoNode } from "./helpers.ts";
+import { isPostProcessedNode, isVideoNode } from "./helpers.ts";
 
 export function setAnyInode<T extends Inode>(
   inode: T,
@@ -61,7 +61,7 @@ export async function deleteInodesRecursive(inodes: Inode[]) {
     if (inode.type === "file") {
       s3KeysToDelete.push({
         name: inode.s3Key,
-        isPrefix: isPostProcessedFileNode(inode),
+        isPrefix: isPostProcessedNode(inode),
       });
     }
 

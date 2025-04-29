@@ -1,3 +1,7 @@
+- fix file preview "resize both"
+
+- convert in libreoffice to html as well (for "application/x-diff",)
+
 - send email to admin when upload automatically disabled
 
 - add stats: ['mime_count', mime, count] and ['mime_max_file_size', mime, size]

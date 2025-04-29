@@ -1,4 +1,4 @@
-export const MIME_PREVIEWABLE_AS_TEXT = [
+export const EXTRA_MIME_PREVIEWABLE_AS_TEXT = [
   "application/x-javascript",
   "application/json",
   "application/xml",
@@ -10,6 +10,7 @@ export const LIBRE_OFFICE_MIME_SUPPORT = [
   "application/msword",
   "application/rtf",
   "text/rtf",
+  "application/x-diff",
   "application/x-msmetafile",
   "image/wmf",
   "application/vnd.ms-excel",
@@ -21,4 +22,14 @@ export const LIBRE_OFFICE_MIME_SUPPORT = [
   "application/vnd.oasis.opendocument.graphics",
   "application/vnd.oasis.opendocument.formula",
   "application/vnd.oasis.opendocument.database",
+];
+
+export const SHARP_MIME_EXCEPTIONS = [
+  "image/svg+xml",
+  "image/wmf",
+];
+
+export const PANDOC_MIME_SUPPORT = [
+  "application/epub+zip",
+  "text/markdown",
 ];

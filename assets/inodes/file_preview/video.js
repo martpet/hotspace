@@ -1,61 +1,41 @@
-const videoEl = document.getElementById("video");
-const loaderEl = document.getElementById("file-preview-loader");
-const { inodeId, supportsHls, playlistUrl, hlsWorkerPath } = videoEl.dataset;
+const previewEl = document.getElementById("file-preview");
+const { supportsHls, isProcessing, playlistUrl, hlsWorkerPath } =
+  previewEl.dataset;
 
-if (playlistUrl) {
+if (!supportsHls && playlistUrl) {
   loadHlsFallback(playlistUrl);
-} else {
-  listenFileProcessing();
+}
+
+if (isProcessing) {
+  const { processingSignal } = await import("$listenPostProcessing");
+  processingSignal.subscribe((data) => {
+    const { status, playlistDataUrl, percentComplete } = data;
+    if (status === "COMPLETE") {
+      handleComplete(playlistDataUrl);
+    } else if (status === "PENDING") {
+      handleProgress(percentComplete);
+    }
+  });
 }
 
 async function loadHlsFallback(url) {
-  const { isSupported, Hls } = await import("$hls");
-  if (isSupported) {
-    const hls = new Hls({ workerPath: hlsWorkerPath });
+  const mod = await import("$hls");
+  if (mod.isSupported) {
+    const hls = new mod.Hls({ workerPath: hlsWorkerPath });
     hls.loadSource(url);
-    hls.attachMedia(videoEl);
-  }
-}
-
-function listenFileProcessing() {
-  const path = `/inodes/listen-video-processing/${inodeId}`;
-  const evtSource = new EventSource(path);
-  evtSource.onmessage = (evt) => handleConvertEvent(evt, evtSource);
-  evtSource.onerror = () => listenFileProcessing();
-}
-
-function handleConvertEvent(evt, evtSource) {
-  const { status, playlistDataUrl, percentComplete } = JSON.parse(evt.data);
-  if (status !== "PENDING") {
-    evtSource.close();
-  }
-  if (status === "COMPLETE") {
-    handleComplete(playlistDataUrl);
-  } else if (status === "ERROR") {
-    handleError();
-  } else if (status === "PENDING") {
-    handleProgressMsg(percentComplete);
+    hls.attachMedia(previewEl);
   }
 }
 
 function handleComplete(url) {
-  loaderEl.remove();
-  videoEl.hidden = false;
   if (supportsHls) {
-    videoEl.src = url;
+    previewEl.src = url;
   } else {
     loadHlsFallback(url);
   }
 }
 
-function handleError() {
-  const errorEl = document.getElementById("file-preview-error");
-  errorEl.hidden = false;
-  videoEl.hidden = true;
-  loaderEl.remove();
-}
-
-function handleProgressMsg(perc) {
+function handleProgress(perc) {
   if (!perc) return;
   const percEl = document.getElementById("progress-perc");
   percEl.textContent = perc + "%";

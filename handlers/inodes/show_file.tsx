@@ -1,25 +1,17 @@
 import { getPermissions, type NonRootPath, parsePathname } from "$util";
 import { STATUS_CODE } from "@std/http";
 import Chat from "../../components/chat/ChatSection.tsx";
-import FilePreview from "../../components/inodes/file_node/FilePreview.tsx";
+import IframePreview from "../../components/inodes/file_node/IframePreview.tsx";
 import ImagePreview from "../../components/inodes/file_node/ImagePreview.tsx";
-import TextPreview from "../../components/inodes/file_node/TextPreview.tsx";
+import NoPreview from "../../components/inodes/file_node/NoPreview.tsx";
 import VideoPreview from "../../components/inodes/file_node/VideoPreview.tsx";
-import PdfPreview from "../../components/inodes/PdfPreview.tsx";
 import Page from "../../components/pages/Page.tsx";
 import {
-  getImagePreviewUrl,
-  getPdfPreviewUrl,
-  isPreviewableAsPdf,
-  isPreviewableAsText,
+  getPreviewUrl,
+  isPreviewableAsImage,
+  isPreviewableInIframe,
 } from "../../util/inodes/file_preview.ts";
-import {
-  isImageNode,
-  isPostProcessedFileNode,
-  isVideoNode,
-  signFileNodeUrl,
-} from "../../util/inodes/helpers.ts";
-import { getProcessingDuration } from "../../util/inodes/post_process/post_process.ts";
+import { isVideoNode } from "../../util/inodes/helpers.ts";
 import { type FileNode } from "../../util/inodes/types.ts";
 import { getDirByPath, getInodeByDir } from "../../util/kv/inodes.ts";
 import { type AppContext } from "../../util/types.ts";
@@ -72,51 +64,38 @@ export default async function showFileHandler(ctx: AppContext) {
   }
 
   let preview;
+  let importmap;
 
-  if (
-    isPostProcessedFileNode(inode) &&
-    getProcessingDuration(inode).isTimedOut
-  ) {
-    preview = (
-      <FilePreview
-        inode={inode}
-        permissions={permissions}
-      />
-    );
-  } else if (isImageNode(inode)) {
-    preview = (
-      <ImagePreview
-        inode={inode}
-        permissions={permissions}
-        url={await getImagePreviewUrl(inode)}
-      />
-    );
-  } else if (isVideoNode(inode)) {
+  if (isVideoNode(inode)) {
+    importmap = {
+      "$hls": asset("vendored/hls.mjs"),
+      "$listenPostProcessing": asset("inodes/listen_post_processing.js"),
+    };
     preview = (
       <VideoPreview
         inode={inode}
         permissions={permissions}
       />
     );
-  } else if (isPreviewableAsPdf(inode)) {
+  } else if (isPreviewableAsImage(inode)) {
     preview = (
-      <PdfPreview
+      <ImagePreview
         inode={inode}
         permissions={permissions}
-        url={await getPdfPreviewUrl(inode)}
+        url={await getPreviewUrl(inode)}
       />
     );
-  } else if (isPreviewableAsText(inode)) {
+  } else if (isPreviewableInIframe(inode)) {
     preview = (
-      <TextPreview
+      <IframePreview
         inode={inode}
         permissions={permissions}
-        url={await signFileNodeUrl(inode.s3Key)}
+        url={await getPreviewUrl(inode)}
       />
     );
   } else {
     preview = (
-      <FilePreview
+      <NoPreview
         inode={inode}
         permissions={permissions}
       />
@@ -134,6 +113,7 @@ export default async function showFileHandler(ctx: AppContext) {
     <Page
       id="file-page"
       title={decodeURIComponent(inode.name)}
+      importmap={importmap}
       head={head}
       header={{ breadcrumb: true }}
     >

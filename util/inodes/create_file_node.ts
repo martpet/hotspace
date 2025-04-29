@@ -12,13 +12,20 @@ import { type QueueMsgPostProcessFileNodes } from "../queue/post_process/post_pr
 import { type QueueMsgPostProcessVideoNodes } from "../queue/post_process/post_process_video_node.ts";
 import type { User } from "../types.ts";
 import {
-  isImageNode,
   isLibreProcessable,
+  isPandocProcessable,
   isPostProcessable,
+  isSharpProcessable,
   isVideoNode,
 } from "./helpers.ts";
 import { setAnyInode } from "./kv_wrappers.ts";
-import type { DirNode, FileNode, Inode, PostProcessor } from "./types.ts";
+import type {
+  DirNode,
+  FileNode,
+  Inode,
+  PostProcessedFileNode,
+  PostProcessor,
+} from "./types.ts";
 
 interface CompletedUploadWithFileSize extends s3.CompletedMultipartUpload {
   fileSize: number;
@@ -37,9 +44,10 @@ export async function createFileNodesFromUploads(
 ) {
   const completedUploadIds = [];
 
-  const appProcessables: Record<PostProcessor, FileNode[]> = {
-    image: [],
+  const postProcessables: Record<PostProcessor, FileNode[]> = {
+    sharp: [],
     libre: [],
+    pandoc: [],
   };
 
   for (const upload of uploads) {
@@ -52,20 +60,24 @@ export async function createFileNodesFromUploads(
 
     completedUploadIds.push(upload.uploadId);
 
-    if (isImageNode(fileNode)) {
-      appProcessables.image.push(fileNode);
+    if (isSharpProcessable(fileNode)) {
+      postProcessables.sharp.push(fileNode);
     } else if (isLibreProcessable(fileNode)) {
-      appProcessables.libre.push(fileNode);
+      postProcessables.libre.push(fileNode);
+    } else if (isPandocProcessable(fileNode)) {
+      postProcessables.pandoc.push(fileNode);
     }
   }
 
-  for (const [processor, inodes] of Object.entries(appProcessables)) {
+  for (const [processor, inodes] of Object.entries(postProcessables)) {
     if (inodes.length) {
       await enqueue<QueueMsgPostProcessFileNodes>({
         type: "post-process-file-nodes",
         processor: processor as PostProcessor,
         origin: options.origin,
-        items: inodes.map((it) => pick(it, ["id", "s3Key", "name"])),
+        items: inodes.map((it) =>
+          pick(it, ["id", "s3Key", "name", "fileType"])
+        ),
       }).commit();
     }
   }
@@ -117,16 +129,19 @@ async function createFileNode(
     atomic.check(dirEntry, fileNodeNullCheck);
 
     if (isPostProcessable(fileNode)) {
-      fileNode.postProcess = { status: "PENDING" };
-
+      (fileNode as PostProcessedFileNode).postProcess = { status: "PENDING" };
       if (isVideoNode(fileNode)) {
         enqueue<QueueMsgPostProcessVideoNodes>({
           type: "post-process-video-node",
           inodeId: fileNode.id,
           origin,
         }, atomic);
+      } else if (isSharpProcessable(fileNode)) {
+        (fileNode as PostProcessedFileNode).postProcess.previewType = "image";
       } else if (isLibreProcessable(fileNode)) {
-        fileNode.postProcess.previewType = "pdf";
+        (fileNode as PostProcessedFileNode).postProcess.previewType = "pdf";
+      } else if (isPandocProcessable(fileNode)) {
+        (fileNode as PostProcessedFileNode).postProcess.previewType = "html";
       }
     }
 

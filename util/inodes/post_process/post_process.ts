@@ -4,12 +4,12 @@ import { INODES_BUCKET } from "../../consts.ts";
 import { enqueue } from "../../kv/enqueue.ts";
 import { getInodeById } from "../../kv/inodes.ts";
 import { type QueueMsgDeleteS3Objects } from "../../queue/delete_s3_objects.ts";
-import { isPostProcessedFileNode } from "../helpers.ts";
+import { isPostProcessedNode } from "../helpers.ts";
 import { setAnyInode } from "../kv_wrappers.ts";
 import type { Inode, PostProcessedFileNode } from "../types.ts";
 
 export function isStaleEvent(inode: Inode | null, currentChangeDate: Date) {
-  if (!isPostProcessedFileNode(inode)) return false;
+  if (!isPostProcessedNode(inode)) return false;
   const prevChangeDate = inode.postProcess.stateChangeDate;
   if (!prevChangeDate) return false;
   return prevChangeDate > currentChangeDate;
@@ -54,7 +54,7 @@ export async function patchPostProcessedNode(input: {
     if (isStaleEvent(inode, stateChangeDate)) {
       return;
     }
-    if (!isPostProcessedFileNode(inode)) {
+    if (!isPostProcessedNode(inode)) {
       await cleanupMaybe({ inodeS3Key, status });
       return;
     }
@@ -65,7 +65,7 @@ export async function patchPostProcessedNode(input: {
   }
 }
 
-export function getProcessingDuration(inode: PostProcessedFileNode) {
+export function getProcessingTimeoutAfter(inode: PostProcessedFileNode) {
   if (inode.postProcess.status !== "PENDING") {
     return { isTimedOut: false, timeoutIn: null };
   }
@@ -73,8 +73,5 @@ export function getProcessingDuration(inode: PostProcessedFileNode) {
   const now = new Date();
   const diff = now.getTime() - createdAt.getTime();
   const TIMEOUT = MINUTE * 5;
-  return {
-    isTimedOut: diff > TIMEOUT,
-    timeoutIn: Math.max(0, TIMEOUT - diff),
-  };
+  return Math.max(0, TIMEOUT - diff);
 }

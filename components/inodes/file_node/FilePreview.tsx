@@ -4,7 +4,7 @@ import type { FileNode } from "../../../util/inodes/types.ts";
 import ButtonToggleChat from "../../chat/ButtonToggleChat.tsx";
 import ButtonDeleteInode from "../ButtonDeleteInode.tsx";
 
-interface Props extends JSX.HTMLAttributes<HTMLElement> {
+interface Props extends JSX.HTMLAttributes<HTMLDivElement> {
   inode: FileNode;
   permissions: ResourcePermissions;
   downloadText?: string;
@@ -17,14 +17,14 @@ export default function FilePreview(props: Props) {
     children,
     permissions,
     downloadText,
-    ...articleProps
+    ...divProps
   } = props;
 
   const fileName = decodeURIComponent(inode.name);
   const { canModerate, canModify } = permissions;
 
   return (
-    <article id="file-preview" {...articleProps}>
+    <div {...divProps}>
       {children && <div id="file-preview-canvas">{children}</div>}
       <header class="inodes-header">
         <h1>{fileName}</h1>
@@ -38,6 +38,6 @@ export default function FilePreview(props: Props) {
       <a href={`/inodes/file/${inode.id}`}>
         {downloadText || "Download file"} ↓
       </a>
-    </article>
+    </div>
   );
 }

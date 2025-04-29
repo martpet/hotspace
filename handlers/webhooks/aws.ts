@@ -33,7 +33,8 @@ export async function awsWebhookHandler(ctx: AppContext) {
       break;
     }
 
-    case "hotspace.libre-processor": {
+    case "hotspace.libre-processor":
+    case "hotspace.pandoc-processor": {
       await enqueue<QueueMsgGeneralMediaProcessorEvent>({
         type: "general-media-processor-event",
         time: msg.time,

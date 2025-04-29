@@ -2,7 +2,7 @@
   .inodes-header {
     margin-bottom: 0.5em;
   }
-  &:has(> #file-preview > #file-preview-canvas) {
+  &:has(#file-preview-canvas) {
     #page-header {
       border-bottom: 0;
     }
@@ -18,7 +18,7 @@
   }
   #file-page & {
     h1 {
-      font-size: 1.2rem;
+      font-size: 1.3rem;
     }
   }
 }
@@ -39,39 +39,51 @@
   @media (prefers-color-scheme: dark) {
     background: black;
   }
-  #image,
-  #video {
+}
+
+#file-preview-loader {
+  margin: 0;
+  align-items: center;
+  color: var(--text-grey-dark);
+}
+
+#file-preview {
+  img&,
+  video& {
     width: 100%;
     max-height: 500px;
     object-fit: contain;
   }
-  #text {
-    width: 50em;
-    height: 25em;
+  iframe& {
     max-width: 100%;
-    resize: both;
-    border: 1px solid var(--border-grey);
-    @media (prefers-color-scheme: light) {
-      background: white;
-      margin: 1px;
-    }
-  }
-  #pdf {
-    width: 840px;
-    height: 600px;
-    max-width: 100%;
-    border: none;
     resize: both;
     @media (prefers-color-scheme: light) {
       background: white;
-      border: solid var(--border-grey);
-      border-width: 1px 0;
     }
-  }
-  #file-preview-loader {
-    margin: 0;
-    align-items: center;
-    color: var(--text-grey-dark);
+    &.text,
+    &.html {
+      border: 1px solid var(--border-grey);
+      @media (prefers-color-scheme: light) {
+        margin: 1px;
+      }
+    }
+    &.text {
+      width: 50em;
+      height: 25em;
+    }
+    &.html {
+      width: 50em;
+      height: 50em;
+    }
+    &.pdf {
+      width: 840px;
+      height: 600px;
+      border: none;
+      @media (prefers-color-scheme: light) {
+        border: solid var(--border-grey);
+        border-width: 1px 0;
+      }
+    }
   }
 }
 

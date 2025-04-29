@@ -16,3 +16,5 @@ export const ROOT_DIR: DirNode = {
     previewSubset: {},
   },
 };
+
+export const inodePreviewTypes = ["pdf", "image", "html", "text"] as const;

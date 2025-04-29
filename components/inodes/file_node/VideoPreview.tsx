@@ -13,10 +13,17 @@ interface Props {
 export default function VideoPreview(props: Props, ctx: AppContext) {
   const { inode, permissions } = props;
   const browserName = ctx.userAgent.browser.name;
-  const hlsWorkerPath = asset("vendored/hls.worker.js", { cdn: false });
   const supportsHls = browserName === "Safari";
-  const { status, percentComplete, width, height, playlistDataUrl } =
-    inode.postProcess;
+  const hlsWorkerPath = asset("vendored/hls.worker.js", { cdn: false });
+
+  const {
+    status,
+    percentComplete,
+    width,
+    height,
+    playlistDataUrl,
+  } = inode.postProcess;
+
   const isProcessing = status === "PENDING";
   const showError = status === "ERROR";
 
@@ -26,11 +33,18 @@ export default function VideoPreview(props: Props, ctx: AppContext) {
       permissions={permissions}
       downloadText="Download original"
     >
-      {!showError && !supportsHls && (
+      {isProcessing && (
+        <link
+          rel="modulepreload"
+          href={asset("inodes/listen_post_processing.js")}
+        />
+      )}
+
+      {!supportsHls && !showError && (
         <link rel="modulepreload" href={asset("vendored/hls.mjs")} />
       )}
 
-      {(isProcessing || (!showError && !supportsHls)) && (
+      {(isProcessing || (!supportsHls && !showError)) && (
         <script type="module" src={asset("inodes/file_preview/video.js")} />
       )}
 
@@ -49,11 +63,12 @@ export default function VideoPreview(props: Props, ctx: AppContext) {
 
       {!showError && (
         <video
-          id="video"
+          id="file-preview"
           src={supportsHls ? playlistDataUrl : undefined}
           hidden={isProcessing}
           controls
           data-inode-id={isProcessing ? inode.id : null}
+          data-is-processing={isProcessing || null}
           data-supports-hls={(isProcessing && supportsHls) ? "1" : null}
           data-playlist-url={(!supportsHls && playlistDataUrl) || null}
           data-hls-worker-path={supportsHls ? null : hlsWorkerPath}

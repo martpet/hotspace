@@ -1,12 +1,14 @@
 import { sqs } from "$aws";
 import { newQueue } from "@henrygd/queue";
+import { allExtensions } from "@std/media-types";
 import { getSigner } from "../../aws.ts";
 import {
   AWS_REGION,
   LIBRE_PROCESSOR_SQS_URL,
+  PANDOC_PROCESSOR_SQS_URL,
   SHARP_PROCESSOR_SQS_URL,
 } from "../../consts.ts";
-import { isPostProcessedFileNode } from "../../inodes/helpers.ts";
+import { isPostProcessedNode } from "../../inodes/helpers.ts";
 import { setAnyInode } from "../../inodes/kv_wrappers.ts";
 import type {
   FileNode,
@@ -21,7 +23,7 @@ import { getDevAppUrl } from "../../url.ts";
 export interface QueueMsgPostProcessFileNodes {
   type: "post-process-file-nodes";
   processor: PostProcessor;
-  items: Pick<FileNode, "id" | "s3Key" | "name">[];
+  items: Pick<FileNode, "id" | "s3Key" | "name" | "fileType">[];
   origin: string;
 }
 
@@ -33,11 +35,15 @@ export function isPostProcessFileNodes(
   >;
   return typeof msg === "object" &&
     type === "post-process-file-nodes" &&
-    (processor === "image" || processor === "libre") &&
+    (processor === "sharp" ||
+      processor === "libre" ||
+      processor === "pandoc") &&
     typeof origin === "string" &&
     Array.isArray(items) &&
     items.every((item) =>
-      typeof item.id === "string" && typeof item.s3Key === "string" &&
+      typeof item.id === "string" &&
+      typeof item.s3Key === "string" &&
+      typeof item.fileType === "string" &&
       typeof item.name === "string"
     );
 }
@@ -49,24 +55,36 @@ export async function handlePostProcessFileNodes(
   const devAppUrl = getDevAppUrl(origin);
 
   const sqsUrlByProcessor: Record<PostProcessor, string> = {
-    image: SHARP_PROCESSOR_SQS_URL,
+    sharp: SHARP_PROCESSOR_SQS_URL,
     libre: LIBRE_PROCESSOR_SQS_URL,
+    pandoc: PANDOC_PROCESSOR_SQS_URL,
   };
 
   const sqsUrl = sqsUrlByProcessor[processor];
+  const messages = [];
 
-  const sqsMessages = items.map((item) => ({
-    id: item.id,
-    body: JSON.stringify({
-      inodeId: item.id,
-      inodeS3Key: item.s3Key,
-      fileName: item.name,
-      devAppUrl,
-    }),
-  }));
+  for (const item of items) {
+    let fileExt;
+
+    if (processor === "pandoc") {
+      fileExt = (allExtensions(item.fileType) || [])[0];
+      if (!fileExt) return;
+    }
+
+    messages.push({
+      id: item.id,
+      body: JSON.stringify({
+        inodeId: item.id,
+        inodeS3Key: item.s3Key,
+        fileName: item.name,
+        fileExt,
+        devAppUrl,
+      }),
+    });
+  }
 
   const failedIds = await sqs.sendMessageBatch({
-    messages: sqsMessages,
+    messages,
     sqsUrl,
     region: AWS_REGION,
     signer: getSigner(),
@@ -84,7 +102,7 @@ async function handleFailedMsgs(ids: string[]) {
 
   for (let entry of entries) {
     queue.add(async () => {
-      if (!isPostProcessedFileNode(entry.value)) {
+      if (!isPostProcessedNode(entry.value)) {
         return;
       }
       let commit = { ok: false };
@@ -93,7 +111,7 @@ async function handleFailedMsgs(ids: string[]) {
         if (commitIndex) {
           entry = await getInodeById(entry.value.id);
         }
-        if (!isPostProcessedFileNode(entry.value)) {
+        if (!isPostProcessedNode(entry.value)) {
           return;
         }
         const atomic = setAnyInode<PostProcessedFileNode>({

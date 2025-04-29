@@ -4,19 +4,12 @@ import { asset } from "../../util/url.ts";
 import Flash from "../Flash.tsx";
 import PageHeader, { type PageHeaderProps } from "../PageHeader.tsx";
 
-const importmap = {
-  "imports": {
-    "$main": asset("main.js"),
-    "$db": asset("db.js"),
-    "$hls": asset("vendored/hls.mjs"),
-  },
-};
-
 export interface PageProps extends JSX.HTMLAttributes<HTMLBodyElement> {
   children?: ComponentChildren;
   head?: JSX.Element;
   title?: string;
   header?: PageHeaderProps;
+  importmap?: Record<string, string>;
 }
 
 export default function Page(props: PageProps, ctx: AppContext) {
@@ -28,6 +21,14 @@ export default function Page(props: PageProps, ctx: AppContext) {
     header: headerProps = {},
     ...bodyProps
   } = props;
+
+  const importmap = {
+    "imports": {
+      "$main": asset("main.js"),
+      "$db": asset("db.js"),
+      ...props.importmap,
+    },
+  };
 
   return (
     <html

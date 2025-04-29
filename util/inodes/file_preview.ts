@@ -1,50 +1,73 @@
-import { isPostProcessedFileNode, signFileNodeUrl } from "./helpers.ts";
-import { MIME_PREVIEWABLE_AS_TEXT } from "./mime.ts";
+import {
+  isPostProcessedNode,
+  isPostProcessedNodeToImage,
+  signFileNodeUrl,
+} from "./helpers.ts";
+import { EXTRA_MIME_PREVIEWABLE_AS_TEXT } from "./mime.ts";
 import type {
   FileNode,
-  ImageNode,
-  ImagePreviewSize,
   PostProcessedFileNode,
+  PostProcessedNodeToImage,
 } from "./types.ts";
+
+export function isPreviewableInIframe(inode: FileNode) {
+  return isPreviewableAsText(inode) ||
+    isPreviewableAsHtml(inode) ||
+    isPreviewableAsPdf(inode);
+}
 
 export function isPreviewableAsText({ fileType }: FileNode) {
   return fileType.startsWith("text/") ||
-    MIME_PREVIEWABLE_AS_TEXT.includes(fileType);
+    EXTRA_MIME_PREVIEWABLE_AS_TEXT.includes(fileType);
 }
 
 export function isPreviewableAsPdf(inode: FileNode) {
   return inode.fileType.endsWith("/pdf") ||
-    (isPostProcessedFileNode(inode) &&
+    (isPostProcessedNode(inode) &&
       inode.postProcess.previewType === "pdf");
 }
-export function showOriginalImageAsPreview(inode: ImageNode) {
-  const fileSizeKb = inode.fileSize / 1024;
-  return fileSizeKb < 200;
+
+export function isPreviewableAsHtml(inode: FileNode) {
+  return inode.fileType === "text/html" ||
+    (isPostProcessedNode(inode) &&
+      inode.postProcess.previewType === "html");
 }
 
-export function getImagePreviewUrl(
-  inode: ImageNode,
-  size: ImagePreviewSize = "md",
-) {
-  let s3Key;
-  if (showOriginalImageAsPreview(inode)) {
-    s3Key = inode.s3Key;
-  } else if (inode.postProcess.status === "COMPLETE") {
-    s3Key = `${inode.s3Key}/thumb_${size}.jpeg`;
-  }
-  if (s3Key) return signFileNodeUrl(s3Key);
+export function isPreviewableAsImage(
+  inode: FileNode,
+): inode is PostProcessedNodeToImage {
+  return isPostProcessedNodeToImage(inode) ||
+    inode.fileType === "image/svg+xml";
 }
 
-export function getPdfPreviewUrl(inode: FileNode | PostProcessedFileNode) {
+export function showOriginalImageAsPreview(inode: FileNode) {
+  return inode.fileType.startsWith("image/") && (inode.fileSize / 1024) < 200;
+}
+
+export function getPreviewUrl(inode: FileNode | PostProcessedFileNode) {
+  const isPostProcessed = isPostProcessedNode(inode);
   let s3Key;
-  if (inode.fileType.endsWith("/pdf")) {
+  if (
+    !isPostProcessed && (
+        isPreviewableAsPdf(inode) ||
+        isPreviewableAsText(inode)
+      ) || showOriginalImageAsPreview(inode)
+  ) {
     s3Key = inode.s3Key;
   } else if (
-    isPostProcessedFileNode(inode) &&
-    inode.postProcess.previewType === "pdf" &&
+    isPostProcessed &&
+    inode.postProcess.previewType &&
     inode.postProcess.status === "COMPLETE"
   ) {
-    s3Key = `${inode.s3Key}/preview.pdf`;
+    const { previewType } = inode.postProcess;
+    const fileExt = {
+      image: "jpeg",
+      html: "html",
+      pdf: "pdf",
+      text: "txt",
+    };
+    s3Key = `${inode.s3Key}/preview.${fileExt[previewType]}`;
   }
+
   if (s3Key) return signFileNodeUrl(s3Key);
 }

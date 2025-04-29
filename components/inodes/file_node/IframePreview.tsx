@@ -1,8 +1,8 @@
 import { type ResourcePermissions } from "$util";
-import { showOriginalImageAsPreview } from "../../../util/inodes/file_preview.ts";
-import { isPostProcessedNodeToImage } from "../../../util/inodes/helpers.ts";
+import { isPreviewableAsPdf } from "../../../util/inodes/file_preview.ts";
+import { isPostProcessedNode } from "../../../util/inodes/helpers.ts";
 import { getProcessingTimeoutAfter } from "../../../util/inodes/post_process/post_process.ts";
-import type { FileNode } from "../../../util/inodes/types.ts";
+import type { FileNode, InodePreviewType } from "../../../util/inodes/types.ts";
 import { asset } from "../../../util/url.ts";
 import Loader from "../../Loader.tsx";
 import FilePreview from "./FilePreview.tsx";
@@ -13,22 +13,25 @@ interface Props {
   url: string | undefined;
 }
 
-export default function ImagePreview(props: Props) {
+export default function IframePreview(props: Props) {
   const { inode, permissions, url } = props;
 
   let isProcessing;
   let showError;
-  let timeoutAfter;
-  let style;
   let downloadText;
+  let timeoutAfter;
+  let previewType: InodePreviewType;
 
-  if (isPostProcessedNodeToImage(inode) && !showOriginalImageAsPreview(inode)) {
+  if (isPostProcessedNode(inode)) {
     timeoutAfter = getProcessingTimeoutAfter(inode);
-    isProcessing = !!timeoutAfter && inode.postProcess.status === "PENDING";
+    isProcessing = inode.postProcess.status === "PENDING";
     showError = inode.postProcess.status === "ERROR";
     downloadText = "Download original";
-    const { width, height } = inode.postProcess;
-    if (width && height) style = { aspectRatio: `1 / ${height / width}` };
+    previewType = inode.postProcess.previewType!;
+  } else if (isPreviewableAsPdf(inode)) {
+    previewType = "pdf";
+  } else {
+    previewType = "text";
   }
 
   return (
@@ -56,13 +59,13 @@ export default function ImagePreview(props: Props) {
       )}
 
       {!showError && (
-        <img
+        <iframe
           id="file-preview"
+          class={previewType}
           src={url}
           hidden={isProcessing}
           data-inode-id={isProcessing ? inode.id : null}
           data-processing-timeout={isProcessing ? timeoutAfter : null}
-          style={style}
         />
       )}
     </FilePreview>

@@ -1,5 +1,6 @@
 import type { ChatResource } from "$chat";
 import type { AclResource, AclRole } from "$util";
+import { inodePreviewTypes } from "./consts.ts";
 
 export type AclPreview = Record<string, AclRole>;
 
@@ -13,7 +14,8 @@ export interface AclDiffWithUserId {
   role: AclRole | null;
 }
 
-export type PostProcessor = "image" | "libre";
+export type PostProcessor = "sharp" | "libre" | "pandoc";
+export type InodePreviewType = typeof inodePreviewTypes[number];
 export type InodeLabel = "Space" | "Folder" | "File";
 export type ImagePreviewSize = "md" | "sm";
 
@@ -46,8 +48,19 @@ export interface PostProcessedFileNode extends FileNode {
   postProcess: {
     status: "PENDING" | "COMPLETE" | "ERROR";
     stateChangeDate?: Date;
-    previewType?: "pdf";
+    previewType?: InodePreviewType;
   };
+}
+
+export interface PostProcessedNodeToImage extends FileNode {
+  postProcess:
+    & Pick<PostProcessedFileNode["postProcess"], "status" | "stateChangeDate">
+    & {
+      previewType: "image";
+      width?: number;
+      height?: number;
+      exif?: Exif;
+    };
 }
 
 export interface VideoNode extends PostProcessedFileNode {
@@ -66,15 +79,8 @@ export interface VideoNode extends PostProcessedFileNode {
   };
 }
 
-export interface ImageNode extends PostProcessedFileNode {
+export interface ImageNode extends PostProcessedNodeToImage {
   fileType: `image/${string}`;
-  postProcess: {
-    status: "PENDING" | "COMPLETE" | "ERROR";
-    stateChangeDate?: Date;
-    width?: number;
-    height?: number;
-    exif?: Exif;
-  };
 }
 
 export interface Exif {
