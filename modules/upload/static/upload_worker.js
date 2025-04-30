@@ -126,7 +126,7 @@ class Uploader {
       const newRetry = retry + 1;
       const backOff = 2 ** newRetry * 400;
 
-      console.warning(
+      console.warn(
         `Part#${partNumber} of ${upload.file.name} failed to upload, backing off ${backOff} before retrying...`
       );
       setTimeout(() => {
