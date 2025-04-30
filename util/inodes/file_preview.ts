@@ -33,15 +33,22 @@ export function isPreviewableAsHtml(inode: FileNode) {
       inode.postProcess.previewType === "html");
 }
 
+export function isNativelyPreviewableImage(inode: FileNode) {
+  const { fileType } = inode;
+  return fileType.startsWith("image/") && fileType !== "image/wmf";
+}
+
 export function isPreviewableAsImage(
   inode: FileNode,
 ): inode is PostProcessedNodeToImage {
+  const { fileType } = inode;
   return isPostProcessedNodeToImage(inode) ||
-    inode.fileType === "image/svg+xml";
+    fileType === "image/svg+xml" ||
+    isNativelyPreviewableImage(inode);
 }
 
 export function showOriginalImageAsPreview(inode: FileNode) {
-  return inode.fileType.startsWith("image/") && (inode.fileSize / 1024) < 200;
+  return isNativelyPreviewableImage(inode) && (inode.fileSize / 1024) < 200;
 }
 
 export function getPreviewUrl(inode: FileNode | PostProcessedFileNode) {
