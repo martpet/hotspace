@@ -24,23 +24,24 @@ function listenProcessing() {
 
 function onMessage(evt, evtSource) {
   const msg = JSON.parse(evt.data);
-  const { status, previewUrl } = msg;
+  const { status } = msg;
   processingSignal.value = msg;
   if (status !== "PENDING") {
     evtSource.close();
   }
   if (status === "COMPLETE") {
-    handleComplete(previewUrl);
+    handleComplete(msg);
   } else if (status === "ERROR") {
     handleError();
   }
 }
 
-function handleComplete(previewUrl) {
+function handleComplete({ previewUrl, mimeType }) {
   isComplete = true;
   loaderEl.remove();
   previewEl.hidden = false;
   if (previewUrl) previewEl.src = previewUrl;
+  if (mimeType) previewEl.dataset.mime = mimeType;
 }
 
 function handleError() {

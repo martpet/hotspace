@@ -1,6 +1,6 @@
 import type { ChatResource } from "$chat";
 import type { AclResource, AclRole } from "$util";
-import { inodePreviewTypes } from "./consts.ts";
+import type { PostProcessor } from "./post_process/types.ts";
 
 export type AclPreview = Record<string, AclRole>;
 
@@ -14,12 +14,10 @@ export interface AclDiffWithUserId {
   role: AclRole | null;
 }
 
-export type PostProcessor = "sharp" | "libre" | "pandoc";
-export type InodePreviewType = typeof inodePreviewTypes[number];
+export type Inode = DirNode | FileNode;
 export type InodeLabel = "Space" | "Folder" | "File";
-export type ImagePreviewSize = "md" | "sm";
-
-export type Inode = DirNode | FileNode | VideoNode;
+export type InodeDisplay = "image" | "iframe" | "video";
+export type PostProcessStatus = "PENDING" | "COMPLETE" | "ERROR";
 
 interface InodeBase extends ChatResource, AclResource {
   type: string;
@@ -39,35 +37,27 @@ export interface DirNode extends InodeBase {
 
 export interface FileNode extends InodeBase {
   type: "file";
-  fileType: string;
+  mimeType: string;
   fileSize: number;
   s3Key: string;
+  postProcess?: FileNodePostProcessData;
 }
 
-export interface PostProcessedFileNode extends FileNode {
-  postProcess: {
-    status: "PENDING" | "COMPLETE" | "ERROR";
-    stateChangeDate?: Date;
-    previewType?: InodePreviewType;
-  };
+interface FileNodePostProcessData {
+  proc: PostProcessor;
+  status: PostProcessStatus;
+  stateChangeDate?: Date;
+  previewFileName?: string;
+  previewMimeType?: string;
+  thumbFileName?: string;
 }
 
-export interface PostProcessedNodeToImage extends FileNode {
-  postProcess:
-    & Pick<PostProcessedFileNode["postProcess"], "status" | "stateChangeDate">
-    & {
-      previewType: "image";
-      width?: number;
-      height?: number;
-      exif?: Exif;
-    };
-}
+export type PostProcessedFileNode =
+  & Omit<FileNode, "postProcess">
+  & Required<Pick<FileNode, "postProcess">>;
 
-export interface VideoNode extends PostProcessedFileNode {
-  fileType: `video/${string}`;
-  postProcess: {
-    status: "PENDING" | "COMPLETE" | "ERROR";
-    stateChangeDate?: Date;
+export interface PostProcessedToVideo extends FileNode {
+  postProcess: FileNodePostProcessData & {
     jobId?: string;
     percentComplete?: number;
     playlistDataUrl?: string;
@@ -79,8 +69,12 @@ export interface VideoNode extends PostProcessedFileNode {
   };
 }
 
-export interface ImageNode extends PostProcessedNodeToImage {
-  fileType: `image/${string}`;
+export interface PostProcessedToImage extends FileNode {
+  postProcess: FileNodePostProcessData & {
+    width?: number;
+    height?: number;
+    exif?: Exif;
+  };
 }
 
 export interface Exif {

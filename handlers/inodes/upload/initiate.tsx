@@ -46,7 +46,7 @@ export default async function initiateUploadHandler(ctx: AppContext) {
   const headersFn: InitUploadOptions["headersFn"] = (upload) => {
     const fileName = encodeURIComponent(upload.fileName);
     return new Headers({
-      [HEADER.ContentType]: upload.fileType,
+      [HEADER.ContentType]: upload.mimeType,
       [HEADER.ContentDisposition]: `inline; filename*=UTF-8''${fileName}`,
       [HEADER.CacheControl]: `public, max-age=${DAY * 365 / 1000}, immutable`,
     });
@@ -71,9 +71,9 @@ function isValidReqData(data: unknown): data is ReqData {
   return typeof data === "object" &&
     Array.isArray(uploadsInitData) &&
     uploadsInitData.every((item) => {
-      const { fileType, fileName, numberOfParts, savedUpload } =
+      const { mimeType, fileName, numberOfParts, savedUpload } =
         item as Partial<UploadInitData>;
-      return typeof fileType === "string" &&
+      return typeof mimeType === "string" &&
         typeof fileName === "string" &&
         typeof numberOfParts === "number" &&
         (!savedUpload ||

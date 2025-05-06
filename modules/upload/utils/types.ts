@@ -1,7 +1,7 @@
 import type { s3 } from "$aws";
 
 export interface UploadInitData {
-  fileType: string;
+  mimeType: string;
   fileName: string;
   numberOfParts: number;
   savedUpload?: SavedUpload;

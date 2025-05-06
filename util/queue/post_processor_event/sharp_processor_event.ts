@@ -1,14 +1,17 @@
 import { patchPostProcessedNode } from "../../inodes/post_process/post_process.ts";
-import type { Exif, ImageNode } from "../../inodes/types.ts";
+import { isPostProcessedFileNode } from "../../inodes/post_process/type_predicates.ts";
+import type { Exif, PostProcessedToImage } from "../../inodes/types.ts";
 import { getInodeById } from "../../kv/inodes.ts";
 
 export interface QueueMsgSharpProcessorEvent {
   type: "sharp-processor-event";
-  time: "string";
+  time: string;
   detail: {
     status: "COMPLETE" | "ERROR";
     inodeId: string;
     inodeS3Key: string;
+    previewFileName?: string;
+    thumbFileName?: string;
     width?: number;
     height?: number;
     exif?: Exif;
@@ -25,47 +28,61 @@ export function isSharpProcessorEvent(
     type === "sharp-processor-event" &&
     typeof time === "string" &&
     typeof detail === "object" &&
-    typeof detail.inodeS3Key === "string" &&
     typeof detail.inodeId === "string" &&
-    (
-      typeof detail.width === "undefined" ||
-      typeof detail.width === "number"
-    ) &&
-    (
-      typeof detail.height === "undefined" ||
-      typeof detail.height === "number"
-    ) &&
-    (
-      typeof detail.exif === "undefined" ||
-      typeof detail.exif === "object"
-    ) &&
-    (
-      detail.status === "COMPLETE" ||
-      detail.status === "ERROR"
-    );
+    typeof detail.inodeS3Key === "string" &&
+    (detail.status === "COMPLETE" ||
+      detail.status === "ERROR") &&
+    (typeof detail.previewFileName === "string" ||
+      typeof detail.previewFileName === "undefined") &&
+    (typeof detail.thumbFileName === "undefined" ||
+      typeof detail.thumbFileName === "string") &&
+    (typeof detail.width === "undefined" ||
+      typeof detail.width === "number") &&
+    (typeof detail.height === "undefined" ||
+      typeof detail.height === "number") &&
+    (typeof detail.exif === "undefined" ||
+      typeof detail.exif === "object");
 }
 
 export async function handleSharpProcessorEvent(
   msg: QueueMsgSharpProcessorEvent,
 ) {
-  const { inodeId, inodeS3Key, status, width, height, exif } = msg.detail;
+  const {
+    inodeId,
+    inodeS3Key,
+    status,
+    width,
+    height,
+    exif,
+    previewFileName,
+    thumbFileName,
+  } = msg.detail;
+
   const stateChangeDate = new Date(msg.time);
   const inodeEntry = await getInodeById(inodeId);
   const inode = inodeEntry.value;
+  let postProcess;
 
-  if (exif?.DateTimeOriginal) {
-    exif.DateTimeOriginal = new Date(exif.DateTimeOriginal);
+  if (isPostProcessedFileNode(inode)) {
+    postProcess = <PostProcessedToImage["postProcess"]> {
+      ...inode.postProcess,
+      status,
+      stateChangeDate,
+    };
+
+    if (previewFileName) postProcess.previewFileName = previewFileName;
+    if (thumbFileName) postProcess.thumbFileName = thumbFileName;
+    if (width) postProcess.width = width;
+    if (height) postProcess.height = height;
+    if (exif) postProcess.exif = exif;
+
+    if (exif?.DateTimeOriginal) {
+      exif.DateTimeOriginal = new Date(exif.DateTimeOriginal);
+    }
   }
 
-  const inodePatch: Partial<ImageNode> = {
-    postProcess: {
-      ...(inode as ImageNode | null)?.postProcess,
-      stateChangeDate,
-      status,
-      width,
-      height,
-      exif,
-    },
+  const inodePatch = {
+    postProcess,
   };
 
   return patchPostProcessedNode({

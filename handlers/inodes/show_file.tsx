@@ -6,12 +6,8 @@ import ImagePreview from "../../components/inodes/file_node/ImagePreview.tsx";
 import NoPreview from "../../components/inodes/file_node/NoPreview.tsx";
 import VideoPreview from "../../components/inodes/file_node/VideoPreview.tsx";
 import Page from "../../components/pages/Page.tsx";
-import {
-  getPreviewUrl,
-  isPreviewableAsImage,
-  isPreviewableInIframe,
-} from "../../util/inodes/file_preview.ts";
-import { isVideoNode } from "../../util/inodes/helpers.ts";
+import { getFileNodeDisplayType } from "../../util/inodes/helpers.ts";
+import { getPreviewUrl } from "../../util/inodes/post_process/preview_url.ts";
 import { type FileNode } from "../../util/inodes/types.ts";
 import { getDirByPath, getInodeByDir } from "../../util/kv/inodes.ts";
 import { type AppContext } from "../../util/types.ts";
@@ -63,10 +59,11 @@ export default async function showFileHandler(ctx: AppContext) {
     return ctx.jsxFragment(chatSection);
   }
 
+  const displayType = getFileNodeDisplayType(inode);
   let preview;
   let importmap;
 
-  if (isVideoNode(inode)) {
+  if (displayType === "video") {
     importmap = {
       "$hls": asset("vendored/hls.mjs"),
       "$listenPostProcessing": asset("inodes/listen_post_processing.js"),
@@ -77,7 +74,7 @@ export default async function showFileHandler(ctx: AppContext) {
         permissions={permissions}
       />
     );
-  } else if (isPreviewableAsImage(inode)) {
+  } else if (displayType === "image") {
     preview = (
       <ImagePreview
         inode={inode}
@@ -85,7 +82,7 @@ export default async function showFileHandler(ctx: AppContext) {
         url={await getPreviewUrl(inode)}
       />
     );
-  } else if (isPreviewableInIframe(inode)) {
+  } else if (displayType === "iframe") {
     preview = (
       <IframePreview
         inode={inode}

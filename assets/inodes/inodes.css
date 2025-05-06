@@ -16,9 +16,9 @@
   > menu {
     margin-left: auto;
   }
-  #file-page & {
+  :is(#file-preview-canvas ~ &) {
     h1 {
-      font-size: 1.3rem;
+      font-size: 1.4rem;
     }
   }
 }
@@ -57,32 +57,22 @@
   iframe& {
     max-width: 100%;
     resize: both;
+    width: 75em;
+    height: 30em;
+    border: none;
+    border: 0px solid var(--border-grey);
     @media (prefers-color-scheme: light) {
+      border-width: 1px 0;
       background: white;
     }
-    &.text,
-    &.html {
-      border: 1px solid var(--border-grey);
+    &[data-mime^="text"] {
       @media (prefers-color-scheme: light) {
         margin: 1px;
       }
     }
-    &.text {
-      width: 50em;
-      height: 25em;
-    }
-    &.html {
-      width: 50em;
-      height: 50em;
-    }
-    &.pdf {
+    &[data-mime="application/pdf"] {
       width: 840px;
       height: 600px;
-      border: none;
-      @media (prefers-color-scheme: light) {
-        border: solid var(--border-grey);
-        border-width: 1px 0;
-      }
     }
   }
 }

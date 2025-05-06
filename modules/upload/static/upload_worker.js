@@ -50,7 +50,7 @@ class Uploader {
       const savedUpload = await getSavedUpload(checksum);
       checksums.push(checksum);
       uploadsInitData.push({
-        fileType: file.type,
+        mimeType: file.type,
         fileName: file.name,
         numberOfParts: Math.ceil(file.size / this.chunkSize) || 1,
         savedUpload,
@@ -200,7 +200,7 @@ class Uploader {
   async complete() {
     const uploads = Array.from(this.uploads.values()).map((upload) => ({
       fileName: upload.file.name,
-      fileType: upload.fileType,
+      mimeType: upload.mimeType,
       ...pick(upload, ["uploadId", "s3Key", "checksum", "finishedParts"]),
     }));
 
@@ -218,14 +218,19 @@ class Uploader {
       return;
     }
 
-    const completedIds = await resp.json();
+    const { completedIds, failedIds } = await resp.json();
 
     await Promise.all(
-      completedIds.map((id) => {
+      [...completedIds, ...failedIds].map((id) => {
         const { checksum } = this.uploads.get(id);
         return deleteSavedUpload(checksum);
       })
     );
+
+    if (failedIds.length && !completedIds.length) {
+      this.sendError();
+      return;
+    }
 
     postMessage({ type: "completed" });
   }

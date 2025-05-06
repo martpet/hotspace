@@ -43,18 +43,20 @@ export default async function completeUploadHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.NotFound);
   }
 
-  const { completedUploads } = await completeUploads({
+  const { completedUploads, failedUploads } = await completeUploads({
     uploads,
     bucket: INODES_BUCKET,
     signer: getSigner(),
   });
 
-  const completedUploadsIds = await createFileNodesFromUploads(
+  const completedIds = await createFileNodesFromUploads(
     completedUploads,
     { dirEntry, dirId, user, origin },
   );
 
-  return ctx.json(completedUploadsIds);
+  const failedIds = failedUploads.map((u) => u.uploadId);
+
+  return ctx.json({ completedIds, failedIds });
 }
 
 function isValidReqData(data: unknown): data is ReqData {
@@ -66,14 +68,14 @@ function isValidReqData(data: unknown): data is ReqData {
         uploadId,
         s3Key,
         fileName,
-        fileType,
+        mimeType,
         checksum,
         finishedParts,
       } = upload as Partial<s3.CompletedMultipartUpload>;
       return typeof s3Key === "string" &&
         typeof uploadId === "string" &&
         typeof fileName === "string" &&
-        (typeof fileType === "string" || fileType === null) &&
+        (typeof mimeType === "string" || mimeType === null) &&
         typeof checksum === "string" &&
         Array.isArray(finishedParts) &&
         typeof finishedParts[0].partNumber === "number" &&

@@ -2,63 +2,22 @@ import { signCloudfrontUrl, type SignCloudfrontUrlOptions } from "../aws.ts";
 import { INODES_CLOUDFRONT_URL } from "../consts.ts";
 import type {
   FileNode,
-  ImageNode,
   Inode,
+  InodeDisplay,
   InodeLabel,
-  PostProcessedFileNode,
-  PostProcessedNodeToImage,
-  VideoNode,
 } from "../inodes/types.ts";
 import { ROOT_DIR_ID } from "./consts.ts";
-import {
-  LIBRE_OFFICE_MIME_SUPPORT,
-  PANDOC_MIME_SUPPORT,
-  SHARP_MIME_EXCEPTIONS,
-} from "./mime.ts";
+import { MIME_CONFS } from "./mime.ts";
+import { isPostProcessedToVideo } from "./post_process/type_predicates.ts";
 
-function isFileNode(inode: Inode | null): inode is FileNode {
-  return !!inode && inode.type === "file";
+export function getFileNodeDisplayType(inode: FileNode): InodeDisplay | null {
+  if (isPostProcessedToVideo(inode)) return "video";
+  const mime = inode.postProcess?.previewMimeType || inode.mimeType;
+  return MIME_CONFS[mime]?.display || null;
 }
 
-export function isVideoNode(inode: Inode | null): inode is VideoNode {
-  return isFileNode(inode) && inode.fileType.startsWith("video/");
-}
-
-export function isSharpProcessable(inode: Inode | null): inode is ImageNode {
-  return isFileNode(inode) &&
-    inode.fileType.startsWith("image/") &&
-    !SHARP_MIME_EXCEPTIONS.includes(inode.fileType);
-}
-
-export function isLibreProcessable(inode: Inode) {
-  return isFileNode(inode) &&
-    LIBRE_OFFICE_MIME_SUPPORT.includes(inode.fileType);
-}
-
-export function isPandocProcessable(inode: Inode) {
-  return isFileNode(inode) && PANDOC_MIME_SUPPORT.includes(inode.fileType);
-}
-
-export function isPostProcessable(inode: Inode) {
-  return isVideoNode(inode) ||
-    isSharpProcessable(inode) ||
-    isLibreProcessable(inode) ||
-    isPandocProcessable(inode);
-}
-
-export function isPostProcessedNode(
-  inode: Inode | null,
-): inode is PostProcessedFileNode {
-  return isFileNode(inode) &&
-    typeof (inode as PostProcessedFileNode).postProcess === "object";
-}
-
-export function isPostProcessedNodeToImage(
-  inode: Inode | null,
-): inode is PostProcessedNodeToImage {
-  const { postProcess } = inode as Partial<PostProcessedFileNode>;
-  return isFileNode(inode) && typeof postProcess === "object" &&
-    postProcess.previewType === "image";
+export function isFileNodeWithMultipleS3Keys(inode: Inode) {
+  return inode.type === "file" && !!MIME_CONFS[inode.mimeType]?.proc;
 }
 
 export function getInodeLabel(inode: Inode): InodeLabel {

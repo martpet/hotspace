@@ -1,17 +1,17 @@
 const previewEl = document.getElementById("file-preview");
-const { supportsHls, isProcessing, playlistUrl, hlsWorkerPath } =
+const { supportsHls, isProcessing, videoUrl, hlsWorkerPath } =
   previewEl.dataset;
 
-if (!supportsHls && playlistUrl) {
-  loadHlsFallback(playlistUrl);
+if (!supportsHls && videoUrl) {
+  loadHlsFallback(videoUrl);
 }
 
 if (isProcessing) {
   const { processingSignal } = await import("$listenPostProcessing");
   processingSignal.subscribe((data) => {
-    const { status, playlistDataUrl, percentComplete } = data;
+    const { status, videoUrl, percentComplete } = data;
     if (status === "COMPLETE") {
-      handleComplete(playlistDataUrl);
+      handleComplete(videoUrl);
     } else if (status === "PENDING") {
       handleProgress(percentComplete);
     }

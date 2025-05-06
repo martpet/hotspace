@@ -10,7 +10,7 @@ import { asset } from "../../util/url.ts";
 
 export default async function passkeysHandler(ctx: AppContext) {
   const user = ctx.state.user;
-  const title = "Your account";
+  const title = "Your Account";
 
   if (!user) {
     return <LoginPage title={title} />;

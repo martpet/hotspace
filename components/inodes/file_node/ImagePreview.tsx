@@ -1,8 +1,10 @@
 import { type ResourcePermissions } from "$util";
-import { showOriginalImageAsPreview } from "../../../util/inodes/file_preview.ts";
-import { isPostProcessedNodeToImage } from "../../../util/inodes/helpers.ts";
-import { getProcessingTimeoutAfter } from "../../../util/inodes/post_process/post_process.ts";
-import type { FileNode } from "../../../util/inodes/types.ts";
+import { getRemainingProcessingTimeout } from "../../../util/inodes/post_process/post_process.ts";
+import { showOriginalImageAsPreview } from "../../../util/inodes/post_process/preview_url.ts";
+import type {
+  FileNode,
+  PostProcessedToImage,
+} from "../../../util/inodes/types.ts";
 import { asset } from "../../../util/url.ts";
 import Loader from "../../Loader.tsx";
 import FilePreview from "./FilePreview.tsx";
@@ -16,18 +18,20 @@ interface Props {
 export default function ImagePreview(props: Props) {
   const { inode, permissions, url } = props;
 
+  let timeoutAfter;
   let isProcessing;
   let showError;
-  let timeoutAfter;
-  let style;
   let downloadText;
+  let style;
 
-  if (isPostProcessedNodeToImage(inode) && !showOriginalImageAsPreview(inode)) {
-    timeoutAfter = getProcessingTimeoutAfter(inode);
-    isProcessing = !!timeoutAfter && inode.postProcess.status === "PENDING";
-    showError = inode.postProcess.status === "ERROR";
-    downloadText = "Download original";
-    const { width, height } = inode.postProcess;
+  if (inode.postProcess) {
+    if (!showOriginalImageAsPreview(inode)) {
+      timeoutAfter = getRemainingProcessingTimeout(inode);
+      isProcessing = !!timeoutAfter;
+      showError = inode.postProcess.status === "ERROR" || timeoutAfter === 0;
+      downloadText = "Download original";
+    }
+    const { width, height } = (inode as PostProcessedToImage).postProcess;
     if (width && height) style = { aspectRatio: `1 / ${height / width}` };
   }
 
@@ -36,6 +40,7 @@ export default function ImagePreview(props: Props) {
       inode={inode}
       permissions={permissions}
       downloadText={downloadText}
+      isPostProcessError={showError}
     >
       {isProcessing && (
         <>

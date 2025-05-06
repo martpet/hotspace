@@ -5,9 +5,9 @@ import {
   createJobOptions,
   JobOptionsInput,
 } from "../../inodes/aws_mediaconvert/job_options.ts";
-import { isVideoNode } from "../../inodes/helpers.ts";
 import { setAnyInode } from "../../inodes/kv_wrappers.ts";
-import type { VideoNode } from "../../inodes/types.ts";
+import { isPostProcessedToVideo } from "../../inodes/post_process/type_predicates.ts";
+import { PostProcessedToVideo } from "../../inodes/types.ts";
 import { getInodeById } from "../../kv/inodes.ts";
 import { getDevAppUrl } from "../../url.ts";
 
@@ -36,7 +36,7 @@ export async function handlePostProcessVideoNode(
   let inodeEntry = await getInodeById(inodeId);
   let inode = inodeEntry.value;
 
-  if (!isVideoNode(inode)) {
+  if (!isPostProcessedToVideo(inode)) {
     return;
   }
 
@@ -52,7 +52,7 @@ export async function handlePostProcessVideoNode(
 
   const inodePatch = {
     postProcess: inode.postProcess,
-  } satisfies Partial<VideoNode>;
+  } satisfies Partial<PostProcessedToVideo>;
 
   let jobId;
 
@@ -75,7 +75,7 @@ export async function handlePostProcessVideoNode(
     if (commitIndex) {
       inodeEntry = await getInodeById(inode.id);
       inode = inodeEntry.value;
-      if (!isVideoNode(inode)) {
+      if (!isPostProcessedToVideo(inode)) {
         if (jobId) {
           await mediaconvert.cancelJob({
             jobId,

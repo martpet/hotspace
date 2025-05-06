@@ -10,7 +10,7 @@ export interface CompletedMultipartUpload {
   s3Key: string;
   checksum: string;
   fileName: string;
-  fileType: string;
+  mimeType: string;
   finishedParts: FinishedUploadPart[];
 }
 

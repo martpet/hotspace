@@ -9,6 +9,7 @@ interface Props {
   permissions: ResourcePermissions;
   downloadText?: string;
   children?: ComponentChildren;
+  isPostProcessError?: boolean;
 }
 
 export default function FilePreview(props: Props) {
@@ -17,6 +18,7 @@ export default function FilePreview(props: Props) {
     children,
     permissions,
     downloadText,
+    isPostProcessError,
   } = props;
 
   const fileName = decodeURIComponent(inode.name);
@@ -24,7 +26,9 @@ export default function FilePreview(props: Props) {
 
   return (
     <>
-      {children && <div id="file-preview-canvas">{children}</div>}
+      {(!isPostProcessError || canModify) && children && (
+        <div id="file-preview-canvas">{children}</div>
+      )}
       <header class="inodes-header">
         <h1>{fileName}</h1>
         {(canModerate || canModify) && (
@@ -35,7 +39,7 @@ export default function FilePreview(props: Props) {
         )}
       </header>
       <a href={`/inodes/file/${inode.id}`}>
-        {downloadText || "Download file"} ↓
+        {!isPostProcessError && downloadText || "Download file"} ↓
       </a>
     </>
   );

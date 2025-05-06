@@ -21,9 +21,9 @@ import {
   isPostProcessVideoNode,
 } from "./post_process/post_process_video_node.ts";
 import {
-  handleGeneralMediaProcessorEvent,
-  isGeneralMediaProcessorEvent,
-} from "./post_processor_event/general_media_processor_event.ts";
+  handleGeneralPostProcessorEvent,
+  isGeneralPostProcessorEvent,
+} from "./post_processor_event/general_post_processor_event.ts";
 import {
   handleSharpProcessorEvent,
   isSharpProcessorEvent,
@@ -48,8 +48,8 @@ export function queueHandler(msg: unknown) {
   if (isPostProcessFileNodes(msg)) return handlePostProcessFileNodes(msg);
   if (isVideoProcessorEvent(msg)) return handleVideoProcessorEvent(msg);
   if (isSharpProcessorEvent(msg)) return handleSharpProcessorEvent(msg);
-  if (isGeneralMediaProcessorEvent(msg)) {
-    return handleGeneralMediaProcessorEvent(msg);
+  if (isGeneralPostProcessorEvent(msg)) {
+    return handleGeneralPostProcessorEvent(msg);
   }
 
   console.error("Unhandled KV Queue message", msg);

@@ -15,3 +15,7 @@ export type OmitFirst<T extends unknown[]> = T extends [unknown, ...infer R] ? R
 export type DeepPartial<T> = T extends object
   ? { [P in keyof T]?: DeepPartial<T[P]> }
   : T;
+
+export type AllValuesNever<T> = {
+  [K in keyof T]?: never;
+};

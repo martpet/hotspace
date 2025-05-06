@@ -51,7 +51,7 @@ export async function initUploads(options: InitUploadOptions) {
     uploadsInitData.map((upload) =>
       queue.add(async () => {
         const { numberOfParts, savedUpload } = upload;
-        const fileType = upload.fileType || findFileType(upload) || "";
+        const mimeType = upload.mimeType || findMimeType(upload) || "";
         const finishedPartsNumbers = [];
         let uploadId;
         let s3Key;
@@ -70,7 +70,7 @@ export async function initUploads(options: InitUploadOptions) {
             s3Key,
             bucket,
             signer,
-            headers: headersFn?.({ ...upload, fileType }),
+            headers: headersFn?.({ ...upload, mimeType }),
           });
           finishedParts = [];
           createdOn = Date.now();
@@ -98,7 +98,7 @@ export async function initUploads(options: InitUploadOptions) {
 
         return {
           uploadId,
-          fileType,
+          mimeType,
           s3Key,
           createdOn,
           finishedParts,
@@ -122,7 +122,7 @@ function isValidSavedUpload(
     Date.now() - upload.createdOn < savedUploadExpiresIn;
 }
 
-function findFileType(upload: UploadInitData) {
+function findMimeType(upload: UploadInitData) {
   const ext = upload.fileName.split(".").at(-1);
   if (!ext) return;
   const cTypeHeader = contentType(`.${ext}`);

@@ -4,14 +4,17 @@ import { getSigner } from "../../aws.ts";
 import { AWS_REGION } from "../../consts.ts";
 import { estimateJobCost } from "../../inodes/aws_mediaconvert/job_cost.ts";
 import type { MediaConvertJobChangeStateDetail } from "../../inodes/aws_mediaconvert/types.ts";
-import { isVideoNode } from "../../inodes/helpers.ts";
 import { setAnyInode } from "../../inodes/kv_wrappers.ts";
 
 import {
   cleanupMaybe,
   isStaleEvent,
 } from "../../inodes/post_process/post_process.ts";
-import type { VideoNode } from "../../inodes/types.ts";
+import { isPostProcessedToVideo } from "../../inodes/post_process/type_predicates.ts";
+import type {
+  PostProcessedToVideo,
+  PostProcessStatus,
+} from "../../inodes/types.ts";
 import {
   fetchMasterPlaylist,
   processMasterPlaylist,
@@ -59,7 +62,7 @@ export async function handleVideoProcessorEvent(
     return;
   }
 
-  if (!isVideoNode(inode)) {
+  if (!isPostProcessedToVideo(inode)) {
     await cancelJobOrCleanup({ inodeS3Key, status, jobId });
     return;
   }
@@ -73,7 +76,7 @@ export async function handleVideoProcessorEvent(
 
   const inodePatch = {
     postProcess: inode.postProcess,
-  } satisfies Partial<VideoNode>;
+  } satisfies Partial<PostProcessedToVideo>;
 
   inodePatch.postProcess.stateChangeDate = stateChangeDate;
 
@@ -123,7 +126,7 @@ export async function handleVideoProcessorEvent(
       if (isStaleEvent(inode, stateChangeDate)) {
         return;
       }
-      if (!isVideoNode(inode)) {
+      if (!isPostProcessedToVideo(inode)) {
         await cancelJobOrCleanup({ inodeS3Key, status, jobId });
         return;
       }
@@ -140,7 +143,7 @@ function cancelJobOrCleanup(input: {
   jobId: string;
   status:
     | MediaConvertJobChangeStateDetail["status"]
-    | VideoNode["postProcess"]["status"];
+    | PostProcessStatus;
 }) {
   const { status, inodeS3Key, jobId } = input;
   if (status === "PENDING") {

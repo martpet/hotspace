@@ -4,10 +4,10 @@ import { HEADER } from "@std/http/unstable-header";
 import { keys as getInodeKey } from "../../kv/inodes.ts";
 import { watch } from "../../kv/kv.ts";
 import type { AppContext } from "../../types.ts";
-import { isPostProcessedNode } from "../helpers.ts";
+import { isPostProcessedFileNode } from "../post_process/type_predicates.ts";
 import type { Inode, PostProcessedFileNode } from "../types.ts";
 
-export function createFileNodeProcessingStatusHandler(
+export function createPostProcessingStatusHandler(
   callback: (
     inode: PostProcessedFileNode,
     ctx: AppContext,
@@ -33,7 +33,7 @@ export function createFileNodeProcessingStatusHandler(
           const inode = entry.value;
           const { canRead } = getPermissions({ user, resource: inode });
 
-          if (!isPostProcessedNode(inode) || !canRead) {
+          if (!isPostProcessedFileNode(inode) || !canRead) {
             await kvReader?.cancel();
             controller.close();
             return;
@@ -59,7 +59,6 @@ export function createFileNodeProcessingStatusHandler(
     });
 
     ctx.resp.headers.set(HEADER.ContentType, "text/event-stream");
-
     return ctx.respond(stream);
   };
 }

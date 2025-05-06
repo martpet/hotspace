@@ -1,7 +1,7 @@
 import { STATUS_CODE } from "@std/http";
 import { AWS_WEBHOOKS_KEY } from "../../util/consts.ts";
 import { enqueue } from "../../util/kv/enqueue.ts";
-import { QueueMsgGeneralMediaProcessorEvent } from "../../util/queue/post_processor_event/general_media_processor_event.ts";
+import { QueueMsgGeneralPostProcessorEvent } from "../../util/queue/post_processor_event/general_post_processor_event.ts";
 import { type QueueMsgSharpProcessorEvent } from "../../util/queue/post_processor_event/sharp_processor_event.ts";
 import { type QueueMsgVideoProcessorEvent } from "../../util/queue/post_processor_event/video_processor_event.ts";
 import type { AppContext } from "../../util/types.ts";
@@ -15,37 +15,28 @@ export async function awsWebhookHandler(ctx: AppContext) {
 
   const msg = await ctx.req.json();
 
-  switch (msg.source) {
-    case "aws.mediaconvert": {
-      await enqueue<QueueMsgVideoProcessorEvent>({
-        type: "video-processor-event",
-        detail: msg.detail,
-      }).commit();
-      break;
-    }
-
-    case "hotspace.sharp-processor": {
-      await enqueue<QueueMsgSharpProcessorEvent>({
-        type: "sharp-processor-event",
-        time: msg.time,
-        detail: msg.detail,
-      }).commit();
-      break;
-    }
-
-    case "hotspace.libre-processor":
-    case "hotspace.pandoc-processor": {
-      await enqueue<QueueMsgGeneralMediaProcessorEvent>({
-        type: "general-media-processor-event",
-        time: msg.time,
-        detail: msg.detail,
-      }).commit();
-      break;
-    }
-
-    default: {
-      console.error("Unhandled AWS webhook message", msg);
-    }
+  if (msg.source === "aws.mediaconvert") {
+    await enqueue<QueueMsgVideoProcessorEvent>({
+      type: "video-processor-event",
+      detail: msg.detail,
+    }).commit();
+  } else if (msg.source === "hotspace.sharp-processor") {
+    await enqueue<QueueMsgSharpProcessorEvent>({
+      type: "sharp-processor-event",
+      time: msg.time,
+      detail: msg.detail,
+    }).commit();
+  } else if (
+    msg.source === "hotspace.libre-processor" ||
+    msg.source === "hotspace.pandoc-processor"
+  ) {
+    await enqueue<QueueMsgGeneralPostProcessorEvent>({
+      type: "general-post-processor-event",
+      time: msg.time,
+      detail: msg.detail,
+    }).commit();
+  } else {
+    console.error("Unhandled AWS webhook message", msg);
   }
 
   return ctx.respond();

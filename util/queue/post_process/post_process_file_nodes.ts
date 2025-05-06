@@ -8,13 +8,16 @@ import {
   PANDOC_PROCESSOR_SQS_URL,
   SHARP_PROCESSOR_SQS_URL,
 } from "../../consts.ts";
-import { isPostProcessedNode } from "../../inodes/helpers.ts";
 import { setAnyInode } from "../../inodes/kv_wrappers.ts";
+import { MIME_CONFS } from "../../inodes/mime.ts";
+import {
+  isPostProcessedFileNode,
+} from "../../inodes/post_process/type_predicates.ts";
+import type { CustomPostProcessor } from "../../inodes/post_process/types.ts";
 import type {
   FileNode,
   Inode,
   PostProcessedFileNode,
-  PostProcessor,
 } from "../../inodes/types.ts";
 import { getInodeById, keys as getInodeKey } from "../../kv/inodes.ts";
 import { getManyEntries } from "../../kv/kv.ts";
@@ -22,64 +25,76 @@ import { getDevAppUrl } from "../../url.ts";
 
 export interface QueueMsgPostProcessFileNodes {
   type: "post-process-file-nodes";
-  processor: PostProcessor;
-  items: Pick<FileNode, "id" | "s3Key" | "name" | "fileType">[];
+  proc: CustomPostProcessor;
+  items: Pick<FileNode, "id" | "s3Key" | "name" | "mimeType">[];
   origin: string;
 }
 
 export function isPostProcessFileNodes(
   msg: unknown,
 ): msg is QueueMsgPostProcessFileNodes {
-  const { type, processor, items, origin } = msg as Partial<
+  const { type, proc, items, origin } = msg as Partial<
     QueueMsgPostProcessFileNodes
   >;
   return typeof msg === "object" &&
     type === "post-process-file-nodes" &&
-    (processor === "sharp" ||
-      processor === "libre" ||
-      processor === "pandoc") &&
+    (proc === "sharp" ||
+      proc === "libre" ||
+      proc === "pandoc") &&
     typeof origin === "string" &&
     Array.isArray(items) &&
     items.every((item) =>
       typeof item.id === "string" &&
       typeof item.s3Key === "string" &&
-      typeof item.fileType === "string" &&
+      typeof item.mimeType === "string" &&
       typeof item.name === "string"
     );
 }
 
+const SQS_URL_BY_PROC: Record<CustomPostProcessor, string> = {
+  sharp: SHARP_PROCESSOR_SQS_URL,
+  libre: LIBRE_PROCESSOR_SQS_URL,
+  pandoc: PANDOC_PROCESSOR_SQS_URL,
+};
+
 export async function handlePostProcessFileNodes(
   msg: QueueMsgPostProcessFileNodes,
 ) {
-  const { processor, items, origin } = msg;
+  const { proc, items, origin } = msg;
   const devAppUrl = getDevAppUrl(origin);
 
-  const sqsUrlByProcessor: Record<PostProcessor, string> = {
-    sharp: SHARP_PROCESSOR_SQS_URL,
-    libre: LIBRE_PROCESSOR_SQS_URL,
-    pandoc: PANDOC_PROCESSOR_SQS_URL,
-  };
-
-  const sqsUrl = sqsUrlByProcessor[processor];
+  const sqsUrl = SQS_URL_BY_PROC[proc];
   const messages = [];
 
   for (const item of items) {
-    let fileExt;
+    const body: Record<string, unknown> = {
+      inodeId: item.id,
+      inodeS3Key: item.s3Key,
+      inputFileName: item.name,
+      devAppUrl,
+    };
 
-    if (processor === "pandoc") {
-      fileExt = (allExtensions(item.fileType) || [])[0];
-      if (!fileExt) return;
+    const mimeConf = MIME_CONFS[item.mimeType];
+
+    if (!mimeConf?.proc) {
+      continue;
+    }
+
+    if (mimeConf.proc === "pandoc") {
+      const fileExt = (allExtensions(item.mimeType) || [])[0];
+      if (!fileExt) continue;
+      body.inputFileExt = fileExt;
+    } else if (mimeConf.proc === "sharp") {
+      body.thumbOnly = mimeConf.thumbOnly;
+    }
+
+    if (mimeConf.to) {
+      body.toMimeType = mimeConf.to;
     }
 
     messages.push({
       id: item.id,
-      body: JSON.stringify({
-        inodeId: item.id,
-        inodeS3Key: item.s3Key,
-        fileName: item.name,
-        fileExt,
-        devAppUrl,
-      }),
+      body: JSON.stringify(body),
     });
   }
 
@@ -102,7 +117,7 @@ async function handleFailedMsgs(ids: string[]) {
 
   for (let entry of entries) {
     queue.add(async () => {
-      if (!isPostProcessedNode(entry.value)) {
+      if (!isPostProcessedFileNode(entry.value)) {
         return;
       }
       let commit = { ok: false };
@@ -111,7 +126,7 @@ async function handleFailedMsgs(ids: string[]) {
         if (commitIndex) {
           entry = await getInodeById(entry.value.id);
         }
-        if (!isPostProcessedNode(entry.value)) {
+        if (!isPostProcessedFileNode(entry.value)) {
           return;
         }
         const atomic = setAnyInode<PostProcessedFileNode>({

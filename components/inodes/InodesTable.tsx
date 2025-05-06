@@ -88,7 +88,7 @@ export default function InodesTable(props: Props, ctx: AppContext) {
                   </td>
                   {!skipType && (
                     <td class="type">
-                      {inode.type === "file" ? inode.fileType : "Folder"}
+                      {inode.type === "file" ? inode.mimeType : "Folder"}
                     </td>
                   )}
                   {canViewAclSome && (

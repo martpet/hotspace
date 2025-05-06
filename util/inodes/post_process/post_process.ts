@@ -4,40 +4,16 @@ import { INODES_BUCKET } from "../../consts.ts";
 import { enqueue } from "../../kv/enqueue.ts";
 import { getInodeById } from "../../kv/inodes.ts";
 import { type QueueMsgDeleteS3Objects } from "../../queue/delete_s3_objects.ts";
-import { isPostProcessedNode } from "../helpers.ts";
 import { setAnyInode } from "../kv_wrappers.ts";
-import type { Inode, PostProcessedFileNode } from "../types.ts";
-
-export function isStaleEvent(inode: Inode | null, currentChangeDate: Date) {
-  if (!isPostProcessedNode(inode)) return false;
-  const prevChangeDate = inode.postProcess.stateChangeDate;
-  if (!prevChangeDate) return false;
-  return prevChangeDate > currentChangeDate;
-}
-
-export function cleanupMaybe(input: {
-  inodeS3Key: string;
-  status: PostProcessedFileNode["postProcess"]["status"];
-}) {
-  const { inodeS3Key, status } = input;
-  if (status === "COMPLETE") {
-    return enqueue<QueueMsgDeleteS3Objects>({
-      type: "delete-s3-objects",
-      bucket: INODES_BUCKET,
-      s3KeysData: [{
-        name: inodeS3Key,
-        isPrefix: true,
-      }],
-    }).commit();
-  }
-}
+import type { FileNode, Inode, PostProcessStatus } from "../types.ts";
+import { isPostProcessedFileNode } from "./type_predicates.ts";
 
 export async function patchPostProcessedNode(input: {
-  inodePatch: Partial<PostProcessedFileNode>;
+  inodePatch: Partial<FileNode>;
   inodeEntry: Deno.KvEntryMaybe<Inode>;
   inodeId: string;
   inodeS3Key: string;
-  status: PostProcessedFileNode["postProcess"]["status"];
+  status: PostProcessStatus;
   stateChangeDate: Date;
 }) {
   const { inodePatch, inodeId, inodeS3Key, stateChangeDate, status } = input;
@@ -54,7 +30,7 @@ export async function patchPostProcessedNode(input: {
     if (isStaleEvent(inode, stateChangeDate)) {
       return;
     }
-    if (!isPostProcessedNode(inode)) {
+    if (inode?.type !== "file") {
       await cleanupMaybe({ inodeS3Key, status });
       return;
     }
@@ -65,10 +41,32 @@ export async function patchPostProcessedNode(input: {
   }
 }
 
-export function getProcessingTimeoutAfter(inode: PostProcessedFileNode) {
-  if (inode.postProcess.status !== "PENDING") {
-    return { isTimedOut: false, timeoutIn: null };
+export function isStaleEvent(inode: Inode | null, currentChangeDate: Date) {
+  if (!isPostProcessedFileNode(inode)) return false;
+  const prevChangeDate = inode.postProcess.stateChangeDate;
+  if (!prevChangeDate) return false;
+  return prevChangeDate > currentChangeDate;
+}
+
+export function cleanupMaybe(input: {
+  inodeS3Key: string;
+  status: PostProcessStatus;
+}) {
+  const { inodeS3Key, status } = input;
+  if (status === "COMPLETE") {
+    return enqueue<QueueMsgDeleteS3Objects>({
+      type: "delete-s3-objects",
+      bucket: INODES_BUCKET,
+      s3KeysData: [{
+        name: inodeS3Key,
+        isPrefix: true,
+      }],
+    }).commit();
   }
+}
+
+export function getRemainingProcessingTimeout(inode: FileNode) {
+  if (inode.postProcess?.status !== "PENDING") return null;
   const createdAt = new Date(decodeTime(inode.id));
   const now = new Date();
   const diff = now.getTime() - createdAt.getTime();

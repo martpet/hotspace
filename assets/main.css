@@ -311,6 +311,7 @@ menu {
   }
   .breadcrumb {
     margin-inline-end: auto;
+    font-weight: 500;
     ol {
       margin: 0;
     }

@@ -2,7 +2,7 @@ import { s3 } from "$aws";
 import { encodeBase64 } from "@std/encoding";
 import { getSigner } from "../aws.ts";
 import { INODES_BUCKET } from "../consts.ts";
-import type { VideoNode } from "./types.ts";
+import type { FileNode } from "./types.ts";
 
 export function processMasterPlaylist(input: {
   masterPlaylist: string;
@@ -35,7 +35,7 @@ export function processMasterPlaylist(input: {
   };
 }
 
-export async function fetchMasterPlaylist(inode: VideoNode) {
+export async function fetchMasterPlaylist(inode: FileNode) {
   const resp = await s3.getObject({
     s3Key: inode.s3Key + ".m3u8",
     signer: getSigner(),
