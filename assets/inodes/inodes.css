@@ -16,6 +16,11 @@
   > menu {
     margin-left: auto;
   }
+  button#show-create-dir {
+    body:has(.blank-slate button.create-space) & {
+      display: none;
+    }
+  }
   #file-preview-canvas ~ & {
     h1 {
       font-size: 1.4rem;

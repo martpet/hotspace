@@ -46,7 +46,11 @@ export default async function homeHandler(ctx: AppContext) {
         <BlankSlate
           title="No spaces"
           subTitle="You haven't created any spaces yet."
-        />
+        >
+          <button class="create-space" data-click="show-create-dir">
+            Create Space
+          </button>
+        </BlankSlate>
       }
     />
   );

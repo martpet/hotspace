@@ -20,6 +20,11 @@ addEventListener("beforeunload", () => {
   document.getElementById("flash")?.remove();
 });
 
+addEventListener("click", ({ target }) => {
+  const { click } = target.dataset;
+  if (click) document.getElementById(click).click();
+});
+
 // =====================
 // Service Worker Reg
 // =====================

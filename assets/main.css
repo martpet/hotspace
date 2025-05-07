@@ -388,11 +388,12 @@ menu {
 }
 
 .blank-slate {
-  margin-bottom: 2rem;
   text-align: center;
-  color: var(--text-grey);
-  strong {
+  .title {
     color: var(--text-grey-dark);
+  }
+  .sub {
+    color: var(--text-grey);
   }
 }
 

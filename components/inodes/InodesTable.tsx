@@ -43,10 +43,8 @@ export default function InodesTable(props: Props, ctx: AppContext) {
       {inodes.length === 0 && canCreate && (
         blankSlate || (
           <BlankSlate
-            title="No items"
-            subTitle={`You don't have any items in this ${
-              isParentSpace ? "space" : "folder"
-            }.`}
+            title={`Empty ${isParentSpace ? "space" : "folder"}`}
+            subTitle="Upload files or create folders."
           />
         )
       )}

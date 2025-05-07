@@ -1,15 +1,19 @@
+import { type ComponentChildren } from "preact";
+
 interface Props {
   title: string;
-  subTitle: string;
+  subTitle?: string;
+  children?: ComponentChildren;
 }
 
 export default function BlankSlate(props: Props) {
-  const { title, subTitle } = props;
+  const { title, subTitle, children } = props;
 
   return (
     <div class="blank-slate">
-      <strong>{title}</strong>
-      <p>{subTitle}</p>
+      <strong class="title">{title}</strong>
+      {subTitle && <p class="sub">{subTitle}</p>}
+      {children}
     </div>
   );
 }
