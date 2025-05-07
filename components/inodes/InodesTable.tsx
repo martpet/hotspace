@@ -34,7 +34,7 @@ export default function InodesTable(props: Props, ctx: AppContext) {
   } = props;
 
   const path = parsePathname(ctx.url.pathname);
-  const isParentSpace = path.segments.length === 1;
+  const isSpaceRoot = path.segments.length === 1;
   const skipSize = skipCols?.includes("size");
   const skipType = skipCols?.includes("type");
 
@@ -43,8 +43,9 @@ export default function InodesTable(props: Props, ctx: AppContext) {
       {inodes.length === 0 && canCreate && (
         blankSlate || (
           <BlankSlate
-            title={`Empty ${isParentSpace ? "space" : "folder"}`}
-            subTitle="Upload files or create folders."
+            title={`Empty ${isSpaceRoot ? "space" : "folder"}`}
+            subTitle={`Upload files or create
+              ${isSpaceRoot ? "" : "sub"} folders.`}
           />
         )
       )}

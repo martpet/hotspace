@@ -82,7 +82,7 @@ async function submitData() {
   const parentPath = isDir ? "../" : "./";
   if (resp.ok) {
     setFlash(
-      `Successfully deleted ${inodeType.toLowerCase()} "${inodeNameDecoded}"`,
+      `Successfully deleted ${inodeType.toLowerCase()} "${inodeNameDecoded}"`
     );
     setFromCookie("delete");
     location = parentPath;
@@ -90,7 +90,7 @@ async function submitData() {
     setFlash({ msg: "Not Found", type: "error" });
     location = parentPath;
   } else {
-    errorSignal.value = await resp.text() || GENERAL_ERR_MSG;
+    errorSignal.value = (await resp.text()) || GENERAL_ERR_MSG;
     statusSignal.value = "idle";
   }
 }
@@ -112,7 +112,7 @@ function insertDialog() {
           <form id="delete-inode-form" class="basic-form">
             <p class="alert warning">
               ${introText}
-              will be deleted.<br /> This action cannot be undone.
+              will be deleted. <span class="text-undone">This action cannot be undone.</span>
             </p>
             <p id="delete-inode-error" class="alert error" hidden></p>
             <label>
@@ -125,7 +125,7 @@ function insertDialog() {
             </footer>
           </form>
         </dialog>
-      `,
+      `
   );
   dialog = document.getElementById("delete-inode-dialog");
   form = document.getElementById("delete-inode-form");

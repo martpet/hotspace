@@ -44,8 +44,8 @@ export default async function homeHandler(ctx: AppContext) {
       inodesPermissions={inodesPermissions}
       blankSlate={
         <BlankSlate
-          title="No spaces"
-          subTitle="You haven't created any spaces yet."
+          title={`Hi, ${user.username}!`}
+          subTitle="You don't have any spaces."
         >
           <button class="create-space" data-click="show-create-dir">
             Create Space

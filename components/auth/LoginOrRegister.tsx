@@ -1,18 +1,16 @@
 import ButtonLogin from "./ButtonLogin.tsx";
 
 interface Props {
+  skipLogin?: boolean;
   skipReg?: boolean;
 }
 
-export default function LoginOrRegister({ skipReg }: Props) {
+export default function LoginOrRegister({ skipLogin, skipReg }: Props) {
   return (
     <div class="login-or-register">
-      <ButtonLogin />
-      {!skipReg && (
-        <>
-          or <a href="/register">register</a>
-        </>
-      )}
+      {!skipLogin && <ButtonLogin />}
+      {!skipLogin && !skipReg && " or "}
+      {!skipReg && <a href="/register">register</a>}
     </div>
   );
 }

@@ -7,11 +7,19 @@ export interface PageHeaderProps {
   siteNameIsHeading?: boolean;
   siteNameIsLink?: boolean;
   breadcrumb?: boolean;
+  skipLogin?: boolean;
   skipReg?: boolean;
 }
 
 export default function PageHeader(props: PageHeaderProps, ctx: AppContext) {
-  const { siteNameIsHeading, siteNameIsLink, breadcrumb, skipReg } = props;
+  const {
+    siteNameIsHeading,
+    siteNameIsLink,
+    breadcrumb,
+    skipLogin,
+    skipReg,
+  } = props;
+
   const { user } = ctx.state;
 
   return (
@@ -21,7 +29,7 @@ export default function PageHeader(props: PageHeaderProps, ctx: AppContext) {
         : <SiteName isHeading={siteNameIsHeading} isLink={siteNameIsLink} />}
       {user
         ? <AccountNav username={user.username} />
-        : <LoginOrRegister skipReg={skipReg} />}
+        : <LoginOrRegister skipLogin={skipLogin} skipReg={skipReg} />}
     </header>
   );
 }

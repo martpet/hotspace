@@ -13,7 +13,11 @@ export default function registerHandler(ctx: AppContext) {
   const head = <script type="module" src={asset("reg.js")} />;
 
   return (
-    <Page title="Register" head={head} header={{ skipReg: true }}>
+    <Page
+      title="Register"
+      head={head}
+      header={{ siteNameIsLink: true, skipLogin: true, skipReg: true }}
+    >
       <h1>Register</h1>
       <RegForm />
     </Page>

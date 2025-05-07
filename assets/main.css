@@ -390,9 +390,11 @@ menu {
 .blank-slate {
   text-align: center;
   .title {
+    display: block;
     color: var(--text-grey-dark);
   }
   .sub {
+    margin-bottom: 1.5em;
     color: var(--text-grey);
   }
 }

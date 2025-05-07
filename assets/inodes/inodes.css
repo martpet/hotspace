@@ -30,6 +30,9 @@
 
 #delete-inode-dialog {
   max-width: 32em;
+  .text-undone {
+    white-space: nowrap;
+  }
 }
 
 #file-preview-canvas {
