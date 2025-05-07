@@ -1,5 +1,6 @@
 import { type ResourcePermissions } from "$util";
 import { getRemainingProcessingTimeout } from "../../../util/inodes/post_process/post_process.ts";
+import { InodePreviewInfo } from "../../../util/inodes/post_process/preview_info.ts";
 import type { FileNode } from "../../../util/inodes/types.ts";
 import { asset } from "../../../util/url.ts";
 import Loader from "../../Loader.tsx";
@@ -8,12 +9,11 @@ import FilePreview from "./FilePreview.tsx";
 interface Props {
   inode: FileNode;
   permissions: ResourcePermissions;
-  url: string | undefined;
+  previewInfo: InodePreviewInfo | undefined;
 }
 
 export default function IframePreview(props: Props) {
-  const { inode, permissions, url } = props;
-  const mimeType = inode.postProcess?.previewMimeType || inode.mimeType;
+  const { inode, permissions, previewInfo } = props;
 
   let timeoutAfter;
   let isProcessing;
@@ -55,9 +55,9 @@ export default function IframePreview(props: Props) {
       {!showError && (
         <iframe
           id="file-preview"
-          src={url}
+          src={previewInfo?.url}
           hidden={isProcessing}
-          data-mime={mimeType}
+          data-mime={previewInfo?.mimeType || null}
           data-inode-id={isProcessing ? inode.id : null}
           data-processing-timeout={isProcessing ? timeoutAfter : null}
         />

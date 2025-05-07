@@ -7,7 +7,7 @@ import NoPreview from "../../components/inodes/file_node/NoPreview.tsx";
 import VideoPreview from "../../components/inodes/file_node/VideoPreview.tsx";
 import Page from "../../components/pages/Page.tsx";
 import { getFileNodeDisplayType } from "../../util/inodes/helpers.ts";
-import { getPreviewUrl } from "../../util/inodes/post_process/preview_url.ts";
+import { getPreviewInfo } from "../../util/inodes/post_process/preview_info.ts";
 import { type FileNode } from "../../util/inodes/types.ts";
 import { getDirByPath, getInodeByDir } from "../../util/kv/inodes.ts";
 import { type AppContext } from "../../util/types.ts";
@@ -79,7 +79,7 @@ export default async function showFileHandler(ctx: AppContext) {
       <ImagePreview
         inode={inode}
         permissions={permissions}
-        url={await getPreviewUrl(inode)}
+        previewInfo={await getPreviewInfo(inode)}
       />
     );
   } else if (displayType === "iframe") {
@@ -87,7 +87,7 @@ export default async function showFileHandler(ctx: AppContext) {
       <IframePreview
         inode={inode}
         permissions={permissions}
-        url={await getPreviewUrl(inode)}
+        previewInfo={await getPreviewInfo(inode)}
       />
     );
   } else {

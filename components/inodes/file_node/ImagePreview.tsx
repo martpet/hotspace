@@ -1,6 +1,9 @@
 import { type ResourcePermissions } from "$util";
 import { getRemainingProcessingTimeout } from "../../../util/inodes/post_process/post_process.ts";
-import { showOriginalImageAsPreview } from "../../../util/inodes/post_process/preview_url.ts";
+import {
+  InodePreviewInfo,
+  showOriginalImageAsPreview,
+} from "../../../util/inodes/post_process/preview_info.ts";
 import type {
   FileNode,
   PostProcessedToImage,
@@ -12,11 +15,11 @@ import FilePreview from "./FilePreview.tsx";
 interface Props {
   inode: FileNode;
   permissions: ResourcePermissions;
-  url: string | undefined;
+  previewInfo: InodePreviewInfo | undefined;
 }
 
 export default function ImagePreview(props: Props) {
-  const { inode, permissions, url } = props;
+  const { inode, permissions, previewInfo } = props;
 
   let timeoutAfter;
   let isProcessing;
@@ -63,7 +66,7 @@ export default function ImagePreview(props: Props) {
       {!showError && (
         <img
           id="file-preview"
-          src={url}
+          src={previewInfo?.url}
           hidden={isProcessing}
           data-inode-id={isProcessing ? inode.id : null}
           data-processing-timeout={isProcessing ? timeoutAfter : null}
