@@ -16,7 +16,7 @@
   > menu {
     margin-left: auto;
   }
-  :is(#file-preview-canvas ~ &) {
+  #file-preview-canvas ~ & {
     h1 {
       font-size: 1.4rem;
     }
@@ -152,7 +152,7 @@ a.inode {
         background-color: var(--bg-highlight);
         td {
           border-bottom-color: Highlight;
-          &:is(tr:first-child td) {
+          tr:first-child & {
             border-top-color: Highlight;
           }
         }
@@ -179,7 +179,7 @@ a.inode {
     font-weight: 600;
     text-align: initial;
     border-bottom: 2px solid var(--border-grey-light);
-    &:is(thead:has(+ tbody tr:first-child .select :checked) &) {
+    thead:has(+ tbody tr:first-child .select :checked) & {
       border-bottom-color: transparent;
     }
   }
