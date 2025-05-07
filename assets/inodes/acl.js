@@ -221,7 +221,7 @@ function insertDialog() {
     `
         <dialog id="acl-dialog">
           <h1>Edit Access</h1>
-          <p class="inode-name">${inodeLabel}: ${inodeName}</p>
+          <p class="inode-name">${inodeLabel} "${inodeName}"</p>
           <form id="acl-form" class="basic-form">
             <p id="acl-error" class="alert error" hidden></p>
             <p>
