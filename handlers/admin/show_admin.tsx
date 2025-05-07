@@ -13,7 +13,7 @@ export default async function showAdminHandler(ctx: AppContext) {
     return <NotFoundPage />;
   }
 
-  const settings = (await getAppSettings()).value;
+  const { value: settings } = await getAppSettings();
   const budgetsLiveCosts = await getBudgetsLiveCosts(settings?.budgets || []);
 
   return (

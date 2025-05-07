@@ -4,9 +4,10 @@ import type { AppBudget } from "../types.ts";
 export async function getBudgetsLiveCosts(
   budgets: AppBudget[],
   opt: { consistency?: Deno.KvConsistencyLevel } = {},
-) {
+): Promise<number[]> {
   const now = Date.now();
   const consistency = opt.consistency || "eventual";
+
   const parsedBudgets: {
     startDate: Date;
     liveCost: number;
@@ -30,8 +31,10 @@ export async function getBudgetsLiveCosts(
     });
   }
 
+  if (!oldestStartDate) return [];
+
   const costsEntries = await listAppCostsEntriesInCents({
-    startDate: oldestStartDate!,
+    startDate: oldestStartDate,
     listOptions: { consistency, reverse: true },
   });
 
