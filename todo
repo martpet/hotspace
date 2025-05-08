@@ -1,3 +1,5 @@
+- implement AWS Cost Allocation Tas
+
 - fix file preview "resize both"
 
 - send email to admin when upload automatically disabled
@@ -5,9 +7,6 @@
 - add stats: ['mime_count', mime, count] and ['mime_max_file_size', mime, size]
 
 - handle duplicate filenode post processing queue msgs with a nonce
-
-- style flash msg full width, close button, no pos absolute, dialog el, appear
-  with height animation
 
 - refactor chat with preact standalone
 

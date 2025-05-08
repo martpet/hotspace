@@ -315,16 +315,22 @@ export function setFlash(flash) {
 }
 
 export function insertFlash(flash) {
-  if (typeof flash === "string") flash = { msg: flash, autoHide: true };
-  let classes = ["flash", "alert", flash.type || "success"];
-  if (flash.autoHide !== false) classes.push("auto-hide");
-  document.getElementById("flash")?.remove();
-  document
-    .getElementById("page-header")
-    .insertAdjacentHTML(
-      "afterend",
-      `<dialog open class="${classes.join(" ")}">${flash.msg}</dialog>`
-    );
+  if (typeof flash === "string") flash = { msg: flash };
+  const classes = ["flash", "alert", flash.type || "success"];
+  const html = `
+    <dialog open class="${classes.join(" ")}">
+      <form method="dialog">
+        ${flash.msg}
+        <button>X</button>
+      </form>
+    </dialog>
+  `;
+  const pageHeader = document.getElementById("page-header");
+  if (pageHeader) {
+    pageHeader.insertAdjacentHTML("afterend", html);
+  } else {
+    document.body.insertAdjacentHTML("afterbegin", html);
+  }
 }
 
 export function setFromCookie(str) {

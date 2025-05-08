@@ -62,7 +62,7 @@ export default function Page(props: PageProps, ctx: AppContext) {
       <body {...bodyProps}>
         <PageHeader {...headerProps} />
         {flash && (
-          <Flash type={flash.type} autoHide={flash.autoHide}>
+          <Flash type={flash.type}>
             {flash.msg}
           </Flash>
         )}

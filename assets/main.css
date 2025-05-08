@@ -109,18 +109,6 @@ menu {
   margin: 0;
 }
 
-.flash {
-  margin-top: 10px;
-  border: none;
-  &.auto-hide {
-    animation: hide 0.2s 3s forwards;
-  }
-  form {
-    display: flex;
-    align-items: center;
-  }
-}
-
 .wait-disabled[disabled] {
   cursor: wait;
 }
@@ -175,6 +163,24 @@ menu {
   &.info {
     background: royalblue;
     color: white;
+  }
+}
+
+dialog.flash {
+  position: static;
+  width: 100%;
+  margin-top: 1em;
+  padding: 0;
+  border: none;
+  border-radius: 5px;
+  form {
+    display: flex;
+    min-height: 2.5em;
+    padding: 0.5em 1em;
+    align-items: center;
+    button {
+      margin-left: auto;
+    }
   }
 }
 
