@@ -5,9 +5,8 @@ import { AWS_REGION } from "../../consts.ts";
 import { estimateJobCost } from "../../inodes/aws_mediaconvert/job_cost.ts";
 import type { MediaConvertJobChangeStateDetail } from "../../inodes/aws_mediaconvert/types.ts";
 import { setAnyInode } from "../../inodes/kv_wrappers.ts";
-
 import {
-  cleanupMaybe,
+  cleanupS3Objects,
   isStaleEvent,
 } from "../../inodes/post_process/post_process.ts";
 import { isPostProcessedToVideo } from "../../inodes/post_process/type_predicates.ts";
@@ -63,7 +62,7 @@ export async function handleVideoProcessorEvent(
   }
 
   if (!isPostProcessedToVideo(inode)) {
-    await cancelJobOrCleanup({ inodeS3Key, status, jobId });
+    await cleanup({ inodeS3Key, status, jobId });
     return;
   }
 
@@ -127,7 +126,7 @@ export async function handleVideoProcessorEvent(
         return;
       }
       if (!isPostProcessedToVideo(inode)) {
-        await cancelJobOrCleanup({ inodeS3Key, status, jobId });
+        await cleanup({ inodeS3Key, status, jobId });
         return;
       }
     }
@@ -138,7 +137,7 @@ export async function handleVideoProcessorEvent(
   }
 }
 
-function cancelJobOrCleanup(input: {
+function cleanup(input: {
   inodeS3Key: string;
   jobId: string;
   status:
@@ -146,13 +145,15 @@ function cancelJobOrCleanup(input: {
     | PostProcessStatus;
 }) {
   const { status, inodeS3Key, jobId } = input;
+  const promises: Promise<unknown>[] = [
+    cleanupS3Objects(inodeS3Key),
+  ];
   if (status === "PENDING") {
-    return mediaconvert.cancelJob({
+    promises.push(mediaconvert.cancelJob({
       jobId,
       signer: getSigner(),
       region: AWS_REGION,
-    });
-  } else if (status !== "STATUS_UPDATE") {
-    cleanupMaybe({ inodeS3Key, status });
+    }));
   }
+  return Promise.all(promises);
 }

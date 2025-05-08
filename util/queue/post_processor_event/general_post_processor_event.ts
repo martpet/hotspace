@@ -57,7 +57,6 @@ export async function handleGeneralPostProcessorEvent(
     inodeEntry,
     inodeId,
     inodeS3Key,
-    status,
     stateChangeDate,
   });
 }

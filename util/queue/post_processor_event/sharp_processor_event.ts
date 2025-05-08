@@ -90,7 +90,6 @@ export async function handleSharpProcessorEvent(
     inodeEntry,
     inodeId,
     inodeS3Key,
-    status,
     stateChangeDate,
   });
 }

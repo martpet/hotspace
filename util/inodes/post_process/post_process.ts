@@ -5,7 +5,7 @@ import { enqueue } from "../../kv/enqueue.ts";
 import { getInodeById } from "../../kv/inodes.ts";
 import { type QueueMsgDeleteS3Objects } from "../../queue/delete_s3_objects.ts";
 import { setAnyInode } from "../kv_wrappers.ts";
-import type { FileNode, Inode, PostProcessStatus } from "../types.ts";
+import type { FileNode, Inode } from "../types.ts";
 import { isPostProcessedFileNode } from "./type_predicates.ts";
 
 export async function patchPostProcessedNode(input: {
@@ -13,10 +13,9 @@ export async function patchPostProcessedNode(input: {
   inodeEntry: Deno.KvEntryMaybe<Inode>;
   inodeId: string;
   inodeS3Key: string;
-  status: PostProcessStatus;
   stateChangeDate: Date;
 }) {
-  const { inodePatch, inodeId, inodeS3Key, stateChangeDate, status } = input;
+  const { inodePatch, inodeId, inodeS3Key, stateChangeDate } = input;
   let { inodeEntry } = input;
   let inode = inodeEntry.value;
   let commit = { ok: false };
@@ -31,7 +30,7 @@ export async function patchPostProcessedNode(input: {
       return;
     }
     if (inode?.type !== "file") {
-      await cleanupMaybe({ inodeS3Key, status });
+      await cleanupS3Objects(inodeS3Key);
       return;
     }
     const atomic = setAnyInode({ ...inode, ...inodePatch });
@@ -48,21 +47,15 @@ export function isStaleEvent(inode: Inode | null, currentChangeDate: Date) {
   return prevChangeDate > currentChangeDate;
 }
 
-export function cleanupMaybe(input: {
-  inodeS3Key: string;
-  status: PostProcessStatus;
-}) {
-  const { inodeS3Key, status } = input;
-  if (status === "COMPLETE") {
-    return enqueue<QueueMsgDeleteS3Objects>({
-      type: "delete-s3-objects",
-      bucket: INODES_BUCKET,
-      s3KeysData: [{
-        name: inodeS3Key,
-        isPrefix: true,
-      }],
-    }).commit();
-  }
+export function cleanupS3Objects(inodeS3Key: string) {
+  return enqueue<QueueMsgDeleteS3Objects>({
+    type: "delete-s3-objects",
+    bucket: INODES_BUCKET,
+    s3KeysData: [{
+      name: inodeS3Key,
+      isPrefix: true,
+    }],
+  }).commit();
 }
 
 export function getRemainingProcessingTimeout(inode: FileNode) {
