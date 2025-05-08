@@ -109,17 +109,31 @@ async function submitData() {
     await replaceFragment("inodes");
     statusSignal.value = "closed";
     tableMenu.hidden = true;
-    const itemsCount = selection.length;
-    const msg = isSingleSelect
-      ? `${inodeLabel} "${selection[0].name}"`
-      : `${itemsCount} item${itemsCount > 1 ? "s" : ""}`;
-    insertFlash(`${msg} deleted`);
+    insertFlash(createFlashMsg());
   } else if (resp.status === 404) {
     location.reload();
   } else {
     errorSignal.value = (await resp.text()) || GENERAL_ERR_MSG;
     statusSignal.value = "idle";
   }
+}
+
+function createFlashMsg() {
+  if (isSingleSelect) {
+    return `${inodeLabel} "${selection[0].name}" deleted`;
+  }
+  if (selection.length === 1) {
+    const { isDir, decodedName } = selection[0];
+    return `Deleted ${isDir ? "folder" : "file"} "${decodedName}"`;
+  }
+  let dirsCount = 0;
+  let filesCount = 0;
+  for (const { isDir } of selection) isDir ? dirsCount++ : filesCount++;
+  let msg = "Deleted ";
+  if (dirsCount) msg += `${dirsCount} folder${dirsCount > 1 ? "s" : ""}`;
+  if (dirsCount && filesCount) msg += " and ";
+  if (filesCount) msg += `${filesCount} file${dirsCount > 1 ? "s" : ""}`;
+  return msg;
 }
 
 function handleSelectionChange(eventTarget) {

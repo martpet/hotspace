@@ -81,9 +81,7 @@ async function submitData() {
   });
   const parentPath = isDir ? "../" : "./";
   if (resp.ok) {
-    setFlash(
-      `Successfully deleted ${inodeType.toLowerCase()} "${inodeNameDecoded}"`
-    );
+    setFlash(`Deleted ${inodeType.toLowerCase()} "${inodeNameDecoded}"`);
     setFromCookie("delete");
     location = parentPath;
   } else if (resp.status === 404) {

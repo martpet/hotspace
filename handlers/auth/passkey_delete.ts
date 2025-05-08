@@ -43,7 +43,7 @@ export default async function passkeyDeleteHandler(ctx: AppContext) {
     return ctx.redirectBack();
   }
 
-  ctx.setFlash("Successfully deleted passkey!");
+  ctx.setFlash("Deleted passkey");
 
   return ctx.redirectBack();
 }
