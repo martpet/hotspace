@@ -9,7 +9,7 @@ export default async function logoutHandler(ctx: AppContext) {
   if (session) {
     await deleteSession(session).commit();
     deleteCookie(ctx.resp.headers, SESSION_COOKIE, { path: "/" });
-    ctx.setFlash("You were signed out");
+    ctx.setFlash({ msg: "You were signed out", type: "info" });
   }
 
   return ctx.redirectBack();
