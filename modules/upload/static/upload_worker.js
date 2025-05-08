@@ -142,7 +142,7 @@ class Uploader {
       this.activeConnections.add(xhr);
       onStarted();
       xhr.open("PUT", signedUrl);
-      xhr.timeout = chunk.size * 15;
+      xhr.timeout = Math.max(10_000, chunk.size * 15);
 
       xhr.upload.onprogress = (event) =>
         this.handleProgress({ event, signedUrl });

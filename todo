@@ -1,3 +1,5 @@
+- upload small files (< 5MB) directly (no multipart)
+
 - implement AWS Cost Allocation Tas
 
 - fix file preview "resize both"
