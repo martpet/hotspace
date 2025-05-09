@@ -47,22 +47,18 @@
   @media (prefers-color-scheme: dark) {
     background: black;
   }
-}
-
-#file-preview-loader {
-  margin: 0;
-  align-items: center;
-  color: var(--text-grey-dark);
-}
-
-#file-preview {
-  img&,
-  video& {
+  img,
+  video {
     width: 100%;
     max-height: 500px;
     object-fit: contain;
   }
-  iframe& {
+  audio {
+    width: 500px;
+    max-width: 100%;
+    color-scheme: dark;
+  }
+  iframe {
     max-width: 100%;
     resize: both;
     width: 75em;
@@ -83,6 +79,12 @@
       height: 600px;
     }
   }
+}
+
+#file-preview-loader {
+  margin: 0;
+  align-items: center;
+  color: var(--text-grey-dark);
 }
 
 #upload-progress {

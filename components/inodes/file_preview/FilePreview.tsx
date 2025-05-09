@@ -28,5 +28,9 @@ export default function FilePreview(props: Props) {
     return <IframePreview inode={inode} preview={preview} perm={perm} />;
   }
 
-  return <PreviewLayout inode={inode} perm={perm} />;
+  return (
+    <PreviewLayout inode={inode} perm={perm}>
+      {displayType === "audio" && <audio controls src={preview.url!} />}
+    </PreviewLayout>
+  );
 }
