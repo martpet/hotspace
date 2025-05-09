@@ -1,4 +1,9 @@
-import { getPermissions, type NonRootPath, parsePathname } from "$util";
+import {
+  getPermissions,
+  type NonRootPath,
+  parsePathname,
+  segmentsToPathname,
+} from "$util";
 import { STATUS_CODE } from "@std/http";
 import Chat from "../../components/chat/ChatSection.tsx";
 import FilePreview from "../../components/inodes/file_preview/FilePreview.tsx";
@@ -22,24 +27,34 @@ export default async function showFileHandler(ctx: AppContext) {
     return ctx.redirect(ctx.req.url + "/", STATUS_CODE.PermanentRedirect);
   }
 
-  const { value: parentDir } = await getDirByPath(path.parentSegments, {
+  const { value: dirNode } = await getDirByPath(path.parentSegments, {
     consistency: "eventual",
   });
 
-  if (!parentDir) {
+  if (!dirNode) {
     return notFound();
   }
 
   const { value: inode } = await getInodeByDir<FileNode>({
     inodeName: path.lastSegment,
-    parentDirId: parentDir.id,
+    parentDirId: dirNode.id,
     consistency: fragmentId === "chat" ? "strong" : "eventual",
   });
 
   const perm = getPermissions({ user, resource: inode });
 
+  console.log(inode);
+
   if (!inode || !perm.canRead) {
     return notFound();
+  }
+
+  const canonicalPathname = segmentsToPathname(
+    dirNode.pathSegments.concat(inode.name),
+  );
+
+  if (canonicalPathname !== ctx.url.pathname) {
+    return ctx.redirect(canonicalPathname);
   }
 
   const chatSection = (

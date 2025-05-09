@@ -7,11 +7,11 @@ export const keys = {
   byDir: (
     dirId: string,
     inodeName: string,
-  ) => ["inodes_by_dir", dirId, inodeName],
+  ) => ["inodes_by_dir", dirId, inodeName.toLowerCase()],
 
   dirsByPath: (
     pathSegments: string[],
-  ) => ["dirs_by_path", ...pathSegments],
+  ) => ["dirs_by_path", ...pathSegments.map((it) => it.toLowerCase())],
 
   rootDirsByOwner: (
     ownerId: string,

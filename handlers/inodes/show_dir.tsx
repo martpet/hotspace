@@ -1,4 +1,4 @@
-import { getPermissions, parsePathname } from "$util";
+import { getPermissions, parsePathname, segmentsToPathname } from "$util";
 import ButtonToggleChat from "../../components/chat/ButtonToggleChat.tsx";
 import ChatSection from "../../components/chat/ChatSection.tsx";
 import ButtonCreateDir from "../../components/inodes/ButtonCreateDir.tsx";
@@ -21,16 +21,23 @@ export default async function showDirHandler(ctx: AppContext) {
   const from = ctx.state.from as From | undefined;
   const notFound = () => notFoundHandler(ctx, { header: { breadcrumb: true } });
 
-  const dirNodeEntry = await getDirByPath(path.segments, {
+  const { value: dirNode } = await getDirByPath(path.segments, {
     consistency: fragmentId === "chat" ? "strong" : "eventual",
   });
 
-  const dirNode = dirNodeEntry.value;
   const perm = getPermissions({ user, resource: dirNode });
   const { canRead, canCreate, canModerate } = perm;
 
   if (!dirNode || !canRead) {
     return notFound();
+  }
+
+  const canonicalPathname = segmentsToPathname(dirNode.pathSegments, {
+    isDir: true,
+  });
+
+  if (canonicalPathname !== ctx.url.pathname) {
+    return ctx.redirect(canonicalPathname);
   }
 
   const chatSection = (

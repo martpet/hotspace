@@ -45,3 +45,12 @@ export function parsePathname(pathname: string): Path {
 export function pathnameToSegments(path: string) {
   return path.split("/").filter(Boolean);
 }
+
+export function segmentsToPathname(
+  segments: string[],
+  opt: { isDir?: boolean } = {},
+) {
+  let str = `/${segments.join("/")}`;
+  if (opt.isDir) str += "/";
+  return str;
+}
