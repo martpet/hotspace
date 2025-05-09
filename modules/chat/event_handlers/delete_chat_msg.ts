@@ -20,7 +20,7 @@ export const deletedChatMsgHandler: ChatEventHandler<DeletedChatMsgEventResp> =
     const { id } = event.data;
     const msg = (await getChatMessage({ kv, id, chatId: chat.id })).value;
     const isMsgOwner = chatUser.kvEntry.value.username === msg?.username;
-    const { canModerate } = conn.permissions;
+    const { canModerate } = conn.perm;
 
     if (!msg || (!isMsgOwner && !canModerate)) {
       return null;

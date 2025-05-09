@@ -25,7 +25,7 @@ export const newChatMsgHandler: ChatEventHandler<NewChatMsgEventResp> = async (
   const { clientMsgId, text } = event.data;
   const id = ulid();
   const feedItemId = ulid();
-  const { canRead } = conn.permissions;
+  const { canRead } = conn.perm;
 
   if (!canRead) {
     return null;

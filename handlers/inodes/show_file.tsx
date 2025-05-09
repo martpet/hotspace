@@ -36,9 +36,9 @@ export default async function showFileHandler(ctx: AppContext) {
     consistency: fragmentId === "chat" ? "strong" : "eventual",
   });
 
-  const permissions = getPermissions({ user, resource: inode });
+  const perm = getPermissions({ user, resource: inode });
 
-  if (!inode || !permissions.canRead) {
+  if (!inode || !perm.canRead) {
     return notFound();
   }
 
@@ -47,7 +47,7 @@ export default async function showFileHandler(ctx: AppContext) {
       enabled={inode.chatEnabled}
       chatId={inode.id}
       chatTitle={inode.name}
-      permissions={permissions}
+      perm={perm}
     />
   );
 
@@ -83,7 +83,7 @@ export default async function showFileHandler(ctx: AppContext) {
       <FilePreview
         inode={inode}
         preview={preview}
-        perm={permissions}
+        perm={perm}
       />
       {chatSection}
     </Page>

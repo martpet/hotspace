@@ -94,7 +94,7 @@ export class ChatConnection {
     this.chat.sendAll(data, { except: this });
   }
 
-  get permissions() {
+  get perm() {
     return getPermissions({
       user: this.chatUser?.kvEntry?.value,
       resource: this.chat.kvEntry?.value,
@@ -103,7 +103,7 @@ export class ChatConnection {
 
   async #sendUnseenFeedItems() {
     await this.ready;
-    const { canRead } = this.permissions;
+    const { canRead } = this.perm;
     const isChatEnabled = this.chat.kvEntry?.value?.chatEnabled;
     if (!isChatEnabled || !canRead) return;
     const lastSeenId = this.lastSeenFeedItemId;

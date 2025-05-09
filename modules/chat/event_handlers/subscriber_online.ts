@@ -10,7 +10,7 @@ export const subscriberOnlineHandler: ChatEventHandler = async (
   assertSubscriberOnlineEvent(event);
 
   const { skipChatSubUpdate, subscriberId } = event.data;
-  const { canRead } = conn.permissions;
+  const { canRead } = conn.perm;
 
   if (conn.subscriberId === subscriberId || !canRead) {
     return null;

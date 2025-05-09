@@ -10,7 +10,7 @@ export const userTypingHandler: ChatEventHandler<UserTypingEvent> = (
   conn,
 ) => {
   const { chat, chatUser } = conn;
-  const { canRead } = conn.permissions;
+  const { canRead } = conn.perm;
 
   if (!canRead) {
     return null;

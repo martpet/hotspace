@@ -17,7 +17,7 @@ export const loadOlderMessagesHandler: ChatEventHandler<
   assertChatEntry(chat.kvEntry);
 
   const { olderMsgsCursor } = event.data;
-  const { canRead } = conn.permissions;
+  const { canRead } = conn.perm;
 
   if (!canRead) {
     return null;

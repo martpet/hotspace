@@ -15,7 +15,7 @@ type Props = (PropsWithLazyLoad | PropsWithoutLazyLoad) & {
   enabled: boolean | undefined;
   chatId: string;
   chatTitle: string;
-  permissions: ResourcePermissions;
+  perm: ResourcePermissions;
 };
 
 interface PropsWithLazyLoad {
@@ -33,7 +33,7 @@ export default function ChatSection(props: Props, ctx: AppContext) {
     chatId,
     enabled,
     chatTitle,
-    permissions,
+    perm,
     messages,
     olderMsgsCursor,
   } = props;
@@ -44,7 +44,7 @@ export default function ChatSection(props: Props, ctx: AppContext) {
 
   const { locale } = ctx;
   const { dateTimeFmt, timeFmt } = chatIntlFmt(locale);
-  const { canModerate } = permissions;
+  const { canModerate } = perm;
 
   return (
     <section
