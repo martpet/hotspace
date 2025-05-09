@@ -1,21 +1,18 @@
 import { type FormFieldConstraints } from "$util";
 
-const URL_PATH_SEGMENT_CONSTRAINTS = {
-  pattern: "^[A-Za-z0-9\\-._~]+$",
-  title:
-    "Only letters (A–Z, a–z), numbers (0–9), underscores (_), hyphens (-), tildes (~), and dots (.) — no spaces.",
-} satisfies FormFieldConstraints;
-
 export const USERNAME_CONSTRAINTS = {
   minLength: 2,
   maxLength: 30,
-  ...URL_PATH_SEGMENT_CONSTRAINTS,
+  pattern: "^(?!.*[._\\-]{2})(?![._\\-])[A-Za-z0-9._\\-]+(?<![._\\-])$",
+  title:
+    "Letters, numbers, dots, underscores, and hyphens. No special characters at the start, end, or repeated.",
 } satisfies FormFieldConstraints;
 
 export const DIR_NAME_CONSTRAINTS = {
   minLength: 2,
   maxLength: 100,
-  ...URL_PATH_SEGMENT_CONSTRAINTS,
+  pattern: "^[A-Za-z0-9\\-._~]+$",
+  title: "Letters, numbers, dots, underscores, hyphens, and tildes.",
 } satisfies FormFieldConstraints;
 
 export const DIR_DESCRIPTION_CONSTRAINTS = {
