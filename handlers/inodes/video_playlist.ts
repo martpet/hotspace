@@ -5,7 +5,7 @@ import { STATUS_CODE } from "@std/http";
 import { HEADER } from "@std/http/unstable-header";
 import { getSigner } from "../../util/aws.ts";
 import { INODES_BUCKET } from "../../util/consts.ts";
-import { signFileNodeUrl } from "../../util/inodes/helpers.ts";
+import { getFileNodeUrl } from "../../util/inodes/helpers.ts";
 import { isPostProcessedToVideo } from "../../util/inodes/post_process/type_predicates.ts";
 import { getInodeById } from "../../util/kv/inodes.ts";
 import type { AppContext } from "../../util/types.ts";
@@ -63,7 +63,7 @@ export default async function videoPlaylistHandler(ctx: AppContext) {
     if (!line.endsWith(".ts")) continue;
     if (!cachedLines[line]) {
       const segmentS3Key = `${segmentPathBase}/${line}`;
-      cachedLines[line] = await signFileNodeUrl(segmentS3Key, {
+      cachedLines[line] = await getFileNodeUrl(segmentS3Key, {
         expireIn: DAY,
       });
     }

@@ -1,36 +1,46 @@
 import { type ResourcePermissions } from "$util";
 import { getRemainingProcessingTimeout } from "../../../util/inodes/post_process/post_process.ts";
-import { InodePreviewInfo } from "../../../util/inodes/post_process/preview_info.ts";
-import type { FileNode } from "../../../util/inodes/types.ts";
+import {
+  InodePreviewInfo,
+} from "../../../util/inodes/post_process/preview_info.ts";
+import type {
+  FileNode,
+  PostProcessedToImage,
+} from "../../../util/inodes/types.ts";
 import { asset } from "../../../util/url.ts";
 import Loader from "../../Loader.tsx";
-import FilePreview from "./FilePreview.tsx";
+import PreviewLayout from "./PreviewLayout.tsx";
 
 interface Props {
   inode: FileNode;
-  permissions: ResourcePermissions;
-  previewInfo: InodePreviewInfo | undefined;
+  preview: InodePreviewInfo;
+  perm: ResourcePermissions;
 }
 
-export default function IframePreview(props: Props) {
-  const { inode, permissions, previewInfo } = props;
+export default function ImagePreview(props: Props) {
+  const { inode, preview, perm } = props;
 
   let timeoutAfter;
   let isProcessing;
   let showError;
   let downloadText;
+  let style;
 
-  if (inode.postProcess?.previewMimeType) {
-    timeoutAfter = getRemainingProcessingTimeout(inode);
-    isProcessing = !!timeoutAfter;
-    showError = inode.postProcess.status === "ERROR" || timeoutAfter === 0;
-    downloadText = "Download original";
+  if (inode.postProcess) {
+    if (!preview.isOriginalFile) {
+      timeoutAfter = getRemainingProcessingTimeout(inode);
+      isProcessing = !!timeoutAfter;
+      showError = inode.postProcess.status === "ERROR" || timeoutAfter === 0;
+      downloadText = "Download original";
+    }
+    const { width, height } = (inode as PostProcessedToImage).postProcess;
+    if (width && height) style = { aspectRatio: `1 / ${height / width}` };
   }
 
   return (
-    <FilePreview
+    <PreviewLayout
       inode={inode}
-      permissions={permissions}
+      perm={perm}
       downloadText={downloadText}
       isPostProcessError={showError}
     >
@@ -53,15 +63,15 @@ export default function IframePreview(props: Props) {
       )}
 
       {!showError && (
-        <iframe
+        <img
           id="file-preview"
-          src={previewInfo?.url}
+          src={preview?.url || undefined}
           hidden={isProcessing}
-          data-mime={previewInfo?.mimeType || null}
           data-inode-id={isProcessing ? inode.id : null}
           data-processing-timeout={isProcessing ? timeoutAfter : null}
+          style={style}
         />
       )}
-    </FilePreview>
+    </PreviewLayout>
   );
 }

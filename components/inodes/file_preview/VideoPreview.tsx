@@ -4,15 +4,15 @@ import { FileNode } from "../../../util/inodes/types.ts";
 import type { AppContext } from "../../../util/types.ts";
 import { asset } from "../../../util/url.ts";
 import Loader from "../../Loader.tsx";
-import FilePreview from "./FilePreview.tsx";
+import PreviewLayout from "./PreviewLayout.tsx";
 
 interface Props {
   inode: FileNode;
-  permissions: ResourcePermissions;
+  perm: ResourcePermissions;
 }
 
 export default function VideoPreview(props: Props, ctx: AppContext) {
-  const { inode, permissions } = props;
+  const { inode, perm } = props;
   const isPostProcessed = isPostProcessedToVideo(inode);
   const browserName = ctx.userAgent.browser.name;
   const supportsHls = browserName === "Safari";
@@ -39,9 +39,9 @@ export default function VideoPreview(props: Props, ctx: AppContext) {
   }
 
   return (
-    <FilePreview
+    <PreviewLayout
       inode={inode}
-      permissions={permissions}
+      perm={perm}
       downloadText={downloadText}
     >
       {isPostProcessed && (
@@ -92,6 +92,6 @@ export default function VideoPreview(props: Props, ctx: AppContext) {
           style={style}
         />
       )}
-    </FilePreview>
+    </PreviewLayout>
   );
 }

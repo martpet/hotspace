@@ -6,23 +6,23 @@ import ButtonDeleteInode from "../ButtonDeleteInode.tsx";
 
 interface Props {
   inode: FileNode;
-  permissions: ResourcePermissions;
+  perm: ResourcePermissions;
   downloadText?: string;
   children?: ComponentChildren;
   isPostProcessError?: boolean;
 }
 
-export default function FilePreview(props: Props) {
+export default function PreviewLayout(props: Props) {
   const {
     inode,
     children,
-    permissions,
+    perm,
     downloadText,
     isPostProcessError,
   } = props;
 
   const fileName = decodeURIComponent(inode.name);
-  const { canModerate, canModify } = permissions;
+  const { canModerate, canModify } = perm;
 
   return (
     <>

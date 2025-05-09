@@ -1,16 +1,12 @@
 import { getPermissions, type NonRootPath, parsePathname } from "$util";
 import { STATUS_CODE } from "@std/http";
 import Chat from "../../components/chat/ChatSection.tsx";
-import IframePreview from "../../components/inodes/file_node/IframePreview.tsx";
-import ImagePreview from "../../components/inodes/file_node/ImagePreview.tsx";
-import NoPreview from "../../components/inodes/file_node/NoPreview.tsx";
-import VideoPreview from "../../components/inodes/file_node/VideoPreview.tsx";
+import FilePreview from "../../components/inodes/file_preview/FilePreview.tsx";
 import Page from "../../components/pages/Page.tsx";
-import { getFileNodeDisplayType } from "../../util/inodes/helpers.ts";
 import { getPreviewInfo } from "../../util/inodes/post_process/preview_info.ts";
-import { type FileNode } from "../../util/inodes/types.ts";
+import type { FileNode } from "../../util/inodes/types.ts";
 import { getDirByPath, getInodeByDir } from "../../util/kv/inodes.ts";
-import { type AppContext } from "../../util/types.ts";
+import type { AppContext } from "../../util/types.ts";
 import { asset } from "../../util/url.ts";
 import notFoundHandler from "../not_found.tsx";
 
@@ -59,44 +55,14 @@ export default async function showFileHandler(ctx: AppContext) {
     return ctx.jsxFragment(chatSection);
   }
 
-  const displayType = getFileNodeDisplayType(inode);
-  let preview;
+  const preview = await getPreviewInfo(inode);
   let importmap;
 
-  if (displayType === "video") {
+  if (preview.displayType === "video") {
     importmap = {
       "$hls": asset("vendored/hls.mjs"),
       "$listenPostProcessing": asset("inodes/listen_post_processing.js"),
     };
-    preview = (
-      <VideoPreview
-        inode={inode}
-        permissions={permissions}
-      />
-    );
-  } else if (displayType === "image") {
-    preview = (
-      <ImagePreview
-        inode={inode}
-        permissions={permissions}
-        previewInfo={await getPreviewInfo(inode)}
-      />
-    );
-  } else if (displayType === "iframe") {
-    preview = (
-      <IframePreview
-        inode={inode}
-        permissions={permissions}
-        previewInfo={await getPreviewInfo(inode)}
-      />
-    );
-  } else {
-    preview = (
-      <NoPreview
-        inode={inode}
-        permissions={permissions}
-      />
-    );
   }
 
   const head = (
@@ -114,7 +80,11 @@ export default async function showFileHandler(ctx: AppContext) {
       head={head}
       header={{ breadcrumb: true }}
     >
-      {preview}
+      <FilePreview
+        inode={inode}
+        preview={preview}
+        perm={permissions}
+      />
       {chatSection}
     </Page>
   );
