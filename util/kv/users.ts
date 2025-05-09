@@ -3,7 +3,9 @@ import { kv } from "./kv.ts";
 
 export const keys = {
   byId: (id: string) => ["users", id],
-  byUsername: (username: string) => ["users_by_username", username],
+  byUsername: (
+    username: string,
+  ) => ["users_by_username", username.toLowerCase()],
 };
 
 export function setUser(user: User, atomic = kv.atomic()) {
