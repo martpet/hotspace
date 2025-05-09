@@ -4,7 +4,7 @@ import { FileNode } from "../../../util/inodes/types.ts";
 import type { AppContext } from "../../../util/types.ts";
 import { asset } from "../../../util/url.ts";
 import Loader from "../../Loader.tsx";
-import PreviewLayout from "./PreviewLayout.tsx";
+import GeneralPreview from "./GeneralPreview.tsx";
 
 interface Props {
   inode: FileNode;
@@ -39,7 +39,7 @@ export default function VideoPreview(props: Props, ctx: AppContext) {
   }
 
   return (
-    <PreviewLayout
+    <GeneralPreview
       inode={inode}
       perm={perm}
       downloadText={downloadText}
@@ -92,6 +92,6 @@ export default function VideoPreview(props: Props, ctx: AppContext) {
           style={style}
         />
       )}
-    </PreviewLayout>
+    </GeneralPreview>
   );
 }

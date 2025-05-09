@@ -12,7 +12,7 @@ interface Props {
   isPostProcessError?: boolean;
 }
 
-export default function PreviewLayout(props: Props) {
+export default function GeneralPreview(props: Props) {
   const {
     inode,
     children,

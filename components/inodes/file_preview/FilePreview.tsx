@@ -1,9 +1,9 @@
 import type { ResourcePermissions } from "../../../modules/util/file_permissions.ts";
 import { type InodePreviewInfo } from "../../../util/inodes/post_process/preview_info.ts";
 import type { FileNode } from "../../../util/inodes/types.ts";
+import GeneralPreview from "./GeneralPreview.tsx";
 import IframePreview from "./IframePreview.tsx";
 import ImagePreview from "./ImagePreview.tsx";
-import PreviewLayout from "./PreviewLayout.tsx";
 import VideoPreview from "./VideoPreview.tsx";
 
 interface Props {
@@ -29,8 +29,8 @@ export default function FilePreview(props: Props) {
   }
 
   return (
-    <PreviewLayout inode={inode} perm={perm}>
+    <GeneralPreview inode={inode} perm={perm}>
       {displayType === "audio" && <audio controls src={preview.url!} />}
-    </PreviewLayout>
+    </GeneralPreview>
   );
 }

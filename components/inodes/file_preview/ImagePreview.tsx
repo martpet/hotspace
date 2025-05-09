@@ -9,7 +9,7 @@ import type {
 } from "../../../util/inodes/types.ts";
 import { asset } from "../../../util/url.ts";
 import Loader from "../../Loader.tsx";
-import PreviewLayout from "./PreviewLayout.tsx";
+import GeneralPreview from "./GeneralPreview.tsx";
 
 interface Props {
   inode: FileNode;
@@ -38,7 +38,7 @@ export default function ImagePreview(props: Props) {
   }
 
   return (
-    <PreviewLayout
+    <GeneralPreview
       inode={inode}
       perm={perm}
       downloadText={downloadText}
@@ -72,6 +72,6 @@ export default function ImagePreview(props: Props) {
           style={style}
         />
       )}
-    </PreviewLayout>
+    </GeneralPreview>
   );
 }
