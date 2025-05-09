@@ -1,6 +1,7 @@
 import type { ResourcePermissions } from "../../../modules/util/file_permissions.ts";
 import { type InodePreviewInfo } from "../../../util/inodes/post_process/preview_info.ts";
 import type { FileNode } from "../../../util/inodes/types.ts";
+import FontSample from "./FontSample.tsx";
 import GeneralPreview from "./GeneralPreview.tsx";
 import IframePreview from "./IframePreview.tsx";
 import ImagePreview from "./ImagePreview.tsx";
@@ -30,7 +31,12 @@ export default function FilePreview(props: Props) {
 
   return (
     <GeneralPreview inode={inode} perm={perm}>
-      {displayType === "audio" && <audio controls src={preview.url!} />}
+      {displayType && (
+        <>
+          {displayType === "audio" && <audio src={preview.url!} controls />}
+          {displayType === "font" && <FontSample src={preview.url!} />}
+        </>
+      )}
     </GeneralPreview>
   );
 }

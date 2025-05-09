@@ -16,7 +16,7 @@ export interface AclDiffWithUserId {
 
 export type Inode = DirNode | FileNode;
 export type InodeLabel = "Space" | "Folder" | "File";
-export type InodeDisplay = "image" | "iframe" | "video" | "audio";
+export type InodeDisplay = "image" | "iframe" | "video" | "audio" | "font";
 export type PostProcessStatus = "PENDING" | "COMPLETE" | "ERROR";
 
 interface InodeBase extends ChatResource, AclResource {

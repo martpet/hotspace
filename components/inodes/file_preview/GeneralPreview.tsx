@@ -27,7 +27,7 @@ export default function GeneralPreview(props: Props) {
   return (
     <>
       {(!isPostProcessError || canModify) && children && (
-        <div id="file-preview-canvas">{children}</div>
+        <figure id="file-preview-canvas">{children}</figure>
       )}
       <header class="inodes-header">
         <h1>{fileName}</h1>
