@@ -7,13 +7,13 @@ import {
 import { STATUS_CODE } from "@std/http";
 import Chat from "../../components/chat/ChatSection.tsx";
 import FilePreview from "../../components/inodes/file_preview/FilePreview.tsx";
+import NotFoundPage from "../../components/pages/NotFoundPage.tsx";
 import Page from "../../components/pages/Page.tsx";
 import { getPreviewInfo } from "../../util/inodes/post_process/preview_info.ts";
 import type { FileNode } from "../../util/inodes/types.ts";
 import { getDirByPath, getInodeByDir } from "../../util/kv/inodes.ts";
 import type { AppContext } from "../../util/types.ts";
 import { asset } from "../../util/url.ts";
-import notFoundHandler from "../not_found.tsx";
 
 type FragmentId = "chat";
 
@@ -21,7 +21,7 @@ export default async function showFileHandler(ctx: AppContext) {
   const { user } = ctx.state;
   const fragmentId = ctx.url.searchParams.get("fragment") as FragmentId | null;
   const path = parsePathname(ctx.url.pathname) as NonRootPath;
-  const notFound = () => notFoundHandler(ctx, { header: { breadcrumb: true } });
+  const notFound = () => <NotFoundPage />;
 
   if (path.isRootSegment) {
     return ctx.redirect(ctx.req.url + "/", STATUS_CODE.PermanentRedirect);
