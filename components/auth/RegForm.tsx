@@ -1,4 +1,4 @@
-import { USERNAME_CONSTRAINTS } from "../../util/constraints.ts";
+import { USERNAME_CONSTRAINTS } from "../../util/input_constraints.ts";
 import type { AppContext } from "../../util/types.ts";
 
 export default function RegForm(_props: unknown, ctx: AppContext) {
@@ -25,6 +25,8 @@ export default function RegForm(_props: unknown, ctx: AppContext) {
         <button>
           {!user ? "Create account" : "Add Passkey"}
         </button>
+
+        {!user && <p class="tip">A passkey will be created</p>}
       </form>
     </>
   );

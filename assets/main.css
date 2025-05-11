@@ -351,6 +351,9 @@ dialog.flash {
   input {
     margin: 0.4rem 0.3rem 0 0;
   }
+  p.tip {
+    color: var(--text-grey);
+  }
   p.error {
     width: fit-content;
   }
