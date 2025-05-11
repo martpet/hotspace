@@ -22,7 +22,7 @@ export default function ButtonDeleteAccount(_: unknown, ctx: AppContext) {
           </p>
           <label>
             <span>
-              To confirm, type your username in the field:
+              To confirm, type your username:
             </span>
             <input
               type="text"

@@ -407,7 +407,7 @@ dialog.flash {
 
 .sectioned {
   section {
-    margin: 2em 0;
+    margin: 3em;
     &:not(:first-of-type) {
       border-top: 1px solid var(--border-grey-light);
     }

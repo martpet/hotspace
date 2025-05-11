@@ -76,7 +76,7 @@ export default async function homeHandler(ctx: AppContext) {
   return (
     <Page head={head}>
       <header class="inodes-header">
-        <h1>Your spaces</h1>
+        <h1>Your Spaces</h1>
         {inodesMenu}
       </header>
 

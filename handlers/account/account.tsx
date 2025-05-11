@@ -43,14 +43,14 @@ export default async function passkeysHandler(ctx: AppContext) {
           <PasskeysList passkeys={passkeys} />
         </section>
         <section>
-          <h2>Storage size</h2>
+          <h2>Upload Size</h2>
           {!!uploadSize && <p>You have uplaoded {format(uploadSize)}.</p>}
           {!uploadSize && <p>You haven't uploaded anything yet.</p>}
         </section>
         <section>
-          <h2>Delete account</h2>
+          <h2>Delete Account</h2>
           <p>
-            Permanently delete your files and chat messages.
+            Permanently delete your account, files and chat messages.
           </p>
           <ButtonDeleteAccount />
         </section>
