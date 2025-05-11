@@ -1,4 +1,4 @@
-import { createPushSub, syncPushSub } from "./pushsub.js";
+import { createPushSub, syncSubscriber } from "./pushsub.js";
 
 self.addEventListener("install", () => {
   self.skipWaiting();
@@ -11,7 +11,7 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("pushsubscriptionchange", (event) => {
   if (self.registration.pushManager) {
     if (event.newSubscription) {
-      event.waitUntil(syncPushSub());
+      event.waitUntil(syncSubscriber());
     } else {
       event.waitUntil(createPushSub({ forceNew: true }));
     }

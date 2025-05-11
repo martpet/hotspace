@@ -13,7 +13,7 @@ import {
   createPushSub,
   getPushSub,
   pushSubLockSignal,
-  syncPushSub,
+  syncSubscriber,
 } from "$pushsub";
 
 // =====================
@@ -39,7 +39,7 @@ applyChatBoxSize();
 lazyLoadMsgs();
 showIosChatSubHelp();
 insertMessageDialogs();
-syncPushSub().then(() => checkExpiredChatSub());
+syncSubscriber().then(() => checkExpiredChatSub());
 
 const mainBox = document.getElementById("chat-main");
 const chatTmpl = document.getElementById("chat-template");
@@ -342,7 +342,7 @@ addEventListener(
   "focus",
   debouncedEvent(() => {
     userActive();
-    syncPushSub();
+    syncSubscriber();
   })
 );
 

@@ -43,14 +43,14 @@ export async function createPushSub({ forceNew } = {}) {
       applicationServerKey: decodeBase64Url(vapidKey),
     });
   }
-  if (!subscriber || !equalPushSubs(subscriber.pushSub, pushSub)) {
+  if (!subscriber || isSubscriberChanged(subscriber, pushSub)) {
     subscriber = await postSubscriber({ subscriber, pushSub });
   }
   pushSubLockSignal.value = false;
   return subscriber;
 }
 
-export async function syncPushSub() {
+export async function syncSubscriber() {
   if (!canUseServiceWorker) return;
   if (pushSubLockSignal.value) return;
 
@@ -65,9 +65,7 @@ export async function syncPushSub() {
   const granted = Notification.permission === "granted";
   const revoked = !granted && subscriber.pushSub;
   const restored = granted && !subscriber.pushSub && pushSub;
-  const changed =
-    !equalPushSubs(subscriber.pushSub, pushSub) ||
-    (userUsername && !subscriber.userId);
+  const changed = isSubscriberChanged(subscriber, pushSub);
   try {
     if (revoked || restored || changed) {
       await postSubscriber({
@@ -98,6 +96,9 @@ async function postSubscriber({ subscriber, pushSub = null }) {
   }
 }
 
-function equalPushSubs(a, b) {
-  return (a?.endpoint || null) === (b?.endpoint || null);
+function isSubscriberChanged(subscriber, pushSub) {
+  return (
+    (subscriber.pushSub?.endpoint || null) !== (pushSub?.endpoint || null) ||
+    userUsername !== !subscriber.username
+  );
 }

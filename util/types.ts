@@ -75,4 +75,5 @@ export interface PushSubscriber {
   pushSub: PushSub | null;
   pushSubUpdatedAt: Date;
   userId?: string;
+  username?: string;
 }

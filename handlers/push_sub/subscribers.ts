@@ -53,6 +53,7 @@ export default async function subscribersHandler(ctx: AppContext) {
     pushSub,
     pushSubUpdatedAt,
     userId: user?.id,
+    username: user?.username,
   };
 
   const atomic = setSubscriber(subscriber);
