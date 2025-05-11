@@ -228,7 +228,9 @@ export async function syncPushSub() {
   const granted = Notification.permission === "granted";
   const revoked = !granted && subscriber.pushSub;
   const restored = granted && !subscriber.pushSub && pushSub;
-  const changed = !equalPushSubs(subscriber.pushSub, pushSub);
+  const changed =
+    !equalPushSubs(subscriber.pushSub, pushSub) ||
+    (userUsername && !subscriber.userId);
   try {
     if (revoked || restored || changed) {
       await postSubscriber({
