@@ -1,11 +1,11 @@
 import { getPermissions } from "$util";
 import { STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
-import { DIR_NAME_CONSTRAINTS } from "../../util/constraints.ts";
 import { createAclStats } from "../../util/inodes/acl.ts";
 import { ROOT_DIR, ROOT_DIR_ID } from "../../util/inodes/consts.ts";
 import { setAnyInode } from "../../util/inodes/kv_wrappers.ts";
 import type { DirNode } from "../../util/inodes/types.ts";
+import { DIR_NAME_CONSTRAINTS } from "../../util/input_constraints.ts";
 import { getDirByPath, getInodeById } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { reservedWords } from "../../util/reserved_words.ts";

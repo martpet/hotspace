@@ -6,7 +6,7 @@ import {
 } from "$webauthn";
 import { setCookie, STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
-import { USERNAME_CONSTRAINTS } from "../../util/constraints.ts";
+import { USERNAME_CONSTRAINTS } from "../../util/input_constraints.ts";
 import { setCredentialCreationSession } from "../../util/kv/cred_creation_sessions.ts";
 import { listPasskeysByUser } from "../../util/kv/passkeys.ts";
 import { getUserByUsername } from "../../util/kv/users.ts";
