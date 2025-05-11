@@ -14,9 +14,6 @@
 
 - implement APP_ADMIN in permissions
 
-- Chat subs: subscriber to public chat remains subsribed if chat becomes
-  private.
-
 - "uploadSizeByOwner" (file owner) should be "by space owner"
 
 - Load initial chat messages from socket connection instead of http req.

@@ -85,11 +85,14 @@ export async function handlePushChatNotification(
       consistency: "eventual",
     });
     for (const { value: subscriber } of subscriberEntries) {
-      const { canRead } = getPermissions({
-        user: subscriber,
+      if (!subscriber) {
+        continue;
+      }
+      const perm = getPermissions({
+        user: subscriber.userId ? { id: subscriber.userId } : null,
         resource: inodeEntry.value,
       });
-      if (!subscriber || !canRead) {
+      if (!perm.canRead) {
         continue;
       }
       pushMsgData.push({
