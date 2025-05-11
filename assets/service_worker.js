@@ -1,4 +1,3 @@
-import * as db from "./db.js";
 import { createPushSub, syncPushSub } from "./main.js";
 
 self.addEventListener("install", () => {
@@ -12,9 +11,9 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("pushsubscriptionchange", (event) => {
   if (self.registration.pushManager) {
     if (event.newSubscription) {
-      event.waitUntil(syncPushSub({ db }));
+      event.waitUntil(syncPushSub());
     } else {
-      event.waitUntil(createPushSub({ db, forceNew: true }));
+      event.waitUntil(createPushSub({ forceNew: true }));
     }
   }
 });

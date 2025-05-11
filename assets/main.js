@@ -177,7 +177,7 @@ export async function getPushSub() {
   return reg.pushManager.getSubscription();
 }
 
-export async function createPushSub({ db, forceNew } = {}) {
+export async function createPushSub({ forceNew } = {}) {
   if (pushSubLockSignal.value) return;
   pushSubLockSignal.value = true;
 
@@ -188,7 +188,7 @@ export async function createPushSub({ db, forceNew } = {}) {
     pushSubLockSignal.value = false;
     return;
   }
-  db ??= await import("$db");
+  const db = await import("$db");
   let subscriber = await db.getSubscriber();
   let pushSub = forceNew ? undefined : await getPushSub();
 
@@ -207,18 +207,18 @@ export async function createPushSub({ db, forceNew } = {}) {
     });
   }
   if (!subscriber || !equalPushSubs(subscriber.pushSub, pushSub)) {
-    subscriber = await postSubscriber({ db, subscriber, pushSub });
+    subscriber = await postSubscriber({ subscriber, pushSub });
   }
   pushSubLockSignal.value = false;
   return subscriber;
 }
 
-export async function syncPushSub({ db } = {}) {
+export async function syncPushSub() {
   if (!canUseServiceWorker) return;
   if (pushSubLockSignal.value) return;
 
   pushSubLockSignal.value = true;
-  db ??= await import("$db");
+  const db = await import("$db");
   const subscriber = await db.getSubscriber();
   if (!subscriber) {
     pushSubLockSignal.value = false;
@@ -232,7 +232,6 @@ export async function syncPushSub({ db } = {}) {
   try {
     if (revoked || restored || changed) {
       await postSubscriber({
-        db,
         subscriber,
         pushSub: revoked ? null : pushSub,
       });
@@ -244,7 +243,8 @@ export async function syncPushSub({ db } = {}) {
   }
 }
 
-async function postSubscriber({ db, subscriber, pushSub = null }) {
+async function postSubscriber({ subscriber, pushSub = null }) {
+  const db = await import("$db");
   const resp = await fetch("/push-subs/subscribers", {
     method: "post",
     body: JSON.stringify({
