@@ -48,19 +48,19 @@ export function AppSettingsForm(props: Props) {
           Upload enabled
         </label>
 
-        {budgets.map((budget, i) => (
-          <BudgetFieldset
-            budget={budget}
-            liveCost={budgetsLiveCosts[i]}
-            currenyFmt={currenyFmt}
-            fieldIndex={i}
-            key={i}
-          />
-        ))}
+        <div class="budgets">
+          {budgets.map((budget, i) => (
+            <BudgetFieldset
+              budget={budget}
+              liveCost={budgetsLiveCosts[i]}
+              currenyFmt={currenyFmt}
+              fieldIndex={i}
+              key={i}
+            />
+          ))}
 
-        <p>
           <button id="add-budget" type="button">New budget</button>
-        </p>
+        </div>
 
         <fieldset>
           <legend>MediaConvert Price per minute</legend>
@@ -109,7 +109,7 @@ export function AppSettingsForm(props: Props) {
           </label>
         </fieldset>
 
-        <button class="submit">Submit Settings</button>
+        <button>Submit Settings</button>
       </form>
     </>
   );
