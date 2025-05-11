@@ -1,12 +1,12 @@
 import {
   ACL_ROLE_ALL,
   checkIsRole,
-  getAclUsersIds,
   getPermissions,
+  getUserIdsFromAcl,
 } from "$util";
 import { associateBy } from "@std/collections";
 import { STATUS_CODE } from "@std/http";
-import { changeAcl } from "../../../util/inodes/acl.ts";
+import { applyAclDiffs } from "../../../util/inodes/acl.ts";
 import type {
   AclDiffWithUserId,
   AclDiffWithUsername,
@@ -21,7 +21,7 @@ interface ReqData {
   diffs: AclDiffWithUsername[];
 }
 
-export default async function changeAclHandler(ctx: AppContext) {
+export default async function applyAclDiffsHandler(ctx: AppContext) {
   const { user } = ctx.state;
 
   if (!user) {
@@ -37,39 +37,40 @@ export default async function changeAclHandler(ctx: AppContext) {
   const { inodeId, diffs } = reqData;
   const inodeEntry = await getInodeById(inodeId);
   const inode = inodeEntry.value;
-  const { canChangeAcl } = getPermissions({ user, resource: inode });
+  const perm = getPermissions({ user, resource: inode });
 
-  if (!inode || !canChangeAcl) {
+  if (!inode || !perm.canChangeAcl) {
     return ctx.respond(null, STATUS_CODE.NotFound);
   }
-
-  const usersIds = getAclUsersIds(inode.acl);
-  const usersKvKeys = [];
-  const exraUsersKvKeys = [];
-  const extraUsersDiffs: AclDiffWithUsername[] = [];
-  const usersByUsername: Record<string, User> = {};
-  const finalDiffs: AclDiffWithUserId[] = [];
 
   const respData = {
     notFoundUsernames: <string[]> [],
   };
 
-  for (const userId of usersIds) {
-    usersKvKeys.push(usersKeys.byId(userId));
-  }
+  const usersIds = getUserIdsFromAcl(inode.acl);
+  const usersKvKeys = [];
+  for (const id of usersIds) usersKvKeys.push(usersKeys.byId(id));
 
-  const userEntriesFromAcl = await getManyEntries<User>(usersKvKeys, {
+  const userEntries = await getManyEntries<User>(usersKvKeys, {
     consistency: "eventual",
   });
 
-  userEntriesFromAcl.forEach(({ value: user }, i) => {
+  const usersByUsername: Record<string, User> = {};
+  const finalDiffs: AclDiffWithUserId[] = [];
+
+  userEntries.forEach(({ value: user }, i) => {
     if (user) {
       usersByUsername[user.username] = user;
     } else {
-      const userId = usersIds[i];
-      finalDiffs.push({ userId, role: null });
+      finalDiffs.push({
+        userId: usersIds[i],
+        role: null,
+      });
     }
   });
+
+  const exraUsersKvKeys = [];
+  const extraUsersDiffs: AclDiffWithUsername[] = [];
 
   for (const diff of diffs) {
     const { username, role } = diff;
@@ -77,12 +78,12 @@ export default async function changeAclHandler(ctx: AppContext) {
       continue;
     }
     if (username === ACL_ROLE_ALL) {
-      finalDiffs.push({ userId: username, role });
+      finalDiffs.push({ userId: ACL_ROLE_ALL, role });
       continue;
     }
-    const existingUser = usersByUsername[username];
-    if (existingUser) {
-      finalDiffs.push({ userId: existingUser.id, role });
+    const userFromAcl = usersByUsername[username];
+    if (userFromAcl) {
+      finalDiffs.push({ userId: userFromAcl.id, role });
     } else {
       exraUsersKvKeys.push(usersKeys.byUsername(username));
       extraUsersDiffs.push(diff);
@@ -106,11 +107,10 @@ export default async function changeAclHandler(ctx: AppContext) {
 
   if (finalDiffs.length) {
     const usersById = associateBy(Object.values(usersByUsername), (u) => u.id);
-    await changeAcl({
+    await applyAclDiffs({
       diffs: finalDiffs,
       inodeEntry,
       actingUserId: user.id,
-      recursive: true,
       usersById,
     });
   }

@@ -1,10 +1,4 @@
-import {
-  Acl,
-  ACL_ROLE_ALL,
-  getAclUsersCount,
-  getAclUsersIds,
-  getPermissions,
-} from "$util";
+import { Acl, ACL_ROLE_ALL, getPermissions, getUserIdsFromAcl } from "$util";
 import { sortBy } from "@std/collections";
 import { keys as usersKeys } from "../../util/kv/users.ts";
 import type { AclDiffWithUserId, AclPreview, Inode } from "../inodes/types.ts";
@@ -38,30 +32,28 @@ export function createAclPreview(options: {
 export function createAclStats(options: { users: User[]; acl: Acl }) {
   const { users, acl } = options;
   return {
-    usersCount: getAclUsersCount(acl),
+    usersCount: getUserIdsFromAcl(acl).length,
     previewSubset: createAclPreview({ users, acl, subsetOnly: true }),
   };
 }
 
-export async function changeAcl(input: {
+export async function applyAclDiffs(input: {
   diffs: AclDiffWithUserId[];
   inodeEntry: Deno.KvEntryMaybe<Inode>;
   actingUserId: string;
-  recursive?: boolean;
   usersById?: Record<string, User>;
 }) {
-  const { diffs, actingUserId, usersById = {}, recursive } = input;
+  const { diffs, actingUserId, usersById = {} } = input;
   let { inodeEntry } = input;
   let inode = inodeEntry.value;
-  const isSpace = inode?.parentDirId === ROOT_DIR_ID;
 
   if (!inode) {
     return;
   }
 
-  const { acl } = inode;
+  const isSpace = inode?.parentDirId === ROOT_DIR_ID;
 
-  if (inode.type === "dir" && recursive) {
+  if (inode.type === "dir") {
     await enqueue<QueueMsgChangeDirChildrenAcl>({
       type: "change-dir-children-acl",
       dirId: inode.id,
@@ -70,14 +62,16 @@ export async function changeAcl(input: {
     }).commit();
   }
 
-  const { canChangeAcl } = getPermissions({
+  const perm = getPermissions({
     user: { id: actingUserId },
     resource: inode,
   });
 
-  if (!canChangeAcl) {
+  if (!perm.canChangeAcl) {
     return;
   }
+
+  const { acl } = inode;
 
   for (const { role, userId } of diffs) {
     if (userId === actingUserId) {
@@ -93,29 +87,26 @@ export async function changeAcl(input: {
     }
   }
 
-  const extraUsers = {
-    kvKeys: <Deno.KvKey[]> [],
-    ids: <string[]> [],
-  };
+  const userIdsFromAcl = getUserIdsFromAcl(acl);
+  const extraUsersIds: string[] = [];
+  const extraUsersKvKeys: Deno.KvKey[] = [];
 
-  const usersIds = getAclUsersIds(acl);
-
-  for (const userId of usersIds) {
-    if (!usersById[userId]) {
-      extraUsers.kvKeys.push(usersKeys.byId(userId));
-      extraUsers.ids.push(userId);
+  for (const id of userIdsFromAcl) {
+    if (!usersById[id]) {
+      extraUsersIds.push(id);
+      extraUsersKvKeys.push(usersKeys.byId(id));
     }
   }
 
-  if (extraUsers.kvKeys.length) {
-    const usersEntries = await getManyEntries<User>(extraUsers.kvKeys, {
+  if (extraUsersKvKeys.length) {
+    const usersEntries = await getManyEntries<User>(extraUsersKvKeys, {
       consistency: "eventual",
     });
     usersEntries.forEach(({ value: user }, i) => {
       if (user) {
         usersById[user.id] = user;
       } else {
-        const userId = extraUsers.ids[i];
+        const userId = extraUsersIds[i];
         delete acl[userId];
       }
     });

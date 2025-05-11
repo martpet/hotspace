@@ -1,6 +1,6 @@
 import { checkIsRole } from "$util";
 import { newQueue } from "@henrygd/queue";
-import { changeAcl } from "../../util/inodes/acl.ts";
+import { applyAclDiffs } from "../../util/inodes/acl.ts";
 import type { AclDiffWithUserId } from "../../util/inodes/types.ts";
 import { listInodesEntriesByDir } from "../../util/kv/inodes.ts";
 
@@ -38,11 +38,10 @@ export async function handleChangeDirChildrenAcl(
 
   for (const inodeEntry of entries) {
     queue.add(() =>
-      changeAcl({
+      applyAclDiffs({
         inodeEntry,
         actingUserId,
         diffs,
-        recursive: true,
       })
     );
   }

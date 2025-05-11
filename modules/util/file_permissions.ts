@@ -74,15 +74,7 @@ export function checkIsRole(role: unknown): role is AclRole {
   return roles.includes(role as AclRole);
 }
 
-export function getAclUsersCount(acl: Acl) {
-  let count = 0;
-  for (const [userId] of Object.entries(acl)) {
-    if (userId !== ACL_ROLE_ALL) count++;
-  }
-  return count;
-}
-
-export function getAclUsersIds(acl: Acl) {
+export function getUserIdsFromAcl(acl: Acl) {
   const ids = [];
   for (const userId of Object.keys(acl)) {
     if (userId !== ACL_ROLE_ALL) ids.push(userId);

@@ -68,11 +68,12 @@ export async function handlePushChatNotification(
 
   const subscriberIds = chatSubs
     .filter((chatSub) =>
-      !chatSub.isSubscriberInChat && !chatSub.hasCurrentNotification
+      !chatSub.isSubscriberInChat &&
+      !chatSub.hasCurrentNotification
     )
     .map((chatSub) => chatSub.subscriberId);
 
-  const itemsToPush: {
+  const pushMsgData: {
     subscriber: PushSubscriber;
     chatSub: ChatSub;
     pushMsg: PushMessage;
@@ -80,10 +81,10 @@ export async function handlePushChatNotification(
 
   for (const idChunk of chunk(subscriberIds, 10)) {
     const kvKeys = idChunk.map((id) => subscribersKeys.byId(id));
-    const entries = await kv.getMany<PushSubscriber[]>(kvKeys, {
+    const subscriberEntries = await kv.getMany<PushSubscriber[]>(kvKeys, {
       consistency: "eventual",
     });
-    for (const { value: subscriber } of entries) {
+    for (const { value: subscriber } of subscriberEntries) {
       const { canRead } = getPermissions({
         user: subscriber,
         resource: inodeEntry.value,
@@ -91,7 +92,7 @@ export async function handlePushChatNotification(
       if (!subscriber || !canRead) {
         continue;
       }
-      itemsToPush.push({
+      pushMsgData.push({
         subscriber,
         chatSub: chatSubsBySubscriber[subscriber.id],
         pushMsg: {
@@ -106,7 +107,7 @@ export async function handlePushChatNotification(
 
   const queue = newQueue(10);
 
-  for (const item of itemsToPush) {
+  for (const item of pushMsgData) {
     const { subscriber, chatSub, pushMsg } = item;
 
     queue.add(() =>
