@@ -1,4 +1,4 @@
-import { createPushSub, syncPushSub } from "./main.js";
+import { createPushSub, syncPushSub } from "./pushsub.js";
 
 self.addEventListener("install", () => {
   self.skipWaiting();
