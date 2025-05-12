@@ -24,7 +24,7 @@ export function createAclPreview(options: {
 
   for (const user of usersResult) {
     const role = acl[user.id];
-    aclPreview[user.username] = role;
+    if (role) aclPreview[user.username] = role;
   }
   return aclPreview;
 }
