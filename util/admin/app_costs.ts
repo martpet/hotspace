@@ -5,10 +5,12 @@ import { getBudgetsLiveCosts } from "./budgets.ts";
 
 export async function addCost(input: {
   cost: number;
+  atomic: Deno.AtomicOperation;
   settingsEntry?: Deno.KvEntryMaybe<AppSettings>;
 }) {
-  const { cost } = input;
-  await setAppCost(cost);
+  const { cost, atomic } = input;
+
+  setAppCost(cost, atomic);
 
   const settingsEntry = input.settingsEntry || await getAppSettings("eventual");
   const settings = settingsEntry.value;
@@ -18,8 +20,8 @@ export async function addCost(input: {
   let budgetIndex = 0;
 
   for (const { maxCost, autoDisableUplaod } of settings.budgets) {
-    const liveCost = budgetsLiveCosts[budgetIndex];
-    if (liveCost > maxCost && autoDisableUplaod) {
+    const cost = budgetsLiveCosts[budgetIndex];
+    if (cost > maxCost && autoDisableUplaod) {
       await patchSettings(settingsEntry, { isUploadEnabled: false });
       break;
     }

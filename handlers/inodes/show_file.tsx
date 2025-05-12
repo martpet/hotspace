@@ -43,8 +43,6 @@ export default async function showFileHandler(ctx: AppContext) {
 
   const perm = getPermissions({ user, resource: inode });
 
-  console.log(inode);
-
   if (!inode || !perm.canRead) {
     return notFound();
   }

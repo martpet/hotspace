@@ -14,11 +14,7 @@ import {
   isPostProcessedFileNode,
 } from "../../inodes/post_process/type_predicates.ts";
 import type { CustomPostProcessor } from "../../inodes/post_process/types.ts";
-import type {
-  FileNode,
-  Inode,
-  PostProcessedFileNode,
-} from "../../inodes/types.ts";
+import type { FileNode, Inode } from "../../inodes/types.ts";
 import { getInodeById, keys as getInodeKey } from "../../kv/inodes.ts";
 import { getManyEntries } from "../../kv/kv.ts";
 import { getDevAppUrl } from "../../url.ts";
@@ -129,7 +125,7 @@ async function handleFailedMsgs(ids: string[]) {
         if (!isPostProcessedFileNode(entry.value)) {
           return;
         }
-        const atomic = setAnyInode<PostProcessedFileNode>({
+        const atomic = setAnyInode({
           ...entry.value,
           postProcess: {
             ...entry.value.postProcess,

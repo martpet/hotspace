@@ -20,6 +20,7 @@ import {
 } from "../../inodes/video_node_playlist.ts";
 import { getAppSettings } from "../../kv/app_settings.ts";
 import { getInodeById } from "../../kv/inodes.ts";
+import { kv } from "../../kv/kv.ts";
 
 export type QueueMsgVideoProcessorEvent = {
   type: "video-processor-event";
@@ -87,6 +88,8 @@ export async function handleVideoProcessorEvent(
     inodePatch.postProcess.status = status;
   }
 
+  const atomic = kv.atomic();
+
   if (status === "COMPLETE") {
     try {
       const playlist = processMasterPlaylist({
@@ -106,7 +109,7 @@ export async function handleVideoProcessorEvent(
         const pricing = settings?.mediaConvertPricing;
         if (pricing) {
           const cost = estimateJobCost({ pricing, outputs });
-          await addCost({ cost, settingsEntry });
+          await addCost({ cost, settingsEntry, atomic });
         }
       }
     } catch (err) {
@@ -130,7 +133,7 @@ export async function handleVideoProcessorEvent(
         return;
       }
     }
-    const atomic = setAnyInode({ ...inode, ...inodePatch });
+    setAnyInode({ ...inode, ...inodePatch }, atomic);
     atomic.check(inodeEntry);
     commit = await atomic.commit();
     commitIndex++;

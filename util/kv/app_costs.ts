@@ -13,7 +13,7 @@ export const keys = {
 
 export function setAppCost(
   costInDollars: number,
-  atomic = kv.atomic(),
+  atomic: Deno.AtomicOperation,
 ) {
   const date = new Date();
   const kvKey = keys.hourly_costs({
@@ -24,7 +24,6 @@ export function setAppCost(
   });
   const costInCents = Math.round(costInDollars * 100);
   atomic.sum(kvKey, toKvSumBigInt(costInCents));
-  return atomic.commit();
 }
 
 export function listAppCostsEntriesInCents(input: {

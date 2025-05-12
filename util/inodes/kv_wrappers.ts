@@ -18,8 +18,8 @@ import { type QueueMsgDeleteS3Objects } from "../queue/delete_s3_objects.ts";
 import { isFileNodeWithMultipleS3Keys } from "./helpers.ts";
 import { isPostProcessedToVideo } from "./post_process/type_predicates.ts";
 
-export function setAnyInode<T extends Inode>(
-  inode: T,
+export function setAnyInode(
+  inode: Inode,
   atomic = kv.atomic(),
 ) {
   setInode(inode, atomic);
