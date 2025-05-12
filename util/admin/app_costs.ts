@@ -1,7 +1,9 @@
+import { isProd } from "../consts.ts";
 import { setAppCost } from "../kv/app_costs.ts";
 import { getAppSettings, patchSettings } from "../kv/app_settings.ts";
 import { AppSettings } from "../types.ts";
 import { getBudgetsLiveCosts } from "./budgets.ts";
+import sendAdminAlert from "./send_alert.ts";
 
 export async function addCost(input: {
   cost: number;
@@ -23,6 +25,9 @@ export async function addCost(input: {
     const cost = budgetsLiveCosts[budgetIndex];
     if (cost > maxCost && autoDisableUplaod) {
       await patchSettings(settingsEntry, { isUploadEnabled: false });
+      await sendAdminAlert(
+        `Hotspace ${isProd ? "Prod" : "Dev"} upload disabled`,
+      );
       break;
     }
     budgetIndex++;

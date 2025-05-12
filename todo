@@ -1,10 +1,10 @@
+- when user deleted clean up user from acl stats and acl preview subset
+
 - upload small files (< 5MB) directly (no multipart)
 
 - implement AWS Cost Allocation Tas
 
 - fix file preview "resize both"
-
-- send email to admin when upload automatically disabled
 
 - add stats: ['mime_count', mime, count] and ['mime_max_file_size', mime, size]
 

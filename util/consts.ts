@@ -44,6 +44,7 @@ if (isProd) {
   assert(env.SHARP_PROCESSOR_SQS_URL_PROD);
   assert(env.LIBRE_PROCESSOR_SQS_URL_PROD);
   assert(env.PANDOC_PROCESSOR_SQS_URL_PROD);
+  assert(env.ADMIN_ALERT_TOPIC_ARN_PROD);
 } else {
   assert(env.AWS_ACCESS_KEY_ID_DEV);
   assert(env.AWS_SECRET_ACCESS_KEY_DEV);
@@ -54,6 +55,7 @@ if (isProd) {
   assert(env.SHARP_PROCESSOR_SQS_URL_DEV);
   assert(env.LIBRE_PROCESSOR_SQS_URL_DEV);
   assert(env.PANDOC_PROCESSOR_SQS_URL_DEV);
+  assert(env.ADMIN_ALERT_TOPIC_ARN_DEV);
 }
 
 export const AWS_REGION = "us-east-1";
@@ -104,3 +106,7 @@ export const LIBRE_PROCESSOR_SQS_URL = isProd
 export const PANDOC_PROCESSOR_SQS_URL = isProd
   ? env.PANDOC_PROCESSOR_SQS_URL_PROD
   : env.PANDOC_PROCESSOR_SQS_URL_DEV;
+
+export const ADMIN_ALERT_TOPIC_ARN = isProd
+  ? env.ADMIN_ALERT_TOPIC_ARN_PROD
+  : env.ADMIN_ALERT_TOPIC_ARN_DEV;
