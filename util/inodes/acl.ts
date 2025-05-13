@@ -1,20 +1,23 @@
 import { Acl, ACL_ID_ALL, getPermissions, getUserIdsFromAcl } from "$util";
 import { associateBy, sortBy } from "@std/collections";
 import type { AclDiff, AclPreview, Inode } from "../inodes/types.ts";
+import { deleteInAclOfNotOwnInode, setInAclNotOwnInode } from "../kv/acl.ts";
 import { enqueue } from "../kv/enqueue.ts";
 import { getInodeById } from "../kv/inodes.ts";
-import { getMany } from "../kv/kv.ts";
+import { getMany, kv } from "../kv/kv.ts";
 import { keys as getUserKvKey } from "../kv/users.ts";
 import { QueueMsgChangeDirChildrenAcl } from "../queue/change_dir_children_acl.ts";
 import type { User } from "../types.ts";
 import { ROOT_DIR_ID } from "./consts.ts";
 import { setAnyInode } from "./kv_wrappers.ts";
 
+type PartialUser = Pick<User, "id" | "username">;
+
 export async function applyAclDiffs(input: {
   diffs: AclDiff[];
   inodeEntry: Deno.KvEntryMaybe<Inode>;
   actingUserId: string;
-  users?: User[];
+  users?: PartialUser[];
   recursive?: boolean;
 }) {
   const { diffs, actingUserId, users, recursive = true } = input;
@@ -43,19 +46,37 @@ export async function applyAclDiffs(input: {
 
   const acl = { ...inode.acl };
   const isSpace = inode?.parentDirId === ROOT_DIR_ID;
+  const atomic = kv.atomic();
 
   for (const { userId, role } of diffs) {
-    if (
-      userId === actingUserId ||
-      isSpace && userId === inode.ownerId
-    ) {
+    const { ownerId } = inode;
+
+    if (userId === actingUserId || isSpace && userId === ownerId) {
       continue;
-    } else if (role === null) {
+    }
+
+    if (role === null) {
       delete acl[userId];
     } else if (userId === ACL_ID_ALL) {
       acl[userId] = "viewer";
     } else {
       acl[userId] = role;
+    }
+
+    if (userId !== ownerId && userId !== ACL_ID_ALL) {
+      if (role === null) {
+        deleteInAclOfNotOwnInode({
+          userId,
+          inodeId: inode.id,
+          atomic,
+        });
+      } else {
+        setInAclNotOwnInode({
+          userId,
+          inodeId: inode.id,
+          atomic,
+        });
+      }
     }
   }
 
@@ -79,7 +100,7 @@ export async function applyAclDiffs(input: {
       inode = inodeEntry.value;
       if (!inode) return;
     }
-    const atomic = setAnyInode({ ...inode, ...inodePatch });
+    setAnyInode({ ...inode, ...inodePatch }, atomic);
     atomic.check(inodeEntry);
     commit = await atomic.commit();
     commitIndex++;
@@ -88,7 +109,7 @@ export async function applyAclDiffs(input: {
 
 export async function createAclStats(input: {
   acl: Acl;
-  users?: User[];
+  users?: PartialUser[];
   previewFromPatch?: Parameters<typeof createAclPreview>[0]["fromPatch"];
 }) {
   const { acl, users, previewFromPatch } = input;
@@ -107,7 +128,7 @@ export async function createAclStats(input: {
 
 export async function createAclPreview(input: {
   acl: Acl;
-  users?: User[];
+  users?: PartialUser[];
   subsetOnly?: boolean;
   fromPatch?: {
     diffs: AclDiff[];

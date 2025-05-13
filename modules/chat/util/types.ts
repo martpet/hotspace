@@ -2,8 +2,6 @@ import type { AclResource, AsyncQueue, MaybePromise } from "$util";
 import type { ChatConnection } from "../ChatConnection.ts";
 
 export interface ChatResource extends AclResource {
-  id: string;
-  ownerId: string;
   chatEnabled?: boolean;
 }
 

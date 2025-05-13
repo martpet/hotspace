@@ -24,8 +24,9 @@ export type Acl = Record<UserId, AclRole>;
 export type ResourcePermissions = Record<`can${Capitalize<Action>}`, boolean>;
 
 export interface AclResource {
-  acl: Acl;
+  id: string;
   ownerId: string;
+  acl: Acl;
 }
 
 interface PermissionsInput {

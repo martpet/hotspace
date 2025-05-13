@@ -9,45 +9,53 @@ import {
   listFeedItemsByChat,
 } from "$chat";
 import { newQueue } from "@henrygd/queue";
-import { retry } from "@std/async";
+import { ACL_ID_ALL } from "../../modules/util/file_permissions.ts";
 import { getSigner } from "../../util/aws.ts";
 import { AWS_REGION } from "../../util/consts.ts";
 import { kv } from "../../util/kv/kv.ts";
+import type { InodeBase } from "../inodes/types.ts";
+import { deleteInAclOfNotOwnInode } from "../kv/acl.ts";
+
+type PartialInode = Pick<InodeBase, "id" | "ownerId" | "acl">;
 
 export interface QueueMsgCleanUpInode {
   type: "clean-up-inode";
-  inodeId: string;
+  inode: PartialInode;
   pendingMediaConvertJob?: string;
 }
 
 export function isCleanUpInode(msg: unknown): msg is QueueMsgCleanUpInode {
-  const { type, inodeId, pendingMediaConvertJob } = msg as Partial<
-    QueueMsgCleanUpInode
-  >;
+  const {
+    type,
+    inode,
+    pendingMediaConvertJob,
+  } = msg as Partial<QueueMsgCleanUpInode>;
+
   return typeof msg === "object" &&
     type === "clean-up-inode" &&
-    typeof inodeId === "string" &&
+    typeof inode === "object" &&
+    typeof inode.id === "string" &&
+    typeof inode.ownerId === "string" &&
     (typeof pendingMediaConvertJob === "string" ||
       typeof pendingMediaConvertJob === "undefined");
 }
 
 export async function handleCleanUpInode(msg: QueueMsgCleanUpInode) {
-  const { inodeId, pendingMediaConvertJob } = msg;
+  const { inode, pendingMediaConvertJob } = msg;
 
   const promises = [
-    cleanUpChat(inodeId),
+    (async () => {
+      await cleanUpChat(inode.id);
+      await cleanUpAclIndexes(inode);
+    })(),
   ];
 
   if (pendingMediaConvertJob) {
-    promises.push(
-      retry(() =>
-        mediaconvert.cancelJob({
-          jobId: pendingMediaConvertJob,
-          signer: getSigner(),
-          region: AWS_REGION,
-        })
-      ).catch((err) => console.error(err)),
-    );
+    promises.push(mediaconvert.cancelJob({
+      jobId: pendingMediaConvertJob,
+      signer: getSigner(),
+      region: AWS_REGION,
+    }));
   }
 
   await Promise.all(promises);
@@ -73,5 +81,20 @@ async function cleanUpChat(chatId: string) {
     queue.add(() => deleteChatMessage(msg, kv.atomic()).commit());
   }
 
+  return queue.done();
+}
+
+function cleanUpAclIndexes(inode: PartialInode) {
+  const queue = newQueue(5);
+  for (const userId of Object.keys(inode.acl)) {
+    if (userId !== inode.ownerId && userId !== ACL_ID_ALL) {
+      queue.add(() =>
+        deleteInAclOfNotOwnInode({
+          userId,
+          inodeId: inode.id,
+        }).commit()
+      );
+    }
+  }
   return queue.done();
 }

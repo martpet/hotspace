@@ -1,6 +1,7 @@
 import { newQueue } from "@henrygd/queue";
+import { pick } from "@std/collections";
 import { INODES_BUCKET } from "../consts.ts";
-import type { Inode } from "../inodes/types.ts";
+import type { Inode, InodeBase } from "../inodes/types.ts";
 import { enqueue } from "../kv/enqueue.ts";
 import { setFileNodeStats } from "../kv/filenodes_stats.ts";
 import {
@@ -52,7 +53,7 @@ export async function deleteInodesRecursive(inodes: Inode[]) {
 
     enqueue<QueueMsgCleanUpInode>({
       type: "clean-up-inode",
-      inodeId: inode.id,
+      inode: pick(inode as InodeBase, ["id", "ownerId", "acl"]),
       pendingMediaConvertJob,
     }, atomic);
 
