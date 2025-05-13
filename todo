@@ -1,7 +1,5 @@
 - upload small files (< 5MB) directly (no multipart)
 
-- save user related data in kv by id, no username (ex: chat messages)
-
 - implement AWS Cost Allocation Tas
 
 - fix file preview "resize both"

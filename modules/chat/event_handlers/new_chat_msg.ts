@@ -36,6 +36,7 @@ export const newChatMsgHandler: ChatEventHandler<NewChatMsgEventResp> = async (
     chatId: chat.id,
     feedItemId,
     username: chatUser.kvEntry.value.username,
+    userId: chatUser.kvEntry.value.id,
     text: sanitizeChatMsgText(text),
     createdAt: new Date(decodeTime(id)),
   };

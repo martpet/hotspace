@@ -25,10 +25,9 @@ export const editedChatMsgHandler: ChatEventHandler<EditedChatMsgEventResp> =
     const feedItemId = ulid();
     const msgEntry = await getChatMessage({ kv, id, chatId: chat.id });
     const msg = msgEntry.value;
-    const isMsgOwner = chatUser.kvEntry.value.username === msg?.username;
-    const { canModerate } = conn.perm;
+    const isMsgOwner = chatUser.kvEntry.value.id === msg?.userId;
 
-    if (!msg || (!isMsgOwner && !canModerate)) {
+    if (!msg || !isMsgOwner) {
       return null;
     }
 

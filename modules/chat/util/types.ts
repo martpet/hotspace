@@ -15,6 +15,7 @@ export interface RawChatMessage {
   chatId: string;
   feedItemId: string;
   username: string;
+  userId: string;
   text: string;
   editedAt?: Date;
 }

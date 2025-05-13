@@ -4,12 +4,12 @@ import type { ChatMessage, RawChatMessage } from "../types.ts";
 
 const keys = {
   byChat: (chatId: string, id: string) => ["chat_msgs", chatId, id],
-  byUser: (username: string, id: string) => ["chat_msgs_by_user", username, id],
+  byUser: (userId: string, id: string) => ["chat_msgs_by_user", userId, id],
   byUserByChat: (
-    username: string,
+    userId: string,
     chatId: string,
     id: string,
-  ) => ["chat_msgs_by_user_by_chat", username, chatId, id],
+  ) => ["chat_msgs_by_user_by_chat", userId, chatId, id],
 };
 
 export function setChatMessage(
@@ -17,22 +17,22 @@ export function setChatMessage(
   atomic: Deno.AtomicOperation,
 ) {
   const rawMsg = dehydrateChatMsg(msg);
-  const { chatId, id, username } = rawMsg;
+  const { chatId, id, userId } = rawMsg;
   return atomic
     .set(keys.byChat(chatId, id), rawMsg)
-    .set(keys.byUser(username, id), rawMsg)
-    .set(keys.byUserByChat(username, chatId, id), rawMsg);
+    .set(keys.byUser(userId, id), rawMsg)
+    .set(keys.byUserByChat(userId, chatId, id), rawMsg);
 }
 
 export function deleteChatMessage(
-  msg: Pick<ChatMessage, "id" | "chatId" | "username">,
+  msg: Pick<ChatMessage, "id" | "chatId" | "userId">,
   atomic: Deno.AtomicOperation,
 ) {
-  const { chatId, id, username } = msg;
+  const { chatId, id, userId } = msg;
   return atomic
     .delete(keys.byChat(chatId, id))
-    .delete(keys.byUser(username, id))
-    .delete(keys.byUserByChat(username, chatId, id));
+    .delete(keys.byUser(userId, id))
+    .delete(keys.byUserByChat(userId, chatId, id));
 }
 
 export async function getChatMessage(options: {
@@ -87,8 +87,8 @@ export function hydrateChatMsgEntry(
   };
 }
 
-export async function listChatMessagesByUser(username: string, kv: Deno.Kv) {
-  const prefix = keys.byUser(username, "").slice(0, -1);
+export async function listChatMessagesByUser(userId: string, kv: Deno.Kv) {
+  const prefix = keys.byUser(userId, "").slice(0, -1);
   const iter = kv.list<ChatMessage>({ prefix });
   const entries = await Array.fromAsync(iter);
   return entries.map((x) => x.value);

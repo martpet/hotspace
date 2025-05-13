@@ -36,7 +36,7 @@ export async function handleCleanUpUser(msg: QueueMsgCleanUpUser) {
   const inodes = await listRootDirsByOwner(userId);
   const passkeys = await listPasskeysByUser(userId);
   const sessions = await listSessionsByUser(userId);
-  const chatMessages = await listChatMessagesByUser(username, kv);
+  const chatMessages = await listChatMessagesByUser(userId, kv);
   const inAclNotOwnInodeIds = await listInAclNotOwnInodeIds(userId);
 
   const queue = newQueue(5);
