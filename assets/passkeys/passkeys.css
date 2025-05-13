@@ -20,9 +20,15 @@
   border: none;
   border-bottom: 1px dotted CanvasText;
   outline: none;
-  cursor: default;
-  &:hover {
-    cursor: pointer;
+  cursor: text;
+}
+
+.rename-tooltip {
+  .anchor {
+    anchor-name: --rename-tooltip;
+  }
+  .infobox {
+    position-anchor: --rename-tooltip;
   }
 }
 

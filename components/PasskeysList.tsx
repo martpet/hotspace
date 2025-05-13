@@ -43,7 +43,7 @@ function ListItem(props: { passkey: Passkey; count: number }) {
 
 function ButtonName(props: { passkey: Passkey }) {
   return (
-    <Tooltip info="Rename passkey">
+    <Tooltip info="Rename passkey" class="rename-tooltip">
       <button class="rename-passkey" data-cred-id={props.passkey.credId}>
         {props.passkey.name || "untitled"}
       </button>
