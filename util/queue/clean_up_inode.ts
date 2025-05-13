@@ -9,6 +9,7 @@ import {
   listFeedItemsByChat,
 } from "$chat";
 import { newQueue } from "@henrygd/queue";
+import { retry } from "@std/async";
 import { getSigner } from "../../util/aws.ts";
 import { AWS_REGION } from "../../util/consts.ts";
 import { kv } from "../../util/kv/kv.ts";
@@ -39,11 +40,13 @@ export async function handleCleanUpInode(msg: QueueMsgCleanUpInode) {
 
   if (pendingMediaConvertJob) {
     promises.push(
-      mediaconvert.cancelJob({
-        jobId: pendingMediaConvertJob,
-        signer: getSigner(),
-        region: AWS_REGION,
-      }).catch((err) => console.error(err)),
+      retry(() =>
+        mediaconvert.cancelJob({
+          jobId: pendingMediaConvertJob,
+          signer: getSigner(),
+          region: AWS_REGION,
+        })
+      ).catch((err) => console.error(err)),
     );
   }
 

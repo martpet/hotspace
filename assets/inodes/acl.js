@@ -140,17 +140,20 @@ async function submitChanges() {
   }
   const resp = await fetch("/inodes/acl", {
     method: "post",
-    body: JSON.stringify({ inodeId, diffs }),
+    body: JSON.stringify({
+      inodeId,
+      diffsWithUsername: diffs,
+    }),
   });
   if (!resp.ok) {
     errorSignal.value = GENERAL_ERR_MSG;
     statusSignal.value = "idle";
     return;
   }
-  const { notFoundUsernames } = await resp.json();
-  if (notFoundUsernames.length) {
+  const { notFoundIntroducedUsernames } = await resp.json();
+  if (notFoundIntroducedUsernames.length) {
     statusSignal.value = "idle";
-    handleNotFoundUsernames(notFoundUsernames);
+    handleNotFoundUsernames(notFoundIntroducedUsernames);
     return;
   }
   await replaceFragment("inodes");

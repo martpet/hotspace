@@ -1,10 +1,8 @@
-import { getPermissions, getUserIdsFromAcl } from "$util";
+import { getPermissions } from "$util";
 import { STATUS_CODE } from "@std/http";
 import { createAclPreview } from "../../../util/inodes/acl.ts";
 import { getInodeById } from "../../../util/kv/inodes.ts";
-import { getMany } from "../../../util/kv/kv.ts";
-import { keys as usersKeys } from "../../../util/kv/users.ts";
-import type { AppContext, User } from "../../../util/types.ts";
+import type { AppContext } from "../../../util/types.ts";
 
 export default async function getAclPreviewHandler(ctx: AppContext) {
   const { user } = ctx.state;
@@ -26,10 +24,7 @@ export default async function getAclPreviewHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.NotFound);
   }
 
-  const usersIds = getUserIdsFromAcl(inode.acl);
-  const usersKvKeys = usersIds.map((id) => usersKeys.byId(id));
-  const users = await getMany<User>(usersKvKeys, { consistency: "eventual" });
-  const aclPreview = createAclPreview({ users, acl: inode.acl });
+  const aclPreview = await createAclPreview({ acl: inode.acl });
 
   return ctx.json(aclPreview);
 }

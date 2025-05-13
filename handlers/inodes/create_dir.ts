@@ -79,7 +79,7 @@ export default async function createDirNodeHandler(ctx: AppContext) {
       [user.id]: "admin",
       "*": "viewer",
     };
-    aclStats = createAclStats({ users: [user], acl });
+    aclStats = await createAclStats({ acl, users: [user] });
   }
 
   const dirNode: DirNode = {

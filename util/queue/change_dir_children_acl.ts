@@ -1,14 +1,14 @@
 import { checkIsRole } from "$util";
 import { newQueue } from "@henrygd/queue";
 import { applyAclDiffs } from "../../util/inodes/acl.ts";
-import type { AclDiffWithUserId } from "../../util/inodes/types.ts";
+import type { AclDiff } from "../../util/inodes/types.ts";
 import { listInodesEntriesByDir } from "../../util/kv/inodes.ts";
 
 export interface QueueMsgChangeDirChildrenAcl {
   type: "change-dir-children-acl";
   dirId: string;
   actingUserId: string;
-  diffs: AclDiffWithUserId[];
+  diffs: AclDiff[];
 }
 
 export function isChangeDirChildrenAcl(
@@ -21,11 +21,11 @@ export function isChangeDirChildrenAcl(
     type === "change-dir-children-acl" &&
     typeof dirId === "string" &&
     typeof actingUserId === "string" &&
-    Array.isArray(diffs) && diffs.every(isAclDiffWithUserId);
+    Array.isArray(diffs) && diffs.every(isAclDiff);
 }
 
-function isAclDiffWithUserId(data: unknown): data is AclDiffWithUserId {
-  const { userId, role } = data as Partial<AclDiffWithUserId>;
+function isAclDiff(data: unknown): data is AclDiff {
+  const { userId, role } = data as Partial<AclDiff>;
   return typeof userId === "string" && (role === null || checkIsRole(role));
 }
 

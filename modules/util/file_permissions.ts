@@ -1,4 +1,4 @@
-export const ACL_ROLE_ALL = "*";
+export const ACL_ID_ALL = "*";
 
 type UserId = string;
 
@@ -37,7 +37,7 @@ export function getPermissions(input: PermissionsInput): ResourcePermissions {
   const userId = input.user?.id;
   const ownerId = input.resource?.ownerId;
   const acl = input.resource?.acl;
-  const role = (userId && acl?.[userId]) || acl?.[ACL_ROLE_ALL];
+  const role = (userId && acl?.[userId]) || acl?.[ACL_ID_ALL];
   const isOwner = !!(userId && ownerId && userId === ownerId);
   const isAdmin = role === "admin";
   const isContributor = checkContributor(role);
@@ -67,7 +67,7 @@ function checkModerator(role?: AclRole) {
 }
 
 export function checkHasPublicAccess(resource: AclResource) {
-  return checkCanRead(resource.acl[ACL_ROLE_ALL]);
+  return checkCanRead(resource.acl[ACL_ID_ALL]);
 }
 
 export function checkIsRole(role: unknown): role is AclRole {
@@ -77,7 +77,7 @@ export function checkIsRole(role: unknown): role is AclRole {
 export function getUserIdsFromAcl(acl: Acl) {
   const ids = [];
   for (const userId of Object.keys(acl)) {
-    if (userId !== ACL_ROLE_ALL) ids.push(userId);
+    if (userId !== ACL_ID_ALL) ids.push(userId);
   }
   return ids;
 }

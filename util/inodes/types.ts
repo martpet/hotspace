@@ -9,7 +9,7 @@ export interface AclDiffWithUsername {
   role: AclRole | null;
 }
 
-export interface AclDiffWithUserId {
+export interface AclDiff {
   userId: string;
   role: AclRole | null;
 }

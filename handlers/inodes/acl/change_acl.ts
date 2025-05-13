@@ -1,24 +1,16 @@
-import {
-  ACL_ROLE_ALL,
-  checkIsRole,
-  getPermissions,
-  getUserIdsFromAcl,
-} from "$util";
+import { ACL_ID_ALL, checkIsRole, getPermissions } from "$util";
 import { associateBy } from "@std/collections";
 import { STATUS_CODE } from "@std/http";
 import { applyAclDiffs } from "../../../util/inodes/acl.ts";
-import type {
-  AclDiffWithUserId,
-  AclDiffWithUsername,
-} from "../../../util/inodes/types.ts";
+import type { AclDiffWithUsername } from "../../../util/inodes/types.ts";
 import { getInodeById } from "../../../util/kv/inodes.ts";
 import { getManyEntries } from "../../../util/kv/kv.ts";
-import { keys as usersKeys } from "../../../util/kv/users.ts";
+import { keys as getUserKey } from "../../../util/kv/users.ts";
 import type { AppContext, User } from "../../../util/types.ts";
 
 interface ReqData {
   inodeId: string;
-  diffs: AclDiffWithUsername[];
+  diffsWithUsername: AclDiffWithUsername[];
 }
 
 export default async function applyAclDiffsHandler(ctx: AppContext) {
@@ -34,7 +26,7 @@ export default async function applyAclDiffsHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
   }
 
-  const { inodeId, diffs } = reqData;
+  const { inodeId, diffsWithUsername } = reqData;
   const inodeEntry = await getInodeById(inodeId);
   const inode = inodeEntry.value;
   const perm = getPermissions({ user, resource: inode });
@@ -43,86 +35,58 @@ export default async function applyAclDiffsHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.NotFound);
   }
 
-  const respData = {
-    notFoundUsernames: <string[]> [],
-  };
+  const usernamesFromDiff: string[] = [];
+  const usersKvKeysFromDiff = [];
 
-  const usersIds = getUserIdsFromAcl(inode.acl);
-  const usersKvKeys = [];
-  for (const id of usersIds) usersKvKeys.push(usersKeys.byId(id));
-
-  const userEntries = await getManyEntries<User>(usersKvKeys, {
-    consistency: "eventual",
-  });
-
-  const usersByUsername: Record<string, User> = {};
-  const finalDiffs: AclDiffWithUserId[] = [];
-
-  userEntries.forEach(({ value: user }, i) => {
-    if (user) {
-      usersByUsername[user.username] = user;
-    } else {
-      finalDiffs.push({
-        userId: usersIds[i],
-        role: null,
-      });
-    }
-  });
-
-  const exraUsersKvKeys = [];
-  const extraUsersDiffs: AclDiffWithUsername[] = [];
-
-  for (const diff of diffs) {
-    const { username, role } = diff;
-    if (username === "") {
-      continue;
-    }
-    if (username === ACL_ROLE_ALL) {
-      finalDiffs.push({ userId: ACL_ROLE_ALL, role });
-      continue;
-    }
-    const userFromAcl = usersByUsername[username];
-    if (userFromAcl) {
-      finalDiffs.push({ userId: userFromAcl.id, role });
-    } else {
-      exraUsersKvKeys.push(usersKeys.byUsername(username));
-      extraUsersDiffs.push(diff);
+  for (const { username } of diffsWithUsername) {
+    if (username !== ACL_ID_ALL) {
+      usernamesFromDiff.push(username);
+      usersKvKeysFromDiff.push(getUserKey.byUsername(username));
     }
   }
 
-  if (exraUsersKvKeys.length) {
-    const userEntries = await getManyEntries<User>(exraUsersKvKeys, {
-      consistency: "eventual",
-    });
-    userEntries.forEach(({ value: user }, i) => {
-      const { username, role } = extraUsersDiffs[i];
-      if (user) {
-        finalDiffs.push({ userId: user.id, role });
-        usersByUsername[user.id] = user;
-      } else {
-        respData.notFoundUsernames.push(username);
-      }
-    });
+  const userEntriesFromDiff = await getManyEntries<User>(usersKvKeysFromDiff);
+  const usersFromDiff: User[] = [];
+
+  for (const { value: user } of userEntriesFromDiff) {
+    if (user) usersFromDiff.push(user);
   }
 
-  if (finalDiffs.length) {
-    const usersById = associateBy(Object.values(usersByUsername), (u) => u.id);
+  const usersFromDiffByUsername = associateBy(usersFromDiff, (u) => u.username);
+  const diffs = [];
+  const notFoundIntroducedUsernames: string[] = [];
+
+  for (const { username, role } of diffsWithUsername) {
+    const user = usersFromDiffByUsername[username];
+    if (username === ACL_ID_ALL) {
+      diffs.push({ userId: ACL_ID_ALL, role });
+    } else if (user) {
+      diffs.push({ userId: user.id, role });
+    } else if (role !== null) {
+      notFoundIntroducedUsernames.push(username);
+    }
+  }
+
+  if (!notFoundIntroducedUsernames.length) {
     await applyAclDiffs({
-      diffs: finalDiffs,
+      diffs,
       inodeEntry,
       actingUserId: user.id,
-      usersById,
+      users: usersFromDiff,
     });
   }
 
-  return ctx.json(respData);
+  return ctx.json({
+    notFoundIntroducedUsernames,
+  });
 }
 
 function isValidReqData(data: unknown): data is ReqData {
-  const { inodeId, diffs } = data as Partial<ReqData>;
+  const { inodeId, diffsWithUsername } = data as Partial<ReqData>;
   return typeof data === "object" &&
     typeof inodeId === "string" &&
-    Array.isArray(diffs) && diffs.every(isAclDiffWithUsername);
+    Array.isArray(diffsWithUsername) &&
+    diffsWithUsername.every(isAclDiffWithUsername);
 }
 
 function isAclDiffWithUsername(data: unknown): data is AclDiffWithUsername {
