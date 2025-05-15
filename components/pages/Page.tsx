@@ -26,7 +26,6 @@ export default function Page(props: PageProps, ctx: AppContext) {
     "imports": {
       "$main": asset("main.js"),
       "$db": asset("db.js"),
-      "$pushsub": asset("pushsub.js"),
       ...props.importmap,
     },
   };

@@ -1,20 +1,17 @@
 import {
   canUseServiceWorker,
   collapseLineBreaks,
+  createPushSub,
   createSignal,
   debounce,
   deviceType,
+  getPushSub,
   osName,
+  pushSubLockSignal,
   SESSION_EXPIRED_ERR_MSG,
+  syncSubscriber,
   userUsername,
 } from "$main";
-
-import {
-  createPushSub,
-  getPushSub,
-  pushSubLockSignal,
-  syncSubscriber,
-} from "$pushsub";
 
 // =====================
 // Before Lazy Load
