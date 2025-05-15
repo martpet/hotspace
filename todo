@@ -1,21 +1,9 @@
-- upload small files (< 5MB) directly (no multipart)
-
-- implement AWS Cost Allocation Tas
-
 - fix file preview "resize both"
-
-- add stats: ['mime_count', mime, count] and ['mime_max_file_size', mime, size]
-
-- handle duplicate filenode post processing queue msgs with a nonce
-
-- refactor chat with preact standalone
 
 - implement APP_ADMIN in permissions
 
-- "uploadSizeByOwner" (file owner) should be "by space owner"
+- upload small files (less then chunk size) directly (no multipart)
 
-- Load initial chat messages from socket connection instead of http req.
+- implement AWS Cost Allocation Tags
 
-- Use custom element for chat (to allow connect/disconnect on mount/unmount).
-
-- improve createSignal: execute callback on subscribing
+- handle duplicate filenode post processing queue msgs with a nonce
