@@ -5,7 +5,7 @@ import { kv, toKvSumBigInt } from "./kv.ts";
 export const keys = {
   totalUploadSize: () => ["total_upload_size"],
   uploadSizeByOwner: (userId: string) => ["upload_size_by_user", userId],
-  fileTypesCount: (mimeType: string) => ["file_types_count", mimeType],
+  mimeTypes: (mimeType: string) => ["mime_types", mimeType],
 };
 
 export function setFileNodeStats(options: {
@@ -22,7 +22,7 @@ export function setFileNodeStats(options: {
   return atomic
     .sum(keys.totalUploadSize(), fileSizeChange)
     .sum(keys.uploadSizeByOwner(fileNode.ownerId), fileSizeChange)
-    .sum(keys.fileTypesCount(fileNode.mimeType), fileTypeCountChange);
+    .sum(keys.mimeTypes(fileNode.mimeType), fileTypeCountChange);
 }
 
 export function deleteuploadSizeByOwner(userId: string) {
