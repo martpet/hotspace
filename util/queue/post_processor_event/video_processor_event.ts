@@ -1,8 +1,6 @@
 import { mediaconvert } from "$aws";
-import { addCost } from "../../admin/app_costs.ts";
 import { getSigner } from "../../aws.ts";
 import { AWS_REGION } from "../../consts.ts";
-import { estimateJobCost } from "../../inodes/aws_mediaconvert/job_cost.ts";
 import type { MediaConvertJobChangeStateDetail } from "../../inodes/aws_mediaconvert/types.ts";
 import { setAnyInode } from "../../inodes/kv_wrappers.ts";
 import {
@@ -18,7 +16,6 @@ import {
   fetchMasterPlaylist,
   processMasterPlaylist,
 } from "../../inodes/video_node_playlist.ts";
-import { getAppSettings } from "../../kv/app_settings.ts";
 import { getInodeById } from "../../kv/inodes.ts";
 import { kv } from "../../kv/kv.ts";
 
@@ -103,15 +100,6 @@ export async function handleVideoProcessorEvent(
       inodePatch.postProcess.durationInMs = outputs?.[0].durationInMs;
       inodePatch.postProcess.width = outputs?.[0].widthInPx;
       inodePatch.postProcess.height = outputs?.[0].heightInPx;
-      if (outputs) {
-        const settingsEntry = await getAppSettings("eventual");
-        const settings = settingsEntry.value;
-        const pricing = settings?.mediaConvertPricing;
-        if (pricing) {
-          const cost = estimateJobCost({ pricing, outputs });
-          await addCost({ cost, settingsEntry, atomic });
-        }
-      }
     } catch (err) {
       console.error(err);
       inodePatch.postProcess.status = "ERROR";

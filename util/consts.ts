@@ -10,9 +10,6 @@ export const SESSION_TIMEOUT = WEEK * 4;
 export const CHAT_SUB_WITHOUT_PUSH_SUB_EXPIRES = WEEK * 2;
 export const SAVED_UPLOAD_EXPIRES = DAY * 7;
 export const GENERAL_ERR_MSG = "Oops, something went wrong, try again!";
-export const UPLOAD_DISABLED_MSG =
-  "Sorry, uploading is currently disabled for all users. Try later.";
-export const BUDGET_PERIOD_TYPES = ["hours", "days"] as const;
 
 export const PUSH_SUB_HOSTS = [
   "fcm.googleapis.com",
@@ -44,7 +41,6 @@ if (isProd) {
   assert(env.SHARP_PROCESSOR_SQS_URL_PROD);
   assert(env.LIBRE_PROCESSOR_SQS_URL_PROD);
   assert(env.PANDOC_PROCESSOR_SQS_URL_PROD);
-  assert(env.ADMIN_ALERT_TOPIC_ARN_PROD);
 } else {
   assert(env.AWS_ACCESS_KEY_ID_DEV);
   assert(env.AWS_SECRET_ACCESS_KEY_DEV);
@@ -55,7 +51,6 @@ if (isProd) {
   assert(env.SHARP_PROCESSOR_SQS_URL_DEV);
   assert(env.LIBRE_PROCESSOR_SQS_URL_DEV);
   assert(env.PANDOC_PROCESSOR_SQS_URL_DEV);
-  assert(env.ADMIN_ALERT_TOPIC_ARN_DEV);
 }
 
 export const AWS_REGION = "us-east-1";
@@ -106,7 +101,3 @@ export const LIBRE_PROCESSOR_SQS_URL = isProd
 export const PANDOC_PROCESSOR_SQS_URL = isProd
   ? env.PANDOC_PROCESSOR_SQS_URL_PROD
   : env.PANDOC_PROCESSOR_SQS_URL_DEV;
-
-export const ADMIN_ALERT_TOPIC_ARN = isProd
-  ? env.ADMIN_ALERT_TOPIC_ARN_PROD
-  : env.ADMIN_ALERT_TOPIC_ARN_DEV;

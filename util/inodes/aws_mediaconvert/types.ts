@@ -1,10 +1,3 @@
-export interface MediaConvertPricing {
-  SD: number;
-  HD: number;
-  "4K": number;
-  audio: number;
-}
-
 export interface JobUserMetaData {
   inodeId: string;
   inodeS3Key: string;

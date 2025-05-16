@@ -13,9 +13,7 @@ import {
   AWS_REGION,
   INODES_BUCKET,
   SAVED_UPLOAD_EXPIRES,
-  UPLOAD_DISABLED_MSG,
 } from "../../../util/consts.ts";
-import { getAppSettings } from "../../../util/kv/app_settings.ts";
 import type { AppContext } from "../../../util/types.ts";
 
 interface ReqData {
@@ -27,12 +25,6 @@ export default async function initiateUploadHandler(ctx: AppContext) {
 
   if (!user) {
     return ctx.respond(null, STATUS_CODE.Unauthorized);
-  }
-
-  const { isUploadEnabled } = (await getAppSettings("eventual")).value || {};
-
-  if (!isUploadEnabled) {
-    return ctx.respond(UPLOAD_DISABLED_MSG, STATUS_CODE.ServiceUnavailable);
   }
 
   const reqData = await ctx.req.json();

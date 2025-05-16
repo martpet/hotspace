@@ -1,9 +1,0 @@
-- fix file preview "resize both"
-
-- implement APP_ADMIN in permissions
-
-- upload small files (less then chunk size) directly (no multipart)
-
-- implement AWS Cost Allocation Tags
-
-- handle duplicate filenode post processing queue msgs with a nonce

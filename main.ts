@@ -4,8 +4,6 @@ import account from "./handlers/account/account.tsx";
 import deleteAccount from "./handlers/account/delete.tsx";
 import logout from "./handlers/account/logout.ts";
 import register from "./handlers/account/register.tsx";
-import postSettings from "./handlers/admin/settings.ts";
-import showAdmin from "./handlers/admin/show_admin.tsx";
 import credCreatOpt from "./handlers/auth/cred_creation_options.ts";
 import credCreatVer from "./handlers/auth/cred_creation_verify.ts";
 import credReqOpt from "./handlers/auth/cred_request_options.ts";
@@ -71,9 +69,6 @@ app.post("/auth/passkey-delete", passkeyDelete);
 app.post("/auth/passkey-rename", passkeyRename);
 
 app.post("/webhooks/aws", awsWebhookHandler);
-
-app.get("/admin", showAdmin);
-app.post("/admin/settings", postSettings);
 
 app.post("/inodes/dirs", setDirByPath);
 app.post("/inodes/delete", deleteInodes);
