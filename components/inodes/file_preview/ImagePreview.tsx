@@ -3,6 +3,7 @@ import { getRemainingProcessingTimeout } from "../../../util/inodes/post_process
 import {
   InodePreviewInfo,
 } from "../../../util/inodes/post_process/preview_info.ts";
+import { getResponsiveMediaStyle } from "../../../util/inodes/post_process/styles.ts";
 import type {
   FileNode,
   PostProcessedToImage,
@@ -34,7 +35,7 @@ export default function ImagePreview(props: Props) {
       downloadText = "Download original";
     }
     const { width, height } = (inode as PostProcessedToImage).postProcess;
-    if (width && height) style = { aspectRatio: `1 / ${height / width}` };
+    if (width && height) style = getResponsiveMediaStyle(width, height);
   }
 
   return (

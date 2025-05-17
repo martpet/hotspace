@@ -1,4 +1,5 @@
 import { type ResourcePermissions } from "$util";
+import { getResponsiveMediaStyle } from "../../../util/inodes/post_process/styles.ts";
 import { isPostProcessedToVideo } from "../../../util/inodes/post_process/type_predicates.ts";
 import { FileNode } from "../../../util/inodes/types.ts";
 import type { AppContext } from "../../../util/types.ts";
@@ -35,7 +36,7 @@ export default function VideoPreview(props: Props, ctx: AppContext) {
     width = inode.postProcess.width;
     height = inode.postProcess.height;
     downloadText = "Download original";
-    if (width && height) style = { aspectRatio: `1 / ${height / width}` };
+    if (width && height) style = getResponsiveMediaStyle(width, height);
   }
 
   return (
