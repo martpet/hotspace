@@ -1,9 +1,9 @@
 import { fetchWithRetry, toSha256Hex } from "$util";
 import { DOMParser, initParser } from "@b-fuze/deno-dom/wasm-noinit";
-import type { CompletedMultipartUpload, S3ReqOptions } from "../types.ts";
+import type { CompleteMultipartInit, S3ReqOptions } from "../types.ts";
 import { getS3Endpoint } from "../util.ts";
 
-interface Options extends S3ReqOptions, CompletedMultipartUpload {
+interface Options extends S3ReqOptions, CompleteMultipartInit {
 }
 
 export async function completeMultipartUpload(options: Options) {

@@ -5,13 +5,17 @@ export interface S3ReqOptions extends AwsActionBase {
   accelerated?: boolean;
 }
 
-export interface CompletedMultipartUpload {
+export interface CompleteMultipartInit {
   uploadId: string;
   s3Key: string;
   checksum: string;
   fileName: string;
   mimeType: string;
   finishedParts: FinishedUploadPart[];
+}
+
+export interface CompletedUpload extends CompleteMultipartInit {
+  fileSize: number;
 }
 
 export interface FinishedUploadPart {

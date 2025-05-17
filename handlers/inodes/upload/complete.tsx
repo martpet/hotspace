@@ -1,17 +1,18 @@
 import { s3 } from "$aws";
-import { completeUploads } from "$upload";
+import { completeMultipartUploads } from "$upload";
 import { STATUS_CODE } from "@std/http";
 import { getSigner } from "../../../util/aws.ts";
 import { INODES_BUCKET } from "../../../util/consts.ts";
 import {
+  canUpload,
   createFileNodesFromUploads,
-  isValidUploadDirEntry,
 } from "../../../util/inodes/create_file_node.ts";
+import { checkCreditAfterUpload } from "../../../util/inodes/helpers.ts";
 import { getInodeById } from "../../../util/kv/inodes.ts";
 import type { AppContext } from "../../../util/types.ts";
 
 type ReqData = {
-  uploads: s3.CompletedMultipartUpload[];
+  uploads: s3.CompleteMultipartInit[];
   dirId: string;
 };
 
@@ -32,24 +33,34 @@ export default async function completeUploadHandler(ctx: AppContext) {
   const { dirId, uploads } = reqData;
   const dirEntry = await getInodeById(dirId);
 
-  if (!isValidUploadDirEntry(dirEntry, user)) {
+  if (!canUpload(dirEntry, user)) {
     return ctx.respond(null, STATUS_CODE.NotFound);
   }
 
-  const { completedUploads, failedUploads } = await completeUploads({
+  const completedUploads = await completeMultipartUploads({
     uploads,
     bucket: INODES_BUCKET,
     signer: getSigner(),
   });
 
-  const completedIds = await createFileNodesFromUploads(
-    completedUploads,
-    { dirEntry, dirId, user, origin },
-  );
+  const creditCheck = await checkCreditAfterUpload({
+    user,
+    uploads: completedUploads,
+  });
 
-  const failedIds = failedUploads.map((u) => u.uploadId);
+  if (!creditCheck.ok) {
+    return ctx.respond(creditCheck.msg, creditCheck.status);
+  }
 
-  return ctx.json({ completedIds, failedIds });
+  const completedIds = await createFileNodesFromUploads({
+    uploads: completedUploads,
+    dirEntry,
+    dirId,
+    user,
+    origin,
+  });
+
+  return ctx.json(completedIds);
 }
 
 function isValidReqData(data: unknown): data is ReqData {
@@ -64,7 +75,7 @@ function isValidReqData(data: unknown): data is ReqData {
         mimeType,
         checksum,
         finishedParts,
-      } = upload as Partial<s3.CompletedMultipartUpload>;
+      } = upload as Partial<s3.CompleteMultipartInit>;
       return typeof s3Key === "string" &&
         typeof uploadId === "string" &&
         typeof fileName === "string" &&

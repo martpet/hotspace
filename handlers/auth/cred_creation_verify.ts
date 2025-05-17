@@ -5,6 +5,7 @@ import {
 import { decodeBase64 } from "@std/encoding";
 import { deleteCookie, getCookies, STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
+import { INITIAL_UPLOAD_LIMIT_BYTES } from "../../util/consts.ts";
 import {
   kvKeys as getCredSessionKvKey,
 } from "../../util/kv/cred_creation_sessions.ts";
@@ -70,6 +71,10 @@ export default async function credentialCreationVerifyHandler(ctx: AppContext) {
       id: userId,
       username: creationSession.username,
       webauthnUserId: creationSession.webauthnUserId,
+      uploadCredit: {
+        startBytes: 0,
+        limitBytes: INITIAL_UPLOAD_LIMIT_BYTES,
+      },
     };
 
     const session: Session = {

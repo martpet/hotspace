@@ -47,7 +47,12 @@ function initDialogEvents() {
     }
   };
 
+  fileInput.onchange = () => {
+    errorSignal.value = "";
+  };
+
   dialog.oncancel = (e) => {
+    if (e.target !== dialog) return;
     if (statusSignal.value === "idle") {
       statusSignal.value = "closed";
     } else {
@@ -162,7 +167,7 @@ function insertDialog() {
           </footer>
         </form>
       </dialog>
-    `,
+    `
   );
   dialog = document.getElementById("upload-dialog");
   form = dialog.querySelector("form");
@@ -199,7 +204,7 @@ function renderProgress(opt) {
       `<label id="upload-progress">
         <progress id="upload-progress-bar" value="0" max="100"></progress>
         <span class="info" id="upload-progress-info"></span>
-      </label>`,
+      </label>`
     );
   }
   const { perc = 0, pending } = opt;

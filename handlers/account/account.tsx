@@ -1,10 +1,10 @@
-import { format } from "@std/fmt/bytes";
 import ButtonDeleteAccount from "../../components/ButtonDeleteAccount.tsx";
 import LoginPage from "../../components/pages/LoginPage.tsx";
 import Page from "../../components/pages/Page.tsx";
 import PasskeysList from "../../components/PasskeysList.tsx";
-import { getuploadSizeByOwner } from "../../util/kv/filenodes_stats.ts";
+import UploadCreditMeter from "../../components/UploadCreditMeter.tsx";
 import { listPasskeysByUser } from "../../util/kv/passkeys.ts";
+import { getTotalUploadedBytesByUser } from "../../util/kv/uploads_stats.ts";
 import type { AppContext } from "../../util/types.ts";
 import { asset } from "../../util/url.ts";
 
@@ -22,12 +22,10 @@ export default async function passkeysHandler(ctx: AppContext) {
     </>
   );
 
-  const [passkeys, uploadedSizeEntry] = await Promise.all([
+  const [passkeys, totalUploaded] = await Promise.all([
     listPasskeysByUser(user.id),
-    getuploadSizeByOwner(user, { consistency: "eventual" }),
+    getTotalUploadedBytesByUser(user, { consistency: "eventual" }),
   ]);
-
-  const uploadSize = Number(uploadedSizeEntry.value);
 
   return (
     <Page
@@ -39,13 +37,15 @@ export default async function passkeysHandler(ctx: AppContext) {
       <main class="sectioned">
         <h1>{title}</h1>
         <section>
-          <h2>Passkeys</h2>
-          <PasskeysList passkeys={passkeys} />
+          <h2>Upload Quota</h2>
+          <UploadCreditMeter
+            credit={user.uploadCredit}
+            totalUploaded={totalUploaded}
+          />
         </section>
         <section>
-          <h2>Upload Size</h2>
-          {!!uploadSize && <p>You have uplaoded {format(uploadSize)}.</p>}
-          {!uploadSize && <p>You haven't uploaded anything yet.</p>}
+          <h2>Passkeys</h2>
+          <PasskeysList passkeys={passkeys} />
         </section>
         <section>
           <h2>Delete Account</h2>

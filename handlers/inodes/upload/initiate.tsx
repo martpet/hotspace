@@ -14,6 +14,7 @@ import {
   INODES_BUCKET,
   SAVED_UPLOAD_EXPIRES,
 } from "../../../util/consts.ts";
+import { checkCreditAfterUpload } from "../../../util/inodes/helpers.ts";
 import type { AppContext } from "../../../util/types.ts";
 
 interface ReqData {
@@ -34,6 +35,15 @@ export default async function initiateUploadHandler(ctx: AppContext) {
   }
 
   const { uploadsInitData } = reqData;
+
+  const creditCheck = await checkCreditAfterUpload({
+    user,
+    uploads: uploadsInitData,
+  });
+
+  if (!creditCheck.ok) {
+    return ctx.respond(creditCheck.msg, creditCheck.status);
+  }
 
   const headersFn: InitUploadOptions["headersFn"] = (upload) => {
     const fileName = encodeURIComponent(upload.fileName);
@@ -63,10 +73,11 @@ function isValidReqData(data: unknown): data is ReqData {
   return typeof data === "object" &&
     Array.isArray(uploadsInitData) &&
     uploadsInitData.every((item) => {
-      const { mimeType, fileName, numberOfParts, savedUpload } =
+      const { mimeType, fileName, fileSize, numberOfParts, savedUpload } =
         item as Partial<UploadInitData>;
       return typeof mimeType === "string" &&
         typeof fileName === "string" &&
+        typeof fileSize === "number" &&
         typeof numberOfParts === "number" &&
         (!savedUpload ||
           typeof savedUpload.uploadId === "string" &&

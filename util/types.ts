@@ -16,10 +16,16 @@ export interface State {
   user?: User;
 }
 
+export interface UploadCredit {
+  startBytes: number;
+  limitBytes: number;
+}
+
 export interface User extends ChatUserResource {
   id: string;
   username: string;
   webauthnUserId: string;
+  uploadCredit: UploadCredit;
 }
 
 export interface Session {

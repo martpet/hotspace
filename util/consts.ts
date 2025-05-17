@@ -1,3 +1,4 @@
+import { GB } from "$util";
 import { assert } from "@std/assert";
 import { DAY, WEEK } from "@std/datetime";
 import { prodKvEntry } from "./kv/kv.ts";
@@ -10,6 +11,7 @@ export const SESSION_TIMEOUT = WEEK * 4;
 export const CHAT_SUB_WITHOUT_PUSH_SUB_EXPIRES = WEEK * 2;
 export const SAVED_UPLOAD_EXPIRES = DAY * 7;
 export const GENERAL_ERR_MSG = "Oops, something went wrong, try again!";
+export const INITIAL_UPLOAD_LIMIT_BYTES = GB;
 
 export const PUSH_SUB_HOSTS = [
   "fcm.googleapis.com",

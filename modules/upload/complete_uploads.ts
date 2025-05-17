@@ -1,18 +1,17 @@
 import { s3 } from "$aws";
 import { newQueue } from "@henrygd/queue";
+import { CompletedUpload } from "../aws/s3/types.ts";
 
 interface Options extends Pick<s3.S3ReqOptions, "bucket" | "signer"> {
-  uploads: s3.CompletedMultipartUpload[];
+  uploads: s3.CompleteMultipartInit[];
 }
 
-export async function completeUploads(
+export async function completeMultipartUploads(
   options: Options,
 ) {
   const queue = newQueue(10);
   const { uploads, ...s3Opt } = options;
-  const completedUploads:
-    ({ fileSize: number } & s3.CompletedMultipartUpload)[] = [];
-  const failedUploads: s3.CompletedMultipartUpload[] = [];
+  const completedUploads: CompletedUpload[] = [];
 
   for (const upload of uploads) {
     const { s3Key } = upload;
@@ -30,15 +29,11 @@ export async function completeUploads(
         completedUploads.push({ fileSize, ...upload });
       } catch (err) {
         console.error(err);
-        failedUploads.push(upload);
       }
     });
   }
 
   await queue.done();
 
-  return {
-    completedUploads,
-    failedUploads,
-  };
+  return completedUploads;
 }

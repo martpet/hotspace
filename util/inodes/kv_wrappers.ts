@@ -3,7 +3,6 @@ import { pick } from "@std/collections";
 import { INODES_BUCKET } from "../consts.ts";
 import type { Inode, InodeBase } from "../inodes/types.ts";
 import { enqueue } from "../kv/enqueue.ts";
-import { setFileNodeStats } from "../kv/filenodes_stats.ts";
 import {
   deleteDirByPath,
   deleteInode,
@@ -13,6 +12,7 @@ import {
   setRootDirByOwner,
 } from "../kv/inodes.ts";
 import { kv } from "../kv/kv.ts";
+import { setUploadStats } from "../kv/uploads_stats.ts";
 import { type QueueMsgCleanUpInode } from "../queue/clean_up_inode.ts";
 import { type QueueMsgDeleteDirChildren } from "../queue/delete_dir_children.ts";
 import { type QueueMsgDeleteS3Objects } from "../queue/delete_s3_objects.ts";
@@ -90,7 +90,7 @@ export async function deleteInodesRecursive(inodes: Inode[]) {
 function deleteAnyInode(inode: Inode, atomic = kv.atomic()) {
   deleteInode(inode, atomic);
   if (inode.type === "file") {
-    setFileNodeStats({
+    setUploadStats({
       fileNode: inode,
       isAdd: false,
       atomic,

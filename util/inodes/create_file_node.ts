@@ -4,9 +4,9 @@ import { pick } from "@std/collections";
 import { ulid } from "@std/ulid/ulid";
 import { INODES_BUCKET } from "../consts.ts";
 import { enqueue } from "../kv/enqueue.ts";
-import { setFileNodeStats } from "../kv/filenodes_stats.ts";
 import { getInodeById, keys as inodesKeys } from "../kv/inodes.ts";
 import { kv } from "../kv/kv.ts";
+import { setUploadStats } from "../kv/uploads_stats.ts";
 import { type QueueMsgDeleteS3Objects } from "../queue/delete_s3_objects.ts";
 import { type QueueMsgPostProcessFileNodes } from "../queue/post_process/post_process_file_nodes.ts";
 import { type QueueMsgPostProcessVideoNodes } from "../queue/post_process/post_process_video_node.ts";
@@ -22,11 +22,12 @@ import type {
   PostProcessedFileNode,
 } from "./types.ts";
 
-interface CompletedUploadWithFileSize extends s3.CompletedMultipartUpload {
+interface CompletedUpload extends s3.CompleteMultipartInit {
   fileSize: number;
 }
 
 interface CreatFileNodesFromUploadsOptions {
+  uploads: CompletedUpload[];
   dirEntry: Deno.KvEntryMaybe<Inode>;
   dirId: string;
   user: User;
@@ -34,9 +35,9 @@ interface CreatFileNodesFromUploadsOptions {
 }
 
 export async function createFileNodesFromUploads(
-  uploads: CompletedUploadWithFileSize[],
   options: CreatFileNodesFromUploadsOptions,
 ) {
+  const { uploads } = options;
   const completedUploadIds = [];
   const processables: PostProcessedFileNode[] = [];
 
@@ -80,7 +81,7 @@ export async function createFileNodesFromUploads(
 }
 
 async function createFileNode(
-  upload: CompletedUploadWithFileSize,
+  upload: CompletedUpload,
   options: CreatFileNodesFromUploadsOptions,
 ) {
   const { dirId, user, origin } = options;
@@ -97,7 +98,7 @@ async function createFileNode(
       dirEntry = await getInodeById(dirId);
     }
 
-    if (!isValidUploadDirEntry(dirEntry, user)) {
+    if (!canUpload(dirEntry, user)) {
       return;
     }
 
@@ -144,7 +145,7 @@ async function createFileNode(
     }
 
     setAnyInode(inode, atomic);
-    setFileNodeStats({
+    setUploadStats({
       fileNode: inode,
       isAdd: true,
       atomic,
@@ -156,17 +157,17 @@ async function createFileNode(
   return inode!;
 }
 
-export function isValidUploadDirEntry(
+export function canUpload(
   entry: Deno.KvEntryMaybe<Inode>,
   user: User,
 ): entry is Deno.KvEntry<DirNode> {
   const inode = entry.value;
-  return !!inode && inode.type === "dir" && !inode.isRootDir &&
-    getPermissions({ user, resource: inode }).canCreate;
+  const perm = getPermissions({ user, resource: inode });
+  return !!inode && inode.type === "dir" && !inode.isRootDir && perm.canCreate;
 }
 
 export function cleanupUnsavedFileNodes(
-  uploads: s3.CompletedMultipartUpload[],
+  uploads: s3.CompleteMultipartInit[],
   completedUploadIds: string[] = [],
 ) {
   const s3KeysData = [];

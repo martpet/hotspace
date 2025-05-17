@@ -52,6 +52,7 @@ class Uploader {
       uploadsInitData.push({
         mimeType: file.type,
         fileName: file.name,
+        fileSize: file.size,
         numberOfParts: Math.ceil(file.size / this.chunkSize) || 1,
         savedUpload,
       });
@@ -218,16 +219,13 @@ class Uploader {
       return;
     }
 
-    const { completedIds, failedIds } = await resp.json();
+    const completedIds = await resp.json();
 
     await Promise.all(
-      [...completedIds, ...failedIds].map((id) => {
-        const { checksum } = this.uploads.get(id);
-        return deleteSavedUpload(checksum);
-      })
+      uploads.map((upload) => deleteSavedUpload(upload.checksum))
     );
 
-    if (failedIds.length && !completedIds.length) {
+    if (!completedIds.length) {
       this.sendError();
       return;
     }

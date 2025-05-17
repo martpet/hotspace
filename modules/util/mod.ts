@@ -1,4 +1,5 @@
 export * from "./async_queue.ts";
+export * from "./bytes.ts";
 export * from "./encode.ts";
 export * from "./fetchWithRetry.ts";
 export * from "./file_permissions.ts";

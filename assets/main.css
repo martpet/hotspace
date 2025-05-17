@@ -429,3 +429,12 @@ dialog.flash {
     color: ActiveText;
   }
 }
+
+.upload-credit-meter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  meter {
+    width: 15em;
+  }
+}
