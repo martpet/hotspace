@@ -90,7 +90,7 @@ async function submitData() {
     await replaceFragment("inodes");
     statusSignal.value = "closed";
   } else {
-    errorSignal.value = await resp.text() || GENERAL_ERR_MSG;
+    errorSignal.value = (await resp.text()) || GENERAL_ERR_MSG;
     statusSignal.value = "idle";
     nameInput.focus();
   }
@@ -111,8 +111,8 @@ function insertDialog() {
           <label>
             Name:
             <input type="text" name="dirName" required autocomplete="off" />
-            <small ${!showPreview && "hidden"}>
-              ${location.href}<output name="namePreview"></output>
+            <small ${showPreview ? "" : "hidden"}>
+              ${location.href}<output name="namePreview">name</output>
             </small>
           </label>
           <footer>
@@ -121,7 +121,7 @@ function insertDialog() {
           </footer>
         </form>
       </dialog>
-    `,
+    `
   );
   dialog = document.getElementById("create-dir-dialog");
   form = dialog.querySelector("form");
