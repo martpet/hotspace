@@ -9,7 +9,7 @@ import Chat from "../../components/chat/ChatSection.tsx";
 import FilePreview from "../../components/inodes/file_preview/FilePreview.tsx";
 import NotFoundPage from "../../components/pages/NotFoundPage.tsx";
 import Page from "../../components/pages/Page.tsx";
-import { getPreviewInfo } from "../../util/inodes/post_process/preview_info.ts";
+import { getPreviewInfo } from "../../util/inodes/inode_preview_info.ts";
 import type { FileNode } from "../../util/inodes/types.ts";
 import { getDirByPath, getInodeByDir } from "../../util/kv/inodes.ts";
 import type { AppContext } from "../../util/types.ts";

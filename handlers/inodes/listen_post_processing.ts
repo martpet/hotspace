@@ -1,5 +1,5 @@
-import { getPreviewInfo } from "../../util/inodes/post_process/preview_info.ts";
-import { createPostProcessingStatusHandler } from "../../util/inodes/post_process/processing_status_handler.ts";
+import { getPreviewInfo } from "../../util/inodes/inode_preview_info.ts";
+import { createPostProcessingStatusHandler } from "../../util/inodes/post_process/create_status_handler.ts";
 import { isPostProcessedToVideo } from "../../util/inodes/post_process/type_predicates.ts";
 
 export default createPostProcessingStatusHandler(async (inode) => {

@@ -1,6 +1,6 @@
 import { type ResourcePermissions } from "$util";
+import { InodePreviewInfo } from "../../../util/inodes/inode_preview_info.ts";
 import { getRemainingProcessingTimeout } from "../../../util/inodes/post_process/post_process.ts";
-import { InodePreviewInfo } from "../../../util/inodes/post_process/preview_info.ts";
 import type { FileNode } from "../../../util/inodes/types.ts";
 import { asset } from "../../../util/url.ts";
 import Loader from "../../Loader.tsx";

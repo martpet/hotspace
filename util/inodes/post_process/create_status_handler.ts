@@ -4,8 +4,8 @@ import { HEADER } from "@std/http/unstable-header";
 import { keys as getInodeKey } from "../../kv/inodes.ts";
 import { watch } from "../../kv/kv.ts";
 import type { AppContext } from "../../types.ts";
-import { isPostProcessedFileNode } from "../post_process/type_predicates.ts";
 import type { Inode, PostProcessedFileNode } from "../types.ts";
+import { isPostProcessedFileNode } from "./type_predicates.ts";
 
 export function createPostProcessingStatusHandler(
   callback: (

@@ -1,7 +1,7 @@
-import { getFileNodeUrl } from "../helpers.ts";
-import { MIME_CONFS } from "../mime.ts";
-import type { FileNode, InodeDisplay } from "../types.ts";
-import { isPostProcessedToVideo } from "./type_predicates.ts";
+import { getFileNodeUrl } from "./helpers.ts";
+import { MIME_CONFS } from "./mime.ts";
+import { isPostProcessedToVideo } from "./post_process/type_predicates.ts";
+import type { FileNode, InodeDisplay } from "./types.ts";
 
 export interface InodePreviewInfo {
   displayType: InodeDisplay | null;

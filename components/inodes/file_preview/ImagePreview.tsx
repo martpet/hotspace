@@ -1,9 +1,7 @@
 import { type ResourcePermissions } from "$util";
+import { InodePreviewInfo } from "../../../util/inodes/inode_preview_info.ts";
 import { getRemainingProcessingTimeout } from "../../../util/inodes/post_process/post_process.ts";
-import {
-  InodePreviewInfo,
-} from "../../../util/inodes/post_process/preview_info.ts";
-import { getResponsiveMediaStyle } from "../../../util/inodes/post_process/styles.ts";
+import { getResponsiveMediaStyles } from "../../../util/inodes/responsive_media_styles.ts";
 import type {
   FileNode,
   PostProcessedToImage,
@@ -35,7 +33,7 @@ export default function ImagePreview(props: Props) {
       downloadText = "Download original";
     }
     const { width, height } = (inode as PostProcessedToImage).postProcess;
-    if (width && height) style = getResponsiveMediaStyle(width, height);
+    if (width && height) style = getResponsiveMediaStyles(width, height);
   }
 
   return (

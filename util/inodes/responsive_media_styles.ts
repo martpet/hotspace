@@ -1,4 +1,4 @@
-export function getResponsiveMediaStyle(width: number, height: number) {
+export function getResponsiveMediaStyles(width: number, height: number) {
   const ratio = height / width;
   const MAX_HEIGHT = 500;
 

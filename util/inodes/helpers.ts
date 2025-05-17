@@ -8,14 +8,14 @@ import type { User } from "../types.ts";
 import { ROOT_DIR_ID } from "./consts.ts";
 import { MIME_CONFS } from "./mime.ts";
 
-export function isFileNodeWithMultipleS3Keys(inode: Inode) {
-  return inode.type === "file" && !!MIME_CONFS[inode.mimeType]?.proc;
-}
-
 export function getInodeLabel(inode: Inode): InodeLabel {
   if (inode.type === "file") return "File";
   if (inode.parentDirId === ROOT_DIR_ID) return "Space";
   return "Folder";
+}
+
+export function isFileNodeWithMultipleS3Keys(inode: Inode) {
+  return inode.type === "file" && !!MIME_CONFS[inode.mimeType]?.proc;
 }
 
 export function getFileNodeUrl(
