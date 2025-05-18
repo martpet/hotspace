@@ -23,7 +23,7 @@ export default function RegForm(_props: unknown, ctx: AppContext) {
           </>
         )}
         <button>
-          {!user ? "Create Account" : "Create Passkey"}
+          {!user ? "Create Account" : "Add Passkey"}
         </button>
 
         {!user && <p class="tip">A passkey will be created</p>}
