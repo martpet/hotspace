@@ -37,7 +37,7 @@ export default async function passkeysHandler(ctx: AppContext) {
       <main class="sectioned">
         <h1>{title}</h1>
         <section>
-          <h2>Upload Quota</h2>
+          <h2>Upload Credit</h2>
           <UploadCreditMeter
             credit={user.uploadCredit}
             totalUploaded={totalUploaded}
