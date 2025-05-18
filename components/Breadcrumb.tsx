@@ -2,14 +2,13 @@ import { type NonRootPath, parsePathname } from "$util";
 import { AppContext } from "../util/types.ts";
 
 export default function Breadcrumb(_: unknown, ctx: AppContext) {
-  const { user } = ctx.state;
   const path = parsePathname(ctx.url.pathname);
 
   return (
     <nav aria-label="Breadcrumb" class="breadcrumb">
       <ol>
         <li>
-          {user ? <a href="/">HotSpace</a> : "HotSpace"}
+          <a href="/">HotSpace</a>
         </li>
         {path.parentSegments &&
           path.parentSegments.map((segment, i) => (

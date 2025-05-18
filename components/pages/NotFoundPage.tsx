@@ -6,7 +6,11 @@ export default function NotFoundPage(props: PageProps, ctx: AppContext) {
   ctx.resp.status = STATUS_CODE.NotFound;
 
   return (
-    <Page title="Error: Page not found" {...props}>
+    <Page
+      title="Error: Page not found"
+      header={{ siteNameIsLink: true }}
+      {...props}
+    >
       <h1>Page not found</h1>
     </Page>
   );

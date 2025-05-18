@@ -438,3 +438,28 @@ dialog.flash {
     width: 15em;
   }
 }
+
+#landing-page {
+  #page-header {
+    h1 {
+      font-size: revert;
+      font-weight: revert;
+    }
+  }
+}
+
+.prose {
+  font-size: 16px;
+  max-width: 40em;
+  line-height: 1.4;
+  h1,
+  h2 {
+    font-weight: 600;
+  }
+  h2 {
+    margin-top: 1.3em;
+  }
+  ul li {
+    margin: 0.1em 0;
+  }
+}
