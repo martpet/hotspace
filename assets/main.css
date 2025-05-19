@@ -449,17 +449,11 @@ dialog.flash {
 }
 
 .prose {
-  font-size: 16px;
+  margin: 0 auto;
   max-width: 40em;
+  font-size: 16px;
   line-height: 1.4;
-  h1,
-  h2 {
-    font-weight: 600;
-  }
-  h2 {
-    margin-top: 1.3em;
-  }
   ul li {
-    margin: 0.1em 0;
+    margin: 0.15em 0;
   }
 }
