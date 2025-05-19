@@ -27,7 +27,7 @@ export default function Subscription(_props: unknown, ctx: AppContext) {
           Chat Notifications
         </label>
 
-        <HelpTooltip id="chat-sub-help" info={help} />
+        <HelpTooltip id="chat-sub-help" info={help} size="sm" />
 
         <span
           id="chat-sub-denied"

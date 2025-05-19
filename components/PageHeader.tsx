@@ -46,10 +46,13 @@ function SiteName(props: { isHeading?: boolean; isLink?: boolean }) {
 
 function AccountNav(props: { username: string }, ctx: AppContext) {
   const { username } = props;
-  const isAccountPage = new URL(ctx.req.url).pathname === "/account";
+  const { pathname } = new URL(ctx.req.url);
+  const isAccountPage = pathname === "/account";
+  const isAboutPage = pathname === "/about";
   return (
     <>
       {isAccountPage ? username : <a href="/account">{username}</a>}
+      {!isAboutPage && <a href="/about" class="help-sign">?</a>}
       <ButtonLogout />
     </>
   );

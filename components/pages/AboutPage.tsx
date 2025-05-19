@@ -1,9 +1,9 @@
 import { asset } from "../../util/url.ts";
-import Page from "./Page.tsx";
+import Page, { type PageProps } from "./Page.tsx";
 
-export default function LandingPage() {
+export default function LandingPage(pageProps: PageProps) {
   return (
-    <Page>
+    <Page {...pageProps}>
       <main class="landing-hero prose">
         <img
           class="logo"
@@ -29,9 +29,6 @@ export default function LandingPage() {
         <footer>
           <nav>
             <ul>
-              <li>
-                <a href="/register">Register</a>
-              </li>
               <li>
                 <a href="/terms">Terms</a>
               </li>

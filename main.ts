@@ -1,5 +1,6 @@
 import { flashMiddleware, Server, staticFilesHandler } from "$server";
 import { uploadWorkerHandler } from "$upload";
+import about from "./handlers/about.tsx";
 import account from "./handlers/account/account.tsx";
 import deleteAccount from "./handlers/account/delete.tsx";
 import logout from "./handlers/account/logout.ts";
@@ -58,6 +59,7 @@ app.get("/", home);
 app.get("/terms", terms);
 app.get("/privacy", privacy);
 app.get("/contact", contact);
+app.get("/about", about);
 
 app.get("/register", register);
 app.post("/logout", logout);

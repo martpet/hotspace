@@ -22,13 +22,19 @@ export default function Tooltip(props: TooltipProps) {
   );
 }
 
-export function HelpTooltip(props: Omit<TooltipProps, "children">) {
+export function HelpTooltip(
+  props: Omit<TooltipProps, "children"> & {
+    size?: "sm";
+  },
+) {
+  const classes = ["help-sign"];
+  if (props.size) classes.push(props.size);
   return (
     <Tooltip
       {...props}
       class="help-tooltip"
     >
-      <span class="help-sign">?</span>
+      <span class={classes.join(" ")}>?</span>
     </Tooltip>
   );
 }

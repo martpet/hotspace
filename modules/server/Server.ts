@@ -1,5 +1,11 @@
 import { fileUrlToRelative, LimitedMap } from "$util";
-import { getCookies, setCookie, STATUS_CODE, UserAgent } from "@std/http";
+import {
+  getCookies,
+  setCookie,
+  STATUS_CODE,
+  type StatusCode,
+  UserAgent,
+} from "@std/http";
 import { HEADER } from "@std/http/unstable-header";
 import { type Method } from "@std/http/unstable-method";
 import { contentType } from "@std/media-types";
@@ -238,5 +244,16 @@ export class Server {
       body: ctx.req.body,
     });
     return staticFilesHandler(ctx);
+  }
+
+  static isRedirect(resp: Response) {
+    const redirectStatusCodes: StatusCode[] = [
+      STATUS_CODE.MovedPermanently,
+      STATUS_CODE.Found,
+      STATUS_CODE.SeeOther,
+      STATUS_CODE.TemporaryRedirect,
+      STATUS_CODE.PermanentRedirect,
+    ];
+    return redirectStatusCodes.includes(resp.status as StatusCode);
   }
 }

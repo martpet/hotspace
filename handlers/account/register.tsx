@@ -11,7 +11,7 @@ export default function registerHandler(ctx: AppContext) {
   }
 
   const head = <script type="module" src={asset("reg.js")} />;
-  const title = "Register";
+  const title = "Create account";
 
   return (
     <Page
