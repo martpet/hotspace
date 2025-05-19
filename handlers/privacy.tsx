@@ -4,7 +4,7 @@ export default function privacyHandler() {
   const title = "Privacy Policy";
 
   return (
-    <Page header={{ siteNameIsLink: true }}>
+    <Page title={title} header={{ siteNameIsLink: true }}>
       <div class="prose">
         <h1>{title}</h1>
         <p>

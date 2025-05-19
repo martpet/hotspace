@@ -13,7 +13,7 @@ export default function contactHandler() {
         </p>
 
         <p>
-          For help, feedback, or issues:{" "}
+          For help, feedback, or issues: email{" "}
           <a href="mailto:support@hotspace.lol">support@hotspace.lol</a>
         </p>
       </div>

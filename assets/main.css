@@ -313,7 +313,7 @@ dialog.flash {
   .site-name {
     margin: 0 auto 0 0;
     font-size: inherit;
-    font-weight: inherit;
+    font-weight: 500;
   }
   .breadcrumb {
     margin-inline-end: auto;
@@ -346,15 +346,30 @@ dialog.flash {
 
 #reg-form {
   label {
+    font-weight: bold;
+  }
+  p {
+    margin-top: 0.3em;
+  }
+  label {
     display: block;
+    margin: 2em 0 0.3em;
   }
-  input {
-    margin: 0.4rem 0.3rem 0 0;
+  input#username {
+    display: block;
+    width: 18em;
+    margin: 0 0 0.5em;
+    padding: 0.5em;
+    font: inherit;
   }
-  p.tip {
-    color: var(--text-grey);
+  .username-help {
+    font-size: 0.9em;
+    color: var(--text-grey-dark);
   }
-  p.error {
+  button {
+    margin-top: 0.5em;
+  }
+  + p.error {
     width: fit-content;
   }
 }
@@ -417,6 +432,16 @@ dialog.flash {
   }
 }
 
+.prose {
+  margin: 3em auto;
+  max-width: 40em;
+  font-size: 16px;
+  line-height: 1.3;
+  ul li {
+    margin: 0.15em 0;
+  }
+}
+
 .btn-settings {
   all: unset;
   cursor: pointer;
@@ -439,21 +464,51 @@ dialog.flash {
   }
 }
 
-#landing-page {
-  #page-header {
-    h1 {
-      font-size: revert;
-      font-weight: revert;
+.landing-hero {
+  text-align: center;
+  h1 {
+    font-size: 1em;
+    font-weight: 600;
+  }
+  p.sub {
+    font-weight: bold;
+    font-size: 2em;
+  }
+  img.logo {
+    max-width: 6.4em;
+  }
+  .box {
+    width: fit-content;
+    margin: 2em auto;
+    padding: 2em;
+    text-align: initial;
+    background: var(--bg-light);
+    h2 {
+      font-weight: 600;
+    }
+    ul {
+      margin-left: 0;
+      padding-left: 0;
+      list-style: inside;
+      li {
+        margin: 0.35em 0;
+      }
+    }
+    :first-child {
+      margin-top: 0;
     }
   }
-}
-
-.prose {
-  margin: 3em auto;
-  max-width: 40em;
-  font-size: 16px;
-  line-height: 1.3;
-  ul li {
-    margin: 0.15em 0;
+  footer {
+    ul {
+      padding: 0;
+      list-style: none;
+      li {
+        display: inline;
+        &:not(:last-child):after {
+          content: "|";
+          margin: 0 0.5em;
+        }
+      }
+    }
   }
 }

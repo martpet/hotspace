@@ -23,8 +23,8 @@ function setError(msg) {
   if (msg) {
     setInProgress(false);
     form.insertAdjacentHTML(
-      "beforeend",
-      `<p role="alert" class="error">${msg}</p>`,
+      "afterend",
+      `<p role="alert" class="error">${msg}</p>`
     );
   } else {
     form.querySelector("p.error")?.remove();
