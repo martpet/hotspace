@@ -87,6 +87,7 @@ export default async function showDirHandler(ctx: AppContext) {
 
   const head = (
     <>
+      <meta name="robots" content="noindex, nofollow" />
       {(canChangeAclSome || canCreate) && (
         <script type="module" src={asset("inodes/acl.js")} />
       )}
