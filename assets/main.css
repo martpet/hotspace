@@ -474,17 +474,18 @@ dialog.flash {
   }
 }
 
-.landing-hero {
+.about {
   text-align: center;
   h1 {
     font-size: 1em;
+    margin-block: 0.67em;
     font-weight: 600;
   }
-  p.sub {
+  .subline {
     font-weight: bold;
     font-size: 2em;
   }
-  img.logo {
+  .logo {
     height: 6.4em;
   }
   .box {

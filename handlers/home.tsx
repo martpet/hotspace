@@ -1,9 +1,9 @@
 import { getPermissions } from "$util";
+import About from "../components/About.tsx";
 import BlankSlate from "../components/BlankSlate.tsx";
 import ButtonCreateDir from "../components/inodes/ButtonCreateDir.tsx";
 import InodesTable from "../components/inodes/InodesTable.tsx";
 import InodesTableMenu from "../components/inodes/InodesTableMenu.tsx";
-import AboutPage from "../components/pages/AboutPage.tsx";
 import Page from "../components/pages/Page.tsx";
 import { ROOT_DIR_ID } from "../util/inodes/consts.ts";
 import { listRootDirsByOwner } from "../util/kv/inodes.ts";
@@ -17,7 +17,11 @@ export default async function homeHandler(ctx: AppContext) {
   const user = ctx.state.user;
 
   if (!user) {
-    return <AboutPage />;
+    return (
+      <Page>
+        <About />
+      </Page>
+    );
   }
 
   const fragmentId = ctx.url.searchParams.get("fragment") as FragmentId | null;

@@ -1,4 +1,5 @@
-import AboutPage from "../components/pages/AboutPage.tsx";
+import About from "../components/About.tsx";
+import Page from "../components/pages/Page.tsx";
 import type { AppContext } from "../util/types.ts";
 
 export default function aboutHandler(ctx: AppContext) {
@@ -9,9 +10,8 @@ export default function aboutHandler(ctx: AppContext) {
   }
 
   return (
-    <AboutPage
-      title="About"
-      header={{ siteNameIsLink: true }}
-    />
+    <Page title="About" header={{ siteNameIsLink: true }}>
+      <About skipSubline />
+    </Page>
   );
 }
