@@ -78,7 +78,7 @@ form?.addEventListener("submit", async (e) => {
 });
 
 async function createPubkeyOptions(username) {
-  const resp = await fetch("/auth/cred-creation-options", {
+  const resp = await fetch("/auth/credential-creation-options", {
     method: "post",
     body: username,
   });
@@ -104,7 +104,7 @@ async function verify(credential) {
     authData: encodeBase64(credential.response.getAuthenticatorData()),
     clientDataJson: encodeBase64(credential.response.clientDataJSON),
   };
-  const resp = await fetch("/auth/cred-creation-verify", {
+  const resp = await fetch("/auth/credential-creation-verify", {
     method: "post",
     body: JSON.stringify(attestation),
   });

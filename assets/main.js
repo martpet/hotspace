@@ -127,7 +127,7 @@ if (!isServiceWorkerScope) {
   }
 
   async function createPubkeyOptions() {
-    const resp = await fetch("/auth/cred-request-options", {
+    const resp = await fetch("/auth/credential-request-options", {
       method: "post",
     });
     if (!resp.ok) {
@@ -146,7 +146,7 @@ if (!isServiceWorkerScope) {
       authData: encodeBase64(credential.response.authenticatorData),
       clientDataJson: encodeBase64(credential.response.clientDataJSON),
     };
-    const resp = await fetch("/auth/cred-request-verify", {
+    const resp = await fetch("/auth/credential-request-verify", {
       method: "post",
       body: JSON.stringify(assertion),
     });
