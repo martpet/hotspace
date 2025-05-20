@@ -14,30 +14,38 @@ export default async function awsWebhookHandler(ctx: AppContext) {
   }
 
   const msg = await ctx.req.json();
+  const queueMsg = getQueueMsg(msg);
 
-  if (msg.source === "aws.mediaconvert") {
-    await enqueue<QueueMsgVideoProcessorEvent>({
-      type: "video-processor-event",
-      detail: msg.detail,
-    }).commit();
-  } else if (msg.source === "hotspace.sharp-processor") {
-    await enqueue<QueueMsgSharpProcessorEvent>({
-      type: "sharp-processor-event",
-      time: msg.time,
-      detail: msg.detail,
-    }).commit();
-  } else if (
-    msg.source === "hotspace.libre-processor" ||
-    msg.source === "hotspace.pandoc-processor"
-  ) {
-    await enqueue<QueueMsgGeneralPostProcessorEvent>({
-      type: "general-post-processor-event",
-      time: msg.time,
-      detail: msg.detail,
-    }).commit();
+  if (queueMsg) {
+    await enqueue(queueMsg).commit();
   } else {
     console.error("Unhandled AWS webhook message", msg);
   }
 
   return ctx.respond();
+}
+
+function getQueueMsg(msg: Record<string, unknown>) {
+  switch (msg.source) {
+    case "aws.mediaconvert":
+      return <QueueMsgVideoProcessorEvent> {
+        type: "video-processor-event",
+        detail: msg.detail,
+      };
+
+    case "hotspace.sharp-processor":
+      return <QueueMsgSharpProcessorEvent> ({
+        type: "sharp-processor-event",
+        time: msg.time,
+        detail: msg.detail,
+      });
+
+    case "hotspace.libre-processor":
+    case "hotspace.pandoc-processor":
+      return <QueueMsgGeneralPostProcessorEvent> {
+        type: "general-post-processor-event",
+        time: msg.time,
+        detail: msg.detail,
+      };
+  }
 }
