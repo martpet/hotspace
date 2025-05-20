@@ -6,7 +6,7 @@ import { type QueueMsgSharpProcessorEvent } from "../../util/queue/post_processo
 import { type QueueMsgVideoProcessorEvent } from "../../util/queue/post_processor_event/video_processor_event.ts";
 import type { AppContext } from "../../util/types.ts";
 
-export async function awsWebhookHandler(ctx: AppContext) {
+export default async function awsWebhookHandler(ctx: AppContext) {
   const apiKey = ctx.req.headers.get("X-Api-Key");
 
   if (apiKey !== AWS_WEBHOOKS_KEY) {

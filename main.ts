@@ -33,6 +33,7 @@ import privacy from "./handlers/privacy.tsx";
 import subscribers from "./handlers/push_sub/subscribers.ts";
 import vapid from "./handlers/push_sub/vapid.ts";
 import terms from "./handlers/terms.tsx";
+import awsWebhook from "./handlers/webhooks/aws.ts";
 import { csrfMiddleware } from "./middleware/csrf.tsx";
 import { headersMiddleware } from "./middleware/headers.ts";
 import { errorMiddleware } from "./middleware/server_error.tsx";
@@ -75,6 +76,8 @@ app.post("/auth/credential-request-options", credReqOpt);
 app.post("/auth/credential-request-verify", credReqVer);
 app.post("/auth/passkey-delete", passkeyDelete);
 app.post("/auth/passkey-rename", passkeyRename);
+
+app.post("/webhooks/aws", awsWebhook);
 
 app.post("/inodes/dirs", setDirByPath);
 app.post("/inodes/delete", deleteInodes);
