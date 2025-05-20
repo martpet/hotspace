@@ -5,12 +5,12 @@ interface Props {
   totalUploaded: number;
 }
 
-export default function UploadCredit(props: Props, ctx: AppContext) {
+export default function UploadCredits(props: Props, ctx: AppContext) {
   const { user } = ctx.state;
   if (!user) return null;
 
   const { totalUploaded } = props;
-  const { startBytes, limitBytes } = user?.uploadCredit;
+  const { startBytes, limitBytes } = user?.uploadCredits;
   const totalCredit = limitBytes - startBytes;
   const usedCredit = totalUploaded - startBytes;
   const remainingCredit = totalCredit - usedCredit;

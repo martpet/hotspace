@@ -16,7 +16,7 @@ export interface State {
   user?: User;
 }
 
-export interface UploadCredit {
+export interface UploadCredits {
   startBytes: number;
   limitBytes: number;
 }
@@ -25,7 +25,7 @@ export interface User extends ChatUserResource {
   id: string;
   username: string;
   webauthnUserId: string;
-  uploadCredit: UploadCredit;
+  uploadCredits: UploadCredits;
 }
 
 export interface Session {

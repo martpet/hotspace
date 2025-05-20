@@ -48,7 +48,7 @@ export async function checkCreditAfterUpload(input: {
   const { user, uploads } = input;
   const uploadsSize = uploads.reduce((a, v) => a + v.fileSize, 0);
   const totalUploaded = await getTotalUploadedBytesByUser(user);
-  const { limitBytes } = user.uploadCredit;
+  const { limitBytes } = user.uploadCredits;
   const creditAfterUpload = limitBytes - (uploadsSize + totalUploaded);
   if (creditAfterUpload >= 0) {
     return { ok: true };

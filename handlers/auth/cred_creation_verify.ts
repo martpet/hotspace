@@ -71,7 +71,7 @@ export default async function credentialCreationVerifyHandler(ctx: AppContext) {
       id: userId,
       username: creationSession.username,
       webauthnUserId: creationSession.webauthnUserId,
-      uploadCredit: {
+      uploadCredits: {
         startBytes: 0,
         limitBytes: INITIAL_UPLOAD_LIMIT_BYTES,
       },
