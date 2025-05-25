@@ -31,7 +31,7 @@ export default async function createPaymentIntentHandler(ctx: AppContext) {
     amount,
     currency: "usd",
     metadata: {
-      appUrl: ctx.url.origin,
+      appUrl: isProd ? undefined : ctx.url.origin,
     },
   });
 
