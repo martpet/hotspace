@@ -9,14 +9,7 @@ export default function RegForm(_props: unknown, ctx: AppContext) {
       <form id="reg-form">
         {!user && (
           <>
-            <strong>No email or password needed</strong>
-            <p>
-              You’ll sign in with your device — like Face ID, fingerprint, or
-              your computer password.
-            </p>
-
             <label for="username">Choose a username:</label>
-
             <input
               id="username"
               type="text"

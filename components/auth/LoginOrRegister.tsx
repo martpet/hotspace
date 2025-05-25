@@ -8,7 +8,7 @@ interface Props {
 export default function LoginOrRegister({ skipLogin, skipReg }: Props) {
   return (
     <div class="login-or-register">
-      {!skipReg && <a href="/register">Sign up</a>}
+      {!skipReg && <a href="/register">Sign Up</a>}
       {!skipLogin && <ButtonLogin />}
     </div>
   );

@@ -32,10 +32,17 @@ export default function About({ noLogo, noName, noSubline }: Props) {
       <section class="box">
         <h1>How It Works</h1>
         <ul>
-          <li>Sign up and get 1 GB of upload quota for free</li>
-          <li>Upload files — they stay online indefinitely</li>
-          <li>Share files publicly or keep them private</li>
-          <li>Pay only for uploads: $1 per additional GB</li>
+          <li>Sign up and get 1 GB of free upload quota</li>
+          <li>
+            Upload files — they stay online <strong>indefinitely</strong>
+          </li>
+          <li>
+            Share files <strong>publicly</strong> or keep them{" "}
+            <strong>private</strong>
+          </li>
+          <li>
+            Pay only for uploads: <strong>$1 per additional GB</strong>
+          </li>
           <li>No download limits, no hidden fees</li>
         </ul>
       </section>

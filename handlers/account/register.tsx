@@ -11,7 +11,7 @@ export default function registerHandler(ctx: AppContext) {
   }
 
   const head = <script type="module" src={asset("reg.js")} />;
-  const title = "Create account";
+  const title = "Create an Account";
 
   return (
     <Page
@@ -21,6 +21,13 @@ export default function registerHandler(ctx: AppContext) {
     >
       <div class="prose">
         <h1>{title}</h1>
+
+        <p>
+          <strong>No email or password required</strong>
+          <br />
+          You’ll sign in using your device — with Face ID, fingerprint, or your
+          computer password.
+        </p>
         <RegForm />
       </div>
     </Page>

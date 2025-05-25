@@ -360,9 +360,7 @@ dialog.flash {
   label {
     font-weight: bold;
   }
-  p {
-    margin-top: 0.3em;
-  }
+
   label {
     display: block;
     margin: 2em 0 0.3em;
@@ -373,6 +371,9 @@ dialog.flash {
     margin: 0 0 0.5em;
     padding: 0.5em;
     font: inherit;
+    + p {
+      margin-top: 0.3em;
+    }
   }
   .username-help {
     font-size: 0.9em;
@@ -453,7 +454,7 @@ dialog.flash {
   margin: 3em auto;
   max-width: 40em;
   font-size: 16px;
-  line-height: 1.3;
+  line-height: 1.5;
   ul li {
     margin: 0.15em 0;
   }
@@ -474,12 +475,14 @@ dialog.flash {
 
 .about {
   text-align: center;
+  line-height: inherit;
   h1:not(.box h1) {
     font-size: 1em;
     margin-block: 0.67em;
     font-weight: 600;
   }
   .subline {
+    line-height: 1.3;
     font-weight: bold;
     font-size: 2em;
   }
@@ -505,6 +508,7 @@ dialog.flash {
       margin-left: 0;
       padding-left: 0;
       list-style: inside;
+      line-height: 1.5;
       li {
         margin: 0.35em 0;
       }

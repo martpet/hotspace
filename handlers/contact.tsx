@@ -8,13 +8,13 @@ export default function contactHandler() {
       <div class="prose">
         <h1>{title}</h1>
         <p>
-          HotSpace is independently developed and maintained. I personally
-          handle all support and questions.
+          HotSpace is independently developed and maintained. All support
+          inquiries are handled personally.
         </p>
 
         <p>
-          For help, feedback, or issues: email{" "}
-          <a href="mailto:support@hotspace.lol">support@hotspace.lol</a>
+          For help, feedback, or to report an issue, please contact:<br />
+          📧 <a href="mailto:support@hotspace.lol">support@hotspace.lol</a>
         </p>
       </div>
     </Page>
