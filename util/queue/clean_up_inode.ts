@@ -8,8 +8,8 @@ import {
   listChatSubs,
   listFeedItemsByChat,
 } from "$chat";
+import { ACL_ID_ALL } from "$util";
 import { newQueue } from "@henrygd/queue";
-import { ACL_ID_ALL } from "../../modules/util/file_permissions.ts";
 import { getSigner } from "../../util/aws.ts";
 import { AWS_REGION } from "../../util/consts.ts";
 import { kv } from "../../util/kv/kv.ts";

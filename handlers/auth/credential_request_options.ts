@@ -21,5 +21,5 @@ export default function credentialRequestOptionsHandler(ctx: AppContext) {
     sameSite: "Strict",
   });
 
-  return ctx.json(credRequestOptions);
+  return ctx.respondJson(credRequestOptions);
 }

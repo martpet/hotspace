@@ -11,7 +11,7 @@ export default function aboutHandler(ctx: AppContext) {
 
   return (
     <Page title="About" header={{ siteNameIsLink: true }}>
-      <About skipSubline />
+      <About noName noSubline />
     </Page>
   );
 }

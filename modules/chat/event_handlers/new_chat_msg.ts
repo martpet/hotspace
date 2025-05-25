@@ -47,7 +47,6 @@ export const newChatMsgHandler: ChatEventHandler<NewChatMsgEventResp> = async (
     chatMsgId: msg.id,
     chatPageUrl: chat.location,
     chatTitle: chat.title,
-    nonce: crypto.randomUUID(),
   };
 
   const atomic = kv.atomic();

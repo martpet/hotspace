@@ -6,7 +6,7 @@ import { INODES_BUCKET } from "../consts.ts";
 import { enqueue } from "../kv/enqueue.ts";
 import { getInodeById, keys as inodesKeys } from "../kv/inodes.ts";
 import { kv } from "../kv/kv.ts";
-import { setUploadStats } from "../kv/uploads_stats.ts";
+import { setUploadStats } from "../kv/upload_stats.ts";
 import { type QueueMsgDeleteS3Objects } from "../queue/delete_s3_objects.ts";
 import { type QueueMsgPostProcessFileNodes } from "../queue/post_process/post_process_file_nodes.ts";
 import { type QueueMsgPostProcessVideoNodes } from "../queue/post_process/post_process_video_node.ts";
@@ -31,7 +31,7 @@ interface CreatFileNodesFromUploadsOptions {
   dirEntry: Deno.KvEntryMaybe<Inode>;
   dirId: string;
   user: User;
-  origin: string;
+  appUrl: string;
 }
 
 export async function createFileNodesFromUploads(
@@ -69,7 +69,7 @@ export async function createFileNodesFromUploads(
       await enqueue<QueueMsgPostProcessFileNodes>({
         type: "post-process-file-nodes",
         proc: proc as CustomPostProcessor,
-        origin: options.origin,
+        appUrl: options.appUrl,
         items: inodes.map((it) =>
           pick(it, ["id", "s3Key", "name", "mimeType"])
         ),
@@ -84,7 +84,7 @@ async function createFileNode(
   upload: CompletedUpload,
   options: CreatFileNodesFromUploadsOptions,
 ) {
-  const { dirId, user, origin } = options;
+  const { dirId, user, appUrl } = options;
   let dirEntry = options.dirEntry;
   let commit = { ok: false };
   let commitIndex = 0;
@@ -139,7 +139,7 @@ async function createFileNode(
         enqueue<QueueMsgPostProcessVideoNodes>({
           type: "post-process-video-node",
           inodeId: inode.id,
-          origin,
+          appUrl,
         }, atomic);
       }
     }

@@ -14,7 +14,7 @@ export default function ButtonToggleChat(props: ButtonToggleChatProps) {
 
   return (
     <>
-      <script type="module" src={asset("chat/toggle.js")} />
+      <script type="module" src={asset("chat/toggle_chat.js")} />
       <button
         id="toggle-chat"
         disabled

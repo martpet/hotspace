@@ -38,7 +38,7 @@ export default async function credentialCreationOptionsHandler(
     );
   } else if ((await getUserByUsername(username)).value) {
     return ctx.respond(
-      `Username '${username}' is taken`,
+      `Username "${username}" is taken`,
       STATUS_CODE.Conflict,
     );
   }
@@ -77,7 +77,7 @@ export default async function credentialCreationOptionsHandler(
     sameSite: "Strict",
   });
 
-  return ctx.json(credCreationOptions);
+  return ctx.respondJson(credCreationOptions);
 }
 
 function validateUsername(

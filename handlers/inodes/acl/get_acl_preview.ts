@@ -26,5 +26,5 @@ export default async function getAclPreviewHandler(ctx: AppContext) {
 
   const aclPreview = await createAclPreview({ acl: inode.acl });
 
-  return ctx.json(aclPreview);
+  return ctx.respondJson(aclPreview);
 }

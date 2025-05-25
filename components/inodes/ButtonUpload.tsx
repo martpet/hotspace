@@ -1,5 +1,6 @@
 import type { JSX } from "preact/jsx-runtime";
 import { asset } from "../../util/url.ts";
+import ButtonBuyTraffic from "../ButtonBuyTraffic.tsx";
 
 interface Props extends JSX.HTMLAttributes<HTMLButtonElement> {
   dirId: string;
@@ -22,6 +23,13 @@ export default function ButtonUpload(props: Props) {
       >
         Upload Files
       </button>
+
+      <template
+        id="button-buy-traffic-template"
+        data-script={asset("buy_traffic.js")}
+      >
+        <ButtonBuyTraffic skipScript />
+      </template>
     </>
   );
 }

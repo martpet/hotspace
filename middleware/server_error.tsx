@@ -11,6 +11,6 @@ export const errorMiddleware: AppMiddleware = async (ctx, next) => {
     if (!accepts(ctx.req).includes("text/html")) {
       return ctx.respond();
     }
-    return ctx.jsx(<ErrorPage error={error} />);
+    return ctx.respondJsx(<ErrorPage error={error} />);
   }
 };

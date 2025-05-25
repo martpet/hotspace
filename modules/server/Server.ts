@@ -1,4 +1,4 @@
-import { fileUrlToRelative, LimitedMap } from "$util";
+import { fileUrlToRelative, kvWatch, LimitedMap } from "$util";
 import {
   getCookies,
   setCookie,
@@ -11,7 +11,6 @@ import { type Method } from "@std/http/unstable-method";
 import { contentType } from "@std/media-types";
 import { renderToString } from "preact-render-to-string";
 import { staticFilesHandler } from "./handlers/static_files_handler.ts";
-import { flashMiddleware } from "./middleware/flash_middleware.ts";
 import { FLASH_COOKIE } from "./util/consts.ts";
 import type {
   Context,
@@ -19,8 +18,10 @@ import type {
   CtxJsonFn,
   CtxJsxFn,
   CtxJsxFragmentFn,
+  CtxKvWatchSseFnOptions,
   CtxRedirectFn,
   CtxRespondFn,
+  CtxSseFn,
   Handler,
   Middleware,
   Route,
@@ -33,42 +34,42 @@ import type {
 export class Server {
   #routes: Route[] = [];
   #middlewares: Middleware[] = [];
-  #rootHostnameURLPattern: string | undefined;
   #trailingSlash: TrailingSlashMode;
   #matchedRoutes = new LimitedMap<string, RouteMatch>(1000);
 
   constructor(opt: ServerOptions = {}) {
-    this.#rootHostnameURLPattern = opt.rootHostnameURLPattern;
     this.#trailingSlash = opt.trailingSlash || "never";
   }
 
   on(
     method: RouteMethod,
-    patternInput: URLPatternInput,
+    pattern: URLPatternInput,
     handler: Handler,
   ) {
-    if (typeof patternInput === "string") {
-      patternInput = { pathname: patternInput };
+    if (typeof pattern === "string") {
+      pattern = { pathname: pattern };
     }
-    patternInput.hostname ??= this.#rootHostnameURLPattern;
-    const pattern = new URLPattern(patternInput);
-    this.#routes.push({ method, pattern, handler });
+    this.#routes.push({
+      method,
+      pattern: new URLPattern(pattern),
+      handler,
+    });
   }
 
-  get(patternInput: URLPatternInput, handler: Handler) {
-    this.on("GET", patternInput, handler);
+  get(pattern: URLPatternInput, handler: Handler) {
+    this.on("GET", pattern, handler);
   }
 
-  post(patternInput: URLPatternInput, handler: Handler) {
-    this.on("POST", patternInput, handler);
+  post(pattern: URLPatternInput, handler: Handler) {
+    this.on("POST", pattern, handler);
   }
 
-  delete(patternInput: URLPatternInput, handler: Handler) {
-    this.on("DELETE", patternInput, handler);
+  delete(pattern: URLPatternInput, handler: Handler) {
+    this.on("DELETE", pattern, handler);
   }
 
-  all(patternInput: URLPatternInput, handler: Handler) {
-    this.on("*", patternInput, handler);
+  all(pattern: URLPatternInput, handler: Handler) {
+    this.on("*", pattern, handler);
   }
 
   use(middleware: Middleware) {
@@ -87,14 +88,12 @@ export class Server {
       return Response.redirect(urlFixed, STATUS_CODE.PermanentRedirect);
     }
 
-    const route = this.#matchRoute(req);
+    const route = this.matchRoute(req);
+
     if (!route) {
       return new Response("Not Found", { status: STATUS_CODE.NotFound });
     }
 
-    // deno-lint-ignore no-this-alias
-    const that = this;
-    let rootDomainUrl;
     let scpNonce;
 
     const ctx: Context = {
@@ -107,17 +106,15 @@ export class Server {
       userAgent: new UserAgent(req.headers.get("user-agent")),
       cookies: getCookies(req.headers),
       locale: req.headers.get(HEADER.AcceptLanguage)?.split(",")[0],
-      respond: (...r) => this.#createResponse(ctx, ...r),
-      jsx: (...r) => this.#jsx(ctx, ...r),
-      jsxFragment: (...r) => this.#jsxFragment(ctx, ...r),
-      json: (...r) => this.#json(ctx, ...r),
-      redirect: (...r) => this.#redirect(ctx, ...r),
-      redirectBack: () => this.#redirectBack(ctx),
-      setFlash: (...r) => this.#setFlash(ctx, ...r),
-      get rootDomainUrl() {
-        rootDomainUrl ??= that.#getRootDomainUrl(ctx);
-        return rootDomainUrl;
-      },
+      respond: (...r) => Server.respond(ctx, ...r),
+      respondJsx: (...r) => Server.respondJsx(ctx, ...r),
+      respondJsxFragment: (...r) => Server.respondJsxFragment(ctx, ...r),
+      respondJson: (...r) => Server.respondJson(ctx, ...r),
+      respondSse: (...r) => Server.respondSse(ctx, ...r),
+      respondKvWatchSse: (opt) => Server.respondKvWatchSse(ctx, opt),
+      redirect: (...r) => Server.redirect(ctx, ...r),
+      redirectBack: () => Server.redirectBack(ctx),
+      setFlash: (...r) => Server.setFlash(ctx, ...r),
       get scpNonce() {
         scpNonce ??= crypto.randomUUID();
         return scpNonce;
@@ -126,7 +123,7 @@ export class Server {
     return this.#handleRoute(ctx);
   }
 
-  #matchRoute(req: Request): RouteMatch | undefined {
+  matchRoute(req: Request): RouteMatch | undefined {
     const method = req.method as Method;
     const cached = this.#matchedRoutes.get(method + req.url);
     if (cached) return cached;
@@ -153,7 +150,7 @@ export class Server {
     }
     const resp = await ctx.handler(ctx);
     if (resp instanceof Response) return resp;
-    return ctx.jsx(resp);
+    return ctx.respondJsx(resp);
   }
 
   #fixTrailingSlash(url: URL): URL | undefined {
@@ -169,20 +166,8 @@ export class Server {
       return fix;
     }
   }
-  #getRootDomainUrl(ctx: Context): URL | undefined {
-    const pattern = this.#rootHostnameURLPattern;
-    if (!pattern) return;
-    const url = new URL(ctx.url.origin);
-    const match = new RegExp(pattern + "$").exec(ctx.url.hostname);
-    if (!match) throw new Error("Root domain URL not found");
-    url.hostname = match[0];
-    return url;
-  }
 
-  #setFlash(ctx: Context, ...[flash]: Parameters<CtxFlashFn>) {
-    if (!this.#middlewares.includes(flashMiddleware)) {
-      throw new Error("Flash middleware is not added");
-    }
+  static setFlash(ctx: Context, ...[flash]: Parameters<CtxFlashFn>) {
     if (typeof flash === "string") {
       flash = { msg: flash, type: "success" };
     }
@@ -196,7 +181,7 @@ export class Server {
     });
   }
 
-  #createResponse(ctx: Context, ...params: Parameters<CtxRespondFn>) {
+  static respond(ctx: Context, ...params: Parameters<CtxRespondFn>) {
     let [body, status, headers] = params;
     if (body instanceof Response) ({ body, status, headers } = body);
     if (status) ctx.resp.status = status;
@@ -206,32 +191,74 @@ export class Server {
     return new Response(body, ctx.resp);
   }
 
-  #jsx(ctx: Context, ...[vnode]: Parameters<CtxJsxFn>) {
-    ctx.resp.headers.set(HEADER.ContentType, contentType("html"));
+  static respondJsx(ctx: Context, ...[vnode]: Parameters<CtxJsxFn>) {
     let html = renderToString(vnode, ctx);
     if (!ctx.resp.skipDoctype) html = "<!DOCTYPE html>" + html;
-    return this.#createResponse(ctx, html);
+    ctx.resp.headers.set(HEADER.ContentType, contentType("html"));
+    return ctx.respond(html);
   }
 
-  #jsxFragment(ctx: Context, ...rest: Parameters<CtxJsxFragmentFn>) {
+  static respondJsxFragment(
+    ctx: Context,
+    ...rest: Parameters<CtxJsxFragmentFn>
+  ) {
     ctx.resp.skipDoctype = true;
-    return this.#jsx(ctx, ...rest);
+    return ctx.respondJsx(...rest);
   }
 
-  #json(ctx: Context, ...[input, status]: Parameters<CtxJsonFn>) {
+  static respondJson(ctx: Context, ...[input, status]: Parameters<CtxJsonFn>) {
     ctx.resp.headers.set(HEADER.ContentType, contentType("json"));
-    return this.#createResponse(ctx, JSON.stringify(input), status);
+    return ctx.respond(JSON.stringify(input), status);
   }
 
-  #redirect(ctx: Context, ...[path, status]: Parameters<CtxRedirectFn>) {
+  static respondSse(ctx: Context, ...[opt]: Parameters<CtxSseFn>) {
+    const { onStart, onCancel } = opt;
+    const stream = new ReadableStream({
+      start(controller) {
+        onStart({
+          sendMsg(data: unknown) {
+            const msg = `data: ${JSON.stringify(data)}\r\n\r\n`;
+            controller.enqueue(new TextEncoder().encode(msg));
+          },
+          sendClose() {
+            this.sendMsg({ close: true });
+          },
+          controller,
+        });
+      },
+      cancel: () => onCancel?.(),
+    });
+    ctx.resp.headers.set(HEADER.ContentType, "text/event-stream");
+    return ctx.respond(stream);
+  }
+
+  static respondKvWatchSse<T extends unknown[]>(
+    ctx: Context,
+    ...[opt]: [CtxKvWatchSseFnOptions<T>]
+  ) {
+    const { kv, kvKeys, onEntries } = opt;
+    let kvReader: ReadableStreamDefaultReader | undefined;
+    return ctx.respondSse({
+      onStart: (sseOpt) => {
+        kvReader = kvWatch({
+          kv,
+          kvKeys,
+          onEntries: (entries) => onEntries({ entries, ...sseOpt }),
+        });
+      },
+      onCancel: () => kvReader?.cancel(),
+    });
+  }
+
+  static redirect(ctx: Context, ...[path, status]: Parameters<CtxRedirectFn>) {
     ctx.resp.headers.set(HEADER.Location, path);
     ctx.resp.status = status || STATUS_CODE.SeeOther;
-    return this.#createResponse(ctx, null);
+    return ctx.respond(null);
   }
 
-  #redirectBack(ctx: Context) {
+  static redirectBack(ctx: Context) {
     const path = ctx.req.headers.get(HEADER.Referer) || ctx.url.origin;
-    return this.#redirect(ctx, path);
+    return ctx.redirect(path);
   }
 
   static serveFileUrl(ctx: Context, fileUrl: string) {

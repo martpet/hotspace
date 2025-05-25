@@ -76,7 +76,7 @@ export default async function applyAclDiffsHandler(ctx: AppContext) {
     });
   }
 
-  return ctx.json({
+  return ctx.respondJson({
     notFoundIntroducedUsernames,
   });
 }

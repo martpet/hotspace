@@ -1,7 +1,7 @@
 import { fetchWithRetry, toSha256Hex } from "$util";
 import { HEADER } from "@std/http/unstable-header";
 import type { AwsActionBase } from "../../types.ts";
-import { getSnsEndpoint } from "../util.ts";
+import { getSnsBaseUrl } from "../util.ts";
 
 interface Options extends AwsActionBase {
   topicArn: string;
@@ -9,9 +9,9 @@ interface Options extends AwsActionBase {
   region: string;
 }
 
-export async function Publish(options: Options) {
+export async function publish(options: Options) {
   const { topicArn, message, region, signer, retryOpt } = options;
-  const url = getSnsEndpoint(region);
+  const url = getSnsBaseUrl(region);
 
   const payload = new URLSearchParams({
     Action: "Publish",

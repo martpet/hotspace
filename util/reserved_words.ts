@@ -12,6 +12,7 @@ export const reservedWords = [
   "inodes",
   "login",
   "logout",
+  "payment",
   "privacy",
   "profile",
   "push-subs",

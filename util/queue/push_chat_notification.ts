@@ -12,7 +12,6 @@ import { retry } from "@std/async/retry";
 import { associateBy, chunk } from "@std/collections";
 import { STATUS_CODE } from "@std/http";
 import { CHAT_SUB_WITHOUT_PUSH_SUB_EXPIRES } from "../../util/consts.ts";
-import { deleteQueueNonce, getQueueNonce } from "../../util/kv/enqueue.ts";
 import { getInodeById } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { keys as subscribersKeys } from "../../util/kv/push_subscribers.ts";
@@ -44,13 +43,8 @@ export async function handlePushChatNotification(
     chatMsgId,
     chatTitle,
     chatPageUrl,
-    nonce,
   }: QueueMsgPushChatNotification,
 ) {
-  const nonceEntry = await getQueueNonce(nonce);
-  if (!nonceEntry.value) return;
-  deleteQueueNonce(nonce);
-
   const [inodeEntry, chatSubs] = await Promise.all([
     getInodeById(chatId, { consistency: "eventual" }),
     listChatSubs({
@@ -141,7 +135,7 @@ export async function handlePushChatNotification(
     );
   }
 
-  await queue.done();
+  return queue.done();
 }
 
 function isChatSubExpired(subscriber: PushSubscriber) {

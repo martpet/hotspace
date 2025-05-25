@@ -8,5 +8,5 @@ export default async function vapidHandler(ctx: AppContext) {
     await crypto.subtle.exportKey("raw", vapidKeys.publicKey),
   );
 
-  return ctx.json(publicKey);
+  return ctx.respondJson(publicKey);
 }

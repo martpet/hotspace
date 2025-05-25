@@ -1,6 +1,7 @@
 import {
   browserName,
   createSignal,
+  flashNow,
   GENERAL_ERR_MSG,
   replaceFragment,
 } from "$main";
@@ -19,7 +20,9 @@ let form;
 let btnSubmit;
 let fileInput;
 let btnClose;
+let errorEl;
 let worker;
+let uploadedItemsCount;
 
 btnShowDialog.disabled = false;
 
@@ -66,9 +69,13 @@ function workerMsgHandler(event) {
   if (type === "progress") {
     progressSignal.value = data;
   } else if (type === "completed") {
+    uploadedItemsCount = data.uploadedItemsCount;
     statusSignal.value = "completed";
   } else if (type === "error") {
-    errorSignal.value = data.msg || GENERAL_ERR_MSG;
+    errorSignal.value = data.message || GENERAL_ERR_MSG;
+    if (data.code === "quota_exceeded") {
+      insertBuyTrafficButton();
+    }
   }
 }
 
@@ -107,6 +114,7 @@ statusSignal.subscribe(async (status) => {
   } else if (status === "completed") {
     await replaceFragment("inodes");
     statusSignal.value = "closed";
+    insertSuccessFlash();
   }
 });
 
@@ -157,6 +165,7 @@ function insertDialog() {
     `
       <dialog id="upload-dialog">
         <h1>Upload Files</h1>
+        <p id="upload-dialog-error" class="alert error" hidden></p>
         <form class="basic-form">
           <label>
             <input type="file" multiple autofocus required />
@@ -174,11 +183,11 @@ function insertDialog() {
   fileInput = form.querySelector("input[type=file]");
   btnSubmit = form.querySelector("button.submit");
   btnClose = form.querySelector("button.close");
+  errorEl = document.getElementById("upload-dialog-error");
 }
 
 function renderStatusChange() {
-  const runningStatus = ["started", "completed"];
-  const isRunning = runningStatus.includes(statusSignal.value);
+  const isRunning = ["started", "completed"].includes(statusSignal.value);
   fileInput.disabled = isRunning;
   btnSubmit.disabled = isRunning;
   btnSubmit.textContent = isRunning ? "Uploading" : "Start Upload";
@@ -186,10 +195,8 @@ function renderStatusChange() {
 }
 
 function renderError(msg) {
-  dialog.querySelector("p.error")?.remove();
-  if (msg) {
-    form.insertAdjacentHTML("beforebegin", `<p class="alert error">${msg}</p>`);
-  }
+  errorEl.hidden = !msg;
+  errorEl.textContent = msg;
 }
 
 function renderProgress(opt) {
@@ -212,4 +219,18 @@ function renderProgress(opt) {
   const infoEl = document.getElementById("upload-progress-info");
   progEl.value = perc;
   infoEl.innerText = pending ? "Starting…" : `${perc} %`;
+}
+
+async function insertBuyTrafficButton() {
+  const template = document.getElementById("button-buy-traffic-template");
+  const button = template.content.querySelector("button").cloneNode(true);
+  errorEl.append(button);
+  const mod = await import(template.dataset.script);
+  mod.preloadStripe();
+  mod.initButtonShow();
+}
+
+function insertSuccessFlash() {
+  const filesWord = `file${uploadedItemsCount > 1 ? "s" : ""}`;
+  flashNow(`${uploadedItemsCount} ${filesWord} uploaded`);
 }

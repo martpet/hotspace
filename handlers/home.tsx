@@ -61,7 +61,7 @@ export default async function homeHandler(ctx: AppContext) {
   );
 
   if (fragmentId === "inodes") {
-    return ctx.jsxFragment(spacesTable);
+    return ctx.respondJsxFragment(spacesTable);
   }
 
   const head = (

@@ -1,5 +1,5 @@
 {
-  "version": "4",
+  "version": "5",
   "specifiers": {
     "jsr:@b-fuze/deno-dom@0.1.49": "0.1.49",
     "jsr:@henrygd/queue@^1.0.7": "1.0.7",
@@ -33,7 +33,6 @@
     "jsr:@std/ulid@1.0.0": "1.0.0",
     "npm:@aws-sdk/client-cloudfront@*": "3.738.0",
     "npm:@aws-sdk/util-utf8@*": "3.374.0",
-    "npm:@types/node@*": "22.3.0",
     "npm:preact-render-to-string@6.5.13": "6.5.13_preact@10.26.4",
     "npm:preact@10.26.4": "10.26.4"
   },
@@ -532,7 +531,8 @@
       "dependencies": [
         "@smithy/util-utf8@1.1.0",
         "tslib"
-      ]
+      ],
+      "deprecated": true
     },
     "@aws-sdk/xml-builder@3.734.0": {
       "integrity": "sha512-Zrjxi5qwGEcUsJ0ru7fRtW74WcTS0rbLcehoFB+rN1GRi2hbLcFaYs4PwVA5diLeAJH0gszv3x4Hr/S87MfbKQ==",
@@ -920,12 +920,6 @@
         "tslib"
       ]
     },
-    "@types/node@22.3.0": {
-      "integrity": "sha512-nrWpWVaDZuaVc5X84xJ0vNrLvomM205oQyLsRt7OHNZbSHslcWsvgFR7O7hire2ZonjLrWBbedmotmIlJDVd6g==",
-      "dependencies": [
-        "undici-types"
-      ]
-    },
     "bowser@2.11.0": {
       "integrity": "sha512-AlcaJBi/pqqJBIQ8U9Mcpc9i8Aqxn88Skv5d+xBX006BY5u8N3mGLHa5Lgppa7L/HfwgwLgZ6NYs+Ag6uUmJRA=="
     },
@@ -933,7 +927,8 @@
       "integrity": "sha512-xkjOecfnKGkSsOwtZ5Pz7Us/T6mrbPQrq0nh+aCO5V9nk5NLWmasAHumTKjiPJPWANe+kAZ84Jc8ooJkzZ88Sw==",
       "dependencies": [
         "strnum"
-      ]
+      ],
+      "bin": true
     },
     "preact-render-to-string@6.5.13_preact@10.26.4": {
       "integrity": "sha512-iGPd+hKPMFKsfpR2vL4kJ6ZPcFIoWZEcBf0Dpm3zOpdVvj77aY8RlLiQji5OMrngEyaxGogeakTb54uS2FvA6w==",
@@ -950,11 +945,9 @@
     "tslib@2.8.1": {
       "integrity": "sha512-oJFu94HQb+KVduSUQL7wnpmqnfmLsOA/nAh6b6EH0wCEoK0/mPeXU6c3wKDV83MkOuHPRHtSXKKU99IBazS/2w=="
     },
-    "undici-types@6.18.2": {
-      "integrity": "sha512-5ruQbENj95yDYJNS3TvcaxPMshV7aizdv/hWYjGIKoANWKjhWNBsr2YEuYZKodQulB1b8l7ILOuDQep3afowQQ=="
-    },
     "uuid@9.0.1": {
-      "integrity": "sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA=="
+      "integrity": "sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==",
+      "bin": true
     }
   },
   "remote": {

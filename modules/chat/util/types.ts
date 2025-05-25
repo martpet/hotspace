@@ -41,7 +41,6 @@ export interface QueueMsgPushChatNotification {
   chatMsgId: string;
   chatTitle: string;
   chatPageUrl: string;
-  nonce: string;
 }
 
 export type ValidChatConnection = Omit<ChatConnection, "chatEntry"> & {

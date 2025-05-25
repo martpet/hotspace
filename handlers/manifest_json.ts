@@ -2,7 +2,7 @@ import type { AppContext } from "../util/types.ts";
 import { asset } from "../util/url.ts";
 
 export default function manifestJsonHandler(ctx: AppContext) {
-  return ctx.json({
+  return ctx.respondJson({
     "name": "HotSpace",
     "short_name": "HotSpace",
     "start_url": ctx.url.origin,

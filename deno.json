@@ -8,6 +8,7 @@
     "$chat": "./modules/chat/mod.ts",
     "$upload": "./modules/upload/mod.ts",
     "$aws": "./modules/aws/mod.ts",
+    "$stripe": "./modules/stripe/mod.ts",
     "$util": "./modules/util/mod.ts",
     "@henrygd/queue": "jsr:@henrygd/queue@^1.0.7",
     "@negrel/webpush": "jsr:@negrel/webpush@0.3.0",

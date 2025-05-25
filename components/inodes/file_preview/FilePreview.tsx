@@ -1,4 +1,4 @@
-import type { ResourcePermissions } from "../../../modules/util/file_permissions.ts";
+import type { ResourcePermissions } from "$util";
 import { type InodePreviewInfo } from "../../../util/inodes/inode_preview_info.ts";
 import type { FileNode } from "../../../util/inodes/types.ts";
 import FontSample from "./FontSample.tsx";

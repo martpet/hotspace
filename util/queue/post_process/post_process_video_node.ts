@@ -9,30 +9,29 @@ import { setAnyInode } from "../../inodes/kv_wrappers.ts";
 import { isPostProcessedToVideo } from "../../inodes/post_process/type_predicates.ts";
 import { PostProcessedToVideo } from "../../inodes/types.ts";
 import { getInodeById } from "../../kv/inodes.ts";
-import { getDevAppUrl } from "../../url.ts";
 
 export interface QueueMsgPostProcessVideoNodes {
   type: "post-process-video-node";
   inodeId: string;
-  origin: string;
+  appUrl: string;
 }
 
 export function isPostProcessVideoNode(
   msg: unknown,
 ): msg is QueueMsgPostProcessVideoNodes {
-  const { type, inodeId, origin } = msg as Partial<
+  const { type, inodeId, appUrl } = msg as Partial<
     QueueMsgPostProcessVideoNodes
   >;
   return typeof msg === "object" &&
     type === "post-process-video-node" &&
     typeof inodeId === "string" &&
-    typeof origin === "string";
+    typeof appUrl === "string";
 }
 
 export async function handlePostProcessVideoNode(
   msg: QueueMsgPostProcessVideoNodes,
 ) {
-  const { inodeId, origin } = msg;
+  const { inodeId, appUrl } = msg;
   let inodeEntry = await getInodeById(inodeId);
   let inode = inodeEntry.value;
 
@@ -45,8 +44,7 @@ export async function handlePostProcessVideoNode(
     userMetadata: {
       inodeId: inode.id,
       inodeS3Key: inode.s3Key,
-      devAppUrl: getDevAppUrl(origin),
-      origin,
+      appUrl,
     },
   };
 

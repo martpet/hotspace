@@ -8,7 +8,7 @@ interface Props {
 export default function ErrorPage({ error }: Props) {
   return (
     <Page title="Internal Server Error">
-      <h1>Oops, something went wrong!</h1>
+      <h1 class="alert error">Oops, something went wrong</h1>
       {IS_LOCAL_DEV && error instanceof Error && <pre>{error.stack}</pre>}
     </Page>
   );

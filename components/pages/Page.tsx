@@ -1,4 +1,5 @@
 import type { ComponentChildren, JSX } from "preact";
+import { isProd } from "../../util/consts.ts";
 import type { AppContext } from "../../util/types.ts";
 import { asset } from "../../util/url.ts";
 import Flash from "../Flash.tsx";
@@ -32,6 +33,7 @@ export default function Page(props: PageProps, ctx: AppContext) {
 
   return (
     <html
+      data-is-dev={isProd ? null : "1"}
       data-device-type={userAgent.device.type}
       data-os-name={userAgent.os.name}
       data-browser-name={userAgent.browser.name}

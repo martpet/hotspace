@@ -50,7 +50,7 @@ export default async function showDirHandler(ctx: AppContext) {
   );
 
   if (fragmentId === "chat") {
-    return ctx.jsxFragment(chatSection);
+    return ctx.respondJsxFragment(chatSection);
   }
 
   const inodes = await listInodesByDir(dirNode.id, {
@@ -82,7 +82,7 @@ export default async function showDirHandler(ctx: AppContext) {
   );
 
   if (fragmentId === "inodes") {
-    return ctx.jsxFragment(inodesTable);
+    return ctx.respondJsxFragment(inodesTable);
   }
 
   const head = (

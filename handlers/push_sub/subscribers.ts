@@ -68,7 +68,7 @@ export default async function subscribersHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.Conflict);
   }
 
-  return ctx.json(subscriber);
+  return ctx.respondJson(subscriber);
 }
 
 function isReqDataValid(data: unknown): data is RequestData {

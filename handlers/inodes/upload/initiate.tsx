@@ -14,7 +14,7 @@ import {
   INODES_BUCKET,
   SAVED_UPLOAD_EXPIRES,
 } from "../../../util/consts.ts";
-import { checkCreditAfterUpload } from "../../../util/inodes/helpers.ts";
+import { checkUploadQuotaAfterUpload } from "../../../util/inodes/helpers.ts";
 import type { AppContext } from "../../../util/types.ts";
 
 interface ReqData {
@@ -36,13 +36,13 @@ export default async function initiateUploadHandler(ctx: AppContext) {
 
   const { uploadsInitData } = reqData;
 
-  const creditCheck = await checkCreditAfterUpload({
-    user,
+  const uploadQuotaCheck = await checkUploadQuotaAfterUpload({
+    userId: user.id,
     uploads: uploadsInitData,
   });
 
-  if (!creditCheck.ok) {
-    return ctx.respond(creditCheck.msg, creditCheck.status);
+  if (!uploadQuotaCheck.ok) {
+    return ctx.respond(uploadQuotaCheck.error, STATUS_CODE.ContentTooLarge);
   }
 
   const headersFn: InitUploadOptions["headersFn"] = (upload) => {
@@ -65,7 +65,7 @@ export default async function initiateUploadHandler(ctx: AppContext) {
     headersFn,
   });
 
-  return ctx.json(result);
+  return ctx.respondJson(result);
 }
 
 function isValidReqData(data: unknown): data is ReqData {

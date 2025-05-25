@@ -70,5 +70,5 @@ export default async function credentialRequestVerifyHandler(ctx: AppContext) {
     sessionId: session.id,
   });
 
-  return ctx.json({ verified: true });
+  return ctx.respondJson({ verified: true });
 }

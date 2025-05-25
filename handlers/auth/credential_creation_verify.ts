@@ -5,13 +5,14 @@ import {
 import { decodeBase64 } from "@std/encoding";
 import { deleteCookie, getCookies, STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
-import { INITIAL_UPLOAD_LIMIT_BYTES } from "../../util/consts.ts";
+import { INITIAL_USER_REMAINING_UPLOAD_BYTES } from "../../util/consts.ts";
 import {
   kvKeys as getCredSessionKvKey,
 } from "../../util/kv/cred_creation_sessions.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { keys as getPassKeyKvKey, setPasskey } from "../../util/kv/passkeys.ts";
 import { setSession } from "../../util/kv/sessions.ts";
+import { addUserRemainingUploadBytes } from "../../util/kv/upload_stats.ts";
 import { setUser } from "../../util/kv/users.ts";
 import { setSessionCookie } from "../../util/session.ts";
 import type {
@@ -71,10 +72,6 @@ export default async function credentialCreationVerifyHandler(ctx: AppContext) {
       id: userId,
       username: creationSession.username,
       webauthnUserId: creationSession.webauthnUserId,
-      uploadCredits: {
-        startBytes: 0,
-        limitBytes: INITIAL_UPLOAD_LIMIT_BYTES,
-      },
     };
 
     const session: Session = {
@@ -85,6 +82,12 @@ export default async function credentialCreationVerifyHandler(ctx: AppContext) {
 
     setUser(newUser, atomic);
     setSession(session, atomic);
+
+    addUserRemainingUploadBytes({
+      userId: newUser.id,
+      bytes: INITIAL_USER_REMAINING_UPLOAD_BYTES,
+      atomic,
+    });
 
     setSessionCookie({
       headers: ctx.resp.headers,
@@ -111,5 +114,5 @@ export default async function credentialCreationVerifyHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.Conflict);
   }
 
-  return ctx.json({ verified: true });
+  return ctx.respondJson({ verified: true });
 }

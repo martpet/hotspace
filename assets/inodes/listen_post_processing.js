@@ -7,7 +7,8 @@ const loaderEl = document.getElementById("file-preview-loader");
 const { inodeId, processingTimeout } = previewEl.dataset;
 let isComplete;
 
-listenProcessing();
+const evtSource = new EventSource(`/inodes/listen-post-processing/${inodeId}`);
+evtSource.onmessage = (evt) => onMessage(evt, evtSource);
 
 if (processingTimeout) {
   setTimeout(() => {
@@ -15,18 +16,11 @@ if (processingTimeout) {
   }, processingTimeout);
 }
 
-function listenProcessing() {
-  const path = `/inodes/listen-post-processing/${inodeId}`;
-  const evtSource = new EventSource(path);
-  evtSource.onmessage = (evt) => onMessage(evt, evtSource);
-  evtSource.onerror = () => listenProcessing();
-}
-
 function onMessage(evt, evtSource) {
   const msg = JSON.parse(evt.data);
   const { status } = msg;
   processingSignal.value = msg;
-  if (status !== "PENDING") {
+  if (msg.close) {
     evtSource.close();
   }
   if (status === "COMPLETE") {

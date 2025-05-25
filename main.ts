@@ -29,6 +29,8 @@ import completeUpload from "./handlers/inodes/upload/complete.tsx";
 import initiateUpload from "./handlers/inodes/upload/initiate.tsx";
 import videoPlaylist from "./handlers/inodes/video_playlist.ts";
 import manifestJson from "./handlers/manifest_json.ts";
+import createPaymentIntent from "./handlers/payment/create_intent.ts";
+import listenPaymentCreated from "./handlers/payment/listen_payment_created.ts";
 import privacy from "./handlers/privacy.tsx";
 import subscribers from "./handlers/push_sub/subscribers.ts";
 import vapid from "./handlers/push_sub/vapid.ts";
@@ -55,16 +57,20 @@ app.use(sessionMiddleware);
 app.use(stateMiddleware);
 app.use(flashMiddleware);
 
+app.post("/webhooks/aws", awsWebhook);
+
 app.get("/", home);
 app.get("/terms", terms);
 app.get("/privacy", privacy);
 app.get("/contact", contact);
 app.get("/about", about);
-
 app.get("/register", register);
 app.post("/logout", logout);
 app.get("/account", account);
 app.post("/account/delete", deleteAccount);
+
+app.post("/payment/intent", createPaymentIntent);
+app.get("/payment/listen-created/:paymentIntentId", listenPaymentCreated);
 
 app.get("/assets/manifest.json", manifestJson);
 app.get("/assets/upload_worker.js", uploadWorkerHandler);
@@ -76,8 +82,6 @@ app.post("/auth/credential-request-options", credReqOpt);
 app.post("/auth/credential-request-verify", credReqVer);
 app.post("/auth/passkey-delete", passkeyDelete);
 app.post("/auth/passkey-rename", passkeyRename);
-
-app.post("/webhooks/aws", awsWebhook);
 
 app.post("/inodes/dirs", setDirByPath);
 app.post("/inodes/delete", deleteInodes);

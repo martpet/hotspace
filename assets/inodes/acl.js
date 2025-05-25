@@ -1,7 +1,7 @@
 import {
   createSignal,
+  flashNow,
   GENERAL_ERR_MSG,
-  insertFlash,
   replaceFragment,
   userUsername,
 } from "$main";
@@ -134,7 +134,7 @@ async function fetchAcl() {
 async function submitChanges() {
   const diffs = getDiffs();
   if (!diffs.length) {
-    insertFlash({ type: "info", msg: "No changes" });
+    flashNow({ type: "info", msg: "No changes" });
     statusSignal.value = "closed";
     return;
   }
@@ -157,7 +157,7 @@ async function submitChanges() {
     return;
   }
   await replaceFragment("inodes");
-  insertFlash("Changes saved");
+  flashNow("Changes saved");
   statusSignal.value = "closed";
 }
 

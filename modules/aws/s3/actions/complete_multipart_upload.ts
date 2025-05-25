@@ -1,7 +1,7 @@
 import { fetchWithRetry, toSha256Hex } from "$util";
 import { DOMParser, initParser } from "@b-fuze/deno-dom/wasm-noinit";
 import type { CompleteMultipartInit, S3ReqOptions } from "../types.ts";
-import { getS3Endpoint } from "../util.ts";
+import { getS3BaseUrl } from "../util.ts";
 
 interface Options extends S3ReqOptions, CompleteMultipartInit {
 }
@@ -17,7 +17,7 @@ export async function completeMultipartUpload(options: Options) {
     retryOpt,
     accelerated,
   } = options;
-  const url = new URL(`${getS3Endpoint(bucket, accelerated)}/${s3Key}`);
+  const url = new URL(`${getS3BaseUrl(bucket, accelerated)}/${s3Key}`);
 
   url.searchParams.set("uploadId", uploadId);
 

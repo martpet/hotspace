@@ -33,7 +33,7 @@ export default async function chatLazyLoadHandler(ctx: AppContext) {
 
   messages.reverse();
 
-  return ctx.jsxFragment(
+  return ctx.respondJsxFragment(
     <ChatMessages
       messages={messages}
       olderMsgsCursor={nextCursor}

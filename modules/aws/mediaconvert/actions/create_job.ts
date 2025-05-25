@@ -1,6 +1,6 @@
 import { fetchWithRetry } from "$util";
 import type { AwsActionBase } from "../../types.ts";
-import { getMediaConvertEndpoint } from "../util.ts";
+import { getMediaConvertBaseUrl } from "../util.ts";
 
 interface Options extends AwsActionBase {
   job: Record<string, unknown>;
@@ -9,7 +9,7 @@ interface Options extends AwsActionBase {
 
 export async function createJob(options: Options) {
   const { region, job, signer, retryOpt } = options;
-  const url = `${getMediaConvertEndpoint(region)}/jobs`;
+  const url = `${getMediaConvertBaseUrl(region)}/jobs`;
 
   const req = new Request(url, {
     method: "post",

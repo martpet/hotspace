@@ -17,19 +17,18 @@ import type { CustomPostProcessor } from "../../inodes/post_process/types.ts";
 import type { FileNode, Inode } from "../../inodes/types.ts";
 import { getInodeById, keys as getInodeKey } from "../../kv/inodes.ts";
 import { getManyEntries } from "../../kv/kv.ts";
-import { getDevAppUrl } from "../../url.ts";
 
 export interface QueueMsgPostProcessFileNodes {
   type: "post-process-file-nodes";
   proc: CustomPostProcessor;
   items: Pick<FileNode, "id" | "s3Key" | "name" | "mimeType">[];
-  origin: string;
+  appUrl: string;
 }
 
 export function isPostProcessFileNodes(
   msg: unknown,
 ): msg is QueueMsgPostProcessFileNodes {
-  const { type, proc, items, origin } = msg as Partial<
+  const { type, proc, items, appUrl } = msg as Partial<
     QueueMsgPostProcessFileNodes
   >;
   return typeof msg === "object" &&
@@ -37,7 +36,7 @@ export function isPostProcessFileNodes(
     (proc === "sharp" ||
       proc === "libre" ||
       proc === "pandoc") &&
-    typeof origin === "string" &&
+    typeof appUrl === "string" &&
     Array.isArray(items) &&
     items.every((item) =>
       typeof item.id === "string" &&
@@ -56,8 +55,7 @@ const SQS_URL_BY_PROC: Record<CustomPostProcessor, string> = {
 export async function handlePostProcessFileNodes(
   msg: QueueMsgPostProcessFileNodes,
 ) {
-  const { proc, items, origin } = msg;
-  const devAppUrl = getDevAppUrl(origin);
+  const { proc, items, appUrl } = msg;
 
   const sqsUrl = SQS_URL_BY_PROC[proc];
   const messages = [];
@@ -67,7 +65,7 @@ export async function handlePostProcessFileNodes(
       inodeId: item.id,
       inodeS3Key: item.s3Key,
       inputFileName: item.name,
-      devAppUrl,
+      appUrl,
     };
 
     const mimeConf = MIME_CONFS[item.mimeType];

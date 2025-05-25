@@ -66,8 +66,8 @@ class Uploader {
     });
 
     if (!resp.ok) {
-      const msg = await resp.text();
-      this.sendError(msg);
+      const error = await resp.json();
+      this.sendError(error);
       return;
     }
 
@@ -214,8 +214,8 @@ class Uploader {
     });
 
     if (!resp.ok) {
-      const msg = await resp.text();
-      this.sendError(msg);
+      const message = await resp.text();
+      this.sendError({ message });
       return;
     }
 
@@ -230,7 +230,12 @@ class Uploader {
       return;
     }
 
-    postMessage({ type: "completed" });
+    postMessage({
+      type: "completed",
+      data: {
+        uploadedItemsCount: completedIds.length,
+      },
+    });
   }
 
   abort() {
@@ -238,8 +243,8 @@ class Uploader {
     this.activeConnections.forEach((conn) => conn.abort());
   }
 
-  sendError(msg) {
-    postMessage({ type: "error", data: { msg } });
+  sendError(error) {
+    postMessage({ type: "error", data: error });
   }
 }
 

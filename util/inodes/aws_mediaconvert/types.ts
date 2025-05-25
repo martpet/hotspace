@@ -1,8 +1,7 @@
 export interface JobUserMetaData {
   inodeId: string;
   inodeS3Key: string;
-  devAppUrl: string;
-  origin: string;
+  appUrl: string;
 }
 
 interface JobOutputVideoDetails {

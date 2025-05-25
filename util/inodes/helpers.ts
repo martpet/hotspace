@@ -1,12 +1,10 @@
 import { format } from "@std/fmt/bytes";
-import { STATUS_CODE } from "@std/http/status";
 import { signCloudfrontUrl, type SignCloudfrontUrlOptions } from "../aws.ts";
 import { INODES_CLOUDFRONT_URL } from "../consts.ts";
-import type { Inode, InodeLabel } from "../inodes/types.ts";
-import { getTotalUploadedBytesByUser } from "../kv/uploads_stats.ts";
-import type { User } from "../types.ts";
+import { getRemainingUploadBytesByUser } from "../kv/upload_stats.ts";
 import { ROOT_DIR_ID } from "./consts.ts";
 import { MIME_CONFS } from "./mime.ts";
+import type { Inode, InodeLabel } from "./types.ts";
 
 export function getInodeLabel(inode: Inode): InodeLabel {
   if (inode.type === "file") return "File";
@@ -35,28 +33,27 @@ export function getFileNodeUrl(
   return signCloudfrontUrl(url, opt);
 }
 
-export async function checkCreditAfterUpload(input: {
-  user: User;
+export async function checkUploadQuotaAfterUpload(opt: {
+  userId: string;
   uploads: { fileSize: number }[];
-}): Promise<
-  { ok: true } | {
-    ok: false;
-    msg: string;
-    status: number;
-  }
-> {
-  const { user, uploads } = input;
-  const uploadsSize = uploads.reduce((a, v) => a + v.fileSize, 0);
-  const totalUploaded = await getTotalUploadedBytesByUser(user);
-  const { limitBytes } = user.uploadCredits;
-  const creditAfterUpload = limitBytes - (uploadsSize + totalUploaded);
-  if (creditAfterUpload >= 0) {
-    return { ok: true };
-  } else {
+}) {
+  const { userId, uploads } = opt;
+  const bytesToUpload = uploads.reduce((a, v) => a + v.fileSize, 0);
+  const remainingBytesBefore = await getRemainingUploadBytesByUser(userId);
+  const remainingBytesAfter = remainingBytesBefore - bytesToUpload;
+  if (remainingBytesAfter >= 0) {
     return {
-      ok: false,
-      msg: `Upload size exceeds quota by ${format(-creditAfterUpload)}`,
-      status: STATUS_CODE.ContentTooLarge,
+      ok: true,
     };
   }
+
+  return {
+    ok: false,
+    error: JSON.stringify({
+      code: "quota_exceeded",
+      message: `${
+        uploads.length > 1 ? "Total file" : "File"
+      } size exceeds your upload quota by ${format(-remainingBytesAfter)}.`,
+    }),
+  };
 }

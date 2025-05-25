@@ -29,15 +29,15 @@ export interface AclResource {
   acl: Acl;
 }
 
-interface PermissionsInput {
+interface PermissionsOptions {
   user: { id: string } | null | undefined;
   resource: AclResource | null | undefined;
 }
 
-export function getPermissions(input: PermissionsInput): ResourcePermissions {
-  const userId = input.user?.id;
-  const ownerId = input.resource?.ownerId;
-  const acl = input.resource?.acl;
+export function getPermissions(opt: PermissionsOptions): ResourcePermissions {
+  const userId = opt.user?.id;
+  const ownerId = opt.resource?.ownerId;
+  const acl = opt.resource?.acl;
   const role = (userId && acl?.[userId]) || acl?.[ACL_ID_ALL];
   const isOwner = !!(userId && ownerId && userId === ownerId);
   const isAdmin = role === "admin";

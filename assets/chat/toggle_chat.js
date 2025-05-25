@@ -18,7 +18,7 @@ button.onclick = async function () {
     rootEl.hidden = !showChat;
   } else {
     await replaceFragment("chat");
-    rerunScript("chat-script");
+    reinsertScript("chat-script");
   }
 
   if (showChat) {
@@ -44,7 +44,7 @@ function callDb() {
   });
 }
 
-async function rerunScript(scriptId) {
+async function reinsertScript(scriptId) {
   const script = document.getElementById(scriptId);
   const newScript = document.createElement("script");
   newScript.src = script.src;

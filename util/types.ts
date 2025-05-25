@@ -2,30 +2,21 @@ import type { ChatUserResource } from "$chat";
 import type { Context, Middleware } from "$server";
 import type { PushSubscription } from "@negrel/webpush";
 
-export type AppContext = Context<
-  State & {
+export interface AppContext extends Context {
+  state: {
+    session?: Session;
+    user?: User;
     from?: string;
     canUseServiceWorker?: boolean;
-  }
->;
+  };
+}
 
 export type AppMiddleware = Middleware<AppContext>;
-
-export interface State {
-  session?: Session;
-  user?: User;
-}
-
-export interface UploadCredits {
-  startBytes: number;
-  limitBytes: number;
-}
 
 export interface User extends ChatUserResource {
   id: string;
   username: string;
   webauthnUserId: string;
-  uploadCredits: UploadCredits;
 }
 
 export interface Session {
@@ -51,6 +42,21 @@ export interface Passkey {
   lastUsedAt?: Date;
   name?: string;
   aaguidLabel?: string;
+}
+
+export type Product = "upload_traffic_1_gb";
+
+export interface PaymentIntent {
+  userId: string;
+  stripeIntentId: string;
+  product: Product;
+  quantity: number;
+  amount: number;
+}
+
+export interface Payment extends PaymentIntent {
+  id: string;
+  stripeEventId: string;
 }
 
 export interface PushSub extends PushSubscription {

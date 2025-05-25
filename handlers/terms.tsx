@@ -18,8 +18,8 @@ export default function termsHandler() {
         <p>
           HotSpace is a file sharing service that allows registered users to
           upload files and share them either publicly or privately. Each user
-          receives 1 GB of upload space for free. Beyond this, additional upload
-          capacity is available at a cost of $1 per gigabyte.
+          receives 1 GB of upload traffic for free. Beyond this, additional
+          upload traffic is available at a cost of $1 per gigabyte.
         </p>
 
         <p>
@@ -31,19 +31,15 @@ export default function termsHandler() {
         <h2>Payments</h2>
 
         <p>
-          You may purchase additional upload credits at $1 per GB. Payments are
-          handled through a third-party payment processor (Stripe), and must be
-          completed before upload capacity is added to your account.
+          You may purchase additional upload traffic at $1 per GB. Payments are
+          handled through a third-party payment processor (Stripe).
         </p>
-
-        <p>Used upload credits are non-refundable.</p>
 
         <h2>Refunds</h2>
 
         <p>
-          Payments for upload credits are non-refundable once the space is used.
-          If you believe you were incorrectly charged, please contact support at
-          {" "}
+          Payments are non-refundable once the upload traffic is used. If you
+          believe you were incorrectly charged, please contact support at{" "}
           <strong>support@hotspace.lol</strong>. I review refund requests case
           by case and aim to respond within 48 hours.
         </p>

@@ -1,3 +1,3 @@
-export function getSnsEndpoint(region: string) {
+export function getSnsBaseUrl(region: string) {
   return `https://sns.${region}.amazonaws.com`;
 }

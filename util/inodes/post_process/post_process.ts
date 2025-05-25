@@ -8,15 +8,15 @@ import { setAnyInode } from "../kv_wrappers.ts";
 import type { FileNode, Inode } from "../types.ts";
 import { isPostProcessedFileNode } from "./type_predicates.ts";
 
-export async function patchPostProcessedNode(input: {
+export async function patchPostProcessedNode(opt: {
   inodePatch: Partial<FileNode>;
   inodeEntry: Deno.KvEntryMaybe<Inode>;
   inodeId: string;
   inodeS3Key: string;
   stateChangeDate: Date;
 }) {
-  const { inodePatch, inodeId, inodeS3Key, stateChangeDate } = input;
-  let { inodeEntry } = input;
+  const { inodePatch, inodeId, inodeS3Key, stateChangeDate } = opt;
+  let { inodeEntry } = opt;
   let inode = inodeEntry.value;
   let commit = { ok: false };
   let commitIndex = 0;

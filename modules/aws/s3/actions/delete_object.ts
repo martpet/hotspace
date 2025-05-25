@@ -1,6 +1,6 @@
 import { fetchWithRetry, toSha256Hex } from "$util";
 import type { S3ReqOptions } from "../types.ts";
-import { getS3Endpoint } from "../util.ts";
+import { getS3BaseUrl } from "../util.ts";
 
 interface Options extends S3ReqOptions {
   s3Key: string;
@@ -8,7 +8,7 @@ interface Options extends S3ReqOptions {
 
 export async function deleteObject(options: Options) {
   const { s3Key, bucket, signer, retryOpt, accelerated } = options;
-  const url = `${getS3Endpoint(bucket, accelerated)}/${s3Key}`;
+  const url = `${getS3BaseUrl(bucket, accelerated)}/${s3Key}`;
 
   const req = new Request(url, {
     method: "DELETE",

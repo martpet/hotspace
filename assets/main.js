@@ -1,14 +1,14 @@
-export const isServiceWorkerScope =
-  typeof ServiceWorkerGlobalScope !== "undefined";
+export const isServiceWorker = typeof ServiceWorkerGlobalScope !== "undefined";
 
 export const {
+  isDev,
   deviceType,
   osName,
   browserName,
   canUseServiceWorker,
   serviceWorkerPath,
   userUsername,
-} = isServiceWorkerScope ? {} : document.documentElement.dataset;
+} = isServiceWorker ? {} : document.documentElement.dataset;
 
 export const GENERAL_ERR_MSG = "Oops, something went wrong, try again!";
 export const SESSION_EXPIRED_ERR_MSG = "Your session has expired!";
@@ -30,7 +30,7 @@ addEventListener("click", ({ target }) => {
 // Service Worker Reg
 // =====================
 
-if (!isServiceWorkerScope && canUseServiceWorker) {
+if (!isServiceWorker && canUseServiceWorker) {
   navigator.serviceWorker.getRegistration().then((reg) => {
     if (!reg) {
       navigator.serviceWorker.register(serviceWorkerPath, {
@@ -45,7 +45,7 @@ if (!isServiceWorkerScope && canUseServiceWorker) {
 // Fetch Patch
 // =====================
 
-if (!isServiceWorkerScope) {
+if (!isServiceWorker) {
   const { fetch: originalFetch } = window;
 
   window.fetch = async (...args) => {
@@ -66,7 +66,7 @@ if (!isServiceWorkerScope) {
 // WebAuthn Auth flow
 // =====================
 
-if (!isServiceWorkerScope) {
+if (!isServiceWorker) {
   const buttons = document.querySelectorAll(".login-button");
 
   buttons.forEach((btn) => {
@@ -170,14 +170,14 @@ if (!isServiceWorkerScope) {
 // =====================
 
 function importDb() {
-  const path = isServiceWorkerScope ? "./db.js" : "$db";
+  const path = isServiceWorker ? "./db.js" : "$db";
   return import(path);
 }
 
 export const pushSubLockSignal = createSignal(false);
 
 export async function getPushSub() {
-  const reg = isServiceWorkerScope
+  const reg = isServiceWorker
     ? self.registration
     : await navigator.serviceWorker.ready;
   return reg.pushManager.getSubscription();
@@ -199,7 +199,7 @@ export async function createPushSub({ forceNew } = {}) {
   let pushSub = forceNew ? undefined : await getPushSub();
 
   if (!pushSub) {
-    const reg = isServiceWorkerScope
+    const reg = isServiceWorker
       ? self.registration
       : await navigator.serviceWorker.ready;
 
@@ -275,7 +275,6 @@ function isSubscriberChanged(subscriber, pushSub) {
 // =====================
 // Utils
 // =====================
-
 export function encodeBase64(data) {
   return btoa(String.fromCharCode(...new Uint8Array(data)));
 }
@@ -323,7 +322,7 @@ export function setFlash(flash) {
   document.cookie = `flash=${encoded};path=/`;
 }
 
-export function insertFlash(flash) {
+export function flashNow(flash) {
   if (typeof flash === "string") flash = { msg: flash };
   const classes = ["flash", "alert", flash.type || "success"];
   const html = `

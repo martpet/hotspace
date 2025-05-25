@@ -65,7 +65,7 @@ export default async function showFileHandler(ctx: AppContext) {
   );
 
   if (fragmentId === "chat") {
-    return ctx.jsxFragment(chatSection);
+    return ctx.respondJsxFragment(chatSection);
   }
 
   const preview = await getPreviewInfo(inode);

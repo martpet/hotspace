@@ -43,7 +43,7 @@ export async function handleVideoProcessorEvent(
     outputGroupDetails,
   } = msg.detail;
 
-  const { inodeId, inodeS3Key, origin } = userMetadata;
+  const { inodeId, inodeS3Key, appUrl } = userMetadata;
   const stateChangeDate = new Date(msg.detail.timestamp);
   const jobPercentComplete = jobProgress?.jobPercentComplete;
   let inodeEntry = await getInodeById(inodeId);
@@ -92,7 +92,7 @@ export async function handleVideoProcessorEvent(
       const playlist = processMasterPlaylist({
         masterPlaylist: await fetchMasterPlaylist(inode),
         inodeId: inode.id,
-        origin,
+        appUrl,
       });
       inodePatch.postProcess.streamType = "hls";
       inodePatch.postProcess.playlistDataUrl = playlist.dataUrl;
@@ -128,14 +128,14 @@ export async function handleVideoProcessorEvent(
   }
 }
 
-function cleanup(input: {
+function cleanup(opt: {
   inodeS3Key: string;
   jobId: string;
   status:
     | MediaConvertJobChangeStateDetail["status"]
     | PostProcessStatus;
 }) {
-  const { status, inodeS3Key, jobId } = input;
+  const { status, inodeS3Key, jobId } = opt;
   const promises: Promise<unknown>[] = [
     cleanupS3Objects(inodeS3Key),
   ];

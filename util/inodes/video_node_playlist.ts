@@ -7,9 +7,9 @@ import type { FileNode } from "./types.ts";
 export function processMasterPlaylist(input: {
   masterPlaylist: string;
   inodeId: string;
-  origin: string;
+  appUrl: string;
 }) {
-  const { masterPlaylist, inodeId, origin } = input;
+  const { masterPlaylist, inodeId, appUrl } = input;
   const lines = masterPlaylist.split("\n");
   const processedLines = [];
   const subPlaylistsS3Keys: string[] = [];
@@ -20,7 +20,7 @@ export function processMasterPlaylist(input: {
     } else {
       subPlaylistsS3Keys.push(line);
       processedLines.push(
-        `${origin}/inodes/video-playlist/${inodeId}/${subPlaylistIndex}`,
+        `${appUrl}/inodes/video-playlist/${inodeId}/${subPlaylistIndex}`,
       );
       subPlaylistIndex++;
     }

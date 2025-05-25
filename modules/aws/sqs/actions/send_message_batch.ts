@@ -4,7 +4,7 @@ import { chunk } from "@std/collections";
 import { HEADER } from "@std/http/unstable-header";
 import type { AwsActionBase } from "../../types.ts";
 import type { SqsMessageEntry } from "../types.ts";
-import { getSqsEndpoint } from "../util.ts";
+import { getSqsBaseUrl } from "../util.ts";
 
 interface Options extends AwsActionBase {
   messages: { body: string; id?: string }[];
@@ -14,7 +14,7 @@ interface Options extends AwsActionBase {
 
 export async function sendMessageBatch(options: Options) {
   const { messages, sqsUrl, region, signer, retryOpt } = options;
-  const url = getSqsEndpoint(region);
+  const url = getSqsBaseUrl(region);
   const queue = newQueue(5);
   const chunks = chunk(messages, 10);
   const failedIds: string[] = [];

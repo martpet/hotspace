@@ -83,7 +83,7 @@ async function handleCreate(ctx: AppContext) {
   if (!commit.ok) {
     return ctx.respond(null, STATUS_CODE.Conflict);
   }
-  return ctx.json(chatSub, STATUS_CODE.Created);
+  return ctx.respondJson(chatSub, STATUS_CODE.Created);
 }
 
 async function handleDelete(ctx: AppContext) {

@@ -13,16 +13,16 @@ import { setAnyInode } from "./kv_wrappers.ts";
 
 type PartialUser = Pick<User, "id" | "username">;
 
-export async function applyAclDiffs(input: {
+export async function applyAclDiffs(opt: {
   diffs: AclDiff[];
   inodeEntry: Deno.KvEntryMaybe<Inode>;
   actingUserId: string;
   users?: PartialUser[];
   recursive?: boolean;
 }) {
-  const { diffs, actingUserId, users, recursive = true } = input;
+  const { diffs, actingUserId, users, recursive = true } = opt;
 
-  let { inodeEntry } = input;
+  let { inodeEntry } = opt;
   let inode = inodeEntry.value;
   if (!inode) return;
 
@@ -107,12 +107,12 @@ export async function applyAclDiffs(input: {
   }
 }
 
-export async function createAclStats(input: {
+export async function createAclStats(opt: {
   acl: Acl;
   users?: PartialUser[];
   previewFromPatch?: Parameters<typeof createAclPreview>[0]["fromPatch"];
 }) {
-  const { acl, users, previewFromPatch } = input;
+  const { acl, users, previewFromPatch } = opt;
   const usersCount = getUserIdsFromAcl(acl).length;
   const previewSubset = await createAclPreview({
     acl,
@@ -126,7 +126,7 @@ export async function createAclStats(input: {
   };
 }
 
-export async function createAclPreview(input: {
+export async function createAclPreview(opt: {
   acl: Acl;
   users?: PartialUser[];
   subsetOnly?: boolean;
@@ -135,7 +135,7 @@ export async function createAclPreview(input: {
     aclPreview: AclPreview;
   };
 }) {
-  const { acl, users = [], subsetOnly, fromPatch } = input;
+  const { acl, users = [], subsetOnly, fromPatch } = opt;
   const usersById = associateBy(users, (u) => u.id);
   const ACL_PREVIEW_SUBSET_SIZE = 5;
 

@@ -12,7 +12,7 @@ import {
   setRootDirByOwner,
 } from "../kv/inodes.ts";
 import { kv } from "../kv/kv.ts";
-import { setUploadStats } from "../kv/uploads_stats.ts";
+import { setUploadStats } from "../kv/upload_stats.ts";
 import { type QueueMsgCleanUpInode } from "../queue/clean_up_inode.ts";
 import { type QueueMsgDeleteDirChildren } from "../queue/delete_dir_children.ts";
 import { type QueueMsgDeleteS3Objects } from "../queue/delete_s3_objects.ts";

@@ -96,6 +96,7 @@ textarea {
 dialog {
   text-align: initial;
   border-width: 3px;
+  border-radius: 1px;
   h1 {
     font-size: 2em;
     margin-top: 0.6rem;
@@ -145,6 +146,7 @@ menu {
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
   font-family: var(--default-font-family);
+  word-break: break-word;
   &.success {
     background: green;
     color: white;
@@ -164,12 +166,16 @@ menu {
     background: royalblue;
     color: white;
   }
+  a {
+    color: inherit;
+    font-weight: bold;
+  }
 }
 
 dialog.flash {
   position: static;
   width: 100%;
-  margin-top: 1em;
+  margin: 1em 0;
   padding: 0;
   border: none;
   border-radius: 5px;
@@ -375,7 +381,8 @@ dialog.flash {
   button {
     margin-top: 0.5em;
   }
-  + p.error {
+  .error {
+    margin-top: 1em;
     width: fit-content;
   }
 }
@@ -431,8 +438,12 @@ dialog.flash {
 
 .sectioned {
   section {
-    margin: 3em;
+    margin: 3em 0;
+    @media (min-width: 640px) {
+      padding-left: 3em;
+    }
     &:not(:first-of-type) {
+      padding-top: 1em;
       border-top: 1px solid var(--border-grey-light);
     }
   }
@@ -461,22 +472,9 @@ dialog.flash {
   }
 }
 
-.upload-credits {
-  display: flex;
-  flex-direction: column;
-  align-items: start;
-  gap: 0.5em;
-  meter {
-    width: 15em;
-  }
-  + button {
-    margin-top: 1.5em;
-  }
-}
-
 .about {
   text-align: center;
-  h1 {
+  h1:not(.box h1) {
     font-size: 1em;
     margin-block: 0.67em;
     font-weight: 600;
@@ -494,7 +492,13 @@ dialog.flash {
     padding: 2em;
     text-align: initial;
     background: var(--bg-light);
-    h2 {
+    border-radius: 5px;
+    :first-child {
+      margin-top: 0;
+    }
+    h1 {
+      margin-block: 0.83em;
+      font-size: 1.5em;
       font-weight: 600;
     }
     ul {
@@ -504,9 +508,6 @@ dialog.flash {
       li {
         margin: 0.35em 0;
       }
-    }
-    :first-child {
-      margin-top: 0;
     }
   }
   footer {
@@ -520,6 +521,25 @@ dialog.flash {
           margin: 0 0.5em;
         }
       }
+    }
+  }
+}
+
+#buy-traffic-dialog {
+  max-width: 25em;
+  #buy-traffic-loader {
+    display: flex;
+    margin-top: 2em;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 0.5em;
+  }
+  #buy-traffic-priduct-summary {
+    margin: 2em 0;
+    display: flex;
+    align-items: center;
+    input[type="number"] {
+      margin-right: 0.5em;
     }
   }
 }

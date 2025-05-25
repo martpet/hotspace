@@ -11,7 +11,8 @@ export const SESSION_TIMEOUT = WEEK * 4;
 export const CHAT_SUB_WITHOUT_PUSH_SUB_EXPIRES = WEEK * 2;
 export const SAVED_UPLOAD_EXPIRES = DAY * 7;
 export const GENERAL_ERR_MSG = "Oops, something went wrong, try again!";
-export const INITIAL_UPLOAD_LIMIT_BYTES = GB;
+export const INITIAL_USER_REMAINING_UPLOAD_BYTES = GB;
+export const PRICE_PER_GB_CENTS = 100;
 
 export const PUSH_SUB_HOSTS = [
   "fcm.googleapis.com",
@@ -27,7 +28,7 @@ assert(env.ADMIN_EMAIL);
 assert(env.VAPID_KEYS);
 assert(env.APP_ADMIN);
 
-export const { VAPID_KEYS, ADMIN_EMAIL, LOCAL_DEV_PUBLIC_URL, APP_ADMIN } = env;
+export const { VAPID_KEYS, ADMIN_EMAIL, APP_ADMIN } = env;
 
 // =====================
 // AWS
@@ -43,6 +44,8 @@ if (isProd) {
   assert(env.SHARP_PROCESSOR_SQS_URL_PROD);
   assert(env.LIBRE_PROCESSOR_SQS_URL_PROD);
   assert(env.PANDOC_PROCESSOR_SQS_URL_PROD);
+  assert(env.STRIPE_SECRET_PROD);
+  assert(env.STRIPE_PUB_KEY_PROD);
 } else {
   assert(env.AWS_ACCESS_KEY_ID_DEV);
   assert(env.AWS_SECRET_ACCESS_KEY_DEV);
@@ -53,6 +56,8 @@ if (isProd) {
   assert(env.SHARP_PROCESSOR_SQS_URL_DEV);
   assert(env.LIBRE_PROCESSOR_SQS_URL_DEV);
   assert(env.PANDOC_PROCESSOR_SQS_URL_DEV);
+  assert(env.STRIPE_SECRET_DEV);
+  assert(env.STRIPE_PUB_KEY_DEV);
 }
 
 export const AWS_REGION = "us-east-1";
@@ -103,3 +108,11 @@ export const LIBRE_PROCESSOR_SQS_URL = isProd
 export const PANDOC_PROCESSOR_SQS_URL = isProd
   ? env.PANDOC_PROCESSOR_SQS_URL_PROD
   : env.PANDOC_PROCESSOR_SQS_URL_DEV;
+
+export const STRIPE_SECRET = isProd
+  ? env.STRIPE_SECRET_PROD
+  : env.STRIPE_SECRET_DEV;
+
+export const STRIPE_PUB_KEY = isProd
+  ? env.STRIPE_PUB_KEY_PROD
+  : env.STRIPE_PUB_KEY_DEV;

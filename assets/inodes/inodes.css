@@ -28,6 +28,12 @@
   }
 }
 
+#create-dir-dialog {
+  output {
+    font-weight: bold;
+  }
+}
+
 #delete-inode-dialog {
   max-width: 32em;
   .text-undone {
@@ -96,15 +102,22 @@
   color: var(--text-grey-dark);
 }
 
-#upload-progress {
-  gap: 0.2em;
-  progress {
-    display: block;
-    width: 100%;
+#upload-dialog {
+  #upload-dialog-error {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
   }
-  .info {
-    font-variant-numeric: tabular-nums;
-    text-align: right;
+  #upload-progress {
+    gap: 0.2em;
+    progress {
+      display: block;
+      width: 100%;
+    }
+    .info {
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
   }
 }
 

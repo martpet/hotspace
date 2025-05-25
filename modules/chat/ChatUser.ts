@@ -1,4 +1,4 @@
-import { watchKv } from "$util";
+import { kvWatch } from "$util";
 import type { ChatConnection } from "./ChatConnection.ts";
 import type { ChatUserResource } from "./util/types.ts";
 
@@ -65,9 +65,13 @@ export class ChatUser {
   }
 
   #whatchUserEntry() {
-    return watchKv<[ChatUserResource]>(this.#kv, [this.#kvKey], ([entry]) => {
-      this.#kvEntryReady.resolve();
-      this.kvEntry = entry;
+    return kvWatch<[ChatUserResource]>({
+      kv: this.#kv,
+      kvKeys: [this.#kvKey],
+      onEntries: ([entry]) => {
+        this.#kvEntryReady.resolve();
+        this.kvEntry = entry;
+      },
     });
   }
 }

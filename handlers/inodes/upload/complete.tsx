@@ -7,7 +7,7 @@ import {
   canUpload,
   createFileNodesFromUploads,
 } from "../../../util/inodes/create_file_node.ts";
-import { checkCreditAfterUpload } from "../../../util/inodes/helpers.ts";
+import { checkUploadQuotaAfterUpload } from "../../../util/inodes/helpers.ts";
 import { getInodeById } from "../../../util/kv/inodes.ts";
 import type { AppContext } from "../../../util/types.ts";
 
@@ -43,13 +43,13 @@ export default async function completeUploadHandler(ctx: AppContext) {
     signer: getSigner(),
   });
 
-  const creditCheck = await checkCreditAfterUpload({
-    user,
+  const uploadQuotaCheck = await checkUploadQuotaAfterUpload({
+    userId: user.id,
     uploads: completedUploads,
   });
 
-  if (!creditCheck.ok) {
-    return ctx.respond(creditCheck.msg, creditCheck.status);
+  if (!uploadQuotaCheck.ok) {
+    return ctx.respond(uploadQuotaCheck.error, STATUS_CODE.ContentTooLarge);
   }
 
   const completedIds = await createFileNodesFromUploads({
@@ -57,10 +57,10 @@ export default async function completeUploadHandler(ctx: AppContext) {
     dirEntry,
     dirId,
     user,
-    origin,
+    appUrl: origin,
   });
 
-  return ctx.json(completedIds);
+  return ctx.respondJson(completedIds);
 }
 
 function isValidReqData(data: unknown): data is ReqData {

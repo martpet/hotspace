@@ -1,4 +1,4 @@
-import { watchKv } from "$util";
+import { kvWatch } from "$util";
 import type { ChatConnection } from "./ChatConnection.ts";
 import {
   feedItemsKeys,
@@ -149,18 +149,26 @@ export class Chat {
   }
 
   #watchChatEntry() {
-    return watchKv<[ChatResource]>(this.kv, [this.#kvKey], ([entry]) => {
-      this.kvEntry = entry;
-      this.#kvEntryReady.resolve();
+    return kvWatch<[ChatResource]>({
+      kv: this.kv,
+      kvKeys: [this.#kvKey],
+      onEntries: ([entry]) => {
+        this.kvEntry = entry;
+        this.#kvEntryReady.resolve();
+      },
     });
   }
 
   #watchLastFeedItemId() {
     const kvKey = feedItemsKeys.lastFeedItemIdByChat(this.id);
-    return watchKv<[string]>(this.kv, [kvKey], ([entry]) => {
-      if (!entry.value) return;
-      this.lastFeedItemId = entry.value;
-      this.#sendFeedItems();
+    return kvWatch<[string]>({
+      kv: this.kv,
+      kvKeys: [kvKey],
+      onEntries: ([entry]) => {
+        if (!entry.value) return;
+        this.lastFeedItemId = entry.value;
+        this.#sendFeedItems();
+      },
     });
   }
 }

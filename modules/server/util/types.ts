@@ -1,11 +1,12 @@
 import type { RedirectStatus, UserAgent } from "@std/http";
 import type { Method } from "@std/http/unstable-method";
 import type { VNode } from "preact";
+import type { KvWatchOptions } from "../../util/kv_watch.ts";
+import type { MaybePromise } from "../../util/types.ts";
 
 export type TrailingSlashMode = "always" | "never" | "mixed";
 
 export interface ServerOptions {
-  rootHostnameURLPattern?: string;
   trailingSlash?: TrailingSlashMode;
 }
 
@@ -14,12 +15,16 @@ export type ResponseOptions = Omit<ResponseInit, "headers"> & {
   skipDoctype?: boolean;
 };
 
-export type CtxJsxFn = (input: VNode) => Response;
-export type CtxJsxFragmentFn = (input: VNode) => Response;
-export type CtxJsonFn = (input: unknown, status?: number | null) => Response;
+export type CtxJsxFn = (arg: VNode) => Response;
+export type CtxJsxFragmentFn = (arg: VNode) => Response;
+export type CtxJsonFn = (arg: unknown, status?: number | null) => Response;
+export type CtxSseFn = (arg: CtxSseFnOptions) => Response;
+export type CtxKvWatchSseFn = <T extends unknown[]>(
+  arg: CtxKvWatchSseFnOptions<T>,
+) => Response;
 export type CtxRedirectFn = (path: string, status?: RedirectStatus) => Response;
 export type CtxRedirectBackFn = () => Response;
-export type CtxFlashFn = (flash: string | Flash) => void;
+export type CtxFlashFn = (arg: string | Flash) => void;
 
 export type CtxRespondFn = (
   respOrBody?: Response | BodyInit | null,
@@ -27,15 +32,36 @@ export type CtxRespondFn = (
   headers?: HeadersInit,
 ) => Response;
 
+interface CtxSseFnOptions {
+  onStart: (arg: CtxSseOnStartOptions) => void;
+  onCancel?: () => void;
+}
+
+interface CtxSseOnStartOptions {
+  sendMsg: (msg: unknown) => void;
+  sendClose: () => void;
+  controller: ReadableStreamDefaultController;
+}
+
+export type CtxKvWatchSseFnOptions<T extends unknown[]> = {
+  kv: Deno.Kv;
+  kvKeys: KvWatchOptions<T>["kvKeys"];
+  onEntries: (
+    arg: CtxSseOnStartOptions & {
+      entries: Parameters<KvWatchOptions<T>["onEntries"]>[0];
+    },
+  ) => MaybePromise<void>;
+};
+
 export interface Flash {
   msg: string;
   type: "success" | "warning" | "error" | "info";
 }
 
-export interface Context<S = Record<string, never>> {
+export interface Context {
   req: Request;
   resp: ResponseOptions;
-  state: S;
+  state: Record<string, unknown>;
   url: URL;
   urlPatternResult: URLPatternResult;
   cookies: Record<string, string>;
@@ -45,12 +71,13 @@ export interface Context<S = Record<string, never>> {
   setFlash: CtxFlashFn;
   handler: Handler;
   respond: CtxRespondFn;
-  jsx: CtxJsxFn;
-  jsxFragment: CtxJsxFragmentFn;
-  json: CtxJsonFn;
+  respondJsx: CtxJsxFn;
+  respondJsxFragment: CtxJsxFragmentFn;
+  respondJson: CtxJsonFn;
+  respondSse: CtxSseFn;
+  respondKvWatchSse: CtxKvWatchSseFn;
   redirect: CtxRedirectFn;
   redirectBack: CtxRedirectBackFn;
-  get rootDomainUrl(): URL | undefined;
   get scpNonce(): string;
 }
 

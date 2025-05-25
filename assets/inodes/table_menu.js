@@ -1,7 +1,7 @@
 import {
   createSignal,
+  flashNow,
   GENERAL_ERR_MSG,
-  insertFlash,
   replaceFragment,
 } from "$main";
 
@@ -109,7 +109,7 @@ async function submitData() {
     await replaceFragment("inodes");
     statusSignal.value = "closed";
     tableMenu.hidden = true;
-    insertFlash(createFlashMsg());
+    flashNow(createFlashMsg());
   } else if (resp.status === 404) {
     location.reload();
   } else {
@@ -132,7 +132,7 @@ function createFlashMsg() {
   let msg = "Deleted ";
   if (dirsCount) msg += `${dirsCount} folder${dirsCount > 1 ? "s" : ""}`;
   if (dirsCount && filesCount) msg += " and ";
-  if (filesCount) msg += `${filesCount} file${dirsCount > 1 ? "s" : ""}`;
+  if (filesCount) msg += `${filesCount} file${filesCount > 1 ? "s" : ""}`;
   return msg;
 }
 
