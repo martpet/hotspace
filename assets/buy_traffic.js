@@ -318,7 +318,7 @@ function insertDialog() {
           <input id="buy-traffic-quantity" type="number" min="1" max="100" value="1" />
           <span><span id="buy-traffic-gigabyte">gigabyte</span> for $<output id="buy-traffic-amount">1</output></span>
         </div>
-        <div id="buy-traffic-loader" class="spinner-lg"></div>
+        <div id="buy-traffic-loader" class="spinner-lg spinner-col" hidden></div>
         <div id="stripe-root"></div>
         <form class="basic-form">
           <footer>

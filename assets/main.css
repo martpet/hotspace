@@ -192,8 +192,10 @@ dialog.flash {
 
 .spinner,
 [class*="spinner-"] {
-  &::after {
-    display: inline-block;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  &::before {
     width: 18px;
     aspect-ratio: 1;
     content: "";
@@ -202,25 +204,24 @@ dialog.flash {
     border-radius: 50%;
     animation: spin 0.5s linear infinite;
   }
-  &.spinner-lg::after {
+  &.spinner-lg::before {
     width: 24px;
   }
-  &.spinner-sm::after {
+  &.spinner-sm::before {
     width: 12px;
   }
-  &.spinner-xs::after,
-  button&::after {
+  &.spinner-xs::before,
+  button&::before {
     width: 8px;
   }
-  button&::after {
-    margin-left: 0.25rem;
+  button& {
+    gap: 0.25rem;
+    flex-direction: row-reverse;
   }
-}
-
-.loader {
-  display: flex;
-  align-items: center;
-  gap: 0.7em;
+  &.spinner-col {
+    gap: 0.7em;
+    flex-direction: column;
+  }
 }
 
 .dots {
@@ -371,7 +372,7 @@ dialog.flash {
     margin: 0 0 0.5em;
     padding: 0.5em;
     font: inherit;
-    + p {
+    p {
       margin-top: 0.3em;
     }
   }
@@ -532,11 +533,7 @@ dialog.flash {
 #buy-traffic-dialog {
   max-width: 25em;
   #buy-traffic-loader {
-    display: flex;
     margin-top: 2em;
-    flex-direction: column-reverse;
-    align-items: center;
-    gap: 0.5em;
   }
   #buy-traffic-priduct-summary {
     margin: 2em 0;

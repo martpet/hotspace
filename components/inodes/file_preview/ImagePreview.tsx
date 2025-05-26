@@ -7,7 +7,7 @@ import type {
   PostProcessedToImage,
 } from "../../../util/inodes/types.ts";
 import { asset } from "../../../util/url.ts";
-import Loader from "../../Loader.tsx";
+import Spinner from "../../Spinner.tsx";
 import GeneralPreview from "./GeneralPreview.tsx";
 
 interface Props {
@@ -49,9 +49,9 @@ export default function ImagePreview(props: Props) {
             type="module"
             src={asset("inodes/listen_post_processing.js")}
           />
-          <Loader id="file-preview-loader">
-            Creating a preview
-          </Loader>
+          <Spinner id="file-preview-loader">
+            Creating a preview…
+          </Spinner>
         </>
       )}
 

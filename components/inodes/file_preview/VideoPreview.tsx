@@ -4,7 +4,7 @@ import { getResponsiveMediaStyles } from "../../../util/inodes/responsive_media_
 import { FileNode } from "../../../util/inodes/types.ts";
 import type { AppContext } from "../../../util/types.ts";
 import { asset } from "../../../util/url.ts";
-import Loader from "../../Loader.tsx";
+import Loader from "../../Spinner.tsx";
 import GeneralPreview from "./GeneralPreview.tsx";
 
 interface Props {
@@ -63,7 +63,7 @@ export default function VideoPreview(props: Props, ctx: AppContext) {
           )}
 
           {isProcessing && (
-            <Loader id="file-preview-loader" ellipsis={false}>
+            <Loader id="file-preview-loader">
               Converting video…{" "}
               <span id="progress-perc">{percentComplete || null}</span>
             </Loader>
