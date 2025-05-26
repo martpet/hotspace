@@ -58,10 +58,8 @@ export default function termsHandler() {
 
         <p>
           You may delete your account at any time. When your account is deleted,
-          {" "}
-          <strong>
-            all uploaded files and associated data will be permanently removed
-          </strong>, and no further charges will occur.
+          all uploaded files and associated data will be permanently removed,
+          and no further charges will occur.
         </p>
 
         <h2>Prohibited Use</h2>
