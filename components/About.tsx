@@ -37,11 +37,10 @@ export default function About({ noLogo, noName, noSubline }: Props) {
             Upload files — they stay online <strong>indefinitely</strong>
           </li>
           <li>
-            Share files <strong>publicly</strong> or keep them{" "}
-            <strong>private</strong>
+            Share files publicly or keep them private
           </li>
           <li>
-            Pay only for uploads: <strong>$1 per additional GB</strong>
+            Pay only for uploads: $1 per additional GB
           </li>
           <li>No download limits, no hidden fees</li>
         </ul>
