@@ -281,7 +281,7 @@ function createAclEl(aclItem) {
     inputEl.className = "username";
     inputEl.type = "text";
     inputEl.required = true;
-    inputEl.placeholder = "user";
+    inputEl.placeholder = "username";
     inputEl.autocomplete = "off";
     inputEl.autocapitalize = "off";
     inputEl.spellcheck = false;
