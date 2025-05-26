@@ -11,7 +11,7 @@ export default function RegForm(_props: unknown, ctx: AppContext) {
           <>
             <label for="username">Choose a username:</label>
             <input
-              id="username"
+              id="reg-form-username"
               type="text"
               required
               autofocus
@@ -26,9 +26,11 @@ export default function RegForm(_props: unknown, ctx: AppContext) {
             </p>
           </>
         )}
-        <button>
+        <button id="reg-form-submit">
           {!user ? "Create Account" : "Add Passkey"}
         </button>
+
+        <p id="reg-form-error" class="alert error" hidden></p>
       </form>
     </>
   );

@@ -114,5 +114,5 @@ export default async function credentialCreationVerifyHandler(ctx: AppContext) {
     return ctx.respond(null, STATUS_CODE.Conflict);
   }
 
-  return ctx.respondJson({ ok: true });
+  return ctx.respond();
 }

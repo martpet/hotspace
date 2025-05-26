@@ -30,17 +30,14 @@ export default async function credentialCreationOptionsHandler(
   } else if (!username) { // maybe session expired
     return ctx.respond(null, STATUS_CODE.Unauthorized);
   } else if (!validateUsername(username, USERNAME_CONSTRAINTS)) {
-    return ctx.respond("Invalid username", STATUS_CODE.BadRequest);
+    const msg = "Invalid username";
+    return ctx.respondJson({ error: msg }, STATUS_CODE.BadRequest);
   } else if (reservedWords.includes(username)) {
-    return ctx.respond(
-      `Username '${username}' is not available`,
-      STATUS_CODE.Conflict,
-    );
+    const msg = `Username '${username}' is not available`;
+    return ctx.respondJson({ error: msg }, STATUS_CODE.Conflict);
   } else if ((await getUserByUsername(username)).value) {
-    return ctx.respond(
-      `Username "${username}" is taken`,
-      STATUS_CODE.Conflict,
-    );
+    const msg = `Username "${username}" is taken`;
+    return ctx.respondJson({ error: msg }, STATUS_CODE.Conflict);
   }
 
   const webauthnUserId = user?.webauthnUserId || crypto.randomUUID();
