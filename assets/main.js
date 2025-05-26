@@ -79,7 +79,11 @@ function initLoginButtons() {
       renderProgress(true);
       try {
         const ok = await authenticate();
-        if (ok) location.reload();
+        if (ok) {
+          location.reload();
+        } else {
+          renderProgress(false);
+        }
       } catch (err) {
         renderProgress(false);
         alert(err.message);
