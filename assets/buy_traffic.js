@@ -29,6 +29,12 @@ let expressCheckout;
 let pricePerGb;
 let isDark = colorSchemeQuery.matches;
 
+const paymentTypeNames = {
+  apple_pay: "Apple Pay",
+  google_pay: "Goolge Pay",
+  link: "Link",
+};
+
 // =====================
 // Init Button Show
 // =====================
@@ -227,7 +233,8 @@ function createExpressCheckout() {
 
   expressCheckout.on("click", (event) => {
     dialogSignal.value = "clicked";
-    loadingSignal.value = "Waiting Provider";
+    const paymentTypeName = paymentTypeNames[event.expressPaymentType];
+    loadingSignal.value = `Waiting ${paymentTypeName || "Provider"}`;
     event.resolve();
   });
 
