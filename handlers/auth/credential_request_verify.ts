@@ -8,6 +8,8 @@ import { setSessionCookie } from "../../util/session.ts";
 import type { AppContext, Session } from "../../util/types.ts";
 
 export default async function credentialRequestVerifyHandler(ctx: AppContext) {
+  const { user } = ctx.state;
+
   deleteCookie(ctx.resp.headers, CREDENTIAL_REQUEST_SESSION_COOKIE, {
     path: "/",
   });
@@ -29,7 +31,13 @@ export default async function credentialRequestVerifyHandler(ctx: AppContext) {
   const passkey = passkeyEntry.value;
 
   if (!passkey) {
-    return ctx.respond(null, STATUS_CODE.NotFound);
+    const msg = "Account not found";
+    return ctx.respondJson({ error: msg }, STATUS_CODE.NotFound);
+  }
+
+  if (user && user.id !== passkey.userId) {
+    const msg = "You tried to sign in as another user";
+    return ctx.respondJson({ error: msg }, STATUS_CODE.Forbidden);
   }
 
   const authData = await verifyAssertion({
@@ -59,9 +67,9 @@ export default async function credentialRequestVerifyHandler(ctx: AppContext) {
   setPasskey(passkey, atomic);
   setSession(session, atomic);
 
-  const { ok } = await atomic.commit();
+  const commit = await atomic.commit();
 
-  if (!ok) {
+  if (!commit.ok) {
     return ctx.respond(null, STATUS_CODE.Conflict);
   }
 
@@ -70,5 +78,5 @@ export default async function credentialRequestVerifyHandler(ctx: AppContext) {
     sessionId: session.id,
   });
 
-  return ctx.respondJson({ verified: true });
+  return ctx.respond();
 }

@@ -67,102 +67,81 @@ if (!isServiceWorker) {
 // =====================
 
 if (!isServiceWorker) {
+  initLoginButtons();
+}
+
+function initLoginButtons() {
   const buttons = document.querySelectorAll(".login-button");
+  if (!buttons.length) return;
 
-  buttons.forEach((btn) => {
-    btn.addEventListener("click", handleButtonClick);
+  for (const btn of buttons) {
+    btn.addEventListener("click", async () => {
+      renderProgress(true);
+      try {
+        const ok = await authenticate();
+        if (ok) location.reload();
+      } catch (err) {
+        renderProgress(false);
+        alert(err.message);
+      }
+    });
+  }
+
+  function renderProgress(flag) {
+    for (const btn of buttons) {
+      btn.disabled = flag;
+      btn.classList.toggle("spinner", flag);
+    }
+  }
+}
+
+export async function authenticate() {
+  const publicKey = await createAuthPubKeyOptions();
+  const credential = await getAuthCredential(publicKey);
+  if (credential) return verifyAuthCredential(credential);
+}
+
+async function createAuthPubKeyOptions() {
+  const resp = await fetch("/auth/credential-request-options", {
+    method: "post",
   });
-
-  function setInProgress(inProgrss) {
-    buttons.forEach((btn) => {
-      btn.disabled = inProgrss;
-      btn.classList.toggle("spinner", inProgrss);
-    });
+  if (!resp.ok) {
+    console.error(`Fetch pubkey options resp status: ${resp.status}`);
+    throw new Error(GENERAL_ERR_MSG);
   }
+  const data = await resp.json();
+  data.challenge = decodeBase64Url(data.challenge);
+  return data;
+}
 
-  function showError(msg) {
-    alert(msg);
-    setInProgress(false);
-  }
-
-  async function handleButtonClick() {
-    setInProgress(true);
-    let publicKeyOptions;
-    let credential;
-
-    try {
-      publicKeyOptions = await createPubkeyOptions();
-    } catch (err) {
-      showError(GENERAL_ERR_MSG);
-      console.error(err);
-      return;
-    }
-    try {
-      credential = await navigator.credentials.get({
-        publicKey: publicKeyOptions,
-      });
-    } catch (err) {
-      if (
-        err.name === "AbortError" || // Firefox
-        err.name === "NotAllowedError"
-      ) {
-        setInProgress(false);
-      } else {
-        showError(GENERAL_ERR_MSG);
-      }
-      console.error(err);
-      return;
-    }
-    try {
-      const result = await verify(credential);
-      if (result.verified) {
-        location.reload();
-      } else {
-        showError(result.error || "Sign in failed!");
-      }
-    } catch (err) {
-      showError(GENERAL_ERR_MSG);
-      console.error(err);
+async function getAuthCredential(publicKey) {
+  try {
+    return await navigator.credentials.get({ publicKey });
+  } catch (err) {
+    console.error(err);
+    if (!["NotAllowedError", "AbortError"].includes(err.name)) {
+      throw new Error(GENERAL_ERR_MSG);
     }
   }
+}
 
-  async function createPubkeyOptions() {
-    const resp = await fetch("/auth/credential-request-options", {
-      method: "post",
-    });
-    if (!resp.ok) {
-      throw new Error("Pubkey request options creation error");
-    }
+async function verifyAuthCredential(credential) {
+  const assertion = {
+    credId: credential.id,
+    type: credential.type,
+    signature: encodeBase64(credential.response.signature),
+    authData: encodeBase64(credential.response.authenticatorData),
+    clientDataJson: encodeBase64(credential.response.clientDataJSON),
+  };
+  const resp = await fetch("/auth/credential-request-verify", {
+    method: "post",
+    body: JSON.stringify(assertion),
+  });
+  if (!resp.ok) {
     const data = await resp.json();
-    data.challenge = decodeBase64Url(data.challenge);
-    return data;
+    throw new Error(data?.error || GENERAL_ERR_MSG);
   }
-
-  async function verify(credential) {
-    const assertion = {
-      credId: credential.id,
-      type: credential.type,
-      signature: encodeBase64(credential.response.signature),
-      authData: encodeBase64(credential.response.authenticatorData),
-      clientDataJson: encodeBase64(credential.response.clientDataJSON),
-    };
-    const resp = await fetch("/auth/credential-request-verify", {
-      method: "post",
-      body: JSON.stringify(assertion),
-    });
-    if (resp.status === 404) {
-      return {
-        error:
-          "Your account has been deleted. Please, remove your passkey from your keychain.",
-      };
-    } else if (!resp.ok) {
-      let errMsg = `Credential assertion verification error`;
-      const respText = await resp.text();
-      if (respText) errMsg = `${errMsg}: ${respText}`;
-      throw new Error(errMsg);
-    }
-    return resp.json();
-  }
+  return true;
 }
 
 // =====================

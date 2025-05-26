@@ -67,7 +67,7 @@ app.get("/about", about);
 app.get("/register", register);
 app.post("/logout", logout);
 app.get("/account", account);
-app.post("/account/delete", deleteAccount);
+app.delete("/account", deleteAccount);
 
 app.post("/payment/intent", createPaymentIntent);
 app.get("/payment/listen-created/:paymentIntentId", listenPaymentCreated);

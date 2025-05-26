@@ -40,7 +40,7 @@ form?.addEventListener("submit", async (e) => {
   let credential;
 
   try {
-    publicKeyOptions = await createPubkeyOptions(username);
+    publicKeyOptions = await createAuthPubKeyOptions(username);
     if (publicKeyOptions.errorMsg) {
       setError(publicKeyOptions.errorMsg);
       return;
@@ -77,7 +77,7 @@ form?.addEventListener("submit", async (e) => {
   }
 });
 
-async function createPubkeyOptions(username) {
+async function createAuthPubKeyOptions(username) {
   const resp = await fetch("/auth/credential-creation-options", {
     method: "post",
     body: username,

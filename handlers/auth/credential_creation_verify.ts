@@ -108,11 +108,11 @@ export default async function credentialCreationVerifyHandler(ctx: AppContext) {
 
   setPasskey(passkey, atomic);
 
-  const { ok } = await atomic.commit();
+  const commit = await atomic.commit();
 
-  if (!ok) {
+  if (!commit.ok) {
     return ctx.respond(null, STATUS_CODE.Conflict);
   }
 
-  return ctx.respondJson({ verified: true });
+  return ctx.respondJson({ ok: true });
 }
