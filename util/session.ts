@@ -1,6 +1,8 @@
 import { SESSION_COOKIE } from "$webauthn";
 import { setCookie } from "@std/http";
+import { decodeTime } from "@std/ulid";
 import { SESSION_TIMEOUT } from "./consts.ts";
+import type { Session } from "./types.ts";
 
 interface SetSessionCookieOptions {
   headers: Headers;
@@ -18,4 +20,8 @@ export function setSessionCookie(options: SetSessionCookieOptions) {
     httpOnly: true,
     sameSite: "Lax",
   });
+}
+
+export function isSessionFresh(session: Session, maxAge: number) {
+  return Date.now() - decodeTime(session.id) <= maxAge;
 }
