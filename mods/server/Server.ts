@@ -215,15 +215,16 @@ export class Server {
     const { onStart, onCancel } = opt;
     const stream = new ReadableStream({
       start(controller) {
+        const sendMsg = (data: unknown) => {
+          const msg = `data: ${JSON.stringify(data)}\r\n\r\n`;
+          controller.enqueue(new TextEncoder().encode(msg));
+        };
         onStart({
-          sendMsg(data: unknown) {
-            const msg = `data: ${JSON.stringify(data)}\r\n\r\n`;
-            controller.enqueue(new TextEncoder().encode(msg));
-          },
-          sendClose() {
-            this.sendMsg({ close: true });
-          },
           controller,
+          sendMsg,
+          sendClose() {
+            sendMsg({ close: true });
+          },
         });
       },
       cancel: () => onCancel?.(),
