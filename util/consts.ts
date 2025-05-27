@@ -47,7 +47,7 @@ if (isProd) {
   assert(env.STRIPE_SECRET_PROD);
   assert(env.STRIPE_PUB_KEY_PROD);
   assert(env.ADMIN_EMAIL_ALERT_TOPIC_PROD);
-  assert(env.ADMIN_SMS_ALERT_TOPIC_DEV_PROD);
+  assert(env.ADMIN_SMS_ALERT_TOPIC_PROD);
 } else {
   assert(env.AWS_ACCESS_KEY_ID_DEV);
   assert(env.AWS_SECRET_ACCESS_KEY_DEV);
