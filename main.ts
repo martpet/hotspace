@@ -2,7 +2,7 @@ import { flashMiddleware, Server, staticFilesHandler } from "$server";
 import { uploadWorkerHandler } from "$upload";
 import about from "./handlers/about.tsx";
 import account from "./handlers/account/account.tsx";
-import deleteAccount from "./handlers/account/delete.tsx";
+import deleteAccount from "./handlers/account/delete.ts";
 import logout from "./handlers/account/logout.ts";
 import register from "./handlers/account/register.tsx";
 import credCreatOpt from "./handlers/auth/credential_creation_options.ts";
