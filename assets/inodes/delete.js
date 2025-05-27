@@ -109,8 +109,8 @@ function insertDialog() {
           <h1>Delete ${inodeType}</h1>
           <form id="delete-inode-form" class="basic-form">
             <p class="alert warning">
-              ${introText}
-              will be deleted. <span class="text-undone">This action cannot be undone.</span>
+              ${introText} will be deleted.<br />
+              <span class="text-undone">This action cannot be undone.</span>
             </p>
             <p id="delete-inode-error" class="alert error" hidden></p>
             <label>
@@ -119,7 +119,7 @@ function insertDialog() {
             </label>
             <footer>
               <button type="button" id="delete-inode-close">Cancel</button>
-              <button id="delete-inode-submit">Delete Forever</button>
+              <button id="delete-inode-submit">Permanently Delete</button>
             </footer>
           </form>
         </dialog>

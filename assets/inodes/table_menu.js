@@ -201,7 +201,7 @@ function insertDialog() {
             </label>
             <footer>
               <button type="button" id="table-delete-close">Cancel</button>
-              <button id="table-delete-submit">Delete Forever</button>
+              <button id="table-delete-submit">Permanently Delete</button>
             </footer>
           </form>
         </dialog>

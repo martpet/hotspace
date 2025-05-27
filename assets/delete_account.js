@@ -105,8 +105,8 @@ function insertDialog() {
         <p id="delete-account-error" class="alert error" hidden></p>
         <form class="basic-form">
           <p class="alert warning">
-            Your account, files and chat messages will be deleted.<br />
-            This action cannot be undone.
+            Your account, files, and chat messages will be deleted.<br />
+            <strong>This action cannot be undone.</strong>
           </p>
           <label>
             <span>To confirm, type your username:</span>
@@ -114,7 +114,7 @@ function insertDialog() {
           </label>
           <footer>
             <button id="delete-acount-cancel" type="button">Cancel</button>
-            <button id="delete-acount-submit">Delete Account Forever</button>
+            <button id="delete-acount-submit">Permanently Delete Account</button>
           </footer>
         </form>
       </dialog>
