@@ -40,7 +40,7 @@ export default function IframePreview(props: Props) {
             type="module"
             src={asset("inodes/listen_post_processing.js")}
           />
-          <Spinner id="file-preview-loader">
+          <Spinner block id="file-preview-loader">
             Creating a preview…
           </Spinner>
         </>

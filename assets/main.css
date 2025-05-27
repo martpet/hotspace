@@ -204,9 +204,17 @@ menu {
 
 .spinner,
 [class*="spinner-"] {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  &.spinner-col {
+    display: flex;
+    gap: 0.7em;
+    flex-direction: column;
+  }
+  &.spinner-block {
+    display: flex;
+  }
   &::before {
     width: 18px;
     aspect-ratio: 1;
@@ -227,13 +235,8 @@ menu {
     width: 8px;
   }
   button& {
-    display: inline-flex;
     gap: 0.25rem;
     flex-direction: row-reverse;
-  }
-  &.spinner-col {
-    gap: 0.7em;
-    flex-direction: column;
   }
 }
 
