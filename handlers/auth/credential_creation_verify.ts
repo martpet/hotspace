@@ -9,11 +9,13 @@ import { INITIAL_USER_REMAINING_UPLOAD_BYTES } from "../../util/consts.ts";
 import {
   kvKeys as getCredSessionKvKey,
 } from "../../util/kv/cred_creation_sessions.ts";
+import { enqueue } from "../../util/kv/enqueue.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { keys as getPassKeyKvKey, setPasskey } from "../../util/kv/passkeys.ts";
 import { setSession } from "../../util/kv/sessions.ts";
 import { addUserRemainingUploadBytes } from "../../util/kv/upload_stats.ts";
 import { setUser } from "../../util/kv/users.ts";
+import { QueueMsgAdminAlert } from "../../util/queue/admin_alert.ts";
 import { setSessionCookie } from "../../util/session.ts";
 import type {
   AppContext,
@@ -80,8 +82,15 @@ export default async function credentialCreationVerifyHandler(ctx: AppContext) {
       credId: authData.credId,
     };
 
+    const adminAlertMsg: QueueMsgAdminAlert = {
+      type: "admin-alert",
+      emailSubject: "New HotSpace user",
+      message: `Username: ${newUser.username}`,
+    };
+
     setUser(newUser, atomic);
     setSession(session, atomic);
+    enqueue(adminAlertMsg, atomic);
 
     addUserRemainingUploadBytes({
       userId: newUser.id,

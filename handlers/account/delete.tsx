@@ -4,6 +4,7 @@ import { deleteCookie, STATUS_CODE } from "@std/http";
 import { enqueue } from "../../util/kv/enqueue.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { deleteUser } from "../../util/kv/users.ts";
+import { QueueMsgAdminAlert } from "../../util/queue/admin_alert.ts";
 import { type QueueMsgCleanUpUser } from "../../util/queue/clean_up_user.ts";
 import { isSessionFresh } from "../../util/session.ts";
 import type { AppContext } from "../../util/types.ts";
@@ -25,9 +26,16 @@ export default async function deleteAccountHandler(ctx: AppContext) {
     username: user.username,
   };
 
+  const adminAlertMsg: QueueMsgAdminAlert = {
+    type: "admin-alert",
+    emailSubject: "Deleted HotSpace account",
+    message: `Username: ${user.username}`,
+  };
+
   const atomic = kv.atomic();
   deleteUser(user, atomic);
   enqueue(cleanupMsg, atomic);
+  enqueue(adminAlertMsg, atomic);
 
   const commit = await atomic.commit();
 

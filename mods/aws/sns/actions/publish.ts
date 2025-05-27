@@ -5,12 +5,13 @@ import { getSnsBaseUrl } from "../util.ts";
 
 interface Options extends AwsActionBase {
   topicArn: string;
-  message: string;
   region: string;
+  message: string;
+  emailSubject?: string;
 }
 
 export async function publish(options: Options) {
-  const { topicArn, message, region, signer, retryOpt } = options;
+  const { topicArn, region, message, emailSubject, signer, retryOpt } = options;
   const url = getSnsBaseUrl(region);
 
   const payload = new URLSearchParams({
@@ -18,6 +19,7 @@ export async function publish(options: Options) {
     Version: "2010-03-31",
     TopicArn: topicArn,
     Message: message,
+    ...(emailSubject ? { Subject: emailSubject } : {}),
   }).toString();
 
   const req = new Request(url, {

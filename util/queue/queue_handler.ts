@@ -1,3 +1,4 @@
+import { handleAdminAlert, isAdminAlert } from "./admin_alert.ts";
 import {
   handleChangeDirChildrenAcl,
   isChangeDirChildrenAcl,
@@ -77,6 +78,9 @@ export function queueHandler(msg: unknown) {
   }
   if (isStripePaymentIntentSuccess(msg)) {
     return handleStripePaymentIntentSuccess(msg);
+  }
+  if (isAdminAlert(msg)) {
+    return handleAdminAlert(msg);
   }
 
   console.error("Unhandled Queue message", msg);

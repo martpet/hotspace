@@ -46,6 +46,8 @@ if (isProd) {
   assert(env.PANDOC_PROCESSOR_SQS_URL_PROD);
   assert(env.STRIPE_SECRET_PROD);
   assert(env.STRIPE_PUB_KEY_PROD);
+  assert(env.ADMIN_EMAIL_ALERT_TOPIC_PROD);
+  assert(env.ADMIN_SMS_ALERT_TOPIC_DEV_PROD);
 } else {
   assert(env.AWS_ACCESS_KEY_ID_DEV);
   assert(env.AWS_SECRET_ACCESS_KEY_DEV);
@@ -58,6 +60,8 @@ if (isProd) {
   assert(env.PANDOC_PROCESSOR_SQS_URL_DEV);
   assert(env.STRIPE_SECRET_DEV);
   assert(env.STRIPE_PUB_KEY_DEV);
+  assert(env.ADMIN_EMAIL_ALERT_TOPIC_DEV);
+  assert(env.ADMIN_SMS_ALERT_TOPIC_DEV);
 }
 
 export const AWS_REGION = "us-east-1";
@@ -116,3 +120,11 @@ export const STRIPE_SECRET = isProd
 export const STRIPE_PUB_KEY = isProd
   ? env.STRIPE_PUB_KEY_PROD
   : env.STRIPE_PUB_KEY_DEV;
+
+export const ADMIN_EMAIL_ALERT_TOPIC = isProd
+  ? env.ADMIN_EMAIL_ALERT_TOPIC_PROD
+  : env.ADMIN_EMAIL_ALERT_TOPIC_DEV;
+
+export const ADMIN_SMS_ALERT_TOPIC = isProd
+  ? env.ADMIN_SMS_ALERT_TOPIC_PROD
+  : env.ADMIN_SMS_ALERT_TOPIC_DEV;
