@@ -253,6 +253,10 @@ a.inode {
   display: inline-flex;
   align-items: center;
   gap: 0.45em;
+  button {
+    position: relative;
+    top: -1px;
+  }
   .others-preview {
     border-bottom: 1px dotted CanvasText;
   }

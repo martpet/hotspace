@@ -150,6 +150,9 @@ menu {
   &.success {
     background: green;
     color: white;
+    @media (prefers-color-scheme: dark) {
+      background: darkgreen;
+    }
   }
   &.warning {
     background: yellow;
@@ -161,10 +164,16 @@ menu {
   &.error {
     background: red;
     color: white;
+    @media (prefers-color-scheme: dark) {
+      background: darkred;
+    }
   }
   &.info {
-    background: royalblue;
+    background: slateblue;
     color: white;
+    @media (prefers-color-scheme: dark) {
+      background: darkslateblue;
+    }
   }
   a {
     color: inherit;
@@ -175,7 +184,7 @@ menu {
 dialog.flash {
   position: static;
   width: 100%;
-  margin: 1em 0;
+  margin: 1em 0 2em;
   padding: 0;
   border: none;
   border-radius: 5px;
