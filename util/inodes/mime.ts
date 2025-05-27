@@ -53,6 +53,7 @@ export const MIME_CONFS: Record<string, MimeConfig | undefined> = {
   "image/vnd.microsoft.icon": { display: "image" },
   "image/webp": { display: "image", proc: "sharp", to: "image/jpeg" },
   "image/wmf": { proc: "libre", to: "image/png" },
+  "image/x-wmf": { proc: "libre", to: "image/png" },
   "image/x-icon": { display: "image" },
   "text/css": { display: "iframe" },
   "text/html": { display: "iframe" },
