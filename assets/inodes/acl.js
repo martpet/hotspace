@@ -134,7 +134,7 @@ async function fetchAcl() {
 async function submitChanges() {
   const diffs = getDiffs();
   if (!diffs.length) {
-    flashNow({ type: "info", msg: "No changes" });
+    flashNow({ type: "info", msg: "No changes made" });
     statusSignal.value = "closed";
     return;
   }
@@ -157,7 +157,7 @@ async function submitChanges() {
     return;
   }
   await replaceFragment("inodes");
-  flashNow("Changes saved");
+  flashNow(`Saved access changes for "${inodeName}"`);
   statusSignal.value = "closed";
 }
 
@@ -234,7 +234,7 @@ function insertDialog() {
               </label>
             </p>
             <fieldset class="permissions">
-              <legend>Users</legend>
+              <legend>Roles</legend>
               <div id="acl-items"></div>
               <button id="acl-add-user" type="button">+ Add User</button>
               <p hidden id="acl-loading"><span class="spinner-sm"></span>Loading</p>

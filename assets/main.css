@@ -189,7 +189,7 @@ menu {
   border: none;
   border-radius: 5px;
   + * {
-    display: flow-root;
+    overflow: hidden;
   }
   form {
     display: flex;

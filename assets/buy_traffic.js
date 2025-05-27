@@ -59,7 +59,9 @@ checkoutSignal.subscribe((event) => {
   } else if (event.type === "processing") {
     loaderSignal.value = "Confirming";
   } else if (event.type === "success") {
-    flashNow(`Success: ${quantitySignal.value} GB added to your upload quota`);
+    flashNow(
+      `Success: ${quantitySignal.value} GB upload quota has been added to your account.`
+    );
     dialogOpenSignal.value = false;
   }
 });
