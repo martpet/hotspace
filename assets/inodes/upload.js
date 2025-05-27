@@ -51,7 +51,7 @@ function initDialogEvents() {
   };
 
   fileInput.onchange = () => {
-    errorSignal.value = "";
+    errorSignal.value = null;
   };
 
   dialog.oncancel = (e) => {
@@ -64,6 +64,14 @@ function initDialogEvents() {
   };
 }
 
+function onBuyTrafficCheckoutSignal(event) {
+  if (event.type === "success") errorSignal.value = null;
+}
+
+function onBuyTrafficDialogOpenSignal(flag) {
+  dialog.hidden = flag;
+}
+
 function workerMsgHandler(event) {
   const { type, data } = event.data;
   if (type === "progress") {
@@ -74,7 +82,7 @@ function workerMsgHandler(event) {
   } else if (type === "error") {
     errorSignal.value = data.message || GENERAL_ERR_MSG;
     if (data.code === "quota_exceeded") {
-      insertBuyTrafficButton();
+      renderBuyTraffic();
     }
   }
 }
@@ -102,7 +110,7 @@ statusSignal.subscribe(async (status) => {
   if (status === "closed") {
     dialog.close();
     form.reset();
-    errorSignal.value = "";
+    errorSignal.value = null;
     worker?.postMessage({ type: "close" });
   } else if (status === "idle") {
     dialog.showModal();
@@ -110,11 +118,11 @@ statusSignal.subscribe(async (status) => {
   } else if (status === "started") {
     startUpload();
     progressSignal.value = { pending: true };
-    errorSignal.value = "";
+    errorSignal.value = null;
   } else if (status === "completed") {
     await replaceFragment("inodes");
     statusSignal.value = "closed";
-    insertSuccessFlash();
+    renderSuccessFlash();
   }
 });
 
@@ -221,16 +229,18 @@ function renderProgress(opt) {
   infoEl.innerText = pending ? "Starting…" : `${perc} %`;
 }
 
-async function insertBuyTrafficButton() {
+async function renderBuyTraffic() {
   const template = document.getElementById("button-buy-traffic-template");
-  const button = template.content.querySelector("button").cloneNode(true);
-  errorEl.append(button);
-  const mod = await import(template.dataset.script);
-  mod.preloadStripe();
-  mod.initButtonShow();
+  const buttonOpen = template.content.querySelector("button").cloneNode(true);
+  errorEl.append(buttonOpen);
+  const uploadMod = await import(template.dataset.script);
+  uploadMod.initDialog();
+  uploadMod.initButtonOpen();
+  uploadMod.checkoutSignal.subscribe(onBuyTrafficCheckoutSignal);
+  uploadMod.dialogOpenSignal.subscribe(onBuyTrafficDialogOpenSignal);
 }
 
-function insertSuccessFlash() {
+function renderSuccessFlash() {
   const filesWord = `file${uploadedItemsCount > 1 ? "s" : ""}`;
   flashNow(`${uploadedItemsCount} ${filesWord} uploaded`);
 }

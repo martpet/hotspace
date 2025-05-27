@@ -1,16 +1,15 @@
-import {
-  createSignal,
-  debounce,
-  flashNow,
-  GENERAL_ERR_MSG,
-  isDev,
-} from "$main";
+import { createSignal, debounce, flashNow, GENERAL_ERR_MSG } from "$main";
 
 const STRIPE_JS_URL = "https://js.stripe.com/basil/stripe.js";
-const colorSchemeQuery = matchMedia("(prefers-color-scheme: dark)");
-const uploadDialog = document.getElementById("upload-dialog");
-const uploadDialogErrorEl = document.getElementById("upload-dialog-error");
+
+const PROVIDERS_BY_PAYMENT_TYPE = {
+  apple_pay: "Apple Pay",
+  google_pay: "Goolge Pay",
+  link: "Link",
+};
+
 const uploadQuotaEl = document.getElementById("upload-quota");
+const colorSchemeQuery = matchMedia("(prefers-color-scheme: dark)");
 const debouncedUpdateStripeElements = debounce(updateStripeElements, 200);
 
 let dialog;
@@ -29,77 +28,53 @@ let expressCheckout;
 let pricePerGb;
 let isDark = colorSchemeQuery.matches;
 
-const paymentTypeNames = {
-  apple_pay: "Apple Pay",
-  google_pay: "Goolge Pay",
-  link: "Link",
-};
-
 // =====================
-// Init Button Show
+// Signals
 // =====================
 
-initButtonShow();
+export const checkoutSignal = createSignal("idle");
+export const dialogOpenSignal = createSignal(false);
+const loaderSignal = createSignal(null);
+const errorSignal = createSignal(null);
+const quantitySignal = createSignal(1);
 
-export function initButtonShow() {
-  const button = document.getElementById("show-buy-traffic");
-  button.disabled = false;
-
-  ({ stripePubKey, pricePerGb } = button.dataset);
-
-  button.onclick = () => {
-    initDialog();
-    dialogSignal.value = "idle";
-    initStripe();
-  };
-}
-
-// =====================
-// Init Dialog
-// =====================
-
-function initDialog() {
-  if (dialog) return;
-  insertDialog();
-
-  btnClose.onclick = () => {
-    dialogSignal.value = "closed";
-  };
-
-  dialog.oncancel = (e) => {
-    e.preventDefault();
-    dialogSignal.value = "closed";
-  };
-
-  quantityEl.oninput = (e) => {
-    const num = Number(e.target.value);
-    if (num) quantitySignal.value = num;
-  };
-}
-
-// =====================
-// Init Stripe
-// =====================
-
-export function preloadStripe() {
-  initDialog();
-  initStripe();
-}
-
-async function initStripe() {
-  if (stripe) return;
-  loadingSignal.value = "Loading";
-
-  try {
-    await insertScript(STRIPE_JS_URL);
-  } catch (err) {
-    errorSignal.value = { msg: err.message };
+dialogOpenSignal.subscribe((flag) => {
+  if (flag) {
+    dialog.showModal();
+  } else {
+    dialog.close();
+    errorSignal.value = null;
   }
+});
 
-  stripe = Stripe(stripePubKey);
-  createStripeElements();
-  createExpressCheckout();
-}
+checkoutSignal.subscribe((event) => {
+  btnClose.hidden = ["started", "processing"].includes(event.type);
+
+  if (event.type === "idle") {
+    loaderSignal.value = null;
+  } else if (event.type === "started") {
+    const provider = PROVIDERS_BY_PAYMENT_TYPE[event.paymentType];
+    loaderSignal.value = `Waiting ${provider || "Provider"}`;
+    errorSignal.value = null;
+  } else if (event.type === "processing") {
+    loaderSignal.value = "Confirming";
+  } else if (event.type === "success") {
+    flashNow(`Success: ${quantitySignal.value} GB added to your upload quota`);
+    dialogOpenSignal.value = false;
+  }
+});
+
+errorSignal.subscribe((msg) => {
+  if (msg) checkoutSignal.value = { type: "idle" };
+  renderError(msg);
+});
+
+quantitySignal.subscribe(() => {
+  debouncedUpdateStripeElements({ amount: getStripeElementsAmount() });
+  renderPriceLine();
+});
+
+loaderSignal.subscribe(renderLoading);
 
 // =====================
 // Global Events
@@ -110,47 +85,76 @@ colorSchemeQuery.onchange = () => {
   if (expressCheckout) {
     updateStripeElements({ appearance: getStripeElementsAppearance() });
     expressCheckout.destroy();
-    createExpressCheckout();
+    createCheckout();
   }
 };
 
 // =====================
-// Signals
+// Init Button Show
 // =====================
 
-const dialogSignal = createSignal("closed");
-const loadingSignal = createSignal();
-const errorSignal = createSignal();
-const quantitySignal = createSignal(1);
+initButtonOpen();
 
-dialogSignal.subscribe((status) => {
-  btnClose.hidden = ["clicked", "confirmed"].includes(status);
+export function initButtonOpen() {
+  const btn = document.getElementById("show-buy-traffic");
+  btn.disabled = false;
 
-  if (status === "idle") {
-    dialog.showModal();
-    loadingSignal.value = false;
-  } else if (status === "confirmed") {
-    errorSignal.value = null;
-  } else if (status === "closed") {
-    dialog.close();
+  ({ stripePubKey, pricePerGb } = btn.dataset);
+
+  btn.onclick = () => {
+    initDialog();
+    dialogOpenSignal.value = true;
+  };
+}
+
+// =====================
+// Init Dialog
+// =====================
+
+export function initDialog() {
+  if (dialog) return;
+  insertDialog();
+  initStripe();
+
+  btnClose.onclick = () => {
+    dialogOpenSignal.value = false;
+  };
+
+  dialog.oncancel = (e) => {
+    dialogOpenSignal.value = false;
+    e.preventDefault();
+  };
+
+  quantityEl.oninput = (e) => {
+    const num = Number(e.target.value);
+    if (num) quantitySignal.value = num;
+  };
+
+  if (uploadQuotaEl) {
+    checkoutSignal.subscribe((event) => {
+      if (event.type === "success") renderUploadQuota(event.newUploadQuota);
+    });
+  }
+}
+
+// =====================
+// Init Stripe
+// =====================
+
+async function initStripe() {
+  if (stripe) return;
+  loaderSignal.value = "Loading";
+
+  try {
+    await insertScript(STRIPE_JS_URL);
+  } catch (err) {
+    errorSignal.value = GENERAL_ERR_MSG;
   }
 
-  if (uploadDialog) {
-    uploadDialog.hidden = status !== "closed";
-  }
-});
-
-loadingSignal.subscribe(renderLoading);
-
-quantitySignal.subscribe(() => {
-  debouncedUpdateStripeElements({ amount: getStripeElementsAmount() });
-  renderPriceLine();
-});
-
-errorSignal.subscribe((err) => {
-  renderError(err);
-  if (err) dialogSignal.value = "idle";
-});
+  stripe = Stripe(stripePubKey);
+  createStripeElements();
+  createCheckout();
+}
 
 // =====================
 // Stripe
@@ -200,8 +204,8 @@ async function createPaymentIntent() {
   }
 }
 
-function createExpressCheckout() {
-  loadingSignal.value = "Loading";
+function createCheckout() {
+  loaderSignal.value = "Loading";
 
   expressCheckout = stripeElements.create("expressCheckout", {
     lineItems: [
@@ -223,46 +227,48 @@ function createExpressCheckout() {
   expressCheckout.mount(stripeRoot);
 
   expressCheckout.on("ready", () => {
-    loadingSignal.value = false;
+    loaderSignal.value = false;
     quantityEl.focus();
   });
 
   expressCheckout.on("loaderror", (event) => {
-    errorSignal.value = { msg: event.error.message };
+    errorSignal.value = GENERAL_ERR_MSG;
   });
 
   expressCheckout.on("click", (event) => {
-    dialogSignal.value = "clicked";
-    const paymentTypeName = paymentTypeNames[event.expressPaymentType];
-    loadingSignal.value = `Waiting ${paymentTypeName || "Provider"}`;
+    checkoutSignal.value = {
+      type: "started",
+      paymentType: event.expressPaymentType,
+    };
     event.resolve();
   });
 
   expressCheckout.on("confirm", () => {
-    dialogSignal.value = "confirmed";
-    loadingSignal.value = "Confirming";
-    handleExpressCheckoutConfirm();
+    processPayment();
   });
 
   expressCheckout.on("cancel", () => {
-    dialogSignal.value = "idle";
+    checkoutSignal.value = { type: "idle" };
   });
 }
 
-async function handleExpressCheckoutConfirm() {
+async function processPayment() {
+  checkoutSignal.value = { type: "processing" };
+
   const { error: submitError } = await stripeElements.submit();
 
   if (submitError) {
-    errorSignal.value = { msg: submitError.message };
+    errorSignal.value = GENERAL_ERR_MSG;
     return;
   }
 
   const intent = await createPaymentIntent();
 
   if (intent.error) {
-    const msg = isDev ? intent.error.type : intent.error.message;
-    const showUser = intent.error.type === "card_error";
-    errorSignal.value = { msg, showUser };
+    errorSignal.value =
+      intent.error.type === "card_error"
+        ? intent.error.message
+        : GENERAL_ERR_MSG;
     return;
   }
 
@@ -276,21 +282,19 @@ async function handleExpressCheckoutConfirm() {
   });
 
   if (confirm.error) {
-    const msg = confirm.error.message;
-    const showUser = ["card_error", "validation_error"].includes(
-      confirm.error.type
-    );
-    errorSignal.value = { msg, showUser };
+    const userErrors = ["card_error", "validation_error"];
+    errorSignal.value = userErrors.includes(confirm.error.type)
+      ? confirm.error.message
+      : GENERAL_ERR_MSG;
     return;
   }
 
   const newUploadQuota = await listenPaymentCreated(confirm.paymentIntent.id);
 
-  if (uploadQuotaEl) uploadQuotaEl.textContent = newUploadQuota;
-  if (uploadDialogErrorEl) uploadDialogErrorEl.remove();
-
-  dialogSignal.value = "closed";
-  flashNow(`Success: ${quantitySignal.value} GB added to your upload quota`);
+  checkoutSignal.value = {
+    type: "success",
+    newUploadQuota,
+  };
 }
 
 // =====================
@@ -368,17 +372,17 @@ function renderLoading(flagOrMsg) {
   }
 }
 
-function renderError(err) {
-  if (err) {
-    errorEl.textContent = err.showUser || isDev ? err.msg : GENERAL_ERR_MSG;
-  } else {
-    errorEl.textContent = "";
-  }
-  errorEl.hidden = !err.msg;
+function renderError(msg) {
+  errorEl.textContent = msg;
+  errorEl.hidden = !msg;
 }
 
 function renderPriceLine() {
   const quantity = quantitySignal.value;
   amountEl.value = quantity;
   gigabyteEl.textContent = quantity > 1 ? "gigabytes" : "gigabyte";
+}
+
+function renderUploadQuota(quota) {
+  uploadQuotaEl.textContent = quota;
 }
