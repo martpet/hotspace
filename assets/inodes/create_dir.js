@@ -1,4 +1,9 @@
-import { createSignal, GENERAL_ERR_MSG, replaceFragment } from "$main";
+import {
+  createSignal,
+  flashNow,
+  GENERAL_ERR_MSG,
+  replaceFragment,
+} from "$main";
 
 let dialog;
 let form;
@@ -79,16 +84,15 @@ errorSignal.subscribe((msg) => {
 // =====================
 
 async function submitData() {
+  const dirName = nameInput.value;
   const resp = await fetch("/inodes/dirs", {
     method: "post",
-    body: JSON.stringify({
-      parentDirId,
-      dirName: nameInput.value,
-    }),
+    body: JSON.stringify({ parentDirId, dirName }),
   });
   if (resp.ok) {
     await replaceFragment("inodes");
     statusSignal.value = "closed";
+    flashNow(`Created ${isSpace ? "space" : "folder"} "${dirName}"`);
   } else {
     errorSignal.value = (await resp.text()) || GENERAL_ERR_MSG;
     statusSignal.value = "idle";

@@ -181,13 +181,16 @@ menu {
   }
 }
 
-dialog.flash {
+.flash {
   position: static;
   width: 100%;
-  margin: 1em 0 2em;
+  margin: 1em 0;
   padding: 0;
   border: none;
   border-radius: 5px;
+  + * {
+    display: flow-root;
+  }
   form {
     display: flex;
     min-height: 2.5em;

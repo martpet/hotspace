@@ -120,7 +120,7 @@ async function submitData() {
 
 function createFlashMsg() {
   if (isSingleSelect) {
-    return `${inodeLabel} "${selection[0].name}" deleted`;
+    return `Deleted ${inodeLabel} "${selection[0].name}"`;
   }
   if (selection.length === 1) {
     const { isDir, decodedName } = selection[0];

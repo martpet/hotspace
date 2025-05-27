@@ -316,9 +316,12 @@ export function flashNow(flash) {
       </form>
     </dialog>
   `;
-  const pageHeader = document.getElementById("page-header");
-  if (pageHeader) {
-    pageHeader.insertAdjacentHTML("afterend", html);
+  const insertAfterEl =
+    Array.from(document.querySelectorAll(".flash")).at(-1) ||
+    document.getElementById("page-header");
+
+  if (insertAfterEl) {
+    insertAfterEl.insertAdjacentHTML("afterend", html);
   } else {
     document.body.insertAdjacentHTML("afterbegin", html);
   }
