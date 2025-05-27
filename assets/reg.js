@@ -5,14 +5,16 @@
 import { decodeBase64Url, encodeBase64, GENERAL_ERR_MSG } from "$main";
 
 const regForm = document.getElementById("reg-form");
-const errorEl = document.getElementById("reg-form-error");
 const submitBtn = document.getElementById("reg-form-submit");
+const errorEl = document.getElementById("reg-form-error");
 const usernameField = document.getElementById("reg-form-username");
 const isNewAccount = !!usernameField;
 
 const generalRegFlowErrorMsg = isNewAccount
   ? "Registration was not completed"
   : "A passkey was not added";
+
+submitBtn.disabled = false;
 
 function renderProgress(flag) {
   if (flag) renderError(null);
