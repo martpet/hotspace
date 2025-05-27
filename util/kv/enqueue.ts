@@ -1,5 +1,6 @@
 import { ulid } from "@std/ulid";
 import { kv } from "./kv.ts";
+import { setNonce } from "./nonce.ts";
 
 export function enqueue<T extends { type: string; nonce?: string }>(
   msg: T,
@@ -8,11 +9,14 @@ export function enqueue<T extends { type: string; nonce?: string }>(
 ) {
   const id = ulid();
 
-  return atomic.enqueue(msg, {
-    delay,
-    keysIfUndelivered: [
-      ["failed_queue_msgs", id],
-      ["failed_queue_msgs_by_type", msg.type, id],
-    ],
-  });
+  const keysIfUndelivered = [
+    ["failed_queue", id],
+    ["failed_queue_by_type", msg.type, id],
+  ];
+
+  if (msg.nonce) {
+    setNonce(msg.nonce, atomic);
+  }
+
+  return atomic.enqueue(msg, { delay, keysIfUndelivered });
 }
