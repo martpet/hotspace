@@ -82,7 +82,7 @@ export default async function credentialCreationVerifyHandler(ctx: AppContext) {
       credId: authData.credId,
     };
 
-    const adminAlertMsg: QueueMsgAdminAlert = {
+    const newUserAdminAlert: QueueMsgAdminAlert = {
       type: "admin-alert",
       emailSubject: "New HotSpace user",
       message: `Username: ${newUser.username}`,
@@ -90,7 +90,7 @@ export default async function credentialCreationVerifyHandler(ctx: AppContext) {
 
     setUser(newUser, atomic);
     setSession(session, atomic);
-    enqueue(adminAlertMsg, atomic);
+    enqueue(newUserAdminAlert, atomic);
 
     addUserRemainingUploadBytes({
       userId: newUser.id,

@@ -230,7 +230,7 @@ function createCheckout() {
   expressCheckout.mount(stripeRoot);
 
   expressCheckout.on("ready", () => {
-    loaderSignal.value = false;
+    loaderSignal.value = null;
     quantityEl.focus();
   });
 

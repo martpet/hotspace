@@ -4,6 +4,7 @@ import {
   ADMIN_EMAIL_ALERT_TOPIC,
   ADMIN_SMS_ALERT_TOPIC,
   AWS_REGION,
+  IS_LOCAL_DEV,
 } from "../consts.ts";
 
 export interface QueueMsgAdminAlert {
@@ -28,6 +29,8 @@ export function isAdminAlert(
 
 export function handleAdminAlert(msg: QueueMsgAdminAlert) {
   const { message, isSms, emailSubject } = msg;
+
+  if (IS_LOCAL_DEV) return;
 
   return sns.publish({
     signer: getSigner(),

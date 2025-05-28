@@ -26,16 +26,16 @@ export default async function deleteAccountHandler(ctx: AppContext) {
     username: user.username,
   };
 
-  const adminAlertMsg: QueueMsgAdminAlert = {
+  const deletedUserAdminAlert: QueueMsgAdminAlert = {
     type: "admin-alert",
-    emailSubject: "Deleted HotSpace account",
+    emailSubject: "Deleted HotSpace user",
     message: `Username: ${user.username}`,
   };
 
   const atomic = kv.atomic();
   deleteUser(user, atomic);
   enqueue(cleanupMsg, atomic);
-  enqueue(adminAlertMsg, atomic);
+  enqueue(deletedUserAdminAlert, atomic);
 
   const commit = await atomic.commit();
 
