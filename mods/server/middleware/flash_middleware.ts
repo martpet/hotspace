@@ -1,6 +1,5 @@
-import { deleteCookie, getCookies } from "@std/http";
-import { Server } from "../Server.ts";
-import { FLASH_COOKIE } from "../util/consts.ts";
+import { deleteCookie, getCookies, type StatusCode } from "@std/http";
+import { FLASH_COOKIE, REDIRECT_STATUS_CODES } from "../util/consts.ts";
 import type { Middleware } from "../util/types.ts";
 
 export const flashMiddleware: Middleware = async (ctx, next) => {
@@ -11,8 +10,9 @@ export const flashMiddleware: Middleware = async (ctx, next) => {
   }
 
   const resp = await next();
+  const isRedirect = REDIRECT_STATUS_CODES.includes(resp.status as StatusCode);
 
-  if (encodedFlash && !Server.isRedirect(resp)) {
+  if (encodedFlash && !isRedirect) {
     deleteCookie(resp.headers, FLASH_COOKIE, { path: "/" });
   }
 

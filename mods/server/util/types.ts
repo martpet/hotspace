@@ -1,8 +1,7 @@
+import type { KvWatchOptions, MaybePromise } from "$util";
 import type { RedirectStatus, UserAgent } from "@std/http";
 import type { Method } from "@std/http/unstable-method";
 import type { VNode } from "preact";
-import type { KvWatchOptions } from "../../util/kv_watch.ts";
-import type { MaybePromise } from "../../util/types.ts";
 
 export type TrailingSlashMode = "always" | "never" | "mixed";
 
