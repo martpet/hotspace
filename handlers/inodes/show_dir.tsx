@@ -1,10 +1,10 @@
 import { getPermissions, parsePathname, segmentsToPathname } from "$util";
 import ButtonToggleChat from "../../components/chat/ButtonToggleChat.tsx";
 import ChatSection from "../../components/chat/ChatSection.tsx";
+import BulkActions from "../../components/inodes/BulkActions.tsx";
 import ButtonCreateDir from "../../components/inodes/ButtonCreateDir.tsx";
 import ButtonUpload from "../../components/inodes/ButtonUpload.tsx";
 import InodesTable from "../../components/inodes/InodesTable.tsx";
-import InodesTableMenu from "../../components/inodes/InodesTableMenu.tsx";
 import NotFoundPage from "../../components/pages/NotFoundPage.tsx";
 import Page from "../../components/pages/Page.tsx";
 import { getDirByPath, listInodesByDir } from "../../util/kv/inodes.ts";
@@ -100,7 +100,7 @@ export default async function showDirHandler(ctx: AppContext) {
 
   const inodesMenu = showMenu && (
     <menu class="menu-bar">
-      {(canModifySome || canCreate) && <InodesTableMenu dirId={dirNode.id} />}
+      {(canModifySome || canCreate) && <BulkActions dirId={dirNode.id} />}
       {canCreate && <ButtonUpload dirId={dirNode.id} />}
       {canCreate && <ButtonCreateDir parentDirId={dirNode.id} />}
       {canModerate && <ButtonToggleChat chat={dirNode} />}

@@ -7,20 +7,20 @@ interface Props {
   inodeLabel?: InodeLabel;
 }
 
-export default function InodesTableMenu(props: Props) {
+export default function BulkActions(props: Props) {
   const { dirId, isSingleSelect, inodeLabel } = props;
 
   return (
     <div
-      id="inodes-table-menu"
+      id="bulk-actions"
       data-dir-id={dirId}
       data-is-single-select={isSingleSelect ? "1" : null}
       data-inode-label={isSingleSelect ? inodeLabel : null}
       hidden
     >
-      <script type="module" src={asset("inodes/table_menu.js")} />
+      <script type="module" src={asset("inodes/bulk_actions.js")} />
 
-      <button id="inodes-table-delete-button">
+      <button id="bulk-delete-button">
         Delete {isSingleSelect ? inodeLabel : "Selected"}
       </button>
     </div>

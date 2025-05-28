@@ -2,7 +2,7 @@ import { createSignal, debounce, flashNow, GENERAL_ERR_MSG } from "$main";
 
 const STRIPE_JS_URL = "https://js.stripe.com/basil/stripe.js";
 
-const PROVIDERS_BY_PAYMENT_TYPE = {
+const PAYMENT_TYPE_TO_NAME = {
   apple_pay: "Apple Pay",
   google_pay: "Goolge Pay",
   link: "Link",
@@ -27,6 +27,8 @@ let stripeElements;
 let expressCheckout;
 let pricePerGb;
 let isDark = colorSchemeQuery.matches;
+
+initButtonOpen();
 
 // =====================
 // Signals
@@ -54,7 +56,7 @@ checkoutSignal.subscribe((event) => {
   if (event.type === "idle") {
     loaderSignal.value = null;
   } else if (event.type === "started") {
-    const provider = PROVIDERS_BY_PAYMENT_TYPE[event.paymentType];
+    const provider = PAYMENT_TYPE_TO_NAME[event.paymentType];
     loaderSignal.value = `Waiting ${provider || "Provider"}`;
     errorSignal.value = null;
   } else if (event.type === "processing") {
@@ -93,10 +95,8 @@ colorSchemeQuery.onchange = () => {
 };
 
 // =====================
-// Init Button Show
+// Init Button Open
 // =====================
-
-initButtonOpen();
 
 export function initButtonOpen() {
   const btn = document.getElementById("show-buy-traffic");

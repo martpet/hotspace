@@ -82,7 +82,7 @@ function workerMsgHandler(event) {
   } else if (type === "error") {
     errorSignal.value = data.message || GENERAL_ERR_MSG;
     if (data.code === "quota_exceeded") {
-      renderBuyTraffic();
+      renderBuyTrafficButton();
     }
   }
 }
@@ -229,13 +229,13 @@ function renderProgress(opt) {
   infoEl.innerText = pending ? "Starting…" : `${perc} %`;
 }
 
-async function renderBuyTraffic() {
+async function renderBuyTrafficButton() {
   const template = document.getElementById("button-buy-traffic-template");
   const buttonOpen = template.content.querySelector("button").cloneNode(true);
   errorEl.append(buttonOpen);
   const uploadMod = await import(template.dataset.script);
-  uploadMod.initDialog();
   uploadMod.initButtonOpen();
+  uploadMod.initDialog();
   uploadMod.checkoutSignal.subscribe(onBuyTrafficCheckoutSignal);
   uploadMod.dialogOpenSignal.subscribe(onBuyTrafficDialogOpenSignal);
 }
