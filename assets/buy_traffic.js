@@ -146,7 +146,6 @@ export function initDialog() {
 
 async function initStripe() {
   if (stripe) return;
-  loaderSignal.value = "Loading";
 
   try {
     await insertScript(STRIPE_JS_URL);
@@ -328,11 +327,11 @@ function insertDialog() {
       <dialog id="buy-traffic-dialog">
         <h1>Buy Upload Quota</h1>
         <p id="buy-traffic-error" class="alert error" hidden></p>
-        <div id="buy-traffic-priduct-summary">
+        <div id="buy-traffic-priduct-summary" hidden>
           <input id="buy-traffic-quantity" type="number" min="1" max="100" value="1" />
           <span><span id="buy-traffic-gigabyte">gigabyte</span> for $<output id="buy-traffic-amount">1</output></span>
         </div>
-        <div id="buy-traffic-loader" class="spinner-lg spinner-col" hidden></div>
+        <div id="buy-traffic-loader" class="spinner-lg spinner-col">Loading</div>
         <div id="stripe-root"></div>
         <form class="basic-form">
           <footer>
