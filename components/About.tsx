@@ -1,3 +1,5 @@
+import { format } from "@std/fmt/bytes";
+import { INITIAL_UPLOAD_QUOTA, PRICE_PER_GB_CENTS } from "../util/consts.ts";
 import { asset } from "../util/url.ts";
 
 interface Props {
@@ -7,6 +9,9 @@ interface Props {
 }
 
 export default function About({ noLogo, noName, noSubline }: Props) {
+  const freeUploadQuota = format(INITIAL_UPLOAD_QUOTA);
+  const pricePerGb = PRICE_PER_GB_CENTS / 100;
+
   return (
     <section class="about prose">
       {!noLogo && (
@@ -32,15 +37,17 @@ export default function About({ noLogo, noName, noSubline }: Props) {
       <section class="box">
         <h1>How It Works</h1>
         <ul>
-          <li>Sign up and get 1 GB of free upload quota</li>
           <li>
-            Upload files — they stay online <strong>indefinitely</strong>
+            Sign up and get <strong>{freeUploadQuota} of free uploads</strong>
+          </li>
+          <li>
+            Upload files — they stay online indefinitely
           </li>
           <li>
             Share files publicly or keep them private
           </li>
           <li>
-            Pay only for uploads: $1 per additional GB
+            Pay only <strong>${pricePerGb} per additional GB uploaded</strong>
           </li>
           <li>No download limits, no hidden fees</li>
         </ul>

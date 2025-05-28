@@ -5,7 +5,7 @@ import {
 import { decodeBase64 } from "@std/encoding";
 import { deleteCookie, getCookies, STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
-import { INITIAL_USER_REMAINING_UPLOAD_BYTES } from "../../util/consts.ts";
+import { INITIAL_UPLOAD_QUOTA } from "../../util/consts.ts";
 import {
   kvKeys as getCredSessionKvKey,
 } from "../../util/kv/cred_creation_sessions.ts";
@@ -94,7 +94,7 @@ export default async function credentialCreationVerifyHandler(ctx: AppContext) {
 
     addUserRemainingUploadBytes({
       userId: newUser.id,
-      bytes: INITIAL_USER_REMAINING_UPLOAD_BYTES,
+      bytes: INITIAL_UPLOAD_QUOTA,
       atomic,
     });
 

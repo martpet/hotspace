@@ -1,6 +1,10 @@
+import { format } from "@std/fmt/bytes";
 import Page from "../components/pages/Page.tsx";
+import { INITIAL_UPLOAD_QUOTA, PRICE_PER_GB_CENTS } from "../util/consts.ts";
 
 export default function termsHandler() {
+  const freeUploadQuota = format(INITIAL_UPLOAD_QUOTA);
+  const pricePerGb = PRICE_PER_GB_CENTS / 100;
   const title = "Terms of Service";
 
   return (
@@ -19,9 +23,9 @@ export default function termsHandler() {
           HotSpace is a file-sharing platform that allows registered users to
           upload and share files publicly or privately. Each user receives{" "}
           <strong>
-            1 GB of upload traffic for free
+            {freeUploadQuota} of upload traffic for free
           </strong>. Additional upload traffic is available for{" "}
-          <strong>$1 per gigabyte</strong>.
+          <strong>${pricePerGb} per gigabyte</strong>.
         </p>
 
         <p>
@@ -35,8 +39,8 @@ export default function termsHandler() {
 
         <p>
           Additional upload traffic can be purchased at a rate of{" "}
-          <strong>$1 per GB</strong>. Payments are securely processed through a
-          third-party provider, Stripe.
+          <strong>${pricePerGb} per GB</strong>. Payments are securely processed
+          through a third-party provider, Stripe.
         </p>
 
         <h2>Refunds</h2>
