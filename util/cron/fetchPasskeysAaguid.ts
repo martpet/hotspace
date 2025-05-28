@@ -1,19 +1,19 @@
 import { fetchWithRetry } from "$util";
-import { mapValues } from "@std/collections";
+import { mapEntries } from "@std/collections";
 import { setPasskeysAaguidData } from "../kv/passkeys.ts";
 
 export default async function fetchPasskeysAaguid() {
-  const url =
+  const URL =
     "https://passkeydeveloper.github.io/passkey-authenticator-aaguids/aaguid.json";
 
-  const resp = await fetchWithRetry(url);
+  const resp = await fetchWithRetry(URL);
 
   if (!resp.ok) {
-    throw new Error(`Error fetching ${url} (status: ${resp.status})`);
+    throw new Error(`Error fetching Passkeys Aaguid. Status: ${resp.status}`);
   }
 
-  const data = await resp.json() as Record<string, { name: string }>;
-  const namesById = mapValues(data, (it) => it.name);
+  const respData = await resp.json() as Record<string, { name: string }>;
+  const namesById = mapEntries(respData, ([id, { name }]) => [id, name]);
 
   await setPasskeysAaguidData(namesById);
 }
