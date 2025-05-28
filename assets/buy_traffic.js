@@ -41,9 +41,10 @@ const quantitySignal = createSignal(1);
 dialogOpenSignal.subscribe((flag) => {
   if (flag) {
     dialog.showModal();
+    checkoutSignal.value = { type: "idle" };
+    errorSignal.value = null;
   } else {
     dialog.close();
-    errorSignal.value = null;
   }
 });
 
