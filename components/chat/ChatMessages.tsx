@@ -7,11 +7,16 @@ interface Props {
   messages: ChatMessage[];
   olderMsgsCursor: string | null;
   canModerate: boolean;
+  timeZone?: string;
 }
 
 export default function ChatMessages(props: Props, ctx: AppContext) {
-  const { messages, olderMsgsCursor, canModerate } = props;
-  const { dateFmt, timeFmt, dateTimeFmt } = chatIntlFmt(ctx.locale);
+  const { messages, olderMsgsCursor, canModerate, timeZone } = props;
+
+  const { dateFmt, timeFmt, dateTimeFmt } = chatIntlFmt({
+    locale: ctx.locale,
+    timeZone,
+  });
 
   const msgsByDay = Object.groupBy(
     messages,
@@ -55,17 +60,24 @@ export default function ChatMessages(props: Props, ctx: AppContext) {
   );
 }
 
-export function chatIntlFmt(locale: string | undefined) {
+export function chatIntlFmt(options: {
+  timeZone?: string;
+  locale?: string;
+}) {
+  const { timeZone, locale } = options;
   return {
     dateTimeFmt: new Intl.DateTimeFormat(locale, {
       dateStyle: "long",
       timeStyle: "short",
+      timeZone,
     }),
     dateFmt: new Intl.DateTimeFormat(locale, {
       dateStyle: "long",
+      timeZone,
     }),
     timeFmt: new Intl.DateTimeFormat(locale, {
       timeStyle: "short",
+      timeZone,
     }),
   };
 }

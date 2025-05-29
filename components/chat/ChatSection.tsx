@@ -43,7 +43,7 @@ export default function ChatSection(props: Props, ctx: AppContext) {
   }
 
   const { locale } = ctx;
-  const { dateTimeFmt, timeFmt } = chatIntlFmt(locale);
+  const { dateTimeFmt, timeFmt } = chatIntlFmt({ locale });
   const { canModerate } = perm;
 
   return (

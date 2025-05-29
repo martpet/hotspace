@@ -729,6 +729,8 @@ async function lazyLoadMsgs() {
     msgsBoxReady.resolve();
   } else {
     const url = new URL(`/chat/lazy-load/${chatId}`, location.origin);
+    const { timeZone } = Intl.DateTimeFormat().resolvedOptions();
+    url.searchParams.set("tz", timeZone);
     const resp = await fetch(url.href);
     if (!resp.ok) {
       showChatError(GENERAL_CHAT_ERR_MSG);

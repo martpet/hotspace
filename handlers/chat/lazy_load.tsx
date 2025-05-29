@@ -9,6 +9,7 @@ import type { AppContext } from "../../util/types.ts";
 export default async function chatLazyLoadHandler(ctx: AppContext) {
   const { user } = ctx.state;
   const { chatId } = ctx.urlPatternResult.pathname.groups;
+  const timeZone = ctx.url.searchParams.get("tz");
 
   if (!chatId) {
     return ctx.respond(null, STATUS_CODE.BadRequest);
@@ -38,6 +39,7 @@ export default async function chatLazyLoadHandler(ctx: AppContext) {
       messages={messages}
       olderMsgsCursor={nextCursor}
       canModerate={canModerate}
+      timeZone={timeZone || undefined}
     />,
   );
 }
