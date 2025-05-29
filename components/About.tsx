@@ -1,15 +1,17 @@
 import { format } from "@std/fmt/bytes";
-import { INITIAL_UPLOAD_QUOTA, PRICE_PER_GB_CENTS } from "../util/consts.ts";
+import { PRICE_PER_GB_CENTS } from "../util/consts.ts";
 import { asset } from "../util/url.ts";
 
 interface Props {
+  initialUploadQuota?: number;
   noName?: boolean;
   noSubline?: boolean;
   noLogo?: boolean;
 }
 
-export default function About({ noLogo, noName, noSubline }: Props) {
-  const freeUploadQuota = format(INITIAL_UPLOAD_QUOTA);
+export default function About(props: Props) {
+  const { noLogo, noName, noSubline } = props;
+  const initialUploadQuota = props.initialUploadQuota || 0;
   const pricePerGb = PRICE_PER_GB_CENTS / 100;
 
   return (
@@ -37,9 +39,13 @@ export default function About({ noLogo, noName, noSubline }: Props) {
       <section class="box">
         <h1>How It Works</h1>
         <ul>
-          <li>
-            Sign up and get <strong>{freeUploadQuota} of free uploads</strong>
-          </li>
+          {initialUploadQuota > 0 && (
+            <li>
+              Sign up and get{" "}
+              <strong>{format(initialUploadQuota)} of free uploads</strong>
+            </li>
+          )}
+
           <li>
             Upload files — they stay online indefinitely
           </li>

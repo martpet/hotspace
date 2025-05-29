@@ -118,12 +118,18 @@ menu {
   cursor: wait;
 }
 
+form {
+  > label {
+    display: block;
+    margin: 1.2rem 0;
+  }
+}
+
 .basic-form {
   > label {
     display: flex;
     flex-direction: column;
     gap: 0.4rem;
-    margin: 1.3rem 0;
     > input,
     > textarea {
       width: 100%;

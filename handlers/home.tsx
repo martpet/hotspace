@@ -1,4 +1,6 @@
 import { getPermissions } from "$util";
+import { MINUTE } from "@std/datetime/constants";
+import { HEADER } from "@std/http/unstable-header";
 import About from "../components/About.tsx";
 import BlankSlate from "../components/BlankSlate.tsx";
 import BulkActions from "../components/inodes/BulkActions.tsx";
@@ -7,6 +9,7 @@ import InodesTable from "../components/inodes/InodesTable.tsx";
 import Page from "../components/pages/Page.tsx";
 import { ROOT_DIR_ID } from "../util/inodes/consts.ts";
 import { listRootDirsByOwner } from "../util/kv/inodes.ts";
+import { getSettings } from "../util/kv/settings.ts";
 import type { AppContext } from "../util/types.ts";
 import { asset } from "../util/url.ts";
 
@@ -17,12 +20,21 @@ export default async function homeHandler(ctx: AppContext) {
   const user = ctx.state.user;
 
   if (!user) {
+    ctx.resp.headers.set(
+      HEADER.CacheControl,
+      `Cache-Control: public, max-age=${MINUTE * 30 / 1000}`,
+    );
+
+    const { value: settings } = await getSettings("eventual");
+
     return (
       <Page>
-        <About />
+        <About initialUploadQuota={settings?.initialUploadQuota} />
       </Page>
     );
   }
+
+  ctx.resp.headers.set(HEADER.CacheControl, `Cache-Control: private, no-store`);
 
   const fragmentId = ctx.url.searchParams.get("fragment") as FragmentId | null;
   const from = ctx.state.from as From | undefined;

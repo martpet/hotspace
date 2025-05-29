@@ -1,11 +1,22 @@
+import { MINUTE } from "@std/datetime/constants";
 import { format } from "@std/fmt/bytes";
+import { HEADER } from "@std/http/unstable-header";
 import Page from "../components/pages/Page.tsx";
-import { INITIAL_UPLOAD_QUOTA, PRICE_PER_GB_CENTS } from "../util/consts.ts";
+import { PRICE_PER_GB_CENTS } from "../util/consts.ts";
+import { getSettings } from "../util/kv/settings.ts";
+import type { AppContext } from "../util/types.ts";
 
-export default function termsHandler() {
-  const freeUploadQuota = format(INITIAL_UPLOAD_QUOTA);
+export default async function termsHandler(ctx: AppContext) {
   const pricePerGb = PRICE_PER_GB_CENTS / 100;
   const title = "Terms of Service";
+  const { value: settings } = await getSettings("eventual");
+  const initialUploaQuota = settings?.initialUploadQuota || 0;
+  const freeUploadQuota = format(initialUploaQuota);
+
+  ctx.resp.headers.set(
+    HEADER.CacheControl,
+    `Cache-Control: public, max-age=${MINUTE * 30 / 1000}`,
+  );
 
   return (
     <Page title={title} header={{ siteNameIsLink: true }}>
@@ -21,11 +32,13 @@ export default function termsHandler() {
 
         <p>
           HotSpace is a file-sharing platform that allows registered users to
-          upload and share files publicly or privately. Each user receives{" "}
-          <strong>
-            {freeUploadQuota} of upload traffic for free
-          </strong>. Additional upload traffic is available for{" "}
-          <strong>${pricePerGb} per gigabyte</strong>.
+          upload and share files publicly or privately.{" "}
+          {initialUploaQuota > 0 && (
+            <>
+              Each user receives{" "}
+              <strong>{freeUploadQuota} of upload traffic for free</strong>.
+            </>
+          )}
         </p>
 
         <p>
@@ -38,9 +51,10 @@ export default function termsHandler() {
         <h2>Payments</h2>
 
         <p>
-          Additional upload traffic can be purchased at a rate of{" "}
-          <strong>${pricePerGb} per GB</strong>. Payments are securely processed
-          through a third-party provider, Stripe.
+          {initialUploaQuota ? "Additional upload" : "Upload"}{" "}
+          traffic can be purchased at a rate of{" "}
+          <strong>${pricePerGb} per gigabyte</strong>. Payments are securely
+          processed through a third-party provider, Stripe.
         </p>
 
         <h2>Refunds</h2>

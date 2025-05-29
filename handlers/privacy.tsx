@@ -1,7 +1,15 @@
+import { MINUTE } from "@std/datetime/constants";
+import { HEADER } from "@std/http/unstable-header";
 import Page from "../components/pages/Page.tsx";
+import { AppContext } from "../util/types.ts";
 
-export default function privacyHandler() {
+export default function privacyHandler(ctx: AppContext) {
   const title = "Privacy Policy";
+
+  ctx.resp.headers.set(
+    HEADER.CacheControl,
+    `Cache-Control: public, max-age=${MINUTE * 30 / 1000}`,
+  );
 
   return (
     <Page title={title} header={{ siteNameIsLink: true }}>

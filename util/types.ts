@@ -44,6 +44,10 @@ export interface Passkey {
   aaguidLabel?: string;
 }
 
+export interface Settings {
+  initialUploadQuota?: number;
+}
+
 export type Product = "upload_traffic_1_gb";
 
 export interface PaymentIntent {

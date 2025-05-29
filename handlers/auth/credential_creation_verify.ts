@@ -5,7 +5,6 @@ import {
 import { decodeBase64 } from "@std/encoding";
 import { deleteCookie, getCookies, STATUS_CODE } from "@std/http";
 import { ulid } from "@std/ulid";
-import { INITIAL_UPLOAD_QUOTA } from "../../util/consts.ts";
 import {
   kvKeys as getCredSessionKvKey,
 } from "../../util/kv/cred_creation_sessions.ts";
@@ -13,6 +12,7 @@ import { enqueue } from "../../util/kv/enqueue.ts";
 import { kv } from "../../util/kv/kv.ts";
 import { keys as getPassKeyKvKey, setPasskey } from "../../util/kv/passkeys.ts";
 import { setSession } from "../../util/kv/sessions.ts";
+import { getSettings } from "../../util/kv/settings.ts";
 import { addUserRemainingUploadBytes } from "../../util/kv/upload_stats.ts";
 import { setUser } from "../../util/kv/users.ts";
 import { QueueMsgAdminAlert } from "../../util/queue/admin_alert.ts";
@@ -88,13 +88,15 @@ export default async function credentialCreationVerifyHandler(ctx: AppContext) {
       message: `Username: ${newUser.username}`,
     };
 
+    const { value: settings } = await getSettings("eventual");
+
     setUser(newUser, atomic);
     setSession(session, atomic);
     enqueue(newUserAdminAlert, atomic);
 
     addUserRemainingUploadBytes({
       userId: newUser.id,
-      bytes: INITIAL_UPLOAD_QUOTA,
+      bytes: settings?.initialUploadQuota || 0,
       atomic,
     });
 

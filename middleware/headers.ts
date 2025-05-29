@@ -11,7 +11,13 @@ export const headersMiddleware: AppMiddleware = async (ctx, next) => {
     ctx.resp.headers.set("Service-Worker-Allowed", "/");
   }
 
+  ctx.resp.headers.set(HEADER.Vary, "Cookie");
+
   const resp = await next();
+
+  if (ctx.flash) {
+    resp.headers.set(HEADER.CacheControl, `Cache-Control: private, no-store`);
+  }
 
   // =====================
   // CSP

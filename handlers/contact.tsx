@@ -1,7 +1,15 @@
+import { MINUTE } from "@std/datetime";
+import { HEADER } from "@std/http/unstable-header";
 import Page from "../components/pages/Page.tsx";
+import { AppContext } from "../util/types.ts";
 
-export default function contactHandler() {
+export default function contactHandler(ctx: AppContext) {
   const title = "Contact";
+
+  ctx.resp.headers.set(
+    HEADER.CacheControl,
+    `Cache-Control: public, max-age=${MINUTE * 30 / 1000}`,
+  );
 
   return (
     <Page title={title} header={{ siteNameIsLink: true }}>
