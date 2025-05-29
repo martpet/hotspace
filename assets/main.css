@@ -18,10 +18,6 @@
   }
 }
 
-@view-transition {
-  navigation: auto;
-}
-
 @keyframes spin {
   to {
     transform: rotate(1turn);

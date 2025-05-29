@@ -1,3 +1,7 @@
+@view-transition {
+  navigation: auto;
+}
+
 #file-page {
   .inodes-header {
     margin-bottom: 0.5em;
