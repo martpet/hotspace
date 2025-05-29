@@ -39,7 +39,7 @@ export function deleteLastFeedItemIdByChat(
   return kv.delete(feedItemsKeys.lastFeedItemIdByChat(chatId));
 }
 
-export async function listFeedItemsByChat(options: {
+export function listFeedItemsByChat(options: {
   kv: Deno.Kv;
   chatId: string;
   listSelector?: Partial<Deno.KvListSelector>;
@@ -48,5 +48,5 @@ export async function listFeedItemsByChat(options: {
   const { kv, chatId, listSelector, listOptions } = options;
   const prefix = feedItemsKeys.byChat(chatId, "").slice(0, -1);
   const iter = kv.list<ChatFeedItem>({ prefix, ...listSelector }, listOptions);
-  return (await Array.fromAsync(iter)).map((x) => x.value);
+  return Array.fromAsync(iter, (it) => it.value);
 }

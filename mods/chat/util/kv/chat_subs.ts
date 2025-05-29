@@ -34,7 +34,7 @@ export function getChatSub(
   return kv.get<ChatSub>(keys.byChat(chatSub.chatId, chatSub.subscriberId));
 }
 
-export async function listChatSubs(options: {
+export function listChatSubs(options: {
   chatId: string;
   kv: Deno.Kv;
   listOptions?: Deno.KvListOptions;
@@ -42,5 +42,5 @@ export async function listChatSubs(options: {
   const { chatId, kv, listOptions } = options;
   const prefix = keys.byChat(chatId, "").slice(0, -1);
   const iter = kv.list<ChatSub>({ prefix }, listOptions);
-  return (await Array.fromAsync(iter)).map((x) => x.value);
+  return Array.fromAsync(iter, (it) => it.value);
 }

@@ -26,10 +26,10 @@ export function getPasskeyById(credId: string) {
   return kv.get<Passkey>(keys.byId(credId));
 }
 
-export async function listPasskeysByUser(userId: string) {
+export function listPasskeysByUser(userId: string) {
   const prefix = keys.byUser(userId, new Date()).slice(0, -1);
   const iter = kv.list<Passkey>({ prefix });
-  return (await Array.fromAsync(iter)).map((x) => x.value);
+  return Array.fromAsync(iter, (it) => it.value);
 }
 
 export function setPasskeysAaguidData(data: Record<string, string>) {

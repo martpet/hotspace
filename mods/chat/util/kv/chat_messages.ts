@@ -87,11 +87,10 @@ export function hydrateChatMsgEntry(
   };
 }
 
-export async function listChatMessagesByUser(userId: string, kv: Deno.Kv) {
+export function listChatMessagesByUser(userId: string, kv: Deno.Kv) {
   const prefix = keys.byUser(userId, "").slice(0, -1);
   const iter = kv.list<ChatMessage>({ prefix });
-  const entries = await Array.fromAsync(iter);
-  return entries.map((x) => x.value);
+  return Array.fromAsync(iter, (it) => it.value);
 }
 
 function dehydrateChatMsg(msg: ChatMessage | RawChatMessage): RawChatMessage {

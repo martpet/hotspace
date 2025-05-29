@@ -30,10 +30,10 @@ export function deletePayment(payment: Payment, atomic = kv.atomic()) {
     .delete(keys.byIntent(payment.stripeIntentId));
 }
 
-export async function listPaymentsByUser(userId: string) {
+export function listPaymentsByUser(userId: string) {
   const prefix = keys.byUser(userId, "").slice(0, -1);
   const iter = kv.list<Payment>({ prefix });
-  return (await Array.fromAsync(iter)).map((x) => x.value);
+  return Array.fromAsync(iter, (it) => it.value);
 }
 
 export function setPaymentIntent(
@@ -62,8 +62,8 @@ export function getPaymentIntent(intentId: string) {
   return kv.get<PaymentIntent>(paymentIntentKey.byStripeId(intentId));
 }
 
-export async function listPaymentIntentsByUser(userId: string) {
+export function listPaymentIntentsByUser(userId: string) {
   const prefix = paymentIntentKey.byUser(userId, "").slice(0, -1);
   const iter = kv.list<PaymentIntent>({ prefix });
-  return (await Array.fromAsync(iter)).map((x) => x.value);
+  return Array.fromAsync(iter, (it) => it.value);
 }
