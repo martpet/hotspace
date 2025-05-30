@@ -27,3 +27,9 @@ export function getUserById(id: string) {
 export function getUserByUsername(username: string) {
   return kv.get<User>(keys.byUsername(username));
 }
+
+export function listUsers(listOptions?: Deno.KvListOptions) {
+  const prefix = keys.byId("").slice(0, -1);
+  const iter = kv.list<User>({ prefix }, listOptions);
+  return Array.fromAsync(iter, (it) => it.value);
+}

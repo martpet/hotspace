@@ -74,9 +74,17 @@ export async function getRemainingUploadBytesByUser(
 export function addUserRemainingUploadBytes(opt: {
   bytes: number;
   userId: string;
-  atomic: Deno.AtomicOperation;
+  atomic?: Deno.AtomicOperation;
 }) {
-  const { bytes, userId, atomic } = opt;
+  const { bytes, userId, atomic = kv.atomic() } = opt;
   const bytesBigInt = toKvSumBigInt(bytes);
   return atomic.sum(keys.remainingUploadBytesByUser(userId), bytesBigInt);
+}
+
+export function setUserRemainingUploadBytes(opt: {
+  bytes: number;
+  userId: string;
+}) {
+  const { bytes, userId } = opt;
+  return kv.set(keys.remainingUploadBytesByUser(userId), BigInt(bytes));
 }
