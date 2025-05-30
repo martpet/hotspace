@@ -1,17 +1,17 @@
 import type { ChatUserResource } from "$chat";
-import type { Context, Middleware } from "$server";
+import type { Context, Handler, Middleware } from "$server";
 import type { PushSubscription } from "@negrel/webpush";
 
-export interface AppContext extends Context {
-  state: {
-    session?: Session;
-    user?: User;
-    from?: string;
-    canUseServiceWorker?: boolean;
-  };
+export interface State {
+  session?: Session;
+  user?: User;
+  from?: string;
+  canUseServiceWorker?: boolean;
 }
 
-export type AppMiddleware = Middleware<AppContext>;
+export type AppContext = Context<State>;
+export type AppHandler = Handler<State>;
+export type AppMiddleware = Middleware<State>;
 
 export interface User extends ChatUserResource {
   id: string;

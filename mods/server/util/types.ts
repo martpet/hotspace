@@ -57,10 +57,12 @@ export interface Flash {
   type: "success" | "warning" | "error" | "info";
 }
 
-export interface Context {
+type State = Record<string, unknown>;
+
+export interface Context<S = State> {
   req: Request;
   resp: ResponseOptions;
-  state: Record<string, unknown>;
+  state: S;
   url: URL;
   urlPatternResult: URLPatternResult;
   cookies: Record<string, string>;
@@ -80,13 +82,13 @@ export interface Context {
   get scpNonce(): string;
 }
 
-export type Handler<C = Context> = (ctx: C) =>
+export type Handler<S = State> = (ctx: Context<S>) =>
   | Response
   | VNode
   | Promise<Response | VNode>;
 
-export type Middleware<C = Context> = (
-  ctx: C,
+export type Middleware<S = State> = (
+  ctx: Context<S>,
   next: () => ReturnType<Middleware>,
 ) =>
   | Response
