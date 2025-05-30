@@ -1,12 +1,13 @@
 import type { AppContext } from "../util/types.ts";
 import ButtonLogout from "./auth/ButtonLogout.tsx";
 import LoginOrRegister from "./auth/LoginOrRegister.tsx";
-import Breadcrumb from "./Breadcrumb.tsx";
+import Breadcrumb, { type BreadcrumbProps } from "./Breadcrumb.tsx";
 
 export interface PageHeaderProps {
   siteNameIsHeading?: boolean;
   siteNameIsLink?: boolean;
   breadcrumb?: boolean;
+  breadcrumbProps?: BreadcrumbProps;
   skipLogin?: boolean;
   skipReg?: boolean;
 }
@@ -16,6 +17,7 @@ export default function PageHeader(props: PageHeaderProps, ctx: AppContext) {
     siteNameIsHeading,
     siteNameIsLink,
     breadcrumb,
+    breadcrumbProps,
     skipLogin,
     skipReg,
   } = props;
@@ -25,7 +27,7 @@ export default function PageHeader(props: PageHeaderProps, ctx: AppContext) {
   return (
     <header id="page-header">
       {breadcrumb
-        ? <Breadcrumb />
+        ? <Breadcrumb {...breadcrumbProps} />
         : <SiteName isHeading={siteNameIsHeading} isLink={siteNameIsLink} />}
       {user
         ? <AccountNav username={user.username} />
