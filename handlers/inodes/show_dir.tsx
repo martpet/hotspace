@@ -19,7 +19,6 @@ export default async function showDirHandler(ctx: AppContext) {
   const path = parsePathname(ctx.url.pathname);
   const fragmentId = ctx.url.searchParams.get("fragment") as FragmentId | null;
   const from = ctx.state.from as From | undefined;
-  const notFound = () => <NotFoundPage />;
 
   const { value: dirNode } = await getDirByPath(path.segments, {
     consistency: fragmentId === "chat" ? "strong" : "eventual",
@@ -29,7 +28,7 @@ export default async function showDirHandler(ctx: AppContext) {
   const { canRead, canCreate, canModerate } = perm;
 
   if (!dirNode || !canRead) {
-    return notFound();
+    return <NotFoundPage />;
   }
 
   const canonicalPathname = segmentsToPathname(dirNode.pathSegments, {

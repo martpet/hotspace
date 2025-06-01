@@ -21,7 +21,6 @@ export default async function showFileHandler(ctx: AppContext) {
   const { user } = ctx.state;
   const fragmentId = ctx.url.searchParams.get("fragment") as FragmentId | null;
   const path = parsePathname(ctx.url.pathname) as NonRootPath;
-  const notFound = () => <NotFoundPage />;
 
   if (path.isRootSegment) {
     return ctx.redirect(ctx.req.url + "/", STATUS_CODE.PermanentRedirect);
@@ -32,7 +31,7 @@ export default async function showFileHandler(ctx: AppContext) {
   });
 
   if (!dirNode) {
-    return notFound();
+    return <NotFoundPage />;
   }
 
   const { value: inode } = await getInodeByDir<FileNode>({
@@ -44,7 +43,7 @@ export default async function showFileHandler(ctx: AppContext) {
   const perm = getPermissions({ user, resource: inode });
 
   if (!inode || !perm.canRead) {
-    return notFound();
+    return <NotFoundPage />;
   }
 
   const canonicalPathname = segmentsToPathname(
