@@ -45,7 +45,8 @@ export interface Passkey {
 }
 
 export interface Settings {
-  initialUploadQuota?: number;
+  initialUploadQuota: number;
+  displayInitialUploadQuota: boolean;
 }
 
 export type Product = "upload_traffic_1_gb";

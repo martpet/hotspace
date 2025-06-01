@@ -3,7 +3,7 @@ import { PRICE_PER_GB_CENTS } from "../util/consts.ts";
 import { asset } from "../util/url.ts";
 
 interface Props {
-  initialUploadQuota?: number;
+  initialUploadQuota?: false | number;
   noName?: boolean;
   noSubline?: boolean;
   noLogo?: boolean;
@@ -39,7 +39,7 @@ export default function About(props: Props) {
       <section class="box">
         <h1>How It Works</h1>
         <ul>
-          {initialUploadQuota > 0 && (
+          {!!initialUploadQuota && (
             <li>
               Sign up and get{" "}
               <strong>{format(initialUploadQuota)} of free uploads</strong>
@@ -53,7 +53,11 @@ export default function About(props: Props) {
             Share files publicly or keep them private
           </li>
           <li>
-            Pay only <strong>${pricePerGb} per additional GB uploaded</strong>
+            Pay only{" "}
+            <strong>
+              ${pricePerGb} per {!!initialUploadQuota && "additional"}{" "}
+              GB uploaded
+            </strong>
           </li>
           <li>No download limits, no hidden fees</li>
         </ul>

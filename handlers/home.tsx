@@ -26,10 +26,13 @@ export default async function homeHandler(ctx: AppContext) {
     );
 
     const { value: settings } = await getSettings("eventual");
+    const { displayInitialUploadQuota, initialUploadQuota } = settings || {};
 
     return (
       <Page>
-        <About initialUploadQuota={settings?.initialUploadQuota} />
+        <About
+          initialUploadQuota={displayInitialUploadQuota && initialUploadQuota}
+        />
       </Page>
     );
   }
