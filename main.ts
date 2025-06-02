@@ -115,9 +115,9 @@ let serveOptions;
 
 if (IS_LOCAL_DEV) {
   serveOptions = {
-    cert: await Deno.readTextFile("util/cert/hotspace.local.crt"),
-    key: await Deno.readTextFile("util/cert/hotspace.local.key"),
-    port: 443,
+    cert: await Deno.readTextFile("util/cert/localhost+2.pem"),
+    key: await Deno.readTextFile("util/cert/localhost+2-key.pem"),
+    port: 8443,
   };
 }
 
