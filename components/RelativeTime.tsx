@@ -2,17 +2,29 @@ import { getRelativeTime } from "$util";
 import { decodeTime } from "@std/ulid";
 import type { AppContext } from "../util/types.ts";
 
-type Props = {
-  uuid: string;
-  date?: never;
-} | {
-  uuid?: never;
-  date: Date;
-};
+type Props =
+  & { noDateTimeAttr?: boolean }
+  & ({
+    ulid: string;
+    date?: never;
+  } | {
+    ulid?: never;
+    date: Date;
+  });
 
 export default function RelativeTime(props: Props, ctx: AppContext) {
-  const date = props.date || new Date(decodeTime(props.uuid));
-  const text = getRelativeTime(date, ctx.locale);
+  const date = props.date || new Date(decodeTime(props.ulid));
+  const dateFmt = new Intl.DateTimeFormat(ctx.locale, {
+    dateStyle: "long",
+    timeStyle: "short",
+  });
 
-  return <time datetime={date.toISOString()}>{text}</time>;
+  return (
+    <time
+      datetime={props.noDateTimeAttr ? undefined : date.toISOString()}
+      title={dateFmt.format(date)}
+    >
+      {getRelativeTime(date)}
+    </time>
+  );
 }

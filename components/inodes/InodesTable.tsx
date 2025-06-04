@@ -143,7 +143,7 @@ export default function InodesTable(props: Props, ctx: AppContext) {
                     </td>
                   )}
                   <td class="date">
-                    <RelativeTime uuid={inode.id} />
+                    <RelativeTime ulid={inode.id} />
                   </td>
                   {!skipSize && (
                     <td

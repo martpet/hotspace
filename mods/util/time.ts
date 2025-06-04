@@ -1,4 +1,4 @@
-export function getRelativeTime(date: Date, locale?: string) {
+export function getRelativeTime(date: Date, locale = "en") {
   const now = new Date();
   const diffMs = date.getTime() - now.getTime();
   const diffSec = Math.round(diffMs / 1000);
@@ -17,5 +17,6 @@ export function getRelativeTime(date: Date, locale?: string) {
   if (Math.abs(diffDay) < 7) return rtf.format(diffDay, "day");
   if (Math.abs(diffWeek) < 4) return rtf.format(diffWeek, "week");
   if (Math.abs(diffMonth) < 12) return rtf.format(diffMonth, "month");
+
   return rtf.format(diffYear, "year");
 }
