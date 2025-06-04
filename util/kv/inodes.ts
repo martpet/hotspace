@@ -69,7 +69,9 @@ export async function listInodesByDir(
   options?: Deno.KvListOptions,
 ) {
   const entries = await listInodesEntriesByDir(dirId, options);
-  return entries.map((x) => x.value);
+  const values = entries.map((x) => x.value);
+  sortByDateAndName(values);
+  return values;
 }
 
 // =====================
@@ -112,5 +114,23 @@ export async function listRootDirsByOwner(
   const prefix = keys.rootDirsByOwner(ownerId, "").slice(0, -1);
   const iter = kv.list<DirNode>({ prefix }, options);
   const entries = await Array.fromAsync(iter);
-  return entries.map((x) => x.value);
+  const values = entries.map((x) => x.value);
+  sortByDateAndName(values);
+  return values;
+}
+
+// =====================
+// Util
+// =====================
+
+function sortByDateAndName(inodes: Inode[]) {
+  inodes.sort((a, b) => {
+    const timeA = a.id.slice(0, 10);
+    const timeB = b.id.slice(0, 10);
+    const primary = timeB.localeCompare(timeA);
+    if (primary !== 0) return primary;
+    const nameA = decodeURIComponent(a.name);
+    const nameB = decodeURIComponent(b.name);
+    return nameA.localeCompare(nameB);
+  });
 }

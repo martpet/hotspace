@@ -14,5 +14,5 @@ export default function RelativeTime(props: Props, ctx: AppContext) {
   const date = props.date || new Date(decodeTime(props.uuid));
   const text = getRelativeTime(date, ctx.locale);
 
-  return <time title={date.toISOString()}>{text}</time>;
+  return <time datetime={date.toISOString()}>{text}</time>;
 }

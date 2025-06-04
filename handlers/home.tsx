@@ -57,7 +57,7 @@ export default async function homeHandler(ctx: AppContext) {
       inodes={dirNodes}
       isMultiSelect={false}
       skipIcons
-      skipCols={["size", "type"]}
+      skipCols={["size", "kind"]}
       canCreate
       canModifySome
       canViewAclSome

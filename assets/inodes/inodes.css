@@ -169,12 +169,16 @@ a.inode {
 .inodes-table {
   width: 100%;
   margin-bottom: 2rem;
+  color: var(--text-grey-dark);
   border-spacing: 0;
   thead {
     background: Canvas;
     position: sticky;
     z-index: 2;
     top: 0;
+    [data-sort]:hover {
+      cursor: pointer;
+    }
   }
   tbody {
     position: relative;
@@ -212,11 +216,36 @@ a.inode {
   }
   th {
     padding-block: 0.3em;
-    font-weight: 600;
+    font-weight: 400;
     text-align: initial;
     border-bottom: 2px solid var(--border-grey-light);
     thead:has(+ tbody tr:first-child .select :checked) & {
       border-bottom-color: transparent;
+    }
+    &[aria-sort] {
+      color: CanvasText;
+      font-weight: 500;
+    }
+    button[data-sort] {
+      background: none;
+      border: none;
+      padding: 0;
+      font: inherit;
+      color: inherit;
+      cursor: pointer;
+      &:hover {
+        color: CanvasText;
+      }
+      &:is([aria-sort] &)::after {
+        font-size: 0.8em;
+        margin-left: 0.2em;
+      }
+      &:is([aria-sort="ascending"] &)::after {
+        content: "▲";
+      }
+      &:is([aria-sort="descending"] &)::after {
+        content: "▼";
+      }
     }
   }
   td {
@@ -235,11 +264,14 @@ a.inode {
     &.name {
       word-break: break-all;
     }
+    &.size {
+      text-align: right;
+    }
   }
   @container (width < 640px) {
     th,
     td {
-      &.type,
+      &.kind,
       &.size {
         display: none;
       }
