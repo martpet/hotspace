@@ -86,5 +86,8 @@ export function setUserRemainingUploadBytes(opt: {
   userId: string;
 }) {
   const { bytes, userId } = opt;
-  return kv.set(keys.remainingUploadBytesByUser(userId), BigInt(bytes));
+  return kv.set(
+    keys.remainingUploadBytesByUser(userId),
+    new Deno.KvU64(BigInt(bytes)),
+  );
 }
