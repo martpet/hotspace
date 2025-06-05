@@ -49,7 +49,7 @@ export default async function completeUploadHandler(ctx: AppContext) {
   });
 
   if (!uploadQuotaCheck.ok) {
-    return ctx.respond(uploadQuotaCheck.error, STATUS_CODE.ContentTooLarge);
+    return ctx.respondJson(uploadQuotaCheck.error, STATUS_CODE.ContentTooLarge);
   }
 
   const completedIds = await createFileNodesFromUploads({

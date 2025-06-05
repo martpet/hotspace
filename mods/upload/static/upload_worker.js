@@ -214,16 +214,16 @@ class Uploader {
     });
 
     if (!resp.ok) {
-      const message = await resp.text();
-      this.sendError({ message });
+      const error = await resp.json();
+      this.sendError(error);
       return;
     }
 
     const completedIds = await resp.json();
 
-    await Promise.all(
-      uploads.map((upload) => deleteSavedUpload(upload.checksum))
-    );
+    for (const upload of uploads) {
+      await deleteSavedUpload(upload.checksum);
+    }
 
     if (!completedIds.length) {
       this.sendError();
@@ -243,8 +243,8 @@ class Uploader {
     this.activeConnections.forEach((conn) => conn.abort());
   }
 
-  sendError(error) {
-    postMessage({ type: "error", data: error });
+  sendError(data) {
+    postMessage({ type: "error", data });
   }
 }
 

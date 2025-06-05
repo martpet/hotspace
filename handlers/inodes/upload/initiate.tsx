@@ -42,7 +42,7 @@ export default async function initiateUploadHandler(ctx: AppContext) {
   });
 
   if (!uploadQuotaCheck.ok) {
-    return ctx.respond(uploadQuotaCheck.error, STATUS_CODE.ContentTooLarge);
+    return ctx.respondJson(uploadQuotaCheck.error, STATUS_CODE.ContentTooLarge);
   }
 
   const headersFn: InitUploadOptions["headersFn"] = (upload) => {

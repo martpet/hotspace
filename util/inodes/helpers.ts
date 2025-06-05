@@ -49,11 +49,11 @@ export async function checkUploadQuotaAfterUpload(opt: {
 
   return {
     ok: false,
-    error: JSON.stringify({
+    error: {
       code: "quota_exceeded",
       message: `${
         uploads.length > 1 ? "Total file" : "File"
       } size exceeds your upload quota by ${format(-remainingBytesAfter)}.`,
-    }),
+    },
   };
 }

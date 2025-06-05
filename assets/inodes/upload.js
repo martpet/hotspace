@@ -80,8 +80,8 @@ function workerMsgHandler(event) {
     uploadedItemsCount = data.uploadedItemsCount;
     statusSignal.value = "completed";
   } else if (type === "error") {
-    errorSignal.value = data.message || GENERAL_ERR_MSG;
-    if (data.code === "quota_exceeded") {
+    errorSignal.value = data?.message || GENERAL_ERR_MSG;
+    if (data?.code === "quota_exceeded") {
       renderBuyTrafficButton();
     }
   }
