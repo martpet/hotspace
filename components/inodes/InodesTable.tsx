@@ -1,10 +1,10 @@
-import { parsePathname, type ResourcePermissions } from "$util";
+import { getPermissions, parsePathname, type ResourcePermissions } from "$util";
 import { format as formatBytes } from "@std/fmt/bytes";
 import { decodeTime } from "@std/ulid";
 import { type JSX } from "preact";
 import { getFileNodeKind } from "../../util/inodes/helpers.ts";
 import type { FileNode, Inode } from "../../util/inodes/types.ts";
-import type { AppContext } from "../../util/types.ts";
+import type { AppContext, User } from "../../util/types.ts";
 import BlankSlate from "../BlankSlate.tsx";
 import RelativeTime from "../RelativeTime.tsx";
 import InodeAccess, { getInodeAccessText } from "./InodeAccess.tsx";
@@ -18,23 +18,26 @@ const DEFAULT_SORT_ORDER = "descending";
 
 interface Props {
   inodes: Inode[];
-  inodesPermissions: ResourcePermissions[];
   canCreate: boolean;
-  canModifySome: boolean;
-  canViewAclSome: boolean;
   isMultiSelect?: boolean;
   skipCols?: SkippedCol[];
   skipIcons?: boolean;
   blankSlate?: JSX.Element;
+  inodesPermissions?: InodesPermissions;
+}
+
+interface InodesPermissions {
+  canModifySome: boolean;
+  canViewAclSome: boolean;
+  canChangeAclSome: boolean;
+  byId: Record<string, ResourcePermissions>;
 }
 
 export default function InodesTable(props: Props, ctx: AppContext) {
   const {
     inodes,
-    inodesPermissions,
     canCreate,
-    canModifySome,
-    canViewAclSome,
+    inodesPermissions = getInodesPermissions(inodes, ctx.state.user),
     isMultiSelect = true,
     skipCols,
     skipIcons,
@@ -45,6 +48,7 @@ export default function InodesTable(props: Props, ctx: AppContext) {
   const isSpaceRoot = path.segments.length === 1;
   const skipSize = skipCols?.includes("size");
   const skipKind = skipCols?.includes("kind");
+  const { canViewAclSome, canModifySome } = inodesPermissions;
   let sorting: Sorting = { [DEFAULT_SORT_COL]: DEFAULT_SORT_ORDER };
 
   if (ctx.cookies.sort) {
@@ -52,10 +56,11 @@ export default function InodesTable(props: Props, ctx: AppContext) {
     const [col, order] = Object.entries(cookieSorting)[0];
     if (
       (col !== DEFAULT_SORT_COL || order !== DEFAULT_SORT_ORDER) &&
+      (col !== "access" || canViewAclSome) &&
       !skipCols?.includes(col as SkippedCol)
     ) {
       sorting = cookieSorting;
-      sortInodes(inodes, sorting);
+      sortInodes({ inodes, sorting, inodesPermissions });
     }
   }
 
@@ -111,8 +116,8 @@ export default function InodesTable(props: Props, ctx: AppContext) {
           </thead>
 
           <tbody>
-            {inodes.map((inode, i) => {
-              const perm = inodesPermissions[i];
+            {inodes.map((inode) => {
+              const perm = inodesPermissions.byId[inode.id];
 
               if (!perm.canRead) {
                 return null;
@@ -133,12 +138,7 @@ export default function InodesTable(props: Props, ctx: AppContext) {
                   </td>
                   {canViewAclSome && (
                     <td class="access">
-                      {perm.canViewAcl && (
-                        <InodeAccess
-                          inode={inode}
-                          canChangeAcl={perm.canChangeAcl}
-                        />
-                      )}
+                      <InodeAccess inode={inode} perm={perm} />
                     </td>
                   )}
                   {!skipSize && (
@@ -184,14 +184,20 @@ function SelectInput({ isMultiSelect }: { isMultiSelect: boolean }) {
   );
 }
 
-function sortInodes(inodes: Inode[], sorting: Sorting) {
+function sortInodes(options: {
+  inodes: Inode[];
+  sorting: Sorting;
+  inodesPermissions: InodesPermissions;
+}) {
+  const { inodes, sorting, inodesPermissions } = options;
   const col = Object.keys(sorting)[0];
   const order = sorting[col] === "descending" ? -1 : 1;
 
   const selector = (inode: Inode) => {
+    const perm = inodesPermissions.byId[inode.id];
     if (col === "name") return inode.name;
     if (col === "kind") return inode.type === "file" && getFileNodeKind(inode);
-    if (col === "access") return getInodeAccessText(inode);
+    if (col === "access") return getInodeAccessText(inode, perm);
     if (col === "date") return decodeTime(inode.id);
     if (col === "size") return (inode as FileNode).fileSize || 0;
   };
@@ -217,4 +223,23 @@ function sortInodes(inodes: Inode[], sorting: Sorting) {
 
     return inodeA.name.localeCompare(inodeB.name);
   });
+}
+
+export function getInodesPermissions(inodes: Inode[], user: User | undefined) {
+  const result: InodesPermissions = {
+    canModifySome: false,
+    canViewAclSome: false,
+    canChangeAclSome: false,
+    byId: {},
+  };
+
+  result.byId = Object.fromEntries(inodes.map((inode) => {
+    const perm = getPermissions({ user, resource: inode });
+    if (perm.canModify) result.canModifySome = true;
+    if (perm.canViewAcl) result.canViewAclSome = true;
+    if (perm.canChangeAcl) result.canChangeAclSome = true;
+    return [inode.id, perm];
+  }));
+
+  return result;
 }

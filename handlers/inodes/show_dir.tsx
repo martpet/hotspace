@@ -4,7 +4,9 @@ import ChatSection from "../../components/chat/ChatSection.tsx";
 import BulkActions from "../../components/inodes/BulkActions.tsx";
 import ButtonCreateDir from "../../components/inodes/ButtonCreateDir.tsx";
 import ButtonUpload from "../../components/inodes/ButtonUpload.tsx";
-import InodesTable from "../../components/inodes/InodesTable.tsx";
+import InodesTable, {
+  getInodesPermissions,
+} from "../../components/inodes/InodesTable.tsx";
 import NotFoundPage from "../../components/pages/NotFoundPage.tsx";
 import Page from "../../components/pages/Page.tsx";
 import { getDirByPath, listInodesByDir } from "../../util/kv/inodes.ts";
@@ -58,24 +60,13 @@ export default async function showDirHandler(ctx: AppContext) {
       : "eventual",
   });
 
-  let canModifySome = false;
-  let canViewAclSome = false;
-  let canChangeAclSome = false;
-
-  const inodesPermissions = inodes.map((inode) => {
-    const per = getPermissions({ user, resource: inode });
-    if (per.canModify) canModifySome = true;
-    if (per.canViewAcl) canViewAclSome = true;
-    if (per.canChangeAcl) canChangeAclSome = true;
-    return per;
-  });
+  const inodesPermissions = getInodesPermissions(inodes, ctx.state.user);
+  const { canModifySome, canChangeAclSome } = inodesPermissions;
 
   const inodesTable = (
     <InodesTable
       inodes={inodes}
       canCreate={canCreate}
-      canModifySome={canModifySome}
-      canViewAclSome={canViewAclSome}
       inodesPermissions={inodesPermissions}
     />
   );

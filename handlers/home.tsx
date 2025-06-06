@@ -1,4 +1,3 @@
-import { getPermissions } from "$util";
 import { MINUTE } from "@std/datetime/constants";
 import { HEADER } from "@std/http/unstable-header";
 import About from "../components/About.tsx";
@@ -42,26 +41,19 @@ export default async function homeHandler(ctx: AppContext) {
   const fragmentId = ctx.url.searchParams.get("fragment") as FragmentId | null;
   const from = ctx.state.from as From | undefined;
 
-  const dirNodes = await listRootDirsByOwner(user.id, {
+  const inodes = await listRootDirsByOwner(user.id, {
     consistency: fragmentId === "inodes" || from === "delete"
       ? "strong"
       : "eventual",
   });
 
-  const inodesPermissions = dirNodes.map((inode) =>
-    getPermissions({ user, resource: inode })
-  );
-
   const spacesTable = (
     <InodesTable
-      inodes={dirNodes}
+      inodes={inodes}
       isMultiSelect={false}
       skipIcons
       skipCols={["size", "kind"]}
       canCreate
-      canModifySome
-      canViewAclSome
-      inodesPermissions={inodesPermissions}
       blankSlate={
         <BlankSlate
           title={`Hi, ${user.username}!`}
