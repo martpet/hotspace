@@ -111,7 +111,7 @@ function insertDialog() {
       <dialog id="create-dir-dialog">
         <h1>${btnShowDialog.textContent}</h1>
         <p id="create-dir-error" class="alert error" hidden></p>
-        <form class="basic-form">
+        <form class="basic">
           <label>
             Name:
             <input type="text" name="dirName" required autocomplete="off" />

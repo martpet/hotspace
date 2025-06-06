@@ -7,7 +7,7 @@ export default withAdmin(async () => {
   const mimeTypes = await listMimeTypes();
   return (
     <AdminPage title="Mime Types">
-      <table class="basic-table">
+      <table class="basic">
         <thead>
           <tr>
             <th>Count</th>

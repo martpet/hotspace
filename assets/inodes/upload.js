@@ -174,7 +174,7 @@ function insertDialog() {
       <dialog id="upload-dialog">
         <h1>Upload Files</h1>
         <p id="upload-dialog-error" class="alert error" hidden></p>
-        <form class="basic-form">
+        <form class="basic">
           <label>
             <input type="file" multiple autofocus required />
           </label>

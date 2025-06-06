@@ -101,7 +101,7 @@ dialog {
     font-size: 2em;
     margin-top: 0.6rem;
   }
-  &:has(.basic-form) {
+  &:has(form.basic) {
     min-width: min(25rem, 100%);
   }
 }
@@ -121,7 +121,7 @@ form {
   }
 }
 
-.basic-form {
+form.basic {
   > label {
     display: flex;
     flex-direction: column;
@@ -143,6 +143,25 @@ form {
       margin-bottom: 0.3rem;
     }
   }
+}
+
+table.basic {
+  border-collapse: collapse;
+  thead {
+    background: var(--bg-light);
+  }
+  th {
+    text-align: left;
+  }
+  th,
+  td {
+    padding: 0.2em 0.5em;
+    border: 1px solid var(--border-grey);
+  }
+}
+
+pre.basic {
+  background: var(--bg-light);
 }
 
 .alert,
@@ -185,25 +204,6 @@ form {
     color: inherit;
     font-weight: bold;
   }
-}
-
-.basic-table {
-  border-collapse: collapse;
-  thead {
-    background: var(--bg-light);
-  }
-  th {
-    text-align: left;
-  }
-  th,
-  td {
-    padding: 0.2em 0.5em;
-    border: 1px solid var(--border-grey);
-  }
-}
-
-.basic-pre {
-  background: var(--bg-light);
 }
 
 .flash {

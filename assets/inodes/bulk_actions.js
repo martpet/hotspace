@@ -214,7 +214,7 @@ function insertDialog() {
     `
         <dialog id="bulk-delete-dialog">
           <h1>Delete ${isSingleSelect ? inodeLabel : "Selected"}</h1>
-          <form class="basic-form">
+          <form class="basic">
             <p class="alert warning">
               <span id="bulk-delete-intro"></span><br />
               This action cannot be undone.

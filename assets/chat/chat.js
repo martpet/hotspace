@@ -1055,7 +1055,7 @@ function insertMessageDialogs() {
     `
       <dialog id="edit-chat-msg-dialog" class="chat-msg-dialog">
         <h1>Edit Message</h1>
-        <form class="basic-form">
+        <form class="basic">
           ${msgPreview({ editMode: true })}
           <footer>
             <button formmethod="dialog" formnovalidate>Cancel</button>
@@ -1068,7 +1068,7 @@ function insertMessageDialogs() {
         <h1>Delete Message</h1>
         <p class="alert warning">Are you sure you want to delete this message?</p>
         ${msgPreview()}
-        <form method="dialog" class="basic-form">
+        <form method="dialog" class="basic">
           <footer>
             <button>Cancel</button>
             <button autofocus class="submit">Yes, Delete</button>

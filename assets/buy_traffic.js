@@ -333,7 +333,7 @@ function insertDialog() {
         </div>
         <div id="buy-traffic-loader" class="spinner-lg spinner-col">Loading</div>
         <div id="stripe-root"></div>
-        <form class="basic-form">
+        <form class="basic">
           <footer>
             <button id="buy-traffic-close" type="button" autofocus>Cancel</button>
           </footer>

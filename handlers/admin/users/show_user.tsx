@@ -44,7 +44,7 @@ async function handleGet(ctx: AdminContext) {
         <summary>
           Created: {adminDateFmt.format(new Date(decodeTime(user.id)))}
         </summary>
-        <pre class="basic-pre">{JSON.stringify(user, null, 2)}</pre>
+        <pre class="basic">{JSON.stringify(user, null, 2)}</pre>
       </details>
       <form method="post">
         <label>

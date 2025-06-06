@@ -103,7 +103,7 @@ function insertDialog() {
         <h1>Delete Your Account</h1>
         <p id="delete-account-loader" class="spinner-lg spinner-col" hidden></p>
         <p id="delete-account-error" class="alert error" hidden></p>
-        <form class="basic-form">
+        <form class="basic">
           <p class="alert warning">
             Your account, files, and chat messages will be deleted.<br />
             <strong>This action cannot be undone.</strong>

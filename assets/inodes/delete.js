@@ -107,7 +107,7 @@ function insertDialog() {
     `
         <dialog id="delete-inode-dialog">
           <h1>Delete ${inodeType}</h1>
-          <form id="delete-inode-form" class="basic-form">
+          <form id="delete-inode-form" class="basic">
             <p class="alert warning">
               ${introText} will be deleted.<br />
               <span class="text-undone">This action cannot be undone.</span>

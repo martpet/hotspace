@@ -10,7 +10,7 @@ export default function ErrorPage({ error }: Props) {
     <Page title="Internal Server Error">
       <h1 class="alert error">Oops, something went wrong</h1>
       {IS_LOCAL_DEV && error instanceof Error && (
-        <pre class="basic-pre">{error.stack}</pre>
+        <pre class="basic">{error.stack}</pre>
       )}
     </Page>
   );

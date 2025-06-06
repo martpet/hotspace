@@ -12,7 +12,7 @@ export default withAdmin(async () => {
 
   return (
     <AdminPage title="Users">
-      <table class="basic-table">
+      <table class="basic">
         <thead>
           <tr>
             <th>Username</th>
