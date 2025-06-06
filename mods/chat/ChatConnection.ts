@@ -69,7 +69,7 @@ export class ChatConnection {
       this.chat.addConnection(this);
       this.chatUser?.addConnection(this);
       await this.ready;
-      this.send({ type: "chat-ready" });
+      this.sendToUser({ type: "chat-ready" });
       this.#sendUnseenFeedItems();
     };
 
@@ -86,11 +86,11 @@ export class ChatConnection {
     };
   }
 
-  send(data: OutboundChatEvent) {
+  sendToUser(data: OutboundChatEvent) {
     this.socket.send(JSON.stringify(data));
   }
 
-  sendOthers(data: OutboundChatEvent) {
+  sendToOthers(data: OutboundChatEvent) {
     this.chat.sendAll(data, { except: this });
   }
 
@@ -111,7 +111,7 @@ export class ChatConnection {
     const items = await this.chat.fetchFeedItems(lastSeenId);
     const data = this.sanitizeFeedItems(items);
     if (!data.length) return;
-    this.send({ type: "feed", data });
+    this.sendToUser({ type: "feed", data });
   }
 
   sanitizeFeedItems(items: ChatFeedItem[]) {
@@ -147,14 +147,14 @@ export class ChatConnection {
   async #handleSocketMsgEvent(event: MessageEvent) {
     await this.ready;
     const chatEvent = JSON.parse(event.data) as InboundChatEvent;
-    const handlerConf = handlersConfig.get(chatEvent.type);
-    if (!handlerConf) {
+    const conf = handlersConfig.get(chatEvent.type);
+    if (!conf) {
       throw new Error(`Missing handler config for '${chatEvent.type}'`);
     }
-    let handler = handlerConf.handler;
-    const queue = handlerConf.options?.queue;
+    let handler = conf.handler;
+    const queue = conf.options?.queue;
     if (queue) {
-      handler = (...args) => queue.add(() => handlerConf.handler(...args));
+      handler = (...args) => queue.add(() => conf.handler(...args));
     }
     let resp: OutboundChatEvent | null = null;
     try {
@@ -166,6 +166,6 @@ export class ChatConnection {
         console.error(error);
       }
     }
-    if (resp) this.send(resp);
+    if (resp) this.sendToUser(resp);
   }
 }

@@ -96,7 +96,7 @@ export class Chat {
   ) {
     for (const conn of this.#connections) {
       if (opt.except === conn) continue;
-      conn.send(data);
+      conn.sendToUser(data);
     }
     if (!opt.skipBcChannel) {
       this.#bcChannel?.postMessage(data);
@@ -135,7 +135,7 @@ export class Chat {
     for (const conn of this.#connections) {
       const data = conn.sanitizeFeedItems(items);
       if (!data.length) continue;
-      conn.send({ type: "feed", data });
+      conn.sendToUser({ type: "feed", data });
     }
   }
 

@@ -20,7 +20,7 @@ export const userTypingHandler: ChatEventHandler<UserTypingEvent> = (
   assertChatEntry(chat.kvEntry);
   assertUserEntry(chatUser?.kvEntry);
 
-  conn.sendOthers(event);
+  conn.sendToOthers(event);
 
   return null;
 };
