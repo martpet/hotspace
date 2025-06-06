@@ -2,6 +2,7 @@ import { parsePathname, type ResourcePermissions } from "$util";
 import { format as formatBytes } from "@std/fmt/bytes";
 import { decodeTime } from "@std/ulid";
 import { type JSX } from "preact";
+import { getFileNodeKind } from "../../util/inodes/helpers.ts";
 import type { FileNode, Inode } from "../../util/inodes/types.ts";
 import type { AppContext } from "../../util/types.ts";
 import BlankSlate from "../BlankSlate.tsx";
@@ -88,22 +89,22 @@ export default function InodesTable(props: Props, ctx: AppContext) {
               <th class="name" aria-sort={sorting.name}>
                 <button data-sort="name">Name</button>
               </th>
-              {!skipKind && (
-                <th class="kind" aria-sort={sorting.kind}>
-                  <button data-sort="kind">Kind</button>
-                </th>
-              )}
+              <th class="date" aria-sort={sorting.date}>
+                <button data-sort="date">Created</button>
+              </th>
               {canViewAclSome && (
                 <th aria-sort={sorting.access}>
                   <button data-sort="access">Access</button>
                 </th>
               )}
-              <th class="date" aria-sort={sorting.date}>
-                <button data-sort="date">Created</button>
-              </th>
               {!skipSize && (
                 <th class="size" aria-sort={sorting.size}>
                   <button data-sort="size">Size</button>
+                </th>
+              )}
+              {!skipKind && (
+                <th class="kind" aria-sort={sorting.kind}>
+                  <button data-sort="kind">Kind</button>
                 </th>
               )}
             </tr>
@@ -127,11 +128,9 @@ export default function InodesTable(props: Props, ctx: AppContext) {
                   <td class="name">
                     <InodeAnchor inode={inode} skipIcons={skipIcons} />
                   </td>
-                  {!skipKind && (
-                    <td class="kind">
-                      {inode.type === "file" ? inode.mimeType : "Folder"}
-                    </td>
-                  )}
+                  <td class="date">
+                    <RelativeTime ulid={inode.id} />
+                  </td>
                   {canViewAclSome && (
                     <td class="access">
                       {perm.canViewAcl && (
@@ -142,9 +141,6 @@ export default function InodesTable(props: Props, ctx: AppContext) {
                       )}
                     </td>
                   )}
-                  <td class="date">
-                    <RelativeTime ulid={inode.id} />
-                  </td>
                   {!skipSize && (
                     <td
                       class="size"
@@ -155,6 +151,13 @@ export default function InodesTable(props: Props, ctx: AppContext) {
                       {inode.type === "file"
                         ? formatBytes(inode.fileSize)
                         : "--"}
+                    </td>
+                  )}
+                  {!skipKind && (
+                    <td class="kind">
+                      {inode.type === "file"
+                        ? getFileNodeKind(inode)
+                        : "Folder"}
                     </td>
                   )}
                 </tr>
@@ -187,7 +190,7 @@ function sortInodes(inodes: Inode[], sorting: Sorting) {
 
   const selector = (inode: Inode) => {
     if (col === "name") return inode.name;
-    if (col === "kind") return (inode as FileNode).mimeType;
+    if (col === "kind") return inode.type === "file" && getFileNodeKind(inode);
     if (col === "access") return getInodeAccessText(inode);
     if (col === "date") return decodeTime(inode.id);
     if (col === "size") return (inode as FileNode).fileSize || 0;

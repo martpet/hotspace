@@ -1,5 +1,5 @@
 import { type ResourcePermissions } from "$util";
-import { InodePreviewInfo } from "../../../util/inodes/inode_preview_info.ts";
+import { FileNodePreview } from "../../../util/inodes/file_node_preview.ts";
 import { getRemainingProcessingTimeout } from "../../../util/inodes/post_process/post_process.ts";
 import { getResponsiveMediaStyles } from "../../../util/inodes/responsive_media_styles.ts";
 import type {
@@ -12,7 +12,7 @@ import GeneralPreview from "./GeneralPreview.tsx";
 
 interface Props {
   inode: FileNode;
-  preview: InodePreviewInfo;
+  preview: FileNodePreview;
   perm: ResourcePermissions;
 }
 
@@ -26,7 +26,7 @@ export default function ImagePreview(props: Props) {
   let style;
 
   if (inode.postProcess) {
-    if (!preview.isOriginalFile) {
+    if (!preview.isOrig) {
       timeoutAfter = getRemainingProcessingTimeout(inode);
       isProcessing = !!timeoutAfter;
       showError = inode.postProcess.status === "ERROR" || timeoutAfter === 0;

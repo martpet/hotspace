@@ -50,8 +50,6 @@ async function handleGet() {
 async function handlePost(ctx: AdminContext) {
   const form = await ctx.req.formData();
 
-  console.log(form.get("displayInitialUploadQuota"));
-
   const commit = await setSettings({
     initialUploadQuota: GB * Number(form.get("initialUploadQuota")),
     displayInitialUploadQuota: Boolean(form.get("displayInitialUploadQuota")),

@@ -1,6 +1,6 @@
 import { getPermissions } from "$util";
 import { STATUS_CODE } from "@std/http";
-import { getPreviewInfo } from "../../util/inodes/inode_preview_info.ts";
+import { getFileNodePreview } from "../../util/inodes/file_node_preview.ts";
 import {
   isPostProcessedFileNode,
   isPostProcessedToVideo,
@@ -37,11 +37,13 @@ export default function listenPostsProcessingHandler(ctx: AppContext) {
           status,
           percentComplete: inode.postProcess.percentComplete,
           videoUrl: inode.postProcess.playlistDataUrl,
+          width: inode.postProcess.width,
+          height: inode.postProcess.height,
         });
       } else {
         sendMsg({
           status,
-          previewUrl: (await getPreviewInfo(inode))?.url,
+          previewUrl: (await getFileNodePreview(inode))!.url,
           mimeType: inode.postProcess.previewMimeType,
         });
       }

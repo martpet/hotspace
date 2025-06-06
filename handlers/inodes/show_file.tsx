@@ -9,7 +9,7 @@ import Chat from "../../components/chat/ChatSection.tsx";
 import FilePreview from "../../components/inodes/file_preview/FilePreview.tsx";
 import NotFoundPage from "../../components/pages/NotFoundPage.tsx";
 import Page from "../../components/pages/Page.tsx";
-import { getPreviewInfo } from "../../util/inodes/inode_preview_info.ts";
+import { getFileNodePreview } from "../../util/inodes/file_node_preview.ts";
 import type { FileNode } from "../../util/inodes/types.ts";
 import { getDirByPath, getInodeByDir } from "../../util/kv/inodes.ts";
 import type { AppContext } from "../../util/types.ts";
@@ -67,10 +67,10 @@ export default async function showFileHandler(ctx: AppContext) {
     return ctx.respondJsxFragment(chatSection);
   }
 
-  const preview = await getPreviewInfo(inode);
+  const preview = await getFileNodePreview(inode);
   let importmap;
 
-  if (preview.displayType === "video") {
+  if (preview?.display === "video") {
     importmap = {
       "$hls": asset("vendored/hls.mjs"),
       "$listenPostProcessing": asset("inodes/listen_post_processing.js"),

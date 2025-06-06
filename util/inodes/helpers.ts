@@ -1,10 +1,11 @@
+import { getFileExtension } from "$util";
 import { format } from "@std/fmt/bytes";
 import { signCloudfrontUrl, type SignCloudfrontUrlOptions } from "../aws.ts";
 import { INODES_CLOUDFRONT_URL } from "../consts.ts";
 import { getRemainingUploadBytesByUser } from "../kv/upload_stats.ts";
 import { ROOT_DIR_ID } from "./consts.ts";
-import { MIME_CONFS } from "./mime.ts";
-import type { Inode, InodeLabel } from "./types.ts";
+import { MIMES } from "./mime_conf.ts";
+import type { FileNode, Inode, InodeLabel } from "./types.ts";
 
 export function getInodeLabel(inode: Inode): InodeLabel {
   if (inode.type === "file") return "File";
@@ -13,7 +14,17 @@ export function getInodeLabel(inode: Inode): InodeLabel {
 }
 
 export function isFileNodeWithMultipleS3Keys(inode: Inode) {
-  return inode.type === "file" && !!MIME_CONFS[inode.mimeType]?.proc;
+  return inode.type === "file" && !!MIMES[inode.mimeType]?.proc;
+}
+
+export function getFileNodeKind(inode: FileNode) {
+  const title = MIMES[inode.mimeType]?.title;
+  if (typeof title === "string") return title;
+  if (typeof title === "object") {
+    const ext = getFileExtension(inode.name);
+    if (title[ext]) return title[ext];
+  }
+  return inode.mimeType;
 }
 
 export function getFileNodeUrl(

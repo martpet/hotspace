@@ -1,5 +1,5 @@
 import { type ResourcePermissions } from "$util";
-import { InodePreviewInfo } from "../../../util/inodes/inode_preview_info.ts";
+import { FileNodePreview } from "../../../util/inodes/file_node_preview.ts";
 import { getRemainingProcessingTimeout } from "../../../util/inodes/post_process/post_process.ts";
 import type { FileNode } from "../../../util/inodes/types.ts";
 import { asset } from "../../../util/url.ts";
@@ -8,7 +8,7 @@ import GeneralPreview from "./GeneralPreview.tsx";
 
 interface Props {
   inode: FileNode;
-  preview: InodePreviewInfo;
+  preview: FileNodePreview;
   perm: ResourcePermissions;
 }
 

@@ -2,6 +2,7 @@ export * from "./async_queue.ts";
 export * from "./bytes.ts";
 export * from "./encode.ts";
 export * from "./fetchWithRetry.ts";
+export * from "./file_name.ts";
 export * from "./file_permissions.ts";
 export * from "./kv_watch.ts";
 export * from "./limited_map.ts";

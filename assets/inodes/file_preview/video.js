@@ -9,9 +9,9 @@ if (!supportsHls && videoUrl) {
 if (isProcessing) {
   const { processingSignal } = await import("$listenPostProcessing");
   processingSignal.subscribe((data) => {
-    const { status, videoUrl, percentComplete } = data;
+    const { status, percentComplete } = data;
     if (status === "COMPLETE") {
-      handleComplete(videoUrl);
+      handleComplete(data);
     } else if (status === "PENDING") {
       handleProgress(percentComplete);
     }
@@ -27,11 +27,12 @@ async function loadHlsFallback(url) {
   }
 }
 
-function handleComplete(url) {
+function handleComplete({ videoUrl, width, height }) {
+  setVideoStyles({ width, height });
   if (supportsHls) {
-    previewEl.src = url;
+    previewEl.src = videoUrl;
   } else {
-    loadHlsFallback(url);
+    loadHlsFallback(videoUrl);
   }
 }
 
@@ -39,4 +40,14 @@ function handleProgress(perc) {
   if (!perc) return;
   const percEl = document.getElementById("progress-perc");
   percEl.textContent = perc + "%";
+}
+
+export function setVideoStyles({ width, height }) {
+  const maxHeight = parseFloat(getComputedStyle(previewEl).maxHeight);
+  const ratio = height / width;
+
+  Object.assign(previewEl.style, {
+    aspectRatio: `1/${ratio}`,
+    width: `${Math.round(maxHeight / ratio)}px`,
+  });
 }

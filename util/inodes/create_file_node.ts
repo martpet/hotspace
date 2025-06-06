@@ -1,5 +1,5 @@
 import { s3 } from "$aws";
-import { getPermissions } from "$util";
+import { addSuffixBeforeExtension, getPermissions } from "$util";
 import { pick } from "@std/collections";
 import { ulid } from "@std/ulid/ulid";
 import { INODES_BUCKET } from "../consts.ts";
@@ -12,7 +12,7 @@ import { type QueueMsgPostProcessFileNodes } from "../queue/post_process/post_pr
 import { type QueueMsgPostProcessVideoNodes } from "../queue/post_process/post_process_video_node.ts";
 import type { User } from "../types.ts";
 import { setAnyInode } from "./kv_wrappers.ts";
-import { MIME_CONFS } from "./mime.ts";
+import { MIMES } from "./mime_conf.ts";
 import { isPostProcessedFileNode } from "./post_process/type_predicates.ts";
 import type { CustomPostProcessor } from "./post_process/types.ts";
 import type {
@@ -89,12 +89,12 @@ async function createFileNode(
   let commit = { ok: false };
   let commitIndex = 0;
   let inode: FileNode;
+  let fileName = upload.fileName;
 
   while (!commit.ok) {
-    let fileNodeName = encodeURIComponent(upload.fileName);
-
     if (commitIndex) {
-      fileNodeName += `-${commitIndex + 1}`;
+      const suffix = `_(${commitIndex + 1})`;
+      fileName = addSuffixBeforeExtension(upload.fileName, suffix);
       dirEntry = await getInodeById(dirId);
     }
 
@@ -108,7 +108,7 @@ async function createFileNode(
       mimeType: upload.mimeType,
       fileSize: upload.fileSize,
       s3Key: upload.s3Key,
-      name: fileNodeName,
+      name: encodeURIComponent(fileName),
       parentDirId: dirId,
       ownerId: user.id,
       acl: dirEntry.value.acl,
@@ -123,7 +123,7 @@ async function createFileNode(
     const atomic = kv.atomic();
     atomic.check(dirEntry, fileNodeNullCheck);
 
-    const mimeConf = MIME_CONFS[inode.mimeType];
+    const mimeConf = MIMES[inode.mimeType];
 
     if (mimeConf?.proc) {
       inode.postProcess = {

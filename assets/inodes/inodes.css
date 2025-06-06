@@ -226,6 +226,9 @@ a.inode {
       color: CanvasText;
       font-weight: 500;
     }
+    &.size {
+      width: 1px;
+    }
     button[data-sort] {
       background: none;
       border: none;
@@ -266,6 +269,7 @@ a.inode {
     }
     &.size {
       text-align: right;
+      white-space: nowrap;
     }
   }
   @container (width < 640px) {

@@ -1,5 +1,5 @@
 import type { ResourcePermissions } from "$util";
-import { type InodePreviewInfo } from "../../../util/inodes/inode_preview_info.ts";
+import { type FileNodePreview } from "../../../util/inodes/file_node_preview.ts";
 import type { FileNode } from "../../../util/inodes/types.ts";
 import FontSample from "./FontSample.tsx";
 import GeneralPreview from "./GeneralPreview.tsx";
@@ -9,32 +9,31 @@ import VideoPreview from "./VideoPreview.tsx";
 
 interface Props {
   inode: FileNode;
-  preview: InodePreviewInfo;
+  preview: FileNodePreview;
   perm: ResourcePermissions;
 }
 
 export default function FilePreview(props: Props) {
   const { inode, perm, preview } = props;
-  const { displayType } = preview;
 
-  if (displayType === "video") {
+  if (preview?.display === "video") {
     return <VideoPreview inode={inode} perm={perm} />;
   }
 
-  if (displayType === "image") {
+  if (preview?.display === "image") {
     return <ImagePreview inode={inode} preview={preview} perm={perm} />;
   }
 
-  if (displayType === "iframe") {
+  if (preview?.display === "iframe") {
     return <IframePreview inode={inode} preview={preview} perm={perm} />;
   }
 
   return (
     <GeneralPreview inode={inode} perm={perm}>
-      {displayType && (
+      {preview?.display && preview.url && (
         <>
-          {displayType === "audio" && <audio src={preview.url!} controls />}
-          {displayType === "font" && <FontSample src={preview.url!} />}
+          {preview.display === "audio" && <audio src={preview.url} controls />}
+          {preview.display === "font" && <FontSample src={preview.url} />}
         </>
       )}
     </GeneralPreview>

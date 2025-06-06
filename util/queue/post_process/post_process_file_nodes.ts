@@ -9,7 +9,7 @@ import {
   SHARP_PROCESSOR_SQS_URL,
 } from "../../consts.ts";
 import { setAnyInode } from "../../inodes/kv_wrappers.ts";
-import { MIME_CONFS } from "../../inodes/mime.ts";
+import { MIMES } from "../../inodes/mime_conf.ts";
 import {
   isPostProcessedFileNode,
 } from "../../inodes/post_process/type_predicates.ts";
@@ -68,7 +68,7 @@ export async function handlePostProcessFileNodes(
       appUrl,
     };
 
-    const mimeConf = MIME_CONFS[item.mimeType];
+    const mimeConf = MIMES[item.mimeType];
 
     if (!mimeConf?.proc) {
       continue;

@@ -16,6 +16,8 @@ export type DeepPartial<T> = T extends object
   ? { [P in keyof T]?: DeepPartial<T[P]> }
   : T;
 
-export type AllValuesNever<T> = {
+export type Never<T> = {
   [K in keyof T]?: never;
 };
+
+export type MaybeNever<T> = T | Never<T>;

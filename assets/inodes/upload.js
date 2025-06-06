@@ -226,7 +226,7 @@ function renderProgress(opt) {
   const progEl = document.getElementById("upload-progress-bar");
   const infoEl = document.getElementById("upload-progress-info");
   progEl.value = perc;
-  infoEl.innerText = pending ? "Starting…" : `${perc} %`;
+  infoEl.innerText = pending ? "Preparing…" : `${perc} %`;
 }
 
 async function renderBuyTrafficButton() {
