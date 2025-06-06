@@ -297,9 +297,8 @@
     padding: 0 0.3em;
     line-height: 1.4;
   }
-  &[class*="spinner-"]::after {
-    position: relative;
-    top: 1px;
+  &[class*="spinner-"]::before {
+    order: 1;
   }
   .help-tooltip {
     margin-inline: 2px;

@@ -13,10 +13,10 @@ export default function Subscription(_props: unknown, ctx: AppContext) {
     os.name === "Android" && browser.name === "Chrome"
   ) {
     help =
-      `Notifications for new messages appear if ${browser.name} is closed, or this page is closed, or another tab is focused.`;
+      "You'll get chat notifications when this page is closed or in the background.";
   } else {
     help =
-      `Notifications for new messages appear when ${browser.name} is running and this page is either closed or not focused.`;
+      `You'll get chat notifications when this page is closed or unfocused, as long as ${browser.name} is running.`;
   }
 
   return (

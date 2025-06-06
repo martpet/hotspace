@@ -1006,8 +1006,8 @@ async function renderSubscriptionUi() {
   const isBtnAllowHidden = !permissionUnset && !needPushSub;
   const isDeniedTagHidden = permission !== "denied";
   if (!anyLocked) chatSubCheckbox.checked = chatSub;
-  chatSubCheckbox.classList.toggle("not-allowed", notAllowed);
-  chatSubEl.classList.toggle("spinner-xs", chatSubLocked);
+  chatSubCheckbox.classList.toggle("not-allowed", !!notAllowed);
+  chatSubEl.classList.toggle("spinner-xs", !!chatSubLocked);
   chatSubCheckbox.disabled = anyLocked || notAllowed;
   btnAllowChatSub.disabled = anyLocked;
   chatSubDeniedTag.hidden = isDeniedTagHidden;

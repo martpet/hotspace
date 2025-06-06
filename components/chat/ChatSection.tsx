@@ -6,10 +6,10 @@ import { asset } from "../../util/url.ts";
 import Dots from "../Dots.tsx";
 import ChatFooter from "./ChatFooter.tsx";
 import ChatMessages, { chatIntlFmt } from "./ChatMessages.tsx";
+import ChatSubscription from "./ChatSubscription.tsx";
 import DayHeading from "./DayHeading.tsx";
 import Message from "./Message.tsx";
 import MessageEditedTag from "./MessageEditedTag.tsx";
-import Subscription from "./Subscription.tsx";
 
 type Props = (PropsWithLazyLoad | PropsWithoutLazyLoad) & {
   enabled: boolean | undefined;
@@ -79,7 +79,7 @@ export default function ChatSection(props: Props, ctx: AppContext) {
         <span class="names"></span> <Dots />
       </p>
 
-      {ctx.state.canUseServiceWorker && <Subscription />}
+      {ctx.state.canUseServiceWorker && <ChatSubscription />}
 
       <template id="chat-template">
         <DayHeading />
