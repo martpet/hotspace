@@ -5,6 +5,7 @@ import { type JSX } from "preact";
 import { getFileNodeKind } from "../../util/inodes/helpers.ts";
 import type { FileNode, Inode } from "../../util/inodes/types.ts";
 import type { AppContext, User } from "../../util/types.ts";
+import { asset } from "../../util/url.ts";
 import BlankSlate from "../BlankSlate.tsx";
 import RelativeTime from "../RelativeTime.tsx";
 import InodeAccess, { getInodeAccessText } from "./InodeAccess.tsx";
@@ -67,106 +68,110 @@ export default function InodesTable(props: Props, ctx: AppContext) {
   const [initialSortCol, initialSortOrder] = Object.entries(sorting)[0];
 
   return (
-    <div
-      id="inodes"
-      data-sort-col={initialSortCol}
-      data-sort-order={initialSortOrder}
-    >
-      {inodes.length === 0 && canCreate && (
-        blankSlate || (
-          <BlankSlate
-            title={`Empty ${isSpaceRoot ? "space" : "folder"}`}
-            subTitle={`Upload files or create
+    <>
+      <script type="module" src={asset("inodes/table_sorting.js")} />
+
+      <div
+        id="inodes"
+        data-sort-col={initialSortCol}
+        data-sort-order={initialSortOrder}
+      >
+        {inodes.length === 0 && canCreate && (
+          blankSlate || (
+            <BlankSlate
+              title={`Empty ${isSpaceRoot ? "space" : "folder"}`}
+              subTitle={`Upload files or create
               ${isSpaceRoot ? "" : "sub"} folders.`}
-          />
-        )
-      )}
+            />
+          )
+        )}
 
-      {inodes.length > 0 && (
-        <table class="inodes-table">
-          <thead>
-            <tr>
-              {canModifySome && (
-                <th class="select">
-                  {isMultiSelect && <SelectInput isMultiSelect />}
+        {inodes.length > 0 && (
+          <table class="inodes-table">
+            <thead>
+              <tr>
+                {canModifySome && (
+                  <th class="select">
+                    {isMultiSelect && <SelectInput isMultiSelect />}
+                  </th>
+                )}
+                <th class="name" aria-sort={sorting.name}>
+                  <button data-sort="name">Name</button>
                 </th>
-              )}
-              <th class="name" aria-sort={sorting.name}>
-                <button data-sort="name">Name</button>
-              </th>
-              <th class="date" aria-sort={sorting.date}>
-                <button data-sort="date">Created</button>
-              </th>
-              {canViewAclSome && (
-                <th aria-sort={sorting.access}>
-                  <button data-sort="access">Access</button>
+                <th class="date" aria-sort={sorting.date}>
+                  <button data-sort="date">Created</button>
                 </th>
-              )}
-              {!skipSize && (
-                <th class="size" aria-sort={sorting.size}>
-                  <button data-sort="size">Size</button>
-                </th>
-              )}
-              {!skipKind && (
-                <th class="kind" aria-sort={sorting.kind}>
-                  <button data-sort="kind">Kind</button>
-                </th>
-              )}
-            </tr>
-          </thead>
+                {canViewAclSome && (
+                  <th aria-sort={sorting.access}>
+                    <button data-sort="access">Access</button>
+                  </th>
+                )}
+                {!skipSize && (
+                  <th class="size" aria-sort={sorting.size}>
+                    <button data-sort="size">Size</button>
+                  </th>
+                )}
+                {!skipKind && (
+                  <th class="kind" aria-sort={sorting.kind}>
+                    <button data-sort="kind">Kind</button>
+                  </th>
+                )}
+              </tr>
+            </thead>
 
-          <tbody>
-            {inodes.map((inode) => {
-              const perm = inodesPermissions.byId[inode.id];
+            <tbody>
+              {inodes.map((inode) => {
+                const perm = inodesPermissions.byId[inode.id];
 
-              if (!perm.canRead) {
-                return null;
-              }
+                if (!perm.canRead) {
+                  return null;
+                }
 
-              return (
-                <tr data-type={inode.type}>
-                  {perm.canModify && (
-                    <td class="select">
-                      <SelectInput isMultiSelect={isMultiSelect} />
+                return (
+                  <tr data-type={inode.type}>
+                    {perm.canModify && (
+                      <td class="select">
+                        <SelectInput isMultiSelect={isMultiSelect} />
+                      </td>
+                    )}
+                    <td class="name">
+                      <InodeAnchor inode={inode} skipIcons={skipIcons} />
                     </td>
-                  )}
-                  <td class="name">
-                    <InodeAnchor inode={inode} skipIcons={skipIcons} />
-                  </td>
-                  <td class="date">
-                    <RelativeTime ulid={inode.id} />
-                  </td>
-                  {canViewAclSome && (
-                    <td class="access">
-                      <InodeAccess inode={inode} perm={perm} />
+                    <td class="date">
+                      <RelativeTime ulid={inode.id} />
                     </td>
-                  )}
-                  {!skipSize && (
-                    <td
-                      class="size"
-                      data-bytes={inode.type === "file"
-                        ? inode.fileSize
-                        : undefined}
-                    >
-                      {inode.type === "file"
-                        ? formatBytes(inode.fileSize)
-                        : "--"}
-                    </td>
-                  )}
-                  {!skipKind && (
-                    <td class="kind">
-                      {inode.type === "file"
-                        ? getFileNodeKind(inode)
-                        : "Folder"}
-                    </td>
-                  )}
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      )}
-    </div>
+                    {canViewAclSome && (
+                      <td class="access">
+                        <InodeAccess inode={inode} perm={perm} />
+                      </td>
+                    )}
+                    {!skipSize && (
+                      <td
+                        class="size"
+                        data-bytes={inode.type === "file"
+                          ? inode.fileSize
+                          : undefined}
+                      >
+                        {inode.type === "file"
+                          ? formatBytes(inode.fileSize)
+                          : "--"}
+                      </td>
+                    )}
+                    {!skipKind && (
+                      <td class="kind">
+                        {inode.type === "file"
+                          ? getFileNodeKind(inode)
+                          : "Folder"}
+                      </td>
+                    )}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </>
   );
 }
 
