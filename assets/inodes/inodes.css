@@ -190,6 +190,12 @@ a.inode {
       }
       &:has(.select :checked) {
         background-color: var(--bg-highlight);
+        @media (prefers-color-scheme: dark) {
+          &,
+          button.inode-edit-acl {
+            color: CanvasText;
+          }
+        }
         td {
           border-bottom-color: Highlight;
           tr:first-child & {
