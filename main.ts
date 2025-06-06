@@ -6,8 +6,8 @@ import deleteAccount from "./handlers/account/delete.ts";
 import logout from "./handlers/account/logout.ts";
 import register from "./handlers/account/register.tsx";
 import adminSettings from "./handlers/admin/settings.tsx";
-import listUsers from "./handlers/admin/users/list_users.tsx";
-import userHandler from "./handlers/admin/users/user.tsx";
+import adminUsers from "./handlers/admin/users/list_users.tsx";
+import adminUser from "./handlers/admin/users/show_user.tsx";
 import credCreatOpt from "./handlers/auth/credential_creation_options.ts";
 import credCreatVer from "./handlers/auth/credential_creation_verify.ts";
 import credReqOpt from "./handlers/auth/credential_request_options.ts";
@@ -73,8 +73,8 @@ app.get("/account", account);
 app.delete("/account", deleteAccount);
 
 app.on(["GET", "POST"], "/admin/settings", adminSettings);
-app.get("/admin/users", listUsers);
-app.on(["GET", "POST"], "/admin/users/:userId", userHandler);
+app.get("/admin/users", adminUsers);
+app.on(["GET", "POST"], "/admin/users/:userId", adminUser);
 
 app.post("/payment/intent", createPaymentIntent);
 app.get("/payment/listen-created/:paymentIntentId", listenPaymentCreated);
