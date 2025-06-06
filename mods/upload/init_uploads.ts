@@ -4,6 +4,7 @@ import { DAY } from "@std/datetime";
 import { contentType, parseMediaType } from "@std/media-types";
 import { getSignatureKey, getSignedUrl } from "aws_s3_presign";
 import { AWSSignerV4 } from "deno_aws_sign_v4";
+import { getFileExtension } from "../util/file_name.ts";
 import { extraMediaTypesByExtension } from "./consts.ts";
 import type { SavedUpload, UploadInitData } from "./utils/types.ts";
 
@@ -51,7 +52,7 @@ export async function initUploads(options: InitUploadOptions) {
     uploadsInitData.map((upload) =>
       queue.add(async () => {
         const { numberOfParts, savedUpload } = upload;
-        const mimeType = upload.mimeType || findMimeType(upload) || "";
+        const mimeType = findMimeType(upload);
         const finishedPartsNumbers = [];
         let uploadId;
         let s3Key;
@@ -123,9 +124,11 @@ function isValidSavedUpload(
 }
 
 function findMimeType(upload: UploadInitData) {
-  const ext = upload.fileName.split(".").at(-1);
-  if (!ext) return;
+  if (upload.mimeType) return upload.mimeType;
+  const ext = getFileExtension(upload.fileName);
   const cTypeHeader = contentType(`.${ext}`);
-  if (!cTypeHeader) return extraMediaTypesByExtension[ext];
-  return parseMediaType(cTypeHeader)[0];
+  if (cTypeHeader) return parseMediaType(cTypeHeader)[0];
+  const extra = extraMediaTypesByExtension[ext];
+  if (extra) return extra;
+  return "application/octet-stream";
 }
