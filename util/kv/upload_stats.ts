@@ -21,12 +21,15 @@ export function setUploadStats(options: {
   const { fileNode, isAdd, atomic = kv.atomic() } = options;
   const { fileSize } = fileNode;
   const bytesBigInt = toKvSumBigInt(isAdd ? fileSize : fileSize * -1);
-  const mimeBigInt = toKvSumBigInt(isAdd ? 1 : -1);
 
   atomic
     .sum(keys.storedBytes(), bytesBigInt)
-    .sum(keys.storedBytesByUser(fileNode.ownerId), bytesBigInt)
-    .sum(keys.mimeTypes(fileNode.mimeType), mimeBigInt);
+    .sum(keys.storedBytesByUser(fileNode.ownerId), bytesBigInt);
+
+  if (fileNode.mimeType) {
+    const mimeBigInt = toKvSumBigInt(isAdd ? 1 : -1);
+    atomic.sum(keys.mimeTypes(fileNode.mimeType), mimeBigInt);
+  }
 
   if (isAdd) {
     atomic
@@ -90,4 +93,17 @@ export function setUserRemainingUploadBytes(opt: {
     keys.remainingUploadBytesByUser(userId),
     new Deno.KvU64(BigInt(bytes)),
   );
+}
+
+export async function listMimeTypes() {
+  const prefix = keys.mimeTypes("").slice(0, -1);
+  const iter = kv.list<bigint>({ prefix }, { consistency: "eventual" });
+  const array = await Array.fromAsync(iter, (it) => {
+    return {
+      name: it.key.at(-1)!.toString(),
+      count: Number(it.value),
+    };
+  });
+  array.sort((a, b) => b.count - a.count);
+  return array;
 }

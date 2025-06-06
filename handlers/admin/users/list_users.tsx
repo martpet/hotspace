@@ -12,7 +12,13 @@ export default withAdmin(async () => {
 
   return (
     <AdminPage title="Users">
-      <table>
+      <table class="basic-table">
+        <thead>
+          <tr>
+            <th>Username</th>
+            <th>Created</th>
+          </tr>
+        </thead>
         {users.map((user) => (
           <tr>
             <td>

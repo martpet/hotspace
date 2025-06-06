@@ -40,10 +40,11 @@ async function handleGet(ctx: AdminContext) {
 
   return (
     <AdminPage title={user.username}>
-      <p>Created: {adminDateFmt.format(new Date(decodeTime(user.id)))}</p>
       <details>
-        <summary>entry</summary>
-        <pre>{JSON.stringify(user,  null, 2)}</pre>
+        <summary>
+          Created: {adminDateFmt.format(new Date(decodeTime(user.id)))}
+        </summary>
+        <pre class="basic-pre">{JSON.stringify(user, null, 2)}</pre>
       </details>
       <form method="post">
         <label>

@@ -5,7 +5,9 @@ import account from "./handlers/account/account.tsx";
 import deleteAccount from "./handlers/account/delete.ts";
 import logout from "./handlers/account/logout.ts";
 import register from "./handlers/account/register.tsx";
+import mime from "./handlers/admin/mime.tsx";
 import adminSettings from "./handlers/admin/settings.tsx";
+import showAdmin from "./handlers/admin/show.tsx";
 import adminUsers from "./handlers/admin/users/list_users.tsx";
 import adminUser from "./handlers/admin/users/show_user.tsx";
 import credCreatOpt from "./handlers/auth/credential_creation_options.ts";
@@ -72,9 +74,11 @@ app.post("/logout", logout);
 app.get("/account", account);
 app.delete("/account", deleteAccount);
 
+app.get("/admin", showAdmin);
 app.on(["GET", "POST"], "/admin/settings", adminSettings);
 app.get("/admin/users", adminUsers);
 app.on(["GET", "POST"], "/admin/users/:userId", adminUser);
+app.get("/admin/mime", mime);
 
 app.post("/payment/intent", createPaymentIntent);
 app.get("/payment/listen-created/:paymentIntentId", listenPaymentCreated);

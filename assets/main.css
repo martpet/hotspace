@@ -187,6 +187,25 @@ form {
   }
 }
 
+.basic-table {
+  border-collapse: collapse;
+  thead {
+    background: var(--bg-light);
+  }
+  th {
+    text-align: left;
+  }
+  th,
+  td {
+    padding: 0.2em 0.5em;
+    border: 1px solid var(--border-grey);
+  }
+}
+
+.basic-pre {
+  background: var(--bg-light);
+}
+
 .flash {
   position: static;
   width: 100%;
