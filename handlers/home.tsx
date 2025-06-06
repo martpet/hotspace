@@ -2,9 +2,9 @@ import { MINUTE } from "@std/datetime/constants";
 import { HEADER } from "@std/http/unstable-header";
 import About from "../components/About.tsx";
 import BlankSlate from "../components/BlankSlate.tsx";
-import BulkActions from "../components/inodes/BulkActions.tsx";
 import ButtonCreateDir from "../components/inodes/ButtonCreateDir.tsx";
 import InodesTable from "../components/inodes/InodesTable.tsx";
+import TableActions from "../components/inodes/TableActions.tsx";
 import Page from "../components/pages/Page.tsx";
 import { ROOT_DIR_ID } from "../util/inodes/consts.ts";
 import { listRootDirsByOwner } from "../util/kv/inodes.ts";
@@ -80,7 +80,7 @@ export default async function homeHandler(ctx: AppContext) {
 
   const inodesMenu = (
     <menu class="menu-bar">
-      <BulkActions dirId={ROOT_DIR_ID} isSingleSelect inodeLabel="Space" />
+      <TableActions dirId={ROOT_DIR_ID} isSingleSelect inodeLabel="Space" />
       <ButtonCreateDir parentDirId={ROOT_DIR_ID} />
     </menu>
   );
