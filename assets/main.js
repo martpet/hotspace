@@ -245,6 +245,8 @@ async function postSubscriber({ subscriber, pushSub = null }) {
     const newSubscriber = await resp.json();
     await db.setSubscriber(newSubscriber);
     return newSubscriber;
+  } else if (resp.status === 422) {
+    await db.deleteSubscriber();
   }
 }
 
