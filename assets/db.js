@@ -21,7 +21,9 @@ function openDb() {
   openReq.onsuccess = (event) => {
     const db = event.target.result;
     dbOpened.resolve(db);
-    db.onclose = () => dbOpened = null;
+    db.onclose = () => {
+      dbOpened = null;
+    };
   };
 
   return dbOpened.promise;
@@ -34,18 +36,29 @@ function openDb() {
 export async function getSubscriber() {
   const db = await openDb();
   return new Promise((resolve) => {
-    db.transaction(CONFIG)
-      .objectStore(CONFIG)
-      .get("subscriber").onsuccess = (ev) => resolve(ev.target.result);
+    db.transaction(CONFIG).objectStore(CONFIG).get("subscriber").onsuccess = (
+      ev
+    ) => resolve(ev.target.result);
   });
 }
 
 export async function setSubscriber(subscriber) {
   const db = await openDb();
   return new Promise((resolve) => {
-    db.transaction(CONFIG, "readwrite")
+    db
+      .transaction(CONFIG, "readwrite")
       .objectStore(CONFIG)
       .put(subscriber, "subscriber").onsuccess = resolve;
+  });
+}
+
+export async function deleteSubscriber() {
+  const db = await openDb();
+  return new Promise((resolve) => {
+    db
+      .transaction(CONFIG, "readwrite")
+      .objectStore(CONFIG)
+      .delete("subscriber").onsuccess = resolve;
   });
 }
 
@@ -56,16 +69,17 @@ export async function setSubscriber(subscriber) {
 export async function getChatSub(chatId) {
   const db = await openDb();
   return new Promise((resolve) => {
-    db.transaction(CHAT_SUBS)
-      .objectStore(CHAT_SUBS)
-      .get(chatId).onsuccess = (ev) => resolve(ev.target.result);
+    db.transaction(CHAT_SUBS).objectStore(CHAT_SUBS).get(chatId).onsuccess = (
+      ev
+    ) => resolve(ev.target.result);
   });
 }
 
 export async function setChatSub(data) {
   const db = await openDb();
   return new Promise((resolve) => {
-    db.transaction(CHAT_SUBS, "readwrite")
+    db
+      .transaction(CHAT_SUBS, "readwrite")
       .objectStore(CHAT_SUBS)
       .put(data).onsuccess = resolve;
   });
@@ -74,7 +88,8 @@ export async function setChatSub(data) {
 export async function deleteChatSub(chatId) {
   const db = await openDb();
   return new Promise((resolve) => {
-    db.transaction(CHAT_SUBS, "readwrite")
+    db
+      .transaction(CHAT_SUBS, "readwrite")
       .objectStore(CHAT_SUBS)
       .delete(chatId).onsuccess = resolve;
   });

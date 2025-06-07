@@ -39,7 +39,7 @@ export default function Subscription(_props: unknown, ctx: AppContext) {
         </span>
 
         <button id="chat-sub-allow" hidden>
-          Turn on
+          Allow
         </button>
       </div>
 

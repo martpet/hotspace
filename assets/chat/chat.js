@@ -36,7 +36,7 @@ applyChatBoxSize();
 lazyLoadMsgs();
 showIosChatSubHelp();
 insertMessageDialogs();
-syncSubscriber().then(() => checkExpiredChatSub());
+syncSubscriber().then(syncChatSub);
 
 const mainBox = document.getElementById("chat-main");
 const chatTmpl = document.getElementById("chat-template");
@@ -64,7 +64,7 @@ const dateTimeFmt = new Intl.DateTimeFormat(locale, {
   timeStyle: "short",
 });
 
-const chatSubLockSignal = createSignal(false);
+const chatSubProgressSignal = createSignal(false);
 const networkOnlineSignal = createSignal(navigator.onLine);
 const unseenChatMsgSignal = createSignal();
 const userActivitySignal = createSignal(new Date());
@@ -105,7 +105,7 @@ msgsBoxReady.promise.then(() => {
 // Signal's Effects
 // =====================
 
-chatSubLockSignal.subscribe(() => {
+chatSubProgressSignal.subscribe(() => {
   renderSubscriptionUi();
 });
 
@@ -391,19 +391,19 @@ btnScrollToUnseen.addEventListener("click", () => {
  * Checkbox "Subscribe" Change
  */
 chatSubCheckbox?.addEventListener("change", async () => {
-  chatSubLockSignal.value = true;
+  chatSubProgressSignal.value = true;
   const subscriber = await createPushSub();
   if (subscriber) await toggleChatSub(chatSubCheckbox.checked);
-  chatSubLockSignal.value = false;
+  chatSubProgressSignal.value = false;
 });
 
 /**
  * Button "Allow Subscribe" Click
  */
 btnAllowChatSub?.addEventListener("click", async () => {
-  chatSubLockSignal.value = true;
+  chatSubProgressSignal.value = true;
   await createPushSub();
-  chatSubLockSignal.value = false;
+  chatSubProgressSignal.value = false;
 });
 
 /**
@@ -686,24 +686,24 @@ async function toggleChatSub(isSubscribe) {
   }
 }
 
-async function checkExpiredChatSub() {
+async function syncChatSub() {
   if (!canUseServiceWorker) return;
-  chatSubLockSignal.value = true;
+  pushSubLockSignal.value = true;
   const db = await import("$db");
-  const subscriber = await db.getSubscriber();
-  if (isChatSubExpired(subscriber)) {
-    await db.deleteChatSub(chatId);
-  }
-  chatSubLockSignal.value = false;
-}
-
-function isChatSubExpired(subscriber) {
-  return (
-    subscriber &&
-    !subscriber.pushSub &&
+  const [subscriber, chatSub] = await Promise.all([
+    db.getSubscriber(),
+    db.getChatSub(chatId),
+  ]);
+  const chatSubExpiredWithoutPushSub =
     Date.now() - new Date(subscriber.pushSubUpdatedAt).getTime() >
-      Number(chatSubExpires)
-  );
+    Number(chatSubExpires);
+  if (subscriber && !subscriber.pushSub && chatSubExpiredWithoutPushSub) {
+    await toggleChatSub(false);
+  } else if (!subscriber && chatSub) {
+    await createPushSub();
+    await toggleChatSub(true);
+  }
+  pushSubLockSignal.value = false;
 }
 
 async function dispatchSubscriberOnline({ skipChatSubUpdate } = {}) {
@@ -992,8 +992,6 @@ async function renderSubscriptionUi() {
   if (!chatSubCheckbox || chatSubEl.hidden) {
     return;
   }
-  const chatSubLocked = chatSubLockSignal.value;
-  const pushSubLocked = pushSubLockSignal.value;
   const [chatSub, pushSub] = await Promise.all([
     import("$db").then((db) => db.getChatSub(chatId)),
     getPushSub(),
@@ -1002,14 +1000,14 @@ async function renderSubscriptionUi() {
   const needPushSub = chatSub && !pushSub && permission !== "denied";
   const permissionUnset = chatSub && permission === "default";
   const notAllowed = permission === "denied" || permissionUnset || needPushSub;
-  const anyLocked = chatSubLocked || pushSubLocked;
+  const isLocked = chatSubProgressSignal.value || pushSubLockSignal.value;
   const isBtnAllowHidden = !permissionUnset && !needPushSub;
   const isDeniedTagHidden = permission !== "denied";
-  if (!anyLocked) chatSubCheckbox.checked = chatSub;
+  if (!isLocked) chatSubCheckbox.checked = chatSub;
   chatSubCheckbox.classList.toggle("not-allowed", !!notAllowed);
-  chatSubEl.classList.toggle("spinner-xs", !!chatSubLocked);
-  chatSubCheckbox.disabled = anyLocked || notAllowed;
-  btnAllowChatSub.disabled = anyLocked;
+  chatSubEl.classList.toggle("spinner-xs", chatSubProgressSignal.value);
+  chatSubCheckbox.disabled = isLocked || notAllowed;
+  btnAllowChatSub.disabled = isLocked;
   chatSubDeniedTag.hidden = isDeniedTagHidden;
   btnAllowChatSub.hidden = isBtnAllowHidden;
   chatSubHelp.hidden = !isDeniedTagHidden || !isBtnAllowHidden;
