@@ -16,7 +16,7 @@ export default function contactHandler(ctx: AppContext) {
       <div class="prose">
         <h1>{title}</h1>
         <p>
-          HotSpace is independently developed and maintained. All support
+          HotSpace is independently developed and maintained, and all support
           inquiries are handled personally.
         </p>
 
