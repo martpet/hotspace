@@ -40,9 +40,9 @@ function SiteName(props: { isHeading?: boolean; isLink?: boolean }) {
   return props.isHeading
     ? <h1 class="site-name">HotSpace</h1>
     : (
-      <p class="site-name">
+      <nav class="site-name">
         {props.isLink ? <a href="/">HotSpace</a> : "HotSpace"}
-      </p>
+      </nav>
     );
 }
 

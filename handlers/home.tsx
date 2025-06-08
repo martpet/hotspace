@@ -28,9 +28,10 @@ export default async function homeHandler(ctx: AppContext) {
     const { displayInitialUploadQuota, initialUploadQuota } = settings || {};
 
     return (
-      <Page>
+      <Page header={{ siteNameIsHeading: true }}>
         <About
           initialUploadQuota={displayInitialUploadQuota && initialUploadQuota}
+          noName
         />
       </Page>
     );
