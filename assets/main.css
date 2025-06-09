@@ -414,7 +414,7 @@ pre.basic {
     font: inherit;
   }
   .username-help {
-    margin: 1em 0 1.5em;
+    margin: 0.8em 0 1.5em;
     font-size: 0.9em;
     color: var(--text-grey-dark);
   }
@@ -512,7 +512,7 @@ pre.basic {
 .about {
   text-align: center;
   line-height: inherit;
-  h1:not(.box h1) {
+  .site-name {
     font-size: 1em;
     margin-block: 0.67em;
     font-weight: 600;
@@ -538,7 +538,7 @@ pre.basic {
     h1 {
       margin-block: 0.83em;
       font-size: 1.5em;
-      font-weight: 600;
+      font-weight: 500;
     }
     ul {
       margin-bottom: 0;

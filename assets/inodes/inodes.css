@@ -6,11 +6,6 @@
   .inodes-header {
     margin-bottom: 0.5em;
   }
-  &:has(#file-preview-canvas) {
-    #page-header {
-      border-bottom: 0;
-    }
-  }
 }
 
 .inodes-header {

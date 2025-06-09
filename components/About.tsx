@@ -25,7 +25,7 @@ export default function About(props: Props) {
       )}
 
       {!noName && (
-        <h1>
+        <h1 class="site-name">
           HotSpace
         </h1>
       )}
