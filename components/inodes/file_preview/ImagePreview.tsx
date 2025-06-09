@@ -22,7 +22,6 @@ export default function ImagePreview(props: Props) {
   let timeoutAfter;
   let isProcessing;
   let showError;
-  let downloadText;
   let style;
 
   if (inode.postProcess) {
@@ -30,7 +29,6 @@ export default function ImagePreview(props: Props) {
       timeoutAfter = getRemainingProcessingTimeout(inode);
       isProcessing = !!timeoutAfter;
       showError = inode.postProcess.status === "ERROR" || timeoutAfter === 0;
-      downloadText = "Download original";
     }
     const { width, height } = (inode as PostProcessedToImage).postProcess;
     if (width && height) style = getResponsiveMediaStyles(width, height);
@@ -40,7 +38,6 @@ export default function ImagePreview(props: Props) {
     <GeneralPreview
       inode={inode}
       perm={perm}
-      downloadText={downloadText}
       isPostProcessError={showError}
     >
       {isProcessing && (

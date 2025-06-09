@@ -25,7 +25,6 @@ export default function VideoPreview(props: Props, ctx: AppContext) {
   let videoUrl;
   let width;
   let height;
-  let downloadText;
   let style;
 
   if (isPostProcessed) {
@@ -35,7 +34,6 @@ export default function VideoPreview(props: Props, ctx: AppContext) {
     videoUrl = inode.postProcess.playlistDataUrl;
     width = inode.postProcess.width;
     height = inode.postProcess.height;
-    downloadText = "Download original";
     if (width && height) style = getResponsiveMediaStyles(width, height);
   }
 
@@ -43,7 +41,6 @@ export default function VideoPreview(props: Props, ctx: AppContext) {
     <GeneralPreview
       inode={inode}
       perm={perm}
-      downloadText={downloadText}
     >
       {isPostProcessed && (
         <>

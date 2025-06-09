@@ -18,20 +18,17 @@ export default function IframePreview(props: Props) {
   let timeoutAfter;
   let isProcessing;
   let showError;
-  let downloadText;
 
   if (inode.postProcess?.previewMimeType) {
     timeoutAfter = getRemainingProcessingTimeout(inode);
     isProcessing = !!timeoutAfter;
     showError = inode.postProcess.status === "ERROR" || timeoutAfter === 0;
-    downloadText = "Download original";
   }
 
   return (
     <GeneralPreview
       inode={inode}
       perm={perm}
-      downloadText={downloadText}
       isPostProcessError={showError}
     >
       {isProcessing && (

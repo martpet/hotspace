@@ -1,4 +1,5 @@
 import type { ResourcePermissions } from "$util";
+import { format as formatBytes } from "@std/fmt/bytes";
 import { type ComponentChildren } from "preact";
 import type { FileNode } from "../../../util/inodes/types.ts";
 import ButtonToggleChat from "../../chat/ButtonToggleChat.tsx";
@@ -7,7 +8,6 @@ import ButtonDeleteInode from "../ButtonDeleteInode.tsx";
 interface Props {
   inode: FileNode;
   perm: ResourcePermissions;
-  downloadText?: string;
   children?: ComponentChildren;
   isPostProcessError?: boolean;
 }
@@ -17,7 +17,6 @@ export default function GeneralPreview(props: Props) {
     inode,
     children,
     perm,
-    downloadText,
     isPostProcessError,
   } = props;
 
@@ -38,9 +37,8 @@ export default function GeneralPreview(props: Props) {
           </menu>
         )}
       </header>
-      <a href={`/inodes/file/${inode.id}`}>
-        {!isPostProcessError && downloadText || "Download file"} ↓
-      </a>
+      <a href={`/inodes/file/${inode.id}`}>Download ↓</a>{" "}
+      ({formatBytes(inode.fileSize)})
     </>
   );
 }
