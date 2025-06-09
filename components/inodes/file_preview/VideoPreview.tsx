@@ -62,7 +62,9 @@ export default function VideoPreview(props: Props, ctx: AppContext) {
           {isProcessing && (
             <Spinner block id="file-preview-loader">
               Converting video…{" "}
-              <span id="progress-perc">{percentComplete || null}</span>
+              <span id="progress-perc">
+                {percentComplete ? `${percentComplete}%` : null}
+              </span>
             </Spinner>
           )}
 
