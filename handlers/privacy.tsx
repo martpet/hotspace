@@ -29,9 +29,11 @@ export default function privacyHandler(ctx: AppContext) {
         </p>
 
         <ul>
-          <li>
+          {
+            /* <li>
             <strong>IP address</strong>
-          </li>
+          </li> */
+          }
           <li>
             <strong>Usage data</strong>, such as file uploads, downloads, and
             traffic volume
