@@ -1,3 +1,5 @@
+import { MINUTE } from "@std/datetime";
+import { HEADER } from "@std/http/unstable-header";
 import RegForm from "../../components/auth/RegForm.tsx";
 import Page from "../../components/pages/Page.tsx";
 import type { AppContext } from "../../util/types.ts";
@@ -12,6 +14,11 @@ export default function registerHandler(ctx: AppContext) {
 
   const head = <script type="module" src={asset("reg.js")} />;
   const title = "Create an Account";
+
+  ctx.resp.headers.set(
+    HEADER.CacheControl,
+    `Cache-Control: public, max-age=${MINUTE * 30 / 1000}`,
+  );
 
   return (
     <Page

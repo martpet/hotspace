@@ -19,13 +19,13 @@ export default async function homeHandler(ctx: AppContext) {
   const user = ctx.state.user;
 
   if (!user) {
+    const { value: settings } = await getSettings("eventual");
+    const { displayInitialUploadQuota, initialUploadQuota } = settings || {};
+
     ctx.resp.headers.set(
       HEADER.CacheControl,
       `Cache-Control: public, max-age=${MINUTE * 30 / 1000}`,
     );
-
-    const { value: settings } = await getSettings("eventual");
-    const { displayInitialUploadQuota, initialUploadQuota } = settings || {};
 
     return (
       <Page header={{ siteNameIsHeading: true }}>
@@ -36,8 +36,6 @@ export default async function homeHandler(ctx: AppContext) {
       </Page>
     );
   }
-
-  ctx.resp.headers.set(HEADER.CacheControl, `Cache-Control: private, no-store`);
 
   const fragmentId = ctx.url.searchParams.get("fragment") as FragmentId | null;
   const from = ctx.state.from as From | undefined;
