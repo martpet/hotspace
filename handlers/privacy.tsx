@@ -5,6 +5,7 @@ import { AppContext } from "../util/types.ts";
 
 export default function privacyHandler(ctx: AppContext) {
   const title = "Privacy Policy";
+  const IS_IP_COLLECTED = false;
 
   ctx.resp.headers.set(
     HEADER.CacheControl,
@@ -24,16 +25,17 @@ export default function privacyHandler(ctx: AppContext) {
         <h2>Information Collected</h2>
 
         <p>
-          When you register, use this site, or make a payment, the following
-          information may be collected:
+          When you {IS_IP_COLLECTED && "register,"}{" "}
+          use this site, or make a payment, the following information may be
+          collected:
         </p>
 
         <ul>
-          {
-            /* <li>
-            <strong>IP address</strong>
-          </li> */
-          }
+          {IS_IP_COLLECTED && (
+            <li>
+              <strong>IP address</strong>
+            </li>
+          )}
           <li>
             <strong>Usage data</strong>, such as file uploads, downloads, and
             traffic volume
