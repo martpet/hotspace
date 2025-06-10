@@ -19,22 +19,21 @@ let dialog;
 let form;
 let btnSubmit;
 let fileInput;
+let dropOverlay;
 let btnClose;
 let errorEl;
 let worker;
 let uploadedItemsCount;
 
 btnShowDialog.disabled = false;
+initDragAndDropEvents();
 
 // =====================
 // Events
 // =====================
 
 btnShowDialog.onclick = () => {
-  if (!dialog) {
-    insertDialog();
-    initDialogEvents();
-  }
+  initDialog();
   statusSignal.value = "idle";
 };
 
@@ -95,6 +94,38 @@ addEventListener("online", () => {
   onlineSignal.value = true;
 });
 
+function initDragAndDropEvents() {
+  let dragCounter = 0;
+
+  document.addEventListener("dragenter", (e) => {
+    e.preventDefault();
+    dragCounter++;
+    initDialog();
+    dropOverlay.showPopover();
+  });
+
+  document.addEventListener("dragover", (e) => {
+    e.preventDefault();
+  });
+
+  document.addEventListener("dragleave", (e) => {
+    e.preventDefault();
+    dragCounter--;
+    if (dragCounter === 0) {
+      dropOverlay.hidePopover();
+    }
+  });
+
+  document.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dragCounter = 0;
+    addFilesToInput(e.dataTransfer.files);
+    dropOverlay.hidePopover();
+    statusSignal.value = "idle";
+    btnSubmit.focus();
+  });
+}
+
 // =====================
 // Signals
 // =====================
@@ -150,6 +181,13 @@ onlineSignal.subscribe((isOnline) => {
 // Utils
 // =====================
 
+function initDialog() {
+  if (!dialog) {
+    insertDialog();
+    initDialogEvents();
+  }
+}
+
 function startUpload() {
   worker = new Worker(workerSrc, { type: "module" });
   worker.onmessage = workerMsgHandler;
@@ -163,6 +201,13 @@ function startUpload() {
   });
 }
 
+function addFilesToInput(files) {
+  const dt = new DataTransfer();
+  for (const file of fileInput.files) dt.items.add(file);
+  for (const file of files) dt.items.add(file);
+  fileInput.files = dt.files;
+}
+
 // =====================
 // Rendering
 // =====================
@@ -171,13 +216,12 @@ function insertDialog() {
   document.body.insertAdjacentHTML(
     "beforeend",
     `
+      <div popover id="upload-drop-overlay">Drop files here</div>
       <dialog id="upload-dialog">
         <h1>Upload Files</h1>
         <p id="upload-dialog-error" class="alert error" hidden></p>
         <form class="basic">
-          <label>
-            <input type="file" multiple autofocus required />
-          </label>
+          <input type="file" multiple autofocus required />
           <footer>
             <button type="button" class="close">Cancel</button>
             <button class="submit"></button>
@@ -189,6 +233,7 @@ function insertDialog() {
   dialog = document.getElementById("upload-dialog");
   form = dialog.querySelector("form");
   fileInput = form.querySelector("input[type=file]");
+  dropOverlay = document.getElementById("upload-drop-overlay");
   btnSubmit = form.querySelector("button.submit");
   btnClose = form.querySelector("button.close");
   errorEl = document.getElementById("upload-dialog-error");
@@ -233,11 +278,11 @@ async function renderBuyTrafficButton() {
   const template = document.getElementById("button-buy-traffic-template");
   const buttonOpen = template.content.querySelector("button").cloneNode(true);
   errorEl.append(buttonOpen);
-  const uploadMod = await import(template.dataset.script);
-  uploadMod.initButtonOpen();
-  uploadMod.initDialog();
-  uploadMod.checkoutSignal.subscribe(onBuyTrafficCheckoutSignal);
-  uploadMod.dialogOpenSignal.subscribe(onBuyTrafficDialogOpenSignal);
+  const buyMod = await import(template.dataset.script);
+  buyMod.initButtonOpen();
+  buyMod.initDialog();
+  buyMod.checkoutSignal.subscribe(onBuyTrafficCheckoutSignal);
+  buyMod.dialogOpenSignal.subscribe(onBuyTrafficDialogOpenSignal);
 }
 
 function renderSuccessFlash() {

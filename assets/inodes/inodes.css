@@ -102,6 +102,9 @@
 }
 
 #upload-dialog {
+  input {
+    width: 100%;
+  }
   #upload-dialog-error {
     display: flex;
     align-items: center;
@@ -117,6 +120,21 @@
       font-variant-numeric: tabular-nums;
       text-align: right;
     }
+  }
+}
+
+#upload-drop-overlay {
+  width: 100%;
+  height: 100%;
+  font-size: 1.8em;
+  background: rgba(0, 0, 0, 0.6);
+  border: 4px dashed white;
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6);
+  &:popover-open {
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }
 
