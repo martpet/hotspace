@@ -39,7 +39,7 @@ export default function GeneralPreview(props: Props) {
       </header>
       <div id="download-inode">
         <span class="icon-circle">↓</span>{" "}
-        <a href={`/inodes/file/${inode.id}`}>Download</a>{" "}
+        <a href={`/download/${inode.id}`}>Download</a>{" "}
         ({formatBytes(inode.fileSize)})
       </div>
     </>

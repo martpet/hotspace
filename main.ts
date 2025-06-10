@@ -98,11 +98,11 @@ app.post("/inodes/dirs", setDirByPath);
 app.post("/inodes/delete", deleteInodes);
 app.post("/inodes/upload/initiate", initiateUpload);
 app.post("/inodes/upload/complete", completeUpload);
-app.get("/inodes/file/:inodeId", getFile);
 app.get("/inodes/video-playlist/:inodeId/:renditionIndex", videoPlaylist);
 app.post("/inodes/acl", changeAcl);
 app.get("/inodes/acl-preview/:inodeId", getAclPreview);
 app.get("/inodes/listen-post-processing/:inodeId", listenPostProcessing);
+app.get("/download/:inodeId", getFile);
 
 app.get("/chat/lazy-load/:chatId", chatLazyLoad);
 app.get("/chat/connection/:chatId", chatConnection);

@@ -8,6 +8,7 @@ export const reservedWords = [
   "auth",
   "chat",
   "contact",
+  "download",
   "help",
   "inodes",
   "login",
