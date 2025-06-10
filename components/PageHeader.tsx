@@ -54,7 +54,7 @@ function AccountNav(props: { username: string }, ctx: AppContext) {
   return (
     <>
       {isAccountPage ? username : <a href="/account">{username}</a>}
-      {!isAboutPage && <a href="/about" class="help-sign">?</a>}
+      {!isAboutPage && <a href="/about" class="icon-circle">?</a>}
       <ButtonLogout />
     </>
   );

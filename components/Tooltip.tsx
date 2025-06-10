@@ -27,7 +27,7 @@ export function HelpTooltip(
     size?: "sm";
   },
 ) {
-  const classes = ["help-sign"];
+  const classes = ["icon-circle"];
   if (props.size) classes.push(props.size);
   return (
     <Tooltip
