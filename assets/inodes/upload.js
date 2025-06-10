@@ -94,14 +94,13 @@ addEventListener("online", () => {
   onlineSignal.value = true;
 });
 
-function initDragAndDropEvents() {
-  let dragCounter = 0;
-
+function initDragAndDropEvents(e) {
   document.addEventListener("dragenter", (e) => {
-    e.preventDefault();
-    dragCounter++;
-    initDialog();
-    dropOverlay.showPopover();
+    if (e.dataTransfer.types.includes("Files")) {
+      e.preventDefault();
+      initDialog();
+      dropOverlay.showPopover();
+    }
   });
 
   document.addEventListener("dragover", (e) => {
@@ -110,15 +109,13 @@ function initDragAndDropEvents() {
 
   document.addEventListener("dragleave", (e) => {
     e.preventDefault();
-    dragCounter--;
-    if (dragCounter === 0) {
+    if (e.target === dropOverlay) {
       dropOverlay.hidePopover();
     }
   });
 
   document.addEventListener("drop", (e) => {
     e.preventDefault();
-    dragCounter = 0;
     addFilesToInput(e.dataTransfer.files);
     dropOverlay.hidePopover();
     statusSignal.value = "idle";
@@ -218,7 +215,7 @@ function insertDialog() {
     `
       <div popover id="upload-drop-overlay">Drop files here</div>
       <dialog id="upload-dialog">
-        <h1>Upload Files</h1>
+        <h1>Upload Files</h1> 
         <p id="upload-dialog-error" class="alert error" hidden></p>
         <form class="basic">
           <input type="file" multiple autofocus required />
