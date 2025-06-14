@@ -15,7 +15,7 @@ export default function InodeAccess(props: Props) {
   }
 
   return (
-    <div {...props} class="inode-access">
+    <div class="inode-access">
       {getInodeAccessText(inode, perm)}
       {perm.canChangeAcl && <ButtonEditAcl inode={inode} />}
     </div>

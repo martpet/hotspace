@@ -141,10 +141,10 @@ export async function createAclPreview(opt: {
 
   if (fromPatch) {
     const { diffs, aclPreview } = fromPatch;
-    const isRemoveOnly = diffs.every((diff) => [
+    const isRemoveOnly = diffs.every((diff) =>
       diff.role === null &&
-      usersById[diff.userId],
-    ]);
+      usersById[diff.userId]
+    );
     if (isRemoveOnly) {
       for (const diff of diffs) {
         const user = usersById[diff.userId];
