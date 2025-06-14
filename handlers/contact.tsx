@@ -22,7 +22,7 @@ export default function contactHandler(ctx: AppContext) {
 
         <p>
           For help, feedback, or to report an issue, please contact:<br />
-          📧 <a href="mailto:support@hotspace.lol">support@hotspace.lol</a>
+          <a href="mailto:support@hotspace.lol">support@hotspace.lol</a>
         </p>
       </div>
     </Page>

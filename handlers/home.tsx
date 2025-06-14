@@ -28,10 +28,9 @@ export default async function homeHandler(ctx: AppContext) {
     );
 
     return (
-      <Page header={{ siteNameIsHeading: true }}>
+      <Page>
         <About
           initialUploadQuota={displayInitialUploadQuota && initialUploadQuota}
-          noName
         />
       </Page>
     );
@@ -50,7 +49,6 @@ export default async function homeHandler(ctx: AppContext) {
     <InodesTable
       inodes={inodes}
       isMultiSelect={false}
-      skipIcons
       skipCols={["size", "kind"]}
       canCreate
       blankSlate={

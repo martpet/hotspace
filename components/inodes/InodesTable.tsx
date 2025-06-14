@@ -22,7 +22,6 @@ interface Props {
   canCreate: boolean;
   isMultiSelect?: boolean;
   skipCols?: SkippedCol[];
-  skipIcons?: boolean;
   blankSlate?: JSX.Element;
   inodesPermissions?: InodesPermissions;
 }
@@ -41,7 +40,6 @@ export default function InodesTable(props: Props, ctx: AppContext) {
     inodesPermissions = getInodesPermissions(inodes, ctx.state.user),
     isMultiSelect = true,
     skipCols,
-    skipIcons,
     blankSlate,
   } = props;
 
@@ -98,14 +96,14 @@ export default function InodesTable(props: Props, ctx: AppContext) {
                 <th class="name" aria-sort={sorting.name}>
                   <button data-sort="name">Name</button>
                 </th>
-                <th class="date" aria-sort={sorting.date}>
-                  <button data-sort="date">Created</button>
-                </th>
                 {canViewAclSome && (
                   <th aria-sort={sorting.access}>
                     <button data-sort="access">Access</button>
                   </th>
                 )}
+                <th class="date" aria-sort={sorting.date}>
+                  <button data-sort="date">Created</button>
+                </th>
                 {!skipSize && (
                   <th class="size" aria-sort={sorting.size}>
                     <button data-sort="size">Size</button>
@@ -135,16 +133,16 @@ export default function InodesTable(props: Props, ctx: AppContext) {
                       </td>
                     )}
                     <td class="name">
-                      <InodeAnchor inode={inode} skipIcons={skipIcons} />
-                    </td>
-                    <td class="date">
-                      <RelativeTime ulid={inode.id} />
+                      <InodeAnchor inode={inode} />
                     </td>
                     {canViewAclSome && (
                       <td class="access">
                         <InodeAccess inode={inode} perm={perm} />
                       </td>
                     )}
+                    <td class="date">
+                      <RelativeTime ulid={inode.id} />
+                    </td>
                     {!skipSize && (
                       <td
                         class="size"
@@ -154,7 +152,7 @@ export default function InodesTable(props: Props, ctx: AppContext) {
                       >
                         {inode.type === "file"
                           ? formatBytes(inode.fileSize)
-                          : "--"}
+                          : "—"}
                       </td>
                     )}
                     {!skipKind && (

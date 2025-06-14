@@ -2,6 +2,7 @@ import type { ComponentChildren, JSX } from "preact";
 import { isProd } from "../../util/consts.ts";
 import type { AppContext } from "../../util/types.ts";
 import { asset } from "../../util/url.ts";
+import DynamicStyles from "../DynamicStyles.tsx";
 import Flash from "../Flash.tsx";
 import PageHeader, { type PageHeaderProps } from "../PageHeader.tsx";
 
@@ -52,9 +53,17 @@ export default function Page(props: PageProps, ctx: AppContext) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(importmap) }}
         />
         <script type="module" src={asset("main.js")} />
-        <link rel="icon" href={asset("favicon.ico")} />
+        <link rel="icon" href={asset("img/logo.svg")} type="image/svg+xml" />
         <link rel="apple-touch-icon" href={asset("img/logo.png")} />
+        <link
+          rel="preload"
+          href={asset("icons.woff2")}
+          as="font"
+          type="font/woff2"
+          crossorigin="anonymous"
+        />
         <link rel="stylesheet" href={asset("main.css")} />
+        <DynamicStyles />
         {ctx.userAgent.os.name === "iOS" && (
           <link rel="manifest" href={asset("manifest.json")} />
         )}

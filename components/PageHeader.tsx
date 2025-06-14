@@ -51,10 +51,13 @@ function AccountNav(props: { username: string }, ctx: AppContext) {
   const { pathname } = new URL(ctx.req.url);
   const isAccountPage = pathname === "/account";
   const isAboutPage = pathname === "/about";
+
   return (
     <>
       {isAccountPage ? username : <a href="/account">{username}</a>}
-      {!isAboutPage && <a href="/about" class="icon-circle">?</a>}
+      {isAboutPage
+        ? <i class="icn-question-circle" />
+        : <a href="/about" class="icn-question-circle" title="Help" />}
       <ButtonLogout />
     </>
   );

@@ -1,11 +1,14 @@
+import { ROOT_DIR_ID } from "../../util/inodes/consts.ts";
 import type { Inode } from "../../util/inodes/types.ts";
 
 interface Props {
   inode: Inode;
-  skipIcons?: boolean;
 }
 
-export function InodeAnchor({ inode, skipIcons }: Props) {
+export function InodeAnchor({ inode }: Props) {
+  const isSpace = inode.parentDirId === ROOT_DIR_ID;
+  const inodeType = isSpace ? "space" : inode.type;
+
   let href = `./${inode.name}`;
   let name = inode.name;
 
@@ -15,7 +18,7 @@ export function InodeAnchor({ inode, skipIcons }: Props) {
     href = href + "/";
   }
 
-  const classes = skipIcons ? "" : `inode ${inode.type}`;
+  const classes = `inode ${inodeType}`;
 
   return (
     <a href={href} class={classes}>

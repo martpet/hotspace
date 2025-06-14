@@ -1,6 +1,5 @@
 import { format } from "@std/fmt/bytes";
 import { PRICE_PER_GB_CENTS } from "../util/consts.ts";
-import { asset } from "../util/url.ts";
 
 interface Props {
   initialUploadQuota?: false | number;
@@ -16,13 +15,7 @@ export default function About(props: Props) {
 
   return (
     <section class="about prose">
-      {!noLogo && (
-        <img
-          class="logo"
-          src={asset("img/logo.png")}
-          alt="Logo: Fire Emoji"
-        />
-      )}
+      {!noLogo && <i class="icn-globe logo" />}
 
       {!noName && (
         <h1 class="site-name">
@@ -31,13 +24,12 @@ export default function About(props: Props) {
       )}
 
       {!noSubline && (
-        <p class="subline">
-          Simple file sharing, with permanent storage and fair pricing
-        </p>
+        <h2 class="subline">
+          Simple file sharing
+        </h2>
       )}
 
       <section class="box">
-        <h1>How It Works</h1>
         <ul>
           {!!initialUploadQuota && (
             <li>
@@ -45,21 +37,15 @@ export default function About(props: Props) {
               <strong>{format(initialUploadQuota)} of free uploads</strong>
             </li>
           )}
-
+          <li>Permanent storage</li>
+          <li>Unlimited downloads</li>
+          <li>Role-based access</li>
           <li>
-            Upload files — they stay online indefinitely
-          </li>
-          <li>
-            Share files publicly or keep them private
-          </li>
-          <li>
-            Pay only{" "}
             <strong>
               ${pricePerGb} per {!!initialUploadQuota && "additional"}{" "}
               GB uploaded
             </strong>
           </li>
-          <li>No download limits, no hidden fees</li>
         </ul>
       </section>
       <footer>
