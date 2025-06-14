@@ -2,7 +2,6 @@ import { checkHasPublicAccess } from "$util";
 import { type JSX } from "preact";
 import { getInodeLabel } from "../../util/inodes/helpers.ts";
 import type { Inode } from "../../util/inodes/types.ts";
-import ButtonSettings from "../ButtonSettings.tsx";
 
 interface Props extends JSX.HTMLAttributes<HTMLButtonElement> {
   inode: Inode;
@@ -15,7 +14,7 @@ export default function ButtonEditAccess(props: Props) {
   const hasMoreAclItems = aclStats.usersCount > previwSubsetLength;
 
   return (
-    <ButtonSettings
+    <button
       disabled
       class="inode-edit-acl wait-disabled"
       title={btnProps.title || "Edit access"}
@@ -23,6 +22,8 @@ export default function ButtonEditAccess(props: Props) {
       data-inode-label={getInodeLabel(inode)}
       data-acl={hasMoreAclItems ? null : JSON.stringify(aclStats.previewSubset)}
       data-has-pub-access={checkHasPublicAccess(inode) ? "1" : null}
-    />
+    >
+      <i class="icn-gear" />
+    </button>
   );
 }

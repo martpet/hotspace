@@ -328,7 +328,7 @@ function createRoleSelectHtml(options = {}) {
   const isCurrentUserItem = aclUsername === userUsername;
   let html = "";
   if (withPrompt) {
-    html += '<option selected value="">-- Choose role --</option>';
+    html += '<option selected value="">-- choose role --</option>';
   }
   for (const role of ACL_ROLES) {
     const roleText = role.replace("_", " + ");

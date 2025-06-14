@@ -1,6 +1,6 @@
 import { AppContext } from "../../util/types.ts";
 import { asset } from "../../util/url.ts";
-import { HelpTooltip } from "../Tooltip.tsx";
+import Tooltip from "../Tooltip.tsx";
 
 export default function Subscription(_props: unknown, ctx: AppContext) {
   const { os, browser } = ctx.userAgent;
@@ -27,7 +27,9 @@ export default function Subscription(_props: unknown, ctx: AppContext) {
           Chat Notifications
         </label>
 
-        <HelpTooltip id="chat-sub-help" info={help} size="sm" />
+        <Tooltip id="chat-sub-help" info={help}>
+          <i class="icn-question-circle" />
+        </Tooltip>
 
         <span
           id="chat-sub-denied"

@@ -169,17 +169,32 @@
 
 a.inode {
   &::before {
+    position: relative;
+    top: -1px;
     display: inline-block;
-    margin-right: 0.6em;
-    font-size: 1.5em;
+    width: 1em;
+    height: 1em;
+    margin-right: 0.8em;
     vertical-align: middle;
+    line-height: 1;
+    font-family: bootstrap-icons;
+    font-size: 1.4em;
+    color: #333;
+    @media (prefers-color-scheme: dark) {
+      color: CanvasText;
+    }
   }
   &.dir::before {
-    content: "📁";
-    margin-top: 1px;
+    content: "\F3D1";
+    top: 0;
   }
   &.file::before {
-    content: "📄";
+    content: "\F392";
+  }
+  &.space::before {
+    content: "\F3EE";
+    font-size: 1.3em;
+    margin-right: 0.9em;
   }
 }
 
@@ -297,6 +312,9 @@ a.inode {
     &.size {
       text-align: right;
       white-space: nowrap;
+    }
+    &.date::first-letter {
+      text-transform: uppercase;
     }
   }
   @container (width < 640px) {

@@ -300,7 +300,7 @@
   &[class*="spinner-"]::before {
     order: 1;
   }
-  .help-tooltip {
+  .tooltip {
     margin-inline: 2px;
     .anchor {
       anchor-name: --chat-sub-help;
