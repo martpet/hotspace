@@ -694,12 +694,14 @@ async function syncChatSub() {
     db.getSubscriber(),
     db.getChatSub(chatId),
   ]);
-  const chatSubExpiredWithoutPushSub =
-    Date.now() - new Date(subscriber.pushSubUpdatedAt).getTime() >
-    Number(chatSubExpires);
-  if (subscriber && !subscriber.pushSub && chatSubExpiredWithoutPushSub) {
-    await toggleChatSub(false);
-  } else if (!subscriber && chatSub) {
+  if (subscriber) {
+    const expiredWithoutPushSub =
+      Date.now() - new Date(subscriber.pushSubUpdatedAt).getTime() >
+      Number(chatSubExpires);
+    if (!subscriber.pushSub && expiredWithoutPushSub) {
+      await toggleChatSub(false);
+    }
+  } else if (chatSub) {
     await createPushSub();
     await toggleChatSub(true);
   }
