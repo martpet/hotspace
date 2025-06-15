@@ -11,6 +11,6 @@ export const USERNAME_CONSTRAINTS = {
 export const DIR_NAME_CONSTRAINTS = {
   minLength: 2,
   maxLength: 100,
-  pattern: "^[A-Za-z0-9\\-._~]+$",
-  title: "Letters, numbers, dots, underscores, hyphens, and tildes",
+  pattern: "^(?!\\.{1,2}$)[A-Za-z0-9\\-._~]+$",
+  title: "Letters, numbers, and -._~ (except . or .. alone)",
 } satisfies FormFieldConstraints;
