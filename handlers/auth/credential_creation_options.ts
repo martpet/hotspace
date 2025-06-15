@@ -10,7 +10,6 @@ import { USERNAME_CONSTRAINTS } from "../../util/input_constraints.ts";
 import { setCredentialCreationSession } from "../../util/kv/cred_creation_sessions.ts";
 import { listPasskeysByUser } from "../../util/kv/passkeys.ts";
 import { getUserByUsername } from "../../util/kv/users.ts";
-import { reservedWords } from "../../util/reserved_words.ts";
 import type {
   AppContext,
   CredentialCreationSession,
@@ -32,9 +31,6 @@ export default async function credentialCreationOptionsHandler(
   } else if (!validateUsername(username, USERNAME_CONSTRAINTS)) {
     const msg = "Invalid username";
     return ctx.respondJson({ error: msg }, STATUS_CODE.BadRequest);
-  } else if (reservedWords.includes(username)) {
-    const msg = `Username '${username}' is not available`;
-    return ctx.respondJson({ error: msg }, STATUS_CODE.Conflict);
   } else if ((await getUserByUsername(username)).value) {
     const msg = `Username "${username}" is taken`;
     return ctx.respondJson({ error: msg }, STATUS_CODE.Conflict);

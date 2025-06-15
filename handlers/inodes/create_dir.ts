@@ -4,11 +4,11 @@ import { ulid } from "@std/ulid";
 import { createAclStats } from "../../util/inodes/acl.ts";
 import { ROOT_DIR, ROOT_DIR_ID } from "../../util/inodes/consts.ts";
 import { setAnyInode } from "../../util/inodes/kv_wrappers.ts";
+import { RESERVED_ROOT_DIR_NAMES } from "../../util/inodes/reserved_dir_names.ts";
 import type { DirNode } from "../../util/inodes/types.ts";
 import { DIR_NAME_CONSTRAINTS } from "../../util/input_constraints.ts";
 import { getDirByPath, getInodeById } from "../../util/kv/inodes.ts";
 import { kv } from "../../util/kv/kv.ts";
-import { reservedWords } from "../../util/reserved_words.ts";
 import type { AppContext } from "../../util/types.ts";
 
 interface ReqData {
@@ -32,7 +32,7 @@ export default async function createDirNodeHandler(ctx: AppContext) {
   const { parentDirId, dirName } = reqData;
   const isParentRoot = parentDirId === ROOT_DIR_ID;
 
-  if (isParentRoot && reservedWords.includes(dirName)) {
+  if (isParentRoot && RESERVED_ROOT_DIR_NAMES.includes(dirName)) {
     const errMsg = `Space name '${dirName}' is not available`;
     return ctx.respond(errMsg, STATUS_CODE.Conflict);
   }

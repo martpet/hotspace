@@ -14,7 +14,3 @@ export const DIR_NAME_CONSTRAINTS = {
   pattern: "^[A-Za-z0-9\\-._~]+$",
   title: "Letters, numbers, dots, underscores, hyphens, and tildes",
 } satisfies FormFieldConstraints;
-
-export const DIR_DESCRIPTION_CONSTRAINTS = {
-  maxLength: 10000,
-} satisfies FormFieldConstraints;

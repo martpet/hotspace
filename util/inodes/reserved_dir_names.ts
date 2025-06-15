@@ -1,4 +1,4 @@
-export const reservedWords = [
+export const RESERVED_ROOT_DIR_NAMES = [
   "about",
   "account",
   "admin",
