@@ -31,7 +31,7 @@ export default async function termsHandler(ctx: AppContext) {
         <h2>About the Service</h2>
 
         <p>
-          HotSpace is a file-sharing platform that allows registered users to
+          HotSpace is a file-storage platform that allows registered users to
           upload and share files publicly or privately.{" "}
           {initialUploaQuota > 0 && (
             <>

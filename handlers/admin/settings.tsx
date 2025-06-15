@@ -33,14 +33,6 @@ async function handleGet() {
           />{" "}
           GB
         </label>
-        <label>
-          <input
-            type="checkbox"
-            name="displayInitialUploadQuota"
-            checked={settings?.displayInitialUploadQuota}
-          />{" "}
-          Display initial upload quota
-        </label>
         <button>Submit</button>
       </form>
     </AdminPage>
@@ -52,7 +44,6 @@ async function handlePost(ctx: AdminContext) {
 
   const commit = await setSettings({
     initialUploadQuota: GB * Number(form.get("initialUploadQuota")),
-    displayInitialUploadQuota: Boolean(form.get("displayInitialUploadQuota")),
   });
 
   if (commit.ok) {

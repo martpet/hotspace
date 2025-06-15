@@ -1,8 +1,6 @@
-import { format } from "@std/fmt/bytes";
 import { PRICE_PER_GB_CENTS } from "../util/consts.ts";
 
 interface Props {
-  initialUploadQuota?: false | number;
   noName?: boolean;
   noSubline?: boolean;
   noLogo?: boolean;
@@ -10,7 +8,6 @@ interface Props {
 
 export default function About(props: Props) {
   const { noLogo, noName, noSubline } = props;
-  const initialUploadQuota = props.initialUploadQuota || 0;
   const pricePerGb = PRICE_PER_GB_CENTS / 100;
 
   return (
@@ -18,32 +15,25 @@ export default function About(props: Props) {
       {!noLogo && <i class="icn-globe logo" />}
 
       {!noName && (
-        <h1 class="site-name">
+        <p class="site-name">
           HotSpace
-        </h1>
+        </p>
       )}
 
       {!noSubline && (
-        <h2 class="subline">
-          Simple file sharing
-        </h2>
+        <h1 class="subline">
+          Simple file storage
+        </h1>
       )}
 
       <section class="box">
         <ul>
-          {!!initialUploadQuota && (
-            <li>
-              Sign up and get{" "}
-              <strong>{format(initialUploadQuota)} of free uploads</strong>
-            </li>
-          )}
-          <li>Permanent storage</li>
+          <li>Shareable public links</li>
           <li>Unlimited downloads</li>
-          <li>Role-based access</li>
+          <li>No expiration</li>
           <li>
             <strong>
-              ${pricePerGb} per {!!initialUploadQuota && "additional"}{" "}
-              GB uploaded
+              One-time ${pricePerGb}/GB uploaded
             </strong>
           </li>
         </ul>

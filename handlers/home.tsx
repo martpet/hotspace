@@ -8,7 +8,6 @@ import TableActions from "../components/inodes/TableActions.tsx";
 import Page from "../components/pages/Page.tsx";
 import { ROOT_DIR_ID } from "../util/inodes/consts.ts";
 import { listRootDirsByOwner } from "../util/kv/inodes.ts";
-import { getSettings } from "../util/kv/settings.ts";
 import type { AppContext } from "../util/types.ts";
 import { asset } from "../util/url.ts";
 
@@ -19,9 +18,6 @@ export default async function homeHandler(ctx: AppContext) {
   const user = ctx.state.user;
 
   if (!user) {
-    const { value: settings } = await getSettings("eventual");
-    const { displayInitialUploadQuota, initialUploadQuota } = settings || {};
-
     ctx.resp.headers.set(
       HEADER.CacheControl,
       `Cache-Control: public, max-age=${MINUTE * 30 / 1000}`,
@@ -29,9 +25,7 @@ export default async function homeHandler(ctx: AppContext) {
 
     return (
       <Page>
-        <About
-          initialUploadQuota={displayInitialUploadQuota && initialUploadQuota}
-        />
+        <About noName />
       </Page>
     );
   }
