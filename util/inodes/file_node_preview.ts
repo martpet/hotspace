@@ -1,3 +1,4 @@
+import { MiB } from "$util";
 import { getFileNodeUrl } from "./helpers.ts";
 import { MIMES } from "./mime_conf.ts";
 import { isPostProcessedToVideo } from "./post_process/type_predicates.ts";
@@ -15,8 +16,9 @@ export async function getFileNodePreview(
 ): Promise<FileNodePreview> {
   const { display, forceOrig, proc } = MIMES[inode.mimeType] || {};
   const { previewMimeType, previewFileName } = inode.postProcess || {};
-  const isSmallImage = display === "image" && (inode.fileSize / 1024) < 200;
   const hasProcessedPreview = proc && previewMimeType;
+  const isSmallFile = inode.fileSize <= MiB * 2;
+  const isImage = display === "image";
 
   if (isPostProcessedToVideo(inode)) {
     return {
@@ -25,7 +27,10 @@ export async function getFileNodePreview(
     };
   }
 
-  if ((forceOrig || isSmallImage || !hasProcessedPreview) && display) {
+  if (
+    display &&
+    (forceOrig || isSmallFile && (isImage || !hasProcessedPreview))
+  ) {
     return {
       isOrig: true,
       url: await getFileNodeUrl(inode.s3Key),
