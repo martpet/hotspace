@@ -42,7 +42,7 @@ export const MIMES: Record<string, MimeConf> = {
   "font/ttf": { title: "TrueType® font", display: "font" },
   "font/woff2": { title: "Web Open Font Format 2.0", display: "font" },
   "image/avif": { title: "AV1 Image File Format", display: "image", proc: "sharp", to: "image/jpeg" },
-  "image/bmp": { title: "Windows BMP image", display: "image" },
+  "image/bmp": { title: "Windows BMP image", display: "image", proc: "sharp", to: "image/jpeg" },
   "image/gif": { title: "GIF image", display: "image", proc: "sharp", thumbOnly: true },
   "image/jpeg": { title: "JPEG image", display: "image", proc: "sharp", to: "image/jpeg" },
   "image/png": { title: "PNG image", display: "image", proc: "sharp", thumbOnly: true },

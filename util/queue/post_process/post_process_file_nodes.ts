@@ -80,6 +80,7 @@ export async function handlePostProcessFileNodes(
       body.inputFileExt = fileExt;
     } else if (mimeConf.proc === "sharp") {
       body.thumbOnly = mimeConf.thumbOnly;
+      body.fromMimeType = item.mimeType;
     }
 
     if (mimeConf.to) {
