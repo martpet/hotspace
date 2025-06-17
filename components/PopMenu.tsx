@@ -1,22 +1,28 @@
 import { cloneElement, type JSX, toChildArray, type VNode } from "preact";
 
-interface Props extends JSX.HTMLAttributes<HTMLMenuElement> {
-  id: string;
-  btnLabel: string;
+interface Props extends JSX.HTMLAttributes<HTMLDivElement> {
+  btnText: string;
 }
 
-export default function PopMenu(props: Props) {
-  const { btnLabel, ...menuProps } = props;
+export default function PopMenu({ btnText, ...rest }: Props) {
+  const { children, ...divProps } = rest;
+  const menuId = crypto.randomUUID();
+  const classes = ["pop-menu"];
+
+  if (divProps.class) {
+    classes.push(divProps.class as string);
+  }
 
   return (
-    <div class="pop-menu">
-      <button popovertarget={menuProps.id}>
-        {btnLabel}
+    <div {...divProps} class={classes.join(" ")}>
+      <button popovertarget={menuId}>
+        {btnText}
+        <i class="icn-chevron-expand" />
       </button>
-      <menu popover {...props}>
-        {toChildArray(props.children).map((child) =>
+      <menu id={menuId} popover>
+        {toChildArray(children).map((child) =>
           cloneElement(child as VNode, {
-            popovertarget: props.id,
+            popovertarget: menuId,
             popovertargetaction: "hide",
           })
         )}

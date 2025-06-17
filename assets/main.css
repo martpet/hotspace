@@ -82,6 +82,17 @@ button {
   &.spinner::after {
     color: CanvasText;
   }
+  [class^="icn-"] {
+    pointer-events: none;
+    margin-right: 0.4em;
+  }
+  &.nobtn {
+    all: unset;
+    cursor: pointer;
+    [class^="icn-"] {
+      margin: 0;
+    }
+  }
 }
 
 input[type="checkbox"] {
@@ -355,6 +366,10 @@ pre.basic {
       margin: 0;
     }
   }
+  .icn-question-circle {
+    position: relative;
+    top: -1px;
+  }
   .login-or-register {
     display: flex;
     align-items: center;
@@ -414,8 +429,13 @@ pre.basic {
 }
 
 .pop-menu {
+  --top-offset: 4px;
   @supports not (position-anchor: auto) {
     position: relative;
+  }
+  > button [class^="icn-"] {
+    margin-right: 0;
+    margin-left: 0.3em;
   }
   menu {
     inset: unset;
@@ -423,19 +443,26 @@ pre.basic {
     align-items: flex-start;
     gap: 0.5rem;
     padding: 0.5rem;
-    border-width: 1px;
-    border-radius: 5px;
+    background: Canvas;
+    border: 1px solid var(--border-grey);
+    border-radius: 4px;
+    @media (prefers-color-scheme: light) {
+      box-shadow: 1px 1px 1px var(--text-grey-dark);
+    }
+    @media (prefers-color-scheme: dark) {
+      border-width: 2px;
+    }
+    &:popover-open {
+      display: flex;
+    }
     @supports (position-anchor: auto) {
-      top: calc(anchor(bottom) + 5px);
+      top: calc(anchor(bottom) + var(--top-offset));
       left: anchor(left);
       position-try-fallbacks: flip-inline;
     }
     @supports not (position-anchor: auto) {
       position: absolute;
-      margin-top: 5px;
-    }
-    &:popover-open {
-      display: flex;
+      margin-top: var(--top-offset);
     }
   }
 }
@@ -477,7 +504,6 @@ pre.basic {
 
 .box {
   width: fit-content;
-  margin: 2em auto;
   padding: 2em;
   text-align: initial;
   background: var(--bg-light);
@@ -507,8 +533,18 @@ pre.basic {
 }
 
 .about {
+  margin-top: 4em;
   text-align: center;
   line-height: inherit;
+  .logo {
+    display: block;
+    margin: 0 auto 0.3em;
+    font-size: 6em;
+    height: 1em;
+    &::before {
+      display: block;
+    }
+  }
   .site-name {
     font-size: 1em;
     margin-block: 0.9em;
@@ -519,25 +555,24 @@ pre.basic {
     font-weight: bold;
     font-size: 2em;
   }
-  .logo {
-    display: block;
-    margin-inline: auto;
-    font-size: 6em;
-  }
-  .box li {
-    list-style: none;
-    &::before {
-      content: "\F633";
-      position: relative;
-      top: 2px;
-      display: inline-block;
-      margin-right: 0.8em;
-      width: 1em;
-      line-height: 1;
-      color: darkgreen;
-      font-family: bootstrap-icons;
-      @media (prefers-color-scheme: dark) {
-        color: greenyellow;
+  .box {
+    margin: 2em auto;
+    li {
+      list-style: none;
+      &::before {
+        content: "\F633";
+        position: relative;
+        top: 2px;
+        display: inline-block;
+        margin-right: 0.8em;
+        width: 1em;
+        line-height: 1;
+        color: darkgreen;
+        font-family: bootstrap-icons;
+        -webkit-font-smoothing: antialiased;
+        @media (prefers-color-scheme: dark) {
+          color: greenyellow;
+        }
       }
     }
   }
@@ -576,42 +611,49 @@ pre.basic {
 ===================== */
 
 [class^="icn-"] {
-  display: inline-block;
-  width: 1em;
-  height: 1em;
-  line-height: 1em;
+  font-family: bootstrap-icons;
   font-style: normal;
   font-weight: normal;
   font-variant: normal;
   text-transform: none;
   text-decoration: none;
-  font-family: bootstrap-icons;
-}
-
-button:has([class^="icn-"]) {
-  all: unset;
-  cursor: pointer;
-  color: inherit;
-  &:hover [class^="icn-"] {
-    color: CanvasText;
-  }
-  [class^="icn-"] {
-    font-size: 0.8em;
+  display: inline-block;
+  width: 1em;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  &::before {
     vertical-align: middle;
-    pointer-events: none;
   }
 }
 
 .icn-question-circle::before {
   content: "\F505";
 }
-.icn-arrow-down-circle::before {
-  content: "\F119";
+.icn-download::before {
+  content: "\F30A";
 }
 .icn-globe::before {
   content: "\F3EE";
 }
-
 .icn-gear::before {
   content: "\F3E5";
+}
+.icn-chevron-expand::before {
+  content: "\F283";
+}
+.icn-upload::before {
+  content: "\F603";
+}
+.icn-folder-plus::before {
+  content: "\F3D3";
+}
+.icn-chat-right::before {
+  content: "\F25D";
+}
+.icn-plus-lg::before {
+  content: "\F64D";
+}
+.icn-trash::before {
+  content: "\F5DE";
 }

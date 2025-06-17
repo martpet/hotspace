@@ -236,7 +236,7 @@ function insertDialog() {
             <fieldset class="permissions">
               <legend>Roles</legend>
               <div id="acl-items"></div>
-              <button id="acl-add-user" type="button">+ Add User</button>
+              <button id="acl-add-user" type="button"><i class="icn-plus-lg"></i>Add User</button>
               <p hidden id="acl-loading"><span class="spinner-sm"></span>Loading</p>
             </fieldset>
             <footer>

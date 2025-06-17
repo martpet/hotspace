@@ -27,6 +27,7 @@ export default function ButtonDeleteInode(props: Props) {
         data-is-space={isSpace ? "1" : null}
         {...btnProps}
       >
+        <i class="icn-trash" />
         Delete {inodeLabel}
       </button>
     </>

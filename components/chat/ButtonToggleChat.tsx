@@ -22,6 +22,7 @@ export default function ButtonToggleChat(props: ButtonToggleChatProps) {
         {...btnProps}
         class={btnClass}
       >
+        <i class="icn-chat-right" />
         {chat.chatEnabled ? "Disable" : "Enable"} Chat
       </button>
     </>

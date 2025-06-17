@@ -109,7 +109,7 @@ function insertDialog() {
     "beforeend",
     `
       <dialog id="create-dir-dialog">
-        <h1>${btnShowDialog.textContent}</h1>
+        <h1>New ${isSpace ? "Space" : "Folder"}</h1>
         <p id="create-dir-error" class="alert error" hidden></p>
         <form class="basic">
           <label>

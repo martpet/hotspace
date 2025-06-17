@@ -38,9 +38,11 @@ export default function GeneralPreview(props: Props) {
         )}
       </header>
       <div id="download-inode">
-        <i class="icn-arrow-down-circle"></i>{" "}
-        <a href={`/download/${inode.id}`}>Download</a>{" "}
-        ({formatBytes(inode.fileSize)})
+        <i class="icn-download"></i>
+        <a href={`/download/${inode.id}`}>Download</a>
+        <small>
+          ({formatBytes(inode.fileSize)})
+        </small>
       </div>
     </>
   );

@@ -25,7 +25,19 @@ export default function ButtonCreateDir(props: Props) {
         data-is-space={isSpace ? "1" : null}
         data-constraints={JSON.stringify(DIR_NAME_CONSTRAINTS)}
       >
-        Create {isSpace ? "Space" : "Folder"}
+        {isSpace
+          ? (
+            <>
+              <i class="icn-plus-lg" />
+              New Space
+            </>
+          )
+          : (
+            <>
+              <i class="icn-folder-plus" />
+              Create Folder
+            </>
+          )}
       </button>
     </>
   );

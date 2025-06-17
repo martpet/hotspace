@@ -41,10 +41,8 @@
 }
 
 #download-inode {
-  display: flex;
-  align-items: center;
   a {
-    margin: 0 0.35em 0 0.45em;
+    margin: 0 0.4em 0 0.5em;
   }
 }
 
@@ -169,14 +167,16 @@
 
 a.inode {
   &::before {
+    position: relative;
+    top: -1px;
     display: inline-block;
     width: 1em;
-    height: 1em;
     margin-right: 0.8em;
-    vertical-align: middle;
     line-height: 1;
+    vertical-align: middle;
     font-family: bootstrap-icons;
     font-size: 1.4em;
+    -webkit-font-smoothing: antialiased;
     color: #333;
     @media (prefers-color-scheme: dark) {
       color: CanvasText;
@@ -184,12 +184,22 @@ a.inode {
   }
   &.dir::before {
     content: "\F3D1";
+    top: 0;
   }
   &.file::before {
     content: "\F392";
   }
   &.space::before {
     content: "\F3EE";
+  }
+}
+
+button.inode-edit-acl {
+  &:hover {
+    color: CanvasText;
+  }
+  [class^="icn-"] {
+    font-size: 0.8em;
   }
 }
 
@@ -266,6 +276,11 @@ a.inode {
     &.size {
       width: 1px;
     }
+    &.select input {
+      display: block;
+      margin: -1px auto 0;
+      padding: 0;
+    }
     button[data-sort] {
       background: none;
       border: none;
@@ -277,14 +292,20 @@ a.inode {
         color: CanvasText;
       }
       &:is([aria-sort] &)::after {
-        font-size: 0.8em;
-        margin-left: 0.2em;
+        display: inline-block;
+        vertical-align: middle;
+        margin: 0 -1em 0 0.25em;
+        line-height: 1;
+        font-family: bootstrap-icons;
+        -webkit-font-smoothing: antialiased;
       }
       &:is([aria-sort="ascending"] &)::after {
-        content: "▲";
+        content: "\F235";
+        position: relative;
+        top: -1px;
       }
       &:is([aria-sort="descending"] &)::after {
-        content: "▼";
+        content: "\F229";
       }
     }
   }

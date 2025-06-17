@@ -301,7 +301,7 @@
     order: 1;
   }
   .tooltip {
-    margin: 2px 2px 0;
+    margin-inline: 0.2em;
     color: var(--text-grey-dark);
     .anchor {
       anchor-name: --chat-sub-help;

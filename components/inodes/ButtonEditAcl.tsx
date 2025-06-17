@@ -16,7 +16,7 @@ export default function ButtonEditAccess(props: Props) {
   return (
     <button
       disabled
-      class="inode-edit-acl wait-disabled"
+      class="inode-edit-acl nobtn wait-disabled"
       title={btnProps.title || "Edit access"}
       data-inode-id={inode.id}
       data-inode-label={getInodeLabel(inode)}

@@ -21,6 +21,7 @@ export default function ButtonUpload(props: Props) {
         data-dir-id={dirId}
         data-worker-src={asset("upload_worker.js", { cdn: false })}
       >
+        <i class="icn-upload" />
         Upload Files
       </button>
 

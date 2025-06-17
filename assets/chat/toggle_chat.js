@@ -26,7 +26,7 @@ button.onclick = async function () {
     chatEl.scrollIntoView({ behavior: "smooth" });
   }
 
-  button.textContent = `${!showChat ? "Enable" : "Disable"} Chat`;
+  button.childNodes[1].textContent = `${showChat ? "Disable" : "Enable"} Chat`;
   setInProgress(false);
 };
 

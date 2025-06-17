@@ -9,21 +9,18 @@ let dialog;
 let dialogIntro;
 let dialogConfirmInput;
 let dialogList;
-let toggler;
-let selectInputs;
+let toggleAllInput;
+let rowSelectInputs;
 let selection;
 let form;
 let submitButton;
 let closeButton;
 let errorEl;
 
-const container = document.getElementById("inodes-container");
+const inodesContainer = document.getElementById("inodes-container");
 const actionsMenu = document.getElementById("bulk-actions");
 const btnDelete = document.getElementById("bulk-delete-button");
-const mutationObserver = new MutationObserver(onMutationObserve);
 const { dirId, isSingleSelect, inodeLabel } = actionsMenu.dataset;
-
-mutationObserver.observe(container, { subtree: true, childList: true });
 
 refreshContainerElements();
 
@@ -31,15 +28,22 @@ refreshContainerElements();
 // Events
 // =====================
 
+new MutationObserver(() => {
+  refreshContainerElements();
+}).observe(inodesContainer, {
+  subtree: true,
+  childList: true,
+});
+
 btnDelete.onclick = () => {
   if (!dialog) {
     insertDialog();
     initDialogEvents();
   }
-  statusSignal.value = "idle";
+  dialogSignal.value = "idle";
 };
 
-container.onchange = ({ target }) => {
+inodesContainer.onchange = ({ target }) => {
   if (target.matches(".select input")) {
     handleSelectionChange(target);
   }
@@ -47,32 +51,28 @@ container.onchange = ({ target }) => {
 
 function initDialogEvents() {
   closeButton.onclick = () => {
-    statusSignal.value = "closed";
+    dialogSignal.value = "closed";
   };
 
   dialog.oncancel = (e) => {
     e.preventDefault();
-    statusSignal.value = "closed";
+    dialogSignal.value = "closed";
   };
 
   form.onsubmit = (e) => {
     e.preventDefault();
-    statusSignal.value = "submitted";
+    dialogSignal.value = "submitted";
   };
-}
-
-function onMutationObserve() {
-  refreshContainerElements();
 }
 
 // =====================
 // Signals
 // =====================
 
-const statusSignal = createSignal("closed");
+const dialogSignal = createSignal("closed");
 const errorSignal = createSignal("");
 
-statusSignal.subscribe((status) => {
+dialogSignal.subscribe((status) => {
   renderStatusChange();
 
   if (status === "closed") {
@@ -107,14 +107,14 @@ async function submitData() {
   });
   if (resp.ok) {
     await replaceFragment("inodes");
-    statusSignal.value = "closed";
+    dialogSignal.value = "closed";
     actionsMenu.hidden = true;
     flashNow(createFlashMsg());
   } else if (resp.status === 404) {
     location.reload();
   } else {
     errorSignal.value = (await resp.text()) || GENERAL_ERR_MSG;
-    statusSignal.value = "idle";
+    dialogSignal.value = "idle";
   }
 }
 
@@ -140,8 +140,8 @@ function handleSelectionChange(eventTarget) {
   let someSelected;
   let someUnselected;
   selection = [];
-  for (const input of selectInputs) {
-    if (eventTarget === toggler) input.checked = eventTarget.checked;
+  for (const input of rowSelectInputs) {
+    if (eventTarget === toggleAllInput) input.checked = eventTarget.checked;
     if (input.checked) {
       someSelected = true;
       selection.push(getSelectInputData(input));
@@ -149,15 +149,15 @@ function handleSelectionChange(eventTarget) {
       someUnselected = true;
     }
   }
-  if (toggler) toggler.checked = !someUnselected;
+  if (toggleAllInput) toggleAllInput.checked = !someUnselected;
   actionsMenu.hidden = !someSelected;
 }
 
 function refreshContainerElements() {
-  toggler = container.querySelector("thead .select input");
-  selectInputs = container.querySelectorAll("tbody .select input");
-  if (toggler) toggler.disabled = false;
-  selectInputs.forEach((input) => (input.disabled = false));
+  toggleAllInput = inodesContainer.querySelector("thead .select input");
+  rowSelectInputs = inodesContainer.querySelectorAll("tbody .select input");
+  if (toggleAllInput) toggleAllInput.disabled = false;
+  rowSelectInputs.forEach((input) => (input.disabled = false));
 }
 
 function getSelectInputData(input) {
@@ -218,15 +218,15 @@ function insertDialog() {
 }
 
 function updateDialog() {
-  const listInfo = updateDialogList();
-  updateDialogIntro(listInfo);
+  const listInfo = renderDialogList();
+  renderDialogIntro(listInfo);
 
   if (isSingleSelect) {
     dialogConfirmInput.pattern = selection[0].name;
   }
 }
 
-function updateDialogList() {
+function renderDialogList() {
   let html = "";
   let dirsCount = 0;
   let filesCount = 0;
@@ -239,7 +239,7 @@ function updateDialogList() {
   return { dirsCount, filesCount };
 }
 
-function updateDialogIntro({ dirsCount, filesCount }) {
+function renderDialogIntro({ dirsCount, filesCount }) {
   let txt;
   if (isSingleSelect) {
     const spaceName = selection[0].name;
@@ -262,7 +262,7 @@ function updateDialogIntro({ dirsCount, filesCount }) {
 }
 
 function renderStatusChange() {
-  const submitted = statusSignal.value === "submitted";
+  const submitted = dialogSignal.value === "submitted";
   disableControls(submitted);
   submitButton.classList.toggle("spinner", submitted);
 }
