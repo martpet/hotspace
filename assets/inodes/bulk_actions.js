@@ -18,8 +18,8 @@ let closeButton;
 let errorEl;
 
 const container = document.getElementById("inodes-container");
-const actionsMenu = document.getElementById("table-actions");
-const btnDelete = document.getElementById("table-delete-button");
+const actionsMenu = document.getElementById("bulk-actions");
+const btnDelete = document.getElementById("bulk-delete-button");
 const mutationObserver = new MutationObserver(onMutationObserve);
 const { dirId, isSingleSelect, inodeLabel } = actionsMenu.dataset;
 
@@ -185,36 +185,36 @@ function insertDialog() {
   document.body.insertAdjacentHTML(
     "beforeend",
     `
-        <dialog id="table-delete-dialog">
+        <dialog id="bulk-delete-dialog">
           <h1>Delete ${isSingleSelect ? inodeLabel : "Selected"}</h1>
           <form class="basic">
             <p class="alert warning">
-              <span id="table-delete-intro"></span><br />
+              <span id="bulk-delete-intro"></span><br />
               This action cannot be undone.
             </p>
-            <ul id="table-delete-items-list" ${isSingleSelect ? "hidden" : ""}>
+            <ul id="bulk-delete-items-list" ${isSingleSelect ? "hidden" : ""}>
             </ul>
-            <p id="table-delete-error" class="alert error" hidden></p>
+            <p id="bulk-delete-error" class="alert error" hidden></p>
             <label>
               <span>To confirm, type ${confirmText}:</span>
-              <input id="table-delete-confirm" type="text" autofocus required pattern="${PATTERN_CONFIRM}" />
+              <input id="bulk-delete-confirm" type="text" autofocus required pattern="${PATTERN_CONFIRM}" />
             </label>
             <footer>
-              <button type="button" id="table-delete-close">Cancel</button>
-              <button id="table-delete-submit">Permanently Delete</button>
+              <button type="button" id="bulk-delete-close">Cancel</button>
+              <button id="bulk-delete-submit">Permanently Delete</button>
             </footer>
           </form>
         </dialog>
       `
   );
-  dialog = document.getElementById("table-delete-dialog");
-  dialogIntro = document.getElementById("table-delete-intro");
-  dialogConfirmInput = document.getElementById("table-delete-confirm");
-  dialogList = document.getElementById("table-delete-items-list");
+  dialog = document.getElementById("bulk-delete-dialog");
+  dialogIntro = document.getElementById("bulk-delete-intro");
+  dialogConfirmInput = document.getElementById("bulk-delete-confirm");
+  dialogList = document.getElementById("bulk-delete-items-list");
   form = dialog.querySelector("form");
-  submitButton = document.getElementById("table-delete-submit");
-  closeButton = document.getElementById("table-delete-close");
-  errorEl = document.getElementById("table-delete-error");
+  submitButton = document.getElementById("bulk-delete-submit");
+  closeButton = document.getElementById("bulk-delete-close");
+  errorEl = document.getElementById("bulk-delete-error");
 }
 
 function updateDialog() {
