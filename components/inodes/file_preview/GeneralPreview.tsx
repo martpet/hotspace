@@ -2,8 +2,7 @@ import type { ResourcePermissions } from "$util";
 import { format as formatBytes } from "@std/fmt/bytes";
 import { type ComponentChildren } from "preact";
 import type { FileNode } from "../../../util/inodes/types.ts";
-import ButtonToggleChat from "../../chat/ButtonToggleChat.tsx";
-import ButtonDeleteInode from "../ButtonDeleteInode.tsx";
+import ButtonPageSettings from "../ButtonPageSettings.tsx";
 
 interface Props {
   inode: FileNode;
@@ -21,19 +20,17 @@ export default function GeneralPreview(props: Props) {
   } = props;
 
   const fileName = decodeURIComponent(inode.name);
-  const { canModerate, canModify } = perm;
 
   return (
     <>
-      {(!isPostProcessError || canModify) && children && (
+      {(!isPostProcessError || perm.canModify) && children && (
         <figure id="file-preview-canvas">{children}</figure>
       )}
       <header class="inodes-header">
         <h1>{fileName}</h1>
-        {(canModerate || canModify) && (
+        {(perm.canModerate || perm.canModify) && (
           <menu class="menu-bar">
-            {canModify && <ButtonDeleteInode inode={inode} />}
-            {canModerate && <ButtonToggleChat chat={inode} />}
+            <ButtonPageSettings inode={inode} perm={perm} />
           </menu>
         )}
       </header>

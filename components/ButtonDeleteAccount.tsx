@@ -14,7 +14,7 @@ export default function ButtonDeleteAccount(_: unknown, ctx: AppContext) {
         class="wait-disabled"
         disabled
       >
-        Delete Account
+        Delete account
       </button>
     </>
   );

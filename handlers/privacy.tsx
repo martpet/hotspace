@@ -4,7 +4,7 @@ import Page from "../components/pages/Page.tsx";
 import { AppContext } from "../util/types.ts";
 
 export default function privacyHandler(ctx: AppContext) {
-  const title = "Privacy Policy";
+  const title = "Privacy policy";
   const IS_IP_COLLECTED = false;
 
   ctx.resp.headers.set(
@@ -22,7 +22,7 @@ export default function privacyHandler(ctx: AppContext) {
           <strong>HotSpace</strong> collects and how it is used.
         </p>
 
-        <h2>Information Collected</h2>
+        <h2>Information collected</h2>
 
         <p>
           When you {IS_IP_COLLECTED && "register,"}{" "}
@@ -79,7 +79,7 @@ export default function privacyHandler(ctx: AppContext) {
           </li>
         </ul>
 
-        <h2>How Data Is Used</h2>
+        <h2>How data is used</h2>
 
         <p>Your data may be used to:</p>
 
@@ -111,7 +111,7 @@ export default function privacyHandler(ctx: AppContext) {
           track usage. No third-party advertising cookies are used.
         </p>
 
-        <h2>Data Security</h2>
+        <h2>Data security</h2>
 
         <p>
           Reasonable measures are taken to protect your data. However, no system

@@ -29,7 +29,7 @@ export default function ButtonCreateDir(props: Props) {
           ? (
             <>
               <i class="icn-plus-lg" />
-              New Space
+              Create space
             </>
           )
           : (

@@ -63,7 +63,7 @@ checkoutSignal.subscribe((event) => {
     loaderSignal.value = "Confirming";
   } else if (event.type === "success") {
     flashNow(
-      `Success: ${quantitySignal.value} GB upload quota has been added to your account.`
+      `${quantitySignal.value} GB upload quota has been added to your account.`
     );
     dialogOpenSignal.value = false;
   }
@@ -325,7 +325,7 @@ function insertDialog() {
     "beforeend",
     `
       <dialog id="buy-traffic-dialog">
-        <h1>Buy Upload Quota</h1>
+        <h1>Buy upload quota</h1>
         <p id="buy-traffic-error" class="alert error" hidden></p>
         <div id="buy-traffic-priduct-summary" hidden>
           <input id="buy-traffic-quantity" type="number" min="1" max="100" value="1" />

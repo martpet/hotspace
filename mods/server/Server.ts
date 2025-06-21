@@ -11,8 +11,9 @@ import type {
   CtxFlashFn,
   CtxJsonFn,
   CtxJsxFn,
-  CtxJsxFragmentFn,
+  CtxJsxPartialFn,
   CtxKvWatchSseFnOptions,
+  CtxRedirectBackFn,
   CtxRedirectFn,
   CtxRespondFn,
   CtxSseFn,
@@ -102,12 +103,12 @@ export class Server {
       locale: req.headers.get(HEADER.AcceptLanguage)?.split(",")[0],
       respond: (...r) => Server.respond(ctx, ...r),
       respondJsx: (...r) => Server.respondJsx(ctx, ...r),
-      respondJsxFragment: (...r) => Server.respondJsxFragment(ctx, ...r),
+      respondJsxPartial: (...r) => Server.respondJsxPartial(ctx, ...r),
       respondJson: (...r) => Server.respondJson(ctx, ...r),
       respondSse: (...r) => Server.respondSse(ctx, ...r),
       respondKvWatchSse: (opt) => Server.respondKvWatchSse(ctx, opt),
       redirect: (...r) => Server.redirect(ctx, ...r),
-      redirectBack: () => Server.redirectBack(ctx),
+      redirectBack: (opt) => Server.redirectBack(ctx, opt),
       setFlash: (...r) => Server.setFlash(ctx, ...r),
       get scpNonce() {
         scpNonce ??= crypto.randomUUID();
@@ -192,9 +193,9 @@ export class Server {
     return ctx.respond(html);
   }
 
-  static respondJsxFragment(
+  static respondJsxPartial(
     ctx: Context,
-    ...rest: Parameters<CtxJsxFragmentFn>
+    ...rest: Parameters<CtxJsxPartialFn>
   ) {
     ctx.resp.skipDoctype = true;
     return ctx.respondJsx(...rest);
@@ -251,9 +252,19 @@ export class Server {
     return ctx.respond(null);
   }
 
-  static redirectBack(ctx: Context) {
-    const path = ctx.req.headers.get(HEADER.Referer) || ctx.url.origin;
-    return ctx.redirect(path);
+  static redirectBack(
+    ctx: Context,
+    ...[opt = {}]: Parameters<CtxRedirectBackFn>
+  ) {
+    let pathname = ctx.req.headers.get(HEADER.Referer) || ctx.url.origin;
+    if (opt.param) {
+      const url = new URL(pathname);
+      for (const [key, val] of Object.entries(opt.param)) {
+        url.searchParams.set(key, val);
+      }
+      pathname = url.href;
+    }
+    return ctx.redirect(pathname);
   }
 
   static serveFileUrl(ctx: Context, fileUrl: string) {

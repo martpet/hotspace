@@ -5,7 +5,6 @@ import type { PushSubscription } from "@negrel/webpush";
 export interface State {
   session?: Session;
   user?: User;
-  from?: string;
   canUseServiceWorker?: boolean;
 }
 

@@ -1,10 +1,14 @@
-import { getPermissions } from "$util";
-import { STATUS_CODE } from "@std/http";
+import type { CtxRespondFn } from "$server";
+import { getPermissions, segmentsToPathname } from "$util";
+import { accepts, STATUS_CODE } from "@std/http";
+import { getInodeLabel } from "../../util/inodes/helpers.ts";
 import { deleteInodesRecursive } from "../../util/inodes/kv_wrappers.ts";
 import type { Inode } from "../../util/inodes/types.ts";
 import { getInodeById, keys as getInodeKey } from "../../util/kv/inodes.ts";
 import { getMany } from "../../util/kv/kv.ts";
 import type { AppContext } from "../../util/types.ts";
+
+export const FROM_DELETE = "delete";
 
 interface ReqData {
   dirId: string;
@@ -13,30 +17,45 @@ interface ReqData {
 
 export default async function deleteHandler(ctx: AppContext) {
   const { user } = ctx.state;
+  const acceptsHtml = accepts(ctx.req).includes("text/html");
 
-  if (!user) {
-    return ctx.respond(null, STATUS_CODE.Unauthorized);
+  function respond(...args: Parameters<CtxRespondFn>) {
+    return acceptsHtml ? ctx.redirectBack() : ctx.respond(...args);
   }
 
-  const reqData = await ctx.req.json();
+  if (!user) {
+    return respond(null, STATUS_CODE.Unauthorized);
+  }
+
+  let reqData;
+
+  if (acceptsHtml) {
+    const formData = await ctx.req.formData();
+    reqData = {
+      dirId: formData.get("dirId"),
+      inodesNames: [formData.get("inodeName")],
+    };
+  } else {
+    reqData = await ctx.req.json();
+  }
 
   if (!isValidReqData(reqData)) {
-    return ctx.respond(null, STATUS_CODE.BadRequest);
+    return respond(null, STATUS_CODE.BadRequest);
   }
 
   const { dirId, inodesNames } = reqData;
-  const dir = (await getInodeById(dirId)).value;
+  const parentDir = (await getInodeById(dirId)).value;
 
-  if (!dir) {
-    return ctx.respond(null, STATUS_CODE.NotFound);
+  if (!parentDir) {
+    return respond(null, STATUS_CODE.NotFound);
   }
 
-  if (dir.type !== "dir") {
-    return ctx.respond(null, STATUS_CODE.BadRequest);
+  if (parentDir.type !== "dir") {
+    return respond(null, STATUS_CODE.BadRequest);
   }
 
   const inodesKeys = inodesNames.map((inodeName) =>
-    getInodeKey.byDir(dir.id, inodeName)
+    getInodeKey.byDir(parentDir.id, inodeName)
   );
 
   const inodes = (await getMany<Inode>(inodesKeys))
@@ -46,6 +65,17 @@ export default async function deleteHandler(ctx: AppContext) {
     });
 
   await deleteInodesRecursive(inodes);
+
+  if (acceptsHtml) {
+    const deletedInode = inodes[0];
+    const inodeLabel = getInodeLabel(deletedInode).toLowerCase();
+    const inodeName = decodeURIComponent(deletedInode.name);
+    let newLocation = segmentsToPathname(parentDir.pathSegments);
+    if (!newLocation.endsWith("/")) newLocation += "/";
+    newLocation += `?from=${FROM_DELETE}`;
+    ctx.setFlash(`Deleted ${inodeLabel} "${inodeName}"`);
+    return ctx.redirect(newLocation);
+  }
 
   return ctx.respond();
 }

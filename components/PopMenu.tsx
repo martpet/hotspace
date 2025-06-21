@@ -1,12 +1,13 @@
-import { cloneElement, type JSX, toChildArray, type VNode } from "preact";
+import { type JSX } from "preact";
 
 interface Props extends JSX.HTMLAttributes<HTMLDivElement> {
-  btnText: string;
+  btnContent: string | JSX.Element;
+  menuId: string;
 }
 
-export default function PopMenu({ btnText, ...rest }: Props) {
+export default function PopMenu(props: Props) {
+  const { btnContent, menuId, ...rest } = props;
   const { children, ...divProps } = rest;
-  const menuId = crypto.randomUUID();
   const classes = ["pop-menu"];
 
   if (divProps.class) {
@@ -16,16 +17,11 @@ export default function PopMenu({ btnText, ...rest }: Props) {
   return (
     <div {...divProps} class={classes.join(" ")}>
       <button popovertarget={menuId}>
-        {btnText}
+        {btnContent}
         <i class="icn-chevron-expand" />
       </button>
       <menu id={menuId} popover>
-        {toChildArray(children).map((child) =>
-          cloneElement(child as VNode, {
-            popovertarget: menuId,
-            popovertargetaction: "hide",
-          })
-        )}
+        {children}
       </menu>
     </div>
   );

@@ -10,7 +10,7 @@ import { asset } from "../../util/url.ts";
 
 export default async function passkeysHandler(ctx: AppContext) {
   const user = ctx.state.user;
-  const title = "Your Account";
+  const title = "Your account";
 
   if (!user) {
     return <LoginPage title={title} />;
@@ -45,7 +45,7 @@ export default async function passkeysHandler(ctx: AppContext) {
           <PasskeysList passkeys={passkeys} />
         </section>
         <section>
-          <h2>Delete Account</h2>
+          <h2>Close account</h2>
           <p>
             Permanently delete your account, files and chat messages.
           </p>

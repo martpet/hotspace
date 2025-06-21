@@ -79,18 +79,19 @@ hr {
 }
 
 button {
+  white-space: nowrap;
   &.spinner::after {
     color: CanvasText;
   }
   [class^="icn-"] {
-    pointer-events: none;
     margin-right: 0.4em;
+    pointer-events: none;
   }
   &.nobtn {
     all: unset;
     cursor: pointer;
     [class^="icn-"] {
-      margin: 0;
+      margin: 0 !important;
     }
   }
 }
@@ -106,7 +107,7 @@ textarea {
 dialog {
   text-align: initial;
   border-width: 3px;
-  border-radius: 1px;
+  border-radius: 2px;
   h1 {
     font-size: 2em;
     margin-top: 0.6rem;
@@ -366,10 +367,6 @@ pre.basic {
       margin: 0;
     }
   }
-  .icn-question-circle {
-    position: relative;
-    top: -1px;
-  }
   .login-or-register {
     display: flex;
     align-items: center;
@@ -429,40 +426,37 @@ pre.basic {
 }
 
 .pop-menu {
-  --top-offset: 4px;
-  @supports not (position-anchor: auto) {
-    position: relative;
-  }
-  > button [class^="icn-"] {
-    margin-right: 0;
-    margin-left: 0.3em;
+  > button {
+    [class^="icn-"]:has(+ .icn-chevron-expand) {
+      margin-right: 0;
+    }
+    .icn-chevron-expand {
+      margin-left: 0.3em;
+      margin-right: 0;
+    }
   }
   menu {
+    position: unset;
+    position-try-fallbacks: flip-inline;
     inset: unset;
+    top: anchor(bottom);
+    left: anchor(left);
+    margin-top: 4px;
+    padding: 0.5rem;
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
-    padding: 0.5rem;
     background: Canvas;
     border: 1px solid var(--border-grey);
     border-radius: 4px;
-    @media (prefers-color-scheme: light) {
-      box-shadow: 1px 1px 1px var(--text-grey-dark);
-    }
-    @media (prefers-color-scheme: dark) {
-      border-width: 2px;
-    }
     &:popover-open {
       display: flex;
     }
-    @supports (position-anchor: auto) {
-      top: calc(anchor(bottom) + var(--top-offset));
-      left: anchor(left);
-      position-try-fallbacks: flip-inline;
+    @media (prefers-color-scheme: light) {
+      box-shadow: 0 1px 1px var(--text-grey-dark);
     }
-    @supports not (position-anchor: auto) {
-      position: absolute;
-      margin-top: var(--top-offset);
+    @media (prefers-color-scheme: dark) {
+      box-shadow: 0 1px 10px #000;
     }
   }
 }
@@ -497,6 +491,7 @@ pre.basic {
   max-width: 40em;
   font-size: 16px;
   line-height: 1.5;
+  text-wrap: pretty;
   ul li {
     margin: 0.15em 0;
   }
@@ -537,12 +532,11 @@ pre.basic {
   text-align: center;
   line-height: inherit;
   .logo {
-    display: block;
-    margin: 0 auto 0.3em;
-    font-size: 6em;
-    height: 1em;
     &::before {
+      height: 1em;
       display: block;
+      margin: 0 auto 0.3em;
+      font-size: 6em;
     }
   }
   .site-name {
@@ -610,21 +604,18 @@ pre.basic {
   Icons
 ===================== */
 
-[class^="icn-"] {
-  font-family: bootstrap-icons;
-  font-style: normal;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  text-decoration: none;
+[class^="icn-"]::before {
   display: inline-block;
   width: 1em;
+  font-family: bootstrap-icons;
+  font-style: normal;
+  font-weight: 400;
+  font-variant: normal;
+  text-transform: none;
   line-height: 1;
+  vertical-align: -0.125em;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  &::before {
-    vertical-align: middle;
-  }
 }
 
 .icn-question-circle::before {
@@ -645,15 +636,15 @@ pre.basic {
 .icn-upload::before {
   content: "\F603";
 }
-.icn-folder-plus::before {
-  content: "\F3D3";
-}
-.icn-chat-right::before {
-  content: "\F25D";
+.icn-chat-fill::before {
+  content: "\F24B";
 }
 .icn-plus-lg::before {
   content: "\F64D";
 }
 .icn-trash::before {
   content: "\F5DE";
+}
+.icn-folder-plus::before {
+  content: "\F3D3";
 }

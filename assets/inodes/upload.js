@@ -215,7 +215,7 @@ function insertDialog() {
     `
       <div popover id="upload-drop-overlay">Drop files here</div>
       <dialog id="upload-dialog">
-        <h1>Upload Files</h1> 
+        <h1>Upload</h1> 
         <p id="upload-dialog-error" class="alert error" hidden></p>
         <form class="basic">
           <input type="file" multiple autofocus required />
@@ -240,7 +240,7 @@ function renderStatusChange() {
   const isRunning = ["started", "completed"].includes(statusSignal.value);
   fileInput.disabled = isRunning;
   btnSubmit.disabled = isRunning;
-  btnSubmit.textContent = isRunning ? "Uploading" : "Start Upload";
+  btnSubmit.textContent = isRunning ? "Uploading" : "Start upload";
   btnSubmit.classList.toggle("spinner", isRunning);
 }
 
@@ -268,7 +268,7 @@ function renderProgress(opt) {
   const progEl = document.getElementById("upload-progress-bar");
   const infoEl = document.getElementById("upload-progress-info");
   progEl.value = perc;
-  infoEl.innerText = pending ? "Preparing…" : `${perc} %`;
+  infoEl.innerText = pending ? "Pending…" : `${perc} %`;
 }
 
 async function renderBuyTrafficButton() {

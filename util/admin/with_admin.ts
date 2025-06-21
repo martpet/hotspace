@@ -3,11 +3,10 @@ import notFoundHandler from "../../handlers/not_found.tsx";
 import { APP_ADMIN } from "../consts.ts";
 import type { AppContext, AppHandler, State } from "../types.ts";
 
-type HandlerWithAdmin = Handler<AdminState>;
-type AdminState = Omit<State, "user"> & Required<Pick<State, "user">>;
-export type AdminContext = Context<AdminState>;
+export type AdminContext = Context<StateWithUser>;
+type StateWithUser = Omit<State, "user"> & Required<Pick<State, "user">>;
 
-export function withAdmin(handler: HandlerWithAdmin): AppHandler {
+export function withAdmin(handler: Handler<StateWithUser>): AppHandler {
   return (ctx) => {
     if (!isAdminContext(ctx)) {
       return notFoundHandler(ctx);

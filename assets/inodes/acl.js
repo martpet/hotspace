@@ -157,7 +157,7 @@ async function submitChanges() {
     return;
   }
   await replaceFragment("inodes");
-  flashNow(`Saved access changes for "${inodeName}"`);
+  flashNow(`Saved access for "${inodeName}"`);
   statusSignal.value = "closed";
 }
 
@@ -223,7 +223,7 @@ function insertDialog() {
     "beforeend",
     `
         <dialog id="acl-dialog">
-          <h1>Edit Access</h1>
+          <h1>Edit access</h1>
           <p class="inode-name">${inodeLabel} "${inodeName}"</p>
           <form id="acl-form" class="basic">
             <p id="acl-error" class="alert error" hidden></p>
@@ -236,12 +236,12 @@ function insertDialog() {
             <fieldset class="permissions">
               <legend>Roles</legend>
               <div id="acl-items"></div>
-              <button id="acl-add-user" type="button"><i class="icn-plus-lg"></i>Add User</button>
+              <button id="acl-add-user" type="button"><i class="icn-plus-lg"></i>Add user</button>
               <p hidden id="acl-loading"><span class="spinner-sm"></span>Loading</p>
             </fieldset>
             <footer>
               <button type="button" id="acl-close">Cancel</button>
-              <button id="acl-submit">Save Changes</button>
+              <button id="acl-submit">Save changes</button>
             </footer>
           </form>
         </dialog>

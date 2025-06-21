@@ -1,35 +1,35 @@
 import { getPermissions, parsePathname, segmentsToPathname } from "$util";
-import ButtonToggleChat from "../../components/chat/ButtonToggleChat.tsx";
 import ChatSection from "../../components/chat/ChatSection.tsx";
-import BulkActions from "../../components/inodes/BulkActions.tsx";
 import ButtonCreateDir from "../../components/inodes/ButtonCreateDir.tsx";
+import ButtonPageSettings from "../../components/inodes/ButtonPageSettings.tsx";
 import ButtonUpload from "../../components/inodes/ButtonUpload.tsx";
 import InodesTable, {
   getInodesPermissions,
 } from "../../components/inodes/InodesTable.tsx";
+import MenuBulkActions from "../../components/inodes/MenuBulkActions.tsx";
 import NotFoundPage from "../../components/pages/NotFoundPage.tsx";
 import Page from "../../components/pages/Page.tsx";
 import { getDirByPath, listInodesByDir } from "../../util/kv/inodes.ts";
 import type { AppContext } from "../../util/types.ts";
 import { asset } from "../../util/url.ts";
+import { FROM_TOGGLE_CHAT } from "../chat/toggle_chat.ts";
+import { FROM_DELETE } from "./delete.ts";
 
-type FragmentId = "inodes" | "chat";
-type From = "delete";
+const PARTIAL_INODES = "inodes";
 
 export default async function showDirHandler(ctx: AppContext) {
   const { user } = ctx.state;
   const path = parsePathname(ctx.url.pathname);
-  const fragmentId = ctx.url.searchParams.get("fragment") as FragmentId | null;
-  const from = ctx.state.from as From | undefined;
+  const partial = ctx.url.searchParams.get("partial");
+  const from = ctx.url.searchParams.get("from");
 
   const { value: dirNode } = await getDirByPath(path.segments, {
-    consistency: fragmentId === "chat" ? "strong" : "eventual",
+    consistency: from === FROM_TOGGLE_CHAT ? "strong" : "eventual",
   });
 
   const perm = getPermissions({ user, resource: dirNode });
-  const { canRead, canCreate, canModerate } = perm;
 
-  if (!dirNode || !canRead) {
+  if (!dirNode || !perm.canRead) {
     return <NotFoundPage />;
   }
 
@@ -41,21 +41,8 @@ export default async function showDirHandler(ctx: AppContext) {
     return ctx.redirect(canonicalPathname);
   }
 
-  const chatSection = (
-    <ChatSection
-      enabled={dirNode.chatEnabled}
-      chatId={dirNode.id}
-      chatTitle={dirNode.name}
-      perm={perm}
-    />
-  );
-
-  if (fragmentId === "chat") {
-    return ctx.respondJsxFragment(chatSection);
-  }
-
   const inodes = await listInodesByDir(dirNode.id, {
-    consistency: fragmentId === "inodes" || from === "delete"
+    consistency: partial === PARTIAL_INODES || from === FROM_DELETE
       ? "strong"
       : "eventual",
   });
@@ -66,34 +53,38 @@ export default async function showDirHandler(ctx: AppContext) {
   const inodesTable = (
     <InodesTable
       inodes={inodes}
-      canCreate={canCreate}
+      canCreate={perm.canCreate}
       inodesPermissions={inodesPermissions}
     />
   );
 
-  if (fragmentId === "inodes") {
-    return ctx.respondJsxFragment(inodesTable);
+  if (partial === PARTIAL_INODES) {
+    return ctx.respondJsxPartial(inodesTable);
   }
 
   const head = (
     <>
       <meta name="robots" content="noindex, nofollow" />
-      {(canChangeAclSome || canCreate) && (
+      {(canChangeAclSome || perm.canCreate) && (
         <script type="module" src={asset("inodes/acl.js")} />
       )}
       <link rel="stylesheet" href={asset("inodes/inodes.css")} />
-      <link rel="stylesheet" href={asset("chat/chat.css")} />
     </>
   );
 
-  const showMenu = canModifySome || canCreate || canModerate;
+  const showMenu = canModifySome || perm.canCreate || perm.canModify ||
+    perm.canModerate;
 
   const inodesMenu = showMenu && (
     <menu class="menu-bar">
-      {(canModifySome || canCreate) && <BulkActions dirId={dirNode.id} />}
-      {canCreate && <ButtonUpload dirId={dirNode.id} />}
-      {canCreate && <ButtonCreateDir parentDirId={dirNode.id} />}
-      {canModerate && <ButtonToggleChat chat={dirNode} />}
+      {(canModifySome || perm.canCreate) && (
+        <MenuBulkActions dirId={dirNode.id} />
+      )}
+      {perm.canCreate && <ButtonUpload dirId={dirNode.id} />}
+      {perm.canCreate && <ButtonCreateDir parentDirId={dirNode.id} />}
+      {(perm.canModify || perm.canModerate) && (
+        <ButtonPageSettings inode={dirNode} perm={perm} />
+      )}
     </menu>
   );
 
@@ -111,7 +102,12 @@ export default async function showDirHandler(ctx: AppContext) {
       <div id="inodes-container">
         {inodesTable}
       </div>
-      {chatSection}
+      <ChatSection
+        enabled={dirNode.chatEnabled}
+        chatId={dirNode.id}
+        chatTitle={dirNode.name}
+        perm={perm}
+      />
     </Page>
   );
 }

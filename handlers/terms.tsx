@@ -8,7 +8,7 @@ import type { AppContext } from "../util/types.ts";
 
 export default async function termsHandler(ctx: AppContext) {
   const pricePerGb = PRICE_PER_GB_CENTS / 100;
-  const title = "Terms of Service";
+  const title = "Terms of service";
   const { value: settings } = await getSettings("eventual");
   const initialUploaQuota = settings?.initialUploadQuota || 0;
   const freeUploadQuota = format(initialUploaQuota);
@@ -28,7 +28,7 @@ export default async function termsHandler(ctx: AppContext) {
           terms. Please read them carefully.
         </p>
 
-        <h2>About the Service</h2>
+        <h2>About the service</h2>
 
         <p>
           HotSpace is a file-storage platform that allows registered users to
@@ -72,7 +72,7 @@ export default async function termsHandler(ctx: AppContext) {
           system-related issues.
         </p>
 
-        <h2>Account Deletion</h2>
+        <h2>Account deletion</h2>
 
         <p>
           You may delete your account at any time. When your account is deleted,
@@ -80,7 +80,7 @@ export default async function termsHandler(ctx: AppContext) {
           and no further charges will occur.
         </p>
 
-        <h2>Prohibited Use</h2>
+        <h2>Prohibited use</h2>
 
         <p>You may not use HotSpace to upload or distribute:</p>
 

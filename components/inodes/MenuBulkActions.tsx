@@ -16,7 +16,8 @@ export default function TableActions(props: Props) {
       <script type="module" src={asset("inodes/bulk_actions.js")} />
 
       <PopMenu
-        btnText="Actions"
+        btnContent="Manage items"
+        menuId="bulk-actions-menu"
         id="bulk-actions"
         data-dir-id={dirId}
         data-is-single-select={isSingleSelect ? "1" : null}
@@ -24,7 +25,7 @@ export default function TableActions(props: Props) {
         hidden
       >
         <button id="bulk-delete-button">
-          Delete {isSingleSelect ? inodeLabel : "Selected"}
+          <i class="icn-trash" />Delete selected
         </button>
       </PopMenu>
     </>

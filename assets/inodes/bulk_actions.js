@@ -120,7 +120,7 @@ async function submitData() {
 
 function createFlashMsg() {
   if (isSingleSelect) {
-    return `Deleted ${inodeLabel.toLocaleLowerCase()} "${selection[0].name}"`;
+    return `Deleted ${inodeLabel.toLowerCase()} "${selection[0].name}"`;
   }
   if (selection.length === 1) {
     const { isDir, decodedName } = selection[0];
@@ -186,7 +186,7 @@ function insertDialog() {
     "beforeend",
     `
         <dialog id="bulk-delete-dialog">
-          <h1>Delete ${isSingleSelect ? inodeLabel : "Selected"}</h1>
+          <h1>Delete ${isSingleSelect ? inodeLabel.toLowerCase() : "items"}</h1>
           <form class="basic">
             <p class="alert warning">
               <span id="bulk-delete-intro"></span><br />
@@ -201,7 +201,7 @@ function insertDialog() {
             </label>
             <footer>
               <button type="button" id="bulk-delete-close">Cancel</button>
-              <button id="bulk-delete-submit">Permanently Delete</button>
+              <button id="bulk-delete-submit">Permanently delete</button>
             </footer>
           </form>
         </dialog>

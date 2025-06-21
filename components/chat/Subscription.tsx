@@ -24,7 +24,7 @@ export default function Subscription(_props: unknown, ctx: AppContext) {
       <div id="chat-sub">
         <label>
           <input id="chat-sub-checkbox" type="checkbox" disabled />
-          Chat Notifications
+          Chat notifications
         </label>
 
         <Tooltip id="chat-sub-help" info={help}>

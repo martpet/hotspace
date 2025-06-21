@@ -1054,7 +1054,7 @@ function insertMessageDialogs() {
     "beforeend",
     `
       <dialog id="edit-chat-msg-dialog" class="chat-msg-dialog">
-        <h1>Edit Message</h1>
+        <h1>Edit message</h1>
         <form class="basic">
           ${msgPreview({ editMode: true })}
           <footer>
@@ -1065,7 +1065,7 @@ function insertMessageDialogs() {
       </dialog>
       
       <dialog id="clean-up-inode-msg-dialog" class="chat-msg-dialog">
-        <h1>Delete Message</h1>
+        <h1>Delete message</h1>
         <p class="alert warning">Are you sure you want to delete this message?</p>
         ${msgPreview()}
         <form method="dialog" class="basic">

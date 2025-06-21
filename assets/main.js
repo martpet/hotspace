@@ -13,6 +13,18 @@ export const {
 export const GENERAL_ERR_MSG = "Oops, something went wrong, try again!";
 export const SESSION_EXPIRED_ERR_MSG = "Your session has expired!";
 
+const locationUrl = new URL(location);
+const urlParamFrom = locationUrl.searchParams.get("from");
+
+// =====================
+// Remove 'from' url param
+// =====================
+
+if (urlParamFrom) {
+  locationUrl.searchParams.delete("from");
+  history.replaceState(null, "", locationUrl);
+}
+
 // =====================
 // Window Events
 // =====================
@@ -22,8 +34,19 @@ addEventListener("beforeunload", () => {
 });
 
 addEventListener("click", ({ target }) => {
-  const { click } = target.dataset;
-  if (click) document.getElementById(click).click();
+  const dataset = target.dataset;
+  const commandfor = target.getAttribute("commandfor");
+
+  if (dataset.click) {
+    document.getElementById(dataset.click).click();
+  }
+
+  // https://caniuse.com/mdn-html_elements_button_commandfor
+  if (commandfor && typeof target.commandForElement === "undefined") {
+    const command = target.getAttribute("command");
+    if (command === "show-modal")
+      document.getElementById(commandfor).showModal();
+  }
 });
 
 // =====================
@@ -42,7 +65,7 @@ if (!isServiceWorker && canUseServiceWorker) {
 }
 
 // =====================
-// Fetch Patch
+// Patch Fetch
 // =====================
 
 if (!isServiceWorker) {
@@ -253,13 +276,14 @@ async function postSubscriber({ subscriber, pushSub = null }) {
 function isSubscriberChanged(subscriber, pushSub) {
   return (
     (subscriber.pushSub?.endpoint || null) !== (pushSub?.endpoint || null) ||
-    userUsername !== !subscriber.username
+    userUsername !== subscriber.username
   );
 }
 
 // =====================
 // Utils
 // =====================
+
 export function encodeBase64(data) {
   return btoa(String.fromCharCode(...new Uint8Array(data)));
 }
@@ -276,9 +300,8 @@ export function collapseLineBreaks(text, maxBreaks) {
 }
 
 export async function replaceFragment(id) {
-  const url = new URL(location.href);
-  url.searchParams.set("fragment", id);
-  const html = await fetch(url).then((resp) => resp.text());
+  locationUrl.searchParams.set("partial", id);
+  const html = await fetch(locationUrl).then((resp) => resp.text());
   document.getElementById(id).outerHTML = html;
 }
 
@@ -329,10 +352,6 @@ export function flashNow(flash) {
   }
 }
 
-export function setFromCookie(str) {
-  document.cookie = `from=${str};path=/`;
-}
-
 export function createSignal(initialValue, options = {}) {
   let value = initialValue;
   let prevValue = undefined;
@@ -349,11 +368,10 @@ export function createSignal(initialValue, options = {}) {
         }
       });
     };
-
     if (asyncNotify) {
-      setTimeout(notifyListeners); // Defer notifications
+      setTimeout(notifyListeners);
     } else {
-      notifyListeners(); // Notify immediately
+      notifyListeners();
     }
   };
 

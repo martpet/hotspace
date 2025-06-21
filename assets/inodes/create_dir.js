@@ -16,6 +16,7 @@ let errorEl;
 const btnShowDialog = document.getElementById("show-create-dir");
 const { parentDirId, isSpace } = btnShowDialog.dataset;
 const showPreview = isSpace;
+const inodeLabel = isSpace ? "space" : "folder";
 
 btnShowDialog.disabled = false;
 
@@ -92,7 +93,7 @@ async function submitData() {
   if (resp.ok) {
     await replaceFragment("inodes");
     statusSignal.value = "closed";
-    flashNow(`Created ${isSpace ? "space" : "folder"} "${dirName}"`);
+    flashNow(`Created ${inodeLabel} "${dirName}"`);
   } else {
     errorSignal.value = (await resp.text()) || GENERAL_ERR_MSG;
     statusSignal.value = "idle";
@@ -109,7 +110,7 @@ function insertDialog() {
     "beforeend",
     `
       <dialog id="create-dir-dialog">
-        <h1>New ${isSpace ? "Space" : "Folder"}</h1>
+        <h1>Create ${inodeLabel}</h1>
         <p id="create-dir-error" class="alert error" hidden></p>
         <form class="basic">
           <label>

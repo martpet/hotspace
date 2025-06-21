@@ -13,7 +13,7 @@ export default function registerHandler(ctx: AppContext) {
   }
 
   const head = <script type="module" src={asset("reg.js")} />;
-  const title = "Create an Account";
+  const title = "Create an account";
 
   ctx.resp.headers.set(
     HEADER.CacheControl,

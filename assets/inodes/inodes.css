@@ -21,9 +21,16 @@
     }
   }
   #file-preview-canvas ~ & {
-    h1 {
+    > h1 {
       font-size: 1.4rem;
     }
+  }
+}
+
+/* until "position-try-fallbacks" on popover works */
+#inode-settings-menu {
+  html:not([data-browser-name="Chrome"]) & {
+    margin-left: -23px;
   }
 }
 
@@ -33,7 +40,7 @@
   }
 }
 
-#delete-inode-dialog {
+#delete-inode-dilaog {
   max-width: 32em;
   .text-undone {
     white-space: nowrap;
@@ -42,7 +49,7 @@
 
 #download-inode {
   a {
-    margin: 0 0.4em 0 0.5em;
+    margin: 0 0.5em 0 0.55em;
   }
 }
 
@@ -155,7 +162,7 @@
   }
   .inode::before {
     font-size: 1.2em;
-    margin-right: 0.3em;
+    margin-right: 0.5em;
   }
   .inode::after {
     content: "↗";

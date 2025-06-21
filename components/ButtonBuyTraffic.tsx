@@ -19,7 +19,7 @@ export default function ButtonBuyTraffic(props: Props) {
         data-stripe-pub-key={STRIPE_PUB_KEY}
         data-price-per-gb={PRICE_PER_GB_CENTS}
       >
-        Buy More Upload Quota ($1 per GB)
+        Buy upload quota ($1 per GB)
       </button>
     </>
   );

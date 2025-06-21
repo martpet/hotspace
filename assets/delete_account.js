@@ -100,7 +100,7 @@ function insertDialog() {
     "beforeend",
     `
       <dialog id="delete-acount-dialog">
-        <h1>Delete Your Account</h1>
+        <h1>Delete account</h1>
         <p id="delete-account-loader" class="spinner-lg spinner-col" hidden></p>
         <p id="delete-account-error" class="alert error" hidden></p>
         <form class="basic">
@@ -114,7 +114,7 @@ function insertDialog() {
           </label>
           <footer>
             <button id="delete-acount-cancel" type="button">Cancel</button>
-            <button id="delete-acount-submit">Permanently Delete Account</button>
+            <button id="delete-acount-submit">Permanently delete account</button>
           </footer>
         </form>
       </dialog>

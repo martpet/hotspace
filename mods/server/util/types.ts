@@ -15,14 +15,14 @@ export type ResponseOptions = Omit<ResponseInit, "headers"> & {
 };
 
 export type CtxJsxFn = (arg: VNode) => Response;
-export type CtxJsxFragmentFn = (arg: VNode) => Response;
+export type CtxJsxPartialFn = (arg: VNode) => Response;
 export type CtxJsonFn = (arg: unknown, status?: number | null) => Response;
 export type CtxSseFn = (arg: CtxSseFnOptions) => Response;
 export type CtxKvWatchSseFn = <T extends unknown[]>(
   arg: CtxKvWatchSseFnOptions<T>,
 ) => Response;
 export type CtxRedirectFn = (path: string, status?: RedirectStatus) => Response;
-export type CtxRedirectBackFn = () => Response;
+export type CtxRedirectBackFn = (opt?: CtxRedirectBackFnOptions) => Response;
 export type CtxFlashFn = (arg: string | Flash) => void;
 
 export type CtxRespondFn = (
@@ -34,6 +34,10 @@ export type CtxRespondFn = (
 interface CtxSseFnOptions {
   onStart: (arg: CtxSseOnStartOptions) => void;
   onCancel?: () => void;
+}
+
+interface CtxRedirectBackFnOptions {
+  param?: Record<string, string>;
 }
 
 interface CtxSseOnStartOptions {
@@ -73,7 +77,7 @@ export interface Context<S = State> {
   handler: Handler;
   respond: CtxRespondFn;
   respondJsx: CtxJsxFn;
-  respondJsxFragment: CtxJsxFragmentFn;
+  respondJsxPartial: CtxJsxPartialFn;
   respondJson: CtxJsonFn;
   respondSse: CtxSseFn;
   respondKvWatchSse: CtxKvWatchSseFn;

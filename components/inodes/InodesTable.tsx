@@ -78,8 +78,7 @@ export default function InodesTable(props: Props, ctx: AppContext) {
           blankSlate || (
             <BlankSlate
               title={`Empty ${isSpaceRoot ? "space" : "folder"}`}
-              subTitle={`Upload files or create
-              ${isSpaceRoot ? "" : "sub"} folders.`}
+              subTitle="Upload files or create folders."
             />
           )
         )}

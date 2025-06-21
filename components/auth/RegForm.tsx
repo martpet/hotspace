@@ -27,7 +27,7 @@ export default function RegForm(_props: unknown, ctx: AppContext) {
           </>
         )}
         <button id="reg-form-submit" class="wait-disabled" disabled>
-          {!user ? "Create Account" : "Add Passkey"}
+          {!user ? "Create account" : "Add passkey"}
         </button>
 
         <p id="reg-form-error" class="alert error" hidden></p>
